@@ -77,13 +77,13 @@ commands:
       - run:
           name: Build lambda
           command: |
-            cd ./BaseApi/
+            cd ./RepairsApi/
             chmod +x ./build.sh
             ./build.sh
       - run:
           name: Deploy lambda
           command: |
-            cd ./BaseApi/
+            cd ./RepairsApi/
             sls deploy --stage <<parameters.stage>> --conceal
 
 jobs:
@@ -104,10 +104,10 @@ jobs:
       - setup_remote_docker
       - run:
           name: build
-          command: docker-compose build base-api-test
+          command: docker-compose build repairs-api-test
       - run:
           name: Run tests
-          command: docker-compose run base-api-test
+          command: docker-compose run repairs-api-test
   assume-role-development:
     executor: docker-python
     steps:
@@ -165,19 +165,19 @@ workflows:
             - build-and-test
           filters:
             branches:
-              only: development
+              only: develop
       - terraform-init-and-apply-to-development:
           requires:
             - assume-role-development
           filters:
             branches:
-              only: development
+              only: develop
       - deploy-to-development:
           requires:
             - assume-role-development
           filters:
             branches:
-              only: development
+              only: develop
 #   check-and-deploy-staging-and-production:
 #       jobs:
 #       - build-and-test:

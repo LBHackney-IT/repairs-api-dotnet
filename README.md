@@ -23,7 +23,7 @@ Base API is a boilerplate code for being reused for new APIs for LBH
 
 ### Renaming
 
-The renaming of `base-api` into `SomethingElseApi` can be done by running a Renamer powershell script. To do so:
+The renaming of `repairs-api` into `SomethingElseApi` can be done by running a Renamer powershell script. To do so:
 1. Open the powershell and navigate to this directory's root.
 2. Run the script using the following command:
 ```
