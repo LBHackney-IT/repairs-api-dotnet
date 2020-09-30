@@ -1,0 +1,43 @@
+version: "3.2"
+
+services:
+  base-api:
+    image: base-api
+    build:
+      context: BaseApi/
+      dockerfile: ./Dockerfile
+    ports:
+      - 3000:3000
+    environment:
+      - CONNECTION_STRING=Host=dev-database;Port=5432;Database=testdb;Username=postgres;Password=mypassword
+    links:
+      - dev-database
+  dev-database:
+    env_file:
+      - database.env
+    image: postgres:12
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
+
+  base-api-test:
+    image: base-api-test
+    build:
+      context: .
+      dockerfile: BaseApi.Tests/Dockerfile
+    environment:
+      - DB_HOST=test-database
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=mypassword
+      - DB_DATABASE=testdb
+    links:
+      - test-database
+  test-database:
+    image: test-database
+    build:
+      context: .
+      dockerfile: database/Dockerfile
+    ports:
+      - 5432:5432
+    env_file:
+      - database.env
