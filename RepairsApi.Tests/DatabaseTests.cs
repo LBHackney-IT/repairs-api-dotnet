@@ -9,17 +9,17 @@ namespace RepairsApi.Tests
     public class DatabaseTests
     {
         private IDbContextTransaction _transaction;
-        protected DatabaseContext DatabaseContext { get; private set; }
+        protected RepairsContext RepairsContext { get; private set; }
 
         [SetUp]
         public void RunBeforeAnyTests()
         {
             var builder = new DbContextOptionsBuilder();
             builder.UseNpgsql(ConnectionString.TestDatabase());
-            DatabaseContext = new DatabaseContext(builder.Options);
+            RepairsContext = new RepairsContext(builder.Options);
 
-            DatabaseContext.Database.EnsureCreated();
-            _transaction = DatabaseContext.Database.BeginTransaction();
+            RepairsContext.Database.EnsureCreated();
+            _transaction = RepairsContext.Database.BeginTransaction();
         }
 
         [TearDown]
