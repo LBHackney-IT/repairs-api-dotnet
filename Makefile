@@ -22,7 +22,7 @@ lint:
 
 .PHONY: start-db
 start-db:
-	docker-compose up test-database
+	docker-compose up test-database &
 
 .PHONY: stop-db
 stop-db:
@@ -37,7 +37,7 @@ restart-db: | stop-db start-db
 update-db: start-db
 	-dotnet tool install -g dotnet-ef
 	CONNECTION_STRING="Host=127.0.0.1;Port=5432;Username=postgres;Password=mypassword;Database=testdb" \
-	dotnet ef database update -p RepairsApi -o Infrastructure/Migrations -c RepairsApi.V1.Infrastructure.RepairsContext
+	dotnet ef database update -p RepairsApi -c RepairsApi.V1.Infrastructure.RepairsContext
 
 .PHONY: test
 test: restart-db
