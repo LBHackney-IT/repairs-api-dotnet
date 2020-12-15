@@ -1,8 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RepairsApi.V1.Boundary.Response;
+using RepairsApi.V1.Domain;
+using RepairsApi.V1.Factories;
+using RepairsApi.V1.UseCase;
+using RepairsApi.V1.UseCase.Interfaces;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 
 namespace RepairsApi.V1.Controllers
 {
@@ -11,7 +16,20 @@ namespace RepairsApi.V1.Controllers
     [Produces("application/json")]
     [ApiVersion("1.0")]
     public class PropertiesController : BaseController
-    { 
+    {
+        private readonly IListAlertsUseCase _listAlertsUseCase;
+        private readonly IGetPropertyUseCase _getPropertyUseCase;
+        private readonly IListPropertiesUseCase _listPropertiesUseCase;
+
+        public PropertiesController(
+            IListAlertsUseCase listAlertsUseCase,
+            IGetPropertyUseCase getPropertyUseCase,
+            IListPropertiesUseCase listPropertiesUseCase)
+        {
+            _listAlertsUseCase = listAlertsUseCase;
+            _getPropertyUseCase = getPropertyUseCase;
+            _listPropertiesUseCase = listPropertiesUseCase;
+        }
         /// <summary>
         /// Retrieves all matching properties given the query params
         /// </summary>
@@ -19,22 +37,19 @@ namespace RepairsApi.V1.Controllers
         /// <param name="postcode">A postcode</param>
         /// <param name="q">A postcode or partial or full address</param>
         /// <response code="200">Properties found</response>
-        /// <response code="401">Invalid auth token</response>
         [HttpGet]
-        public virtual IActionResult ListProperties([FromQuery]string address, [FromQuery]string postcode, [FromQuery]string q)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(List<InlineResponse2002>));
+        public async Task<IActionResult> ListProperties([FromQuery]string address, [FromQuery]string postcode, [FromQuery]string q)
+        {
+            PropertySearchModel searchModel = new PropertySearchModel
+            {
+                Address = address,
+                PostCode = postcode,
+                Query = q
+            };
 
-            //TODO: Uncomment the next line to return response 401 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(401, default(InlineResponse401));
-            string exampleJson = null;
-            exampleJson = "[ {\n  \"address\" : {\n    \"shortAddress\" : \"shortAddress\",\n    \"postalCode\" : \"postalCode\",\n    \"streetSuffix\" : \"streetSuffix\",\n    \"addressLine\" : \"addressLine\"\n  },\n  \"hierarchyType\" : {\n    \"levelCode\" : \"levelCode\",\n    \"subTypeCode\" : \"subTypeCode\",\n    \"subTypeDescription\" : \"subTypeDescription\"\n  },\n  \"propertyReference\" : \"propertyReference\"\n}, {\n  \"address\" : {\n    \"shortAddress\" : \"shortAddress\",\n    \"postalCode\" : \"postalCode\",\n    \"streetSuffix\" : \"streetSuffix\",\n    \"addressLine\" : \"addressLine\"\n  },\n  \"hierarchyType\" : {\n    \"levelCode\" : \"levelCode\",\n    \"subTypeCode\" : \"subTypeCode\",\n    \"subTypeDescription\" : \"subTypeDescription\"\n  },\n  \"propertyReference\" : \"propertyReference\"\n} ]";
-            
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<List<PropertyViewModel>>(exampleJson)
-                        : default(List<PropertyViewModel>);            //TODO: Change the data returned
-            return new ObjectResult(example);
+            IEnumerable<PropertyModel> properties = await _listPropertiesUseCase.ExecuteAsync(searchModel).ConfigureAwait(false);
+
+            return Ok(properties.ToResponse());
         }
 
         /// <summary>
@@ -42,27 +57,18 @@ namespace RepairsApi.V1.Controllers
         /// </summary>
         /// <param name="propertyReference">The property reference</param>
         /// <response code="200">Property found</response>
-        /// <response code="401">Invalid auth token</response>
         /// <response code="404">Property not found</response>
         [HttpGet]
         [Route("{propertyReference}")]
-        public virtual IActionResult GetProperty([FromRoute][Required]string propertyReference)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(InlineResponse2001));
+        public async Task<IActionResult> GetProperty([FromRoute][Required]string propertyReference)
+        {
+            PropertyWithAlerts property = await _getPropertyUseCase.ExecuteAsync(propertyReference).ConfigureAwait(false);
+            if (property is null)
+            {
+                return NotFound();
+            }
 
-            //TODO: Uncomment the next line to return response 401 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(401, default(InlineResponse401));
-
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(InlineResponse404));
-            string exampleJson = null;
-            exampleJson = "{\n  \"property\" : {\n    \"address\" : {\n      \"shortAddress\" : \"shortAddress\",\n      \"postalCode\" : \"postalCode\",\n      \"streetSuffix\" : \"streetSuffix\",\n      \"addressLine\" : \"addressLine\"\n    },\n    \"hierarchyType\" : {\n      \"levelCode\" : \"levelCode\",\n      \"subTypeCode\" : \"subTypeCode\",\n      \"subTypeDescription\" : \"subTypeDescription\"\n    },\n    \"propertyReference\" : \"propertyReference\"\n  },\n  \"cautionaryAlerts\" : [ {\n    \"alertCode\" : \"alertCode\",\n    \"endDate\" : \"endDate\",\n    \"description\" : \"description\",\n    \"startDate\" : \"startDate\"\n  }, {\n    \"alertCode\" : \"alertCode\",\n    \"endDate\" : \"endDate\",\n    \"description\" : \"description\",\n    \"startDate\" : \"startDate\"\n  } ]\n}";
-            
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<PropertyResponse>(exampleJson)
-                        : default(PropertyResponse);            //TODO: Change the data returned
-            return new ObjectResult(example);
+            return Ok(property.ToResponse());
         }
 
         /// <summary>
@@ -70,27 +76,13 @@ namespace RepairsApi.V1.Controllers
         /// </summary>
         /// <param name="propertyReference">The property reference</param>
         /// <response code="200">Gets all cautionary alerts for a property</response>
-        /// <response code="401">Invalid auth token</response>
-        /// <response code="404">Property not found</response>
         [HttpGet]
         [Route("{propertyReference}/alerts")]
-        public virtual IActionResult ListCautionaryAlerts([FromRoute][Required] string propertyReference)
+        public async Task<IActionResult> ListCautionaryAlerts([FromRoute][Required] string propertyReference)
         {
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(InlineResponse200));
+            PropertyAlertList alerts = await _listAlertsUseCase.ExecuteAsync(propertyReference).ConfigureAwait(false);
 
-            //TODO: Uncomment the next line to return response 401 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(401, default(InlineResponse401));
-
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(InlineResponse404));
-            string exampleJson = null;
-            exampleJson = "{\n  \"alerts\" : [ {\n    \"alertCode\" : \"alertCode\",\n    \"endDate\" : \"endDate\",\n    \"description\" : \"description\",\n    \"startDate\" : \"startDate\"\n  }, {\n    \"alertCode\" : \"alertCode\",\n    \"endDate\" : \"endDate\",\n    \"description\" : \"description\",\n    \"startDate\" : \"startDate\"\n  } ],\n  \"propertyReference\" : \"propertyReference\"\n}";
-
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<CautionaryAlertResponseList>(exampleJson)
-            : default(CautionaryAlertResponseList);            //TODO: Change the data returned
-            return new ObjectResult(example);
+            return Ok(alerts.ToResponse());
         }
     }
 }
