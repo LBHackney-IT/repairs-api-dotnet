@@ -12,7 +12,9 @@ namespace RepairsApi.V1.Infrastructure
         [Column("custom_code")] public string CustomCode { get; set; }
 
         [Column("custom_name")] public string CustomName { get; set; }
+        public Quantity Quantity { get; set; }
 
-        [Column("quantity")] public Quantity Quantity { get; set; }
+        [Column("work_element_id")] public Guid WorkElementId { get; set; }
+        public WorkElement WorkElement { get; set; }
     }
 }
