@@ -73,7 +73,7 @@ namespace RepairsApi.V1.Controllers
         /// <response code="401">Invalid auth token</response>
         /// <response code="404">Property not found</response>
         [HttpGet]
-        [Route("{propertyReference}/cautionary-alerts")]
+        [Route("{propertyReference}/alerts")]
         public virtual IActionResult ListCautionaryAlerts([FromRoute][Required] string propertyReference)
         {
             //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
