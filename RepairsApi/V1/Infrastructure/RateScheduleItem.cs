@@ -13,8 +13,6 @@ namespace RepairsApi.V1.Infrastructure
 
         [Column("custom_name")] public string CustomName { get; set; }
 
-        [Column("quantity")] public int Quantity { get; set; }
-
-        [Column("unit_of_measurement")] public string Unit { get; set; }
+        [Column("quantity")] public Quantity Quantity { get; set; }
     }
 }
