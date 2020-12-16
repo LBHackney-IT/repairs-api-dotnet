@@ -11,6 +11,8 @@ namespace RepairsApi.V1.Infrastructure
 
         public DbSet<RateScheduleItem> RateScheduleItems { get; set; }
         public DbSet<WorkElement> WorkElements { get; set; }
+        public DbSet<WorkPriority> WorkPriorities { get; set; }
+        public DbSet<WorkPriorityCode> WorkPriorityCodes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -23,6 +25,8 @@ namespace RepairsApi.V1.Infrastructure
                     nav.Property(quantity => quantity.UnitOfMeasurementCode)
                         .HasColumnName("unit_of_measurement_code");
                 });
+
+            modelBuilder.Seed();
         }
     }
 }
