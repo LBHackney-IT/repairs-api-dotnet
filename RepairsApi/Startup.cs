@@ -19,6 +19,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using RepairsApi.V1.Gateways;
 using RepairsApi.V1.UseCase.Interfaces;
 using RepairsApi.V1.UseCase;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace RepairsApi
 {
@@ -113,7 +114,7 @@ namespace RepairsApi
             services.AddTransient<IListPropertiesUseCase, ListPropertiesUseCase>();
             services.AddTransient<IGetPropertyUseCase, GetPropertyUseCase>();
 
-            services.AddTransient<IApiGateway, ApiGateway>();
+            //services.AddTransient<IApiGateway, ApiGateway>();
             services.AddTransient<IPropertyGateway, PropertyGateway>();
             services.AddTransient<IAlertsGateway, AlertsGateway>();
         }

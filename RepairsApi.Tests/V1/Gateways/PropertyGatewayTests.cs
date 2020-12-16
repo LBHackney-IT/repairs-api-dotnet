@@ -1,16 +1,15 @@
-using Bogus;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
-using RepairsApi.V1.Factories;
 using RepairsApi.V1.Gateways;
 using RepairsApi.V1.Gateways.Models;
 using RepairsApi.V1.UseCase;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+
+using static RepairsApi.Tests.V1.DataFakers;
 
 namespace RepairsApi.Tests.V1.Gateways
 {
@@ -61,16 +60,6 @@ namespace RepairsApi.Tests.V1.Gateways
 
             // Assert
             result.Should().HaveCount(stubData.Count);
-        }
-
-        private static Faker<PropertyApiResponse> StubPropertyApiResponse()
-        {
-            return new Faker<PropertyApiResponse>()
-                .RuleFor(res => res.Address1, f => f.Random.String())
-                .RuleFor(res => res.PostCode, f => f.Random.String())
-                .RuleFor(res => res.LevelCode, f => f.Random.String())
-                .RuleFor(res => res.PropRef, f => f.Random.Int().ToString())
-                .RuleFor(res => res.SubtypCode, f => f.PickRandom<string>(ApiModelFactory.HierarchyDescriptions.Keys));
         }
     }
 }

@@ -22,7 +22,7 @@ lint:
 
 .PHONY: start-db
 start-db:
-	docker-compose up test-database &
+	docker-compose up -d test-database &
 
 .PHONY: stop-db
 stop-db:

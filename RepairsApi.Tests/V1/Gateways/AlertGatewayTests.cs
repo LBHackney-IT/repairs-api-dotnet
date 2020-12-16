@@ -9,6 +9,8 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
+using static RepairsApi.Tests.V1.DataFakers;
+
 namespace RepairsApi.Tests.V1.Gateways
 {
     public class AlertGatewayTests
@@ -44,19 +46,6 @@ namespace RepairsApi.Tests.V1.Gateways
             // Assert
             result.PropertyReference.Should().Be(stubData.PropertyReference);
             result.Alerts.Should().HaveCount(stubData.Alerts.Count);
-        }
-
-        private static Faker<AlertsApiResponse> StubAlertApiResponse(int alertCount)
-        {
-            Faker<AlertApiAlertViewModel> alertsFake = new Faker<AlertApiAlertViewModel>()
-                .RuleFor(pa => pa.AlertCode, f => f.Random.String())
-                .RuleFor(pa => pa.Description, f => f.Random.String())
-                .RuleFor(pa => pa.StartDate, f => f.Random.String())
-                .RuleFor(pa => pa.EndDate, f => f.Random.String());
-
-            return new Faker<AlertsApiResponse>()
-                .RuleFor(res => res.PropertyReference, f => f.Random.Int().ToString())
-                .RuleFor(res => res.Alerts, alertsFake.Generate(alertCount));
         }
     }
 }

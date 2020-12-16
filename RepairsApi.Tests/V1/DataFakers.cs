@@ -1,5 +1,7 @@
 using Bogus;
 using RepairsApi.V1.Domain;
+using RepairsApi.V1.Factories;
+using RepairsApi.V1.Gateways.Models;
 
 namespace RepairsApi.Tests.V1
 {
@@ -50,6 +52,29 @@ namespace RepairsApi.Tests.V1
                 PropertyReference = expectedPropertyReference,
                 Alerts = StubAlerts().Generate(alertCount)
             };
+        }
+
+        public static Faker<AlertsApiResponse> StubAlertApiResponse(int? alertCount = null)
+        {
+            Faker<AlertApiAlertViewModel> alertsFake = new Faker<AlertApiAlertViewModel>()
+                .RuleFor(pa => pa.AlertCode, f => f.Random.String())
+                .RuleFor(pa => pa.Description, f => f.Random.String())
+                .RuleFor(pa => pa.StartDate, f => f.Random.String())
+                .RuleFor(pa => pa.EndDate, f => f.Random.String());
+
+            return new Faker<AlertsApiResponse>()
+                .RuleFor(res => res.PropertyReference, f => f.Random.Int().ToString())
+                .RuleFor(res => res.Alerts, f => alertsFake.Generate(alertCount ?? f.Random.Int(0, 20)));
+        }
+
+        public static Faker<PropertyApiResponse> StubPropertyApiResponse()
+        {
+            return new Faker<PropertyApiResponse>()
+                .RuleFor(res => res.Address1, f => f.Random.String())
+                .RuleFor(res => res.PostCode, f => f.Random.String())
+                .RuleFor(res => res.LevelCode, f => f.Random.String())
+                .RuleFor(res => res.PropRef, f => f.Random.Int().ToString())
+                .RuleFor(res => res.SubtypCode, f => f.PickRandom<string>(ApiModelFactory.HierarchyDescriptions.Keys));
         }
     }
 }
