@@ -8,16 +8,6 @@ namespace RepairsApi.V1.Factories
 {
     public static class ResponseFactory
     {
-        public static ResponseObject ToResponse(this Entity domain)
-        {
-            return new ResponseObject();
-        }
-
-        public static List<ResponseObject> ToResponse(this IEnumerable<Entity> domainList)
-        {
-            return domainList.Select(domain => domain.ToResponse()).ToList();
-        }
-
         public static CautionaryAlertResponseList ToResponse(this PropertyAlertList domain)
         {
             return new CautionaryAlertResponseList()

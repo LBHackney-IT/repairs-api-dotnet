@@ -26,17 +26,16 @@ namespace RepairsApi.Tests.V1.UseCase
         public async Task ReturnsProperty()
         {
             // Arrange
-            var expectedProperty = new PropertyWithAlerts()
-            {
-                PropertyModel = StubProperties().Generate(),
-                Alerts = StubAlerts().Generate(5)
-            };
-            _gatewayMock.Setup(gm => gm.GetByReferenceAsync(It.IsAny<string>(), It.IsAny<bool>())).ReturnsAsync(expectedProperty);
+            var expectedProperty = StubProperties().Generate();
+            var expectedAlerts = StubAlertList(expectedProperty.PropertyReference, 5);
+            _gatewayMock.Setup(gm => gm.GetByReferenceAsync(It.IsAny<string>())).ReturnsAsync(expectedProperty);
+            _gatewayMock.Setup(gm => gm.GetAlertsAsync(It.IsAny<string>())).ReturnsAsync(expectedAlerts);
 
             // Act
-            var result = await _classUnderTest.ExecuteAsync(expectedProperty.PropertyModel.PropertyReference).ConfigureAwait(false);
+            var result = await _classUnderTest.ExecuteAsync(expectedProperty.PropertyReference).ConfigureAwait(false);
 
-            Assert.AreEqual(expectedProperty, result);
+            Assert.AreEqual(expectedProperty, result.PropertyModel);
+            Assert.AreEqual(expectedAlerts.Alerts, result.Alerts);
         }
     }
 }

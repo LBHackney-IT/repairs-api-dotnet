@@ -14,9 +14,16 @@ namespace RepairsApi.V1.UseCase
             _propertyGateway = propertyGateway;
         }
 
-        public Task<PropertyWithAlerts> ExecuteAsync(string propertyReference)
+        public async Task<PropertyWithAlerts> ExecuteAsync(string propertyReference)
         {
-            return _propertyGateway.GetByReferenceAsync(propertyReference, includeAlerts: false);
+            var property = await _propertyGateway.GetByReferenceAsync(propertyReference).ConfigureAwait(false);
+            var alertList = await _propertyGateway.GetAlertsAsync(propertyReference).ConfigureAwait(false);
+
+            return new PropertyWithAlerts
+            {
+                PropertyModel = property,
+                Alerts = alertList.Alerts
+            };
         }
     }
 }

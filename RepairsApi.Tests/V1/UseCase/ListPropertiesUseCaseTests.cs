@@ -26,15 +26,37 @@ namespace RepairsApi.Tests.V1.UseCase
         public async Task ReturnsProperties()
         {
             // Arrange
-            const int expectedPropertyCount = 5;
-            var expectedPropertyList = StubProperties().Generate(expectedPropertyCount);
-            _gatewayMock.Setup(gm => gm.GetByQueryAsync(It.IsAny<PropertySearchModel>())).ReturnsAsync(expectedPropertyList);
+            int expectedPropertyCount = 5;
+            SetupProperties(expectedPropertyCount);
+            PropertySearchModel searchModel = new PropertySearchModel
+            {
+                Query = "DummyQuery"
+            };
+
+            // Act
+            var result = await _classUnderTest.ExecuteAsync(searchModel).ConfigureAwait(false);
+
+            // Assert
+            Assert.AreEqual(expectedPropertyCount, result.Count());
+        }
+
+        [Test]
+        public async Task ReturnsEmptyListWhenInvalidSearch()
+        {
+            // Arrange
+            SetupProperties(5);
 
             // Act
             var result = await _classUnderTest.ExecuteAsync(new PropertySearchModel()).ConfigureAwait(false);
 
             // Assert
-            Assert.AreEqual(expectedPropertyCount, result.Count());
+            Assert.AreEqual(0, result.Count());
+        }
+
+        private void SetupProperties(int amount)
+        {
+            var expectedPropertyList = StubProperties().Generate(amount);
+            _gatewayMock.Setup(gm => gm.GetByQueryAsync(It.IsAny<PropertySearchModel>())).ReturnsAsync(expectedPropertyList);
         }
     }
 }

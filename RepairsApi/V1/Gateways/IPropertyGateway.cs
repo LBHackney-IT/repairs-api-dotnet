@@ -7,8 +7,7 @@ namespace RepairsApi.V1.Gateways
 {
     public interface IPropertyGateway
     {
-        Task<PropertyWithAlerts> GetByReferenceAsync(string propertyReference, bool includeAlerts);
-        Task<PropertyAlertList> GetAlertsAsync(string propertyReference);
+        Task<PropertyModel> GetByReferenceAsync(string propertyReference);
         Task<IEnumerable<PropertyModel>> GetByQueryAsync(PropertySearchModel searchModel);
     }
 }

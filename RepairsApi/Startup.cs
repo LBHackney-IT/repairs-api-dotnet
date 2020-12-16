@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using RepairsApi.V1.Gateways;
 
 namespace RepairsApi
 {
@@ -32,7 +33,7 @@ namespace RepairsApi
         private const string ApiName = "Your API Name";
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public static void ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services)
         {
             services
                 .AddMvc()
@@ -103,6 +104,8 @@ namespace RepairsApi
                     c.IncludeXmlComments(xmlPath);
             });
             ConfigureDbContext(services);
+
+            services.Configure<PropertyGatewayOptions>(Configuration.GetSection(nameof(PropertyGatewayOptions)));
         }
 
         private static void ConfigureDbContext(IServiceCollection services)

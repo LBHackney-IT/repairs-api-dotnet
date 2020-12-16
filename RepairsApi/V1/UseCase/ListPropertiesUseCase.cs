@@ -15,9 +15,19 @@ namespace RepairsApi.V1.UseCase
             _propertyGateway = propertyGateway;
         }
 
-        public Task<IEnumerable<PropertyModel>> ExecuteAsync(PropertySearchModel searchModel)
+        public async Task<IEnumerable<PropertyModel>> ExecuteAsync(PropertySearchModel searchModel)
         {
-            return _propertyGateway.GetByQueryAsync(searchModel);
+            if (!searchModel.IsValid())
+            {
+                return EmptyList();
+            }
+
+            return await _propertyGateway.GetByQueryAsync(searchModel).ConfigureAwait(false);
+        }
+
+        private static List<PropertyModel> EmptyList()
+        {
+            return new List<PropertyModel>();
         }
     }
 }
