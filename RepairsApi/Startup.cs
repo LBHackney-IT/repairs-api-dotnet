@@ -17,6 +17,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using RepairsApi.V1.Gateways;
+using RepairsApi.V1.UseCase.Interfaces;
+using RepairsApi.V1.UseCase;
 
 namespace RepairsApi
 {
@@ -106,6 +108,14 @@ namespace RepairsApi
             ConfigureDbContext(services);
 
             services.Configure<GatewayOptions>(Configuration.GetSection(nameof(GatewayOptions)));
+
+            services.AddTransient<IListAlertsUseCase, ListAlertsUseCase>();
+            services.AddTransient<IListPropertiesUseCase, ListPropertiesUseCase>();
+            services.AddTransient<IGetPropertyUseCase, GetPropertyUseCase>();
+
+            services.AddTransient<IApiGateway, ApiGateway>();
+            services.AddTransient<IPropertyGateway, PropertyGateway>();
+            services.AddTransient<IAlertsGateway, AlertsGateway>();
         }
 
         private static void ConfigureDbContext(IServiceCollection services)

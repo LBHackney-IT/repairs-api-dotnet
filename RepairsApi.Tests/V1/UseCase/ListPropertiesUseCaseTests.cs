@@ -1,3 +1,4 @@
+using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using RepairsApi.V1.Gateways;
@@ -37,7 +38,7 @@ namespace RepairsApi.Tests.V1.UseCase
             var result = await _classUnderTest.ExecuteAsync(searchModel).ConfigureAwait(false);
 
             // Assert
-            Assert.AreEqual(expectedPropertyCount, result.Count());
+            result.Should().HaveCount(expectedPropertyCount);
         }
 
         [Test]
@@ -50,7 +51,7 @@ namespace RepairsApi.Tests.V1.UseCase
             var result = await _classUnderTest.ExecuteAsync(new PropertySearchModel()).ConfigureAwait(false);
 
             // Assert
-            Assert.AreEqual(0, result.Count());
+            result.Should().BeEmpty();
         }
 
         private void SetupProperties(int amount)

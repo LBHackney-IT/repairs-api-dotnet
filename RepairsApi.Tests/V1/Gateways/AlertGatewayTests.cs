@@ -1,4 +1,5 @@
 using Bogus;
+using FluentAssertions;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
@@ -41,8 +42,8 @@ namespace RepairsApi.Tests.V1.Gateways
             var result = await _classUnderTest.GetAlertsAsync("").ConfigureAwait(false);
 
             // Assert
-            Assert.AreEqual(stubData.PropertyReference, result.PropertyReference);
-            Assert.AreEqual(stubData.Alerts.Count, result.Alerts.Count());
+            result.PropertyReference.Should().Be(stubData.PropertyReference);
+            result.Alerts.Should().HaveCount(stubData.Alerts.Count);
         }
 
         private static Faker<AlertsApiResponse> StubAlertApiResponse(int alertCount)

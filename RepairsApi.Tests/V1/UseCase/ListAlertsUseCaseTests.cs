@@ -1,9 +1,9 @@
 using Bogus;
+using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using RepairsApi.V1.Gateways;
 using RepairsApi.V1.UseCase;
-using System.Linq;
 using System.Threading.Tasks;
 
 using static RepairsApi.Tests.V1.DataFakers;
@@ -36,8 +36,8 @@ namespace RepairsApi.Tests.V1.UseCase
             var result = await _classUnderTest.ExecuteAsync(expectedPropertyReference).ConfigureAwait(false);
 
             // Assert
-            Assert.AreEqual(expectedPropertyReference, result.PropertyReference);
-            Assert.AreEqual(expectedAlertCount, result.Alerts.Count());
+            result.PropertyReference.Should().Be(expectedPropertyReference);
+            result.Alerts.Should().HaveCount(expectedAlertCount);
         }
     }
 }

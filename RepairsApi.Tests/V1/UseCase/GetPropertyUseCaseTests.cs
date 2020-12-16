@@ -1,3 +1,4 @@
+using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using RepairsApi.V1.Domain;
@@ -36,8 +37,8 @@ namespace RepairsApi.Tests.V1.UseCase
             // Act
             var result = await _classUnderTest.ExecuteAsync(expectedProperty.PropertyReference).ConfigureAwait(false);
 
-            Assert.AreEqual(expectedProperty, result.PropertyModel);
-            Assert.AreEqual(expectedAlerts.Alerts, result.Alerts);
+            result.PropertyModel.Should().Be(expectedProperty);
+            result.Alerts.Should().BeEquivalentTo(expectedAlerts.Alerts);
         }
     }
 }

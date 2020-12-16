@@ -1,4 +1,5 @@
 using Bogus;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Moq;
@@ -46,8 +47,8 @@ namespace RepairsApi.Tests.V1.Controllers
             var statusCode = GetStatusCode(result);
 
             // Assert
-            Assert.AreEqual(200, statusCode);
-            Assert.AreEqual(propertyCount, propertyResults.Count);
+            statusCode.Should().Be(200);
+            propertyResults.Should().HaveCount(propertyCount);
         }
 
         [Test]
@@ -69,8 +70,8 @@ namespace RepairsApi.Tests.V1.Controllers
             var statusCode = GetStatusCode(result);
 
             // Assert
-            Assert.AreEqual(200, statusCode);
-            Assert.AreEqual(expectedPropertyReference, propertyResult.Property.PropertyReference);
+            statusCode.Should().Be(200);
+            propertyResult.Property.PropertyReference.Should().Be(expectedPropertyReference);
         }
 
         [Test]
@@ -86,7 +87,7 @@ namespace RepairsApi.Tests.V1.Controllers
             var statusCode = GetStatusCode(result);
 
             // Assert
-            Assert.AreEqual(404, statusCode);
+            statusCode.Should().Be(404);
         }
 
         [TestCase(0)]
@@ -105,9 +106,9 @@ namespace RepairsApi.Tests.V1.Controllers
             var statusCode = GetStatusCode(result);
 
             // Assert
-            Assert.AreEqual(200, statusCode);
-            Assert.AreEqual(alertCount, alertResult.Alerts.Count);
-            Assert.AreEqual(expectedPropertyReference, alertResult.PropertyReference);
+            statusCode.Should().Be(200);
+            alertResult.Alerts.Should().HaveCount(alertCount);
+            alertResult.PropertyReference.Should().Be(expectedPropertyReference);
         }
 
         private static int? GetStatusCode(IActionResult result)

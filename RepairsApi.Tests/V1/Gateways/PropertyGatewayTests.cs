@@ -1,4 +1,5 @@
 using Bogus;
+using FluentAssertions;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
@@ -42,7 +43,7 @@ namespace RepairsApi.Tests.V1.Gateways
             var result = await _classUnderTest.GetByReferenceAsync("").ConfigureAwait(false);
 
             // Assert
-            Assert.AreEqual(stubData.Address1, result.Address.ShortAddress);
+            result.Address.ShortAddress.Should().Be(stubData.Address1);
         }
 
         [Test]
@@ -59,7 +60,7 @@ namespace RepairsApi.Tests.V1.Gateways
             var result = await _classUnderTest.GetByQueryAsync(searchModel).ConfigureAwait(false);
 
             // Assert
-            Assert.AreEqual(stubData.Count, result.Count());
+            result.Should().HaveCount(stubData.Count);
         }
 
         private static Faker<PropertyApiResponse> StubPropertyApiResponse()

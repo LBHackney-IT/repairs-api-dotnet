@@ -1,3 +1,4 @@
+using FluentAssertions;
 using NUnit.Framework;
 using RepairsApi.V1.UseCase;
 
@@ -17,7 +18,7 @@ namespace RepairsApi.Tests.V1.Entities
 
             var queryParam = searchModel.GetQueryParameter();
 
-            Assert.AreEqual("postcode=PostCode", queryParam);
+            queryParam.Should().Be("postcode=PostCode");
         }
 
         [Test]
@@ -31,7 +32,7 @@ namespace RepairsApi.Tests.V1.Entities
 
             var queryParam = searchModel.GetQueryParameter();
 
-            Assert.AreEqual("address=Address", queryParam);
+            queryParam.Should().Be("address=Address");
         }
 
         [TestCase("OL16 4 PP")]
@@ -50,7 +51,7 @@ namespace RepairsApi.Tests.V1.Entities
 
             var queryParam = searchModel.GetQueryParameter();
 
-            Assert.AreEqual($"postcode={query}", queryParam);
+            queryParam.Should().Be($"postcode={query}");
         }
 
 
@@ -70,7 +71,7 @@ namespace RepairsApi.Tests.V1.Entities
 
             var queryParam = searchModel.GetQueryParameter();
 
-            Assert.AreEqual($"address={query}", queryParam);
+            queryParam.Should().Be($"address={query}");
         }
 
         [Test]
@@ -80,7 +81,7 @@ namespace RepairsApi.Tests.V1.Entities
             {
             };
 
-            Assert.IsFalse(searchModel.IsValid());
+            searchModel.IsValid().Should().BeFalse();
         }
 
         [Test]
@@ -93,7 +94,7 @@ namespace RepairsApi.Tests.V1.Entities
                 Query = "  "
             };
 
-            Assert.IsFalse(searchModel.IsValid());
+            searchModel.IsValid().Should().BeFalse();
         }
     }
 }
