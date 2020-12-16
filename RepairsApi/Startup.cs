@@ -105,7 +105,7 @@ namespace RepairsApi
             });
             ConfigureDbContext(services);
 
-            services.Configure<PropertyGatewayOptions>(Configuration.GetSection(nameof(PropertyGatewayOptions)));
+            services.Configure<GatewayOptions>(Configuration.GetSection(nameof(GatewayOptions)));
         }
 
         private static void ConfigureDbContext(IServiceCollection services)

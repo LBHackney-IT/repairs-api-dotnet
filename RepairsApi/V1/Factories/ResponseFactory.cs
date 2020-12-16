@@ -24,7 +24,7 @@ namespace RepairsApi.V1.Factories
                 AlertCode = domain.AlertCode,
                 Description = domain.Description,
                 EndDate = domain.EndDate,
-                StartDate = domain.StartData
+                StartDate = domain.StartDate
             };
         }
 

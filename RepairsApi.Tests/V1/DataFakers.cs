@@ -11,7 +11,7 @@ namespace RepairsApi.Tests.V1
             return new Faker<PropertyAlert>()
                 .RuleFor(pa => pa.AlertCode, f => f.Random.String())
                 .RuleFor(pa => pa.Description, f => f.Random.String())
-                .RuleFor(pa => pa.StartData, f => f.Random.String())
+                .RuleFor(pa => pa.StartDate, f => f.Random.String())
                 .RuleFor(pa => pa.EndDate, f => f.Random.String());
         }
 

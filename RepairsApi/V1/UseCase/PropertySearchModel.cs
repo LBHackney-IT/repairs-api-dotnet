@@ -8,6 +8,8 @@ namespace RepairsApi.V1.UseCase
 {
     public class PropertySearchModel
     {
+        static Regex _postCodeMatcher = new Regex("^[A-Z]{1,2}([0-9]{1,2}|[0-9][A-Z])[0-9][A-Z]{2}$");
+
         public string Address { get; set; }
         public string PostCode { get; set; }
         public string Query { get; set; }
@@ -30,9 +32,7 @@ namespace RepairsApi.V1.UseCase
         {
             var normalisedQuery = query.Replace(" ", "").ToUpper();
 
-            Regex postCodeMatcher = new Regex("/^[A-Z]{1,2}([0-9]{1,2}|[0-9][A-Z])[0-9][A-Z]{2}$/");
-
-            return postCodeMatcher.IsMatch(normalisedQuery);
+            return _postCodeMatcher.IsMatch(normalisedQuery);
         }
 
         private static string AddressQuery(string value)

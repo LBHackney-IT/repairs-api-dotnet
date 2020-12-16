@@ -8,16 +8,18 @@ namespace RepairsApi.V1.UseCase
     public class GetPropertyUseCase : IGetPropertyUseCase
     {
         private readonly IPropertyGateway _propertyGateway;
+        private readonly IAlertsGateway _alertsGateway;
 
-        public GetPropertyUseCase(IPropertyGateway propertyGateway)
+        public GetPropertyUseCase(IPropertyGateway propertyGateway, IAlertsGateway alertsGateway)
         {
             _propertyGateway = propertyGateway;
+            _alertsGateway = alertsGateway;
         }
 
         public async Task<PropertyWithAlerts> ExecuteAsync(string propertyReference)
         {
             var property = await _propertyGateway.GetByReferenceAsync(propertyReference).ConfigureAwait(false);
-            var alertList = await _propertyGateway.GetAlertsAsync(propertyReference).ConfigureAwait(false);
+            var alertList = await _alertsGateway.GetAlertsAsync(propertyReference).ConfigureAwait(false);
 
             return new PropertyWithAlerts
             {

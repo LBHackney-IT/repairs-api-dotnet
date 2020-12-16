@@ -13,14 +13,14 @@ namespace RepairsApi.Tests.V1.UseCase
     [TestFixture]
     public class ListAlertsUseCaseTests
     {
-        private Mock<IPropertyGateway> _gatewayMock;
+        private Mock<IAlertsGateway> _alertGatewayMock;
         private ListAlertsUseCase _classUnderTest;
 
         [SetUp]
         public void Setup()
         {
-            _gatewayMock = new Mock<IPropertyGateway>();
-            _classUnderTest = new ListAlertsUseCase(_gatewayMock.Object);
+            _alertGatewayMock = new Mock<IAlertsGateway>();
+            _classUnderTest = new ListAlertsUseCase(_alertGatewayMock.Object);
         }
 
         [Test]
@@ -30,7 +30,7 @@ namespace RepairsApi.Tests.V1.UseCase
             const int expectedAlertCount = 5;
             string expectedPropertyReference = new Faker().Random.Number().ToString();
             var expectedAlertList = StubAlertList(expectedPropertyReference, expectedAlertCount);
-            _gatewayMock.Setup(gm => gm.GetAlertsAsync(It.IsAny<string>())).ReturnsAsync(expectedAlertList);
+            _alertGatewayMock.Setup(gm => gm.GetAlertsAsync(It.IsAny<string>())).ReturnsAsync(expectedAlertList);
 
             // Act
             var result = await _classUnderTest.ExecuteAsync(expectedPropertyReference).ConfigureAwait(false);

@@ -7,16 +7,16 @@ namespace RepairsApi.V1.UseCase
 {
     public class ListAlertsUseCase : IListAlertsUseCase
     {
-        private readonly IPropertyGateway _propertyGateway;
+        private readonly IAlertsGateway _alertsGateway;
 
-        public ListAlertsUseCase(IPropertyGateway propertyGateway)
+        public ListAlertsUseCase(IAlertsGateway alertsGateway)
         {
-            _propertyGateway = propertyGateway;
+            _alertsGateway = alertsGateway;
         }
 
         public Task<PropertyAlertList> ExecuteAsync(string propertyReference)
         {
-            return _propertyGateway.GetAlertsAsync(propertyReference);
+            return _alertsGateway.GetAlertsAsync(propertyReference);
         }
     }
 }

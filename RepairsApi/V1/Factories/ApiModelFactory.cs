@@ -7,7 +7,7 @@ namespace RepairsApi.V1.Factories
 {
     public static class ApiModelFactory
     {
-        private static Dictionary<string, string> _hierarchyDescriptions = new Dictionary<string, string>
+        public static Dictionary<string, string> HierarchyDescriptions => new Dictionary<string, string>
         {
             {"ADM", "Administrative Building" },
             {"BLK", "Block" },
@@ -46,7 +46,7 @@ namespace RepairsApi.V1.Factories
                 AlertCode = apiResponse.AlertCode,
                 Description = apiResponse.Description,
                 EndDate = apiResponse.EndDate,
-                StartData = apiResponse.StartDate
+                StartDate = apiResponse.StartDate
             };
         }
 
@@ -83,7 +83,7 @@ namespace RepairsApi.V1.Factories
             {
                 LevelCode = apiResponse.LevelCode,
                 SubTypeCode = apiResponse.SubtypCode,
-                SubTypeDescription = _hierarchyDescriptions[apiResponse.SubtypCode]
+                SubTypeDescription = HierarchyDescriptions[apiResponse.SubtypCode]
             };
         }
     }

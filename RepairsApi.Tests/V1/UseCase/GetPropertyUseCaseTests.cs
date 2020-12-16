@@ -12,14 +12,16 @@ namespace RepairsApi.Tests.V1.UseCase
     [TestFixture]
     public class GetPropertyUseCaseTests
     {
-        private Mock<IPropertyGateway> _gatewayMock;
+        private Mock<IPropertyGateway> _propertyGatewayMock;
+        private Mock<IAlertsGateway> _alertGatewayMock;
         private GetPropertyUseCase _classUnderTest;
 
         [SetUp]
         public void Setup()
         {
-            _gatewayMock = new Mock<IPropertyGateway>();
-            _classUnderTest = new GetPropertyUseCase(_gatewayMock.Object);
+            _propertyGatewayMock = new Mock<IPropertyGateway>();
+            _alertGatewayMock = new Mock<IAlertsGateway>();
+            _classUnderTest = new GetPropertyUseCase(_propertyGatewayMock.Object, _alertGatewayMock.Object);
         }
 
         [Test]
@@ -28,8 +30,8 @@ namespace RepairsApi.Tests.V1.UseCase
             // Arrange
             var expectedProperty = StubProperties().Generate();
             var expectedAlerts = StubAlertList(expectedProperty.PropertyReference, 5);
-            _gatewayMock.Setup(gm => gm.GetByReferenceAsync(It.IsAny<string>())).ReturnsAsync(expectedProperty);
-            _gatewayMock.Setup(gm => gm.GetAlertsAsync(It.IsAny<string>())).ReturnsAsync(expectedAlerts);
+            _propertyGatewayMock.Setup(gm => gm.GetByReferenceAsync(It.IsAny<string>())).ReturnsAsync(expectedProperty);
+            _alertGatewayMock.Setup(gm => gm.GetAlertsAsync(It.IsAny<string>())).ReturnsAsync(expectedAlerts);
 
             // Act
             var result = await _classUnderTest.ExecuteAsync(expectedProperty.PropertyReference).ConfigureAwait(false);
