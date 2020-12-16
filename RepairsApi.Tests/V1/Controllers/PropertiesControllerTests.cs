@@ -79,7 +79,7 @@ namespace RepairsApi.Tests.V1.Controllers
         {
             string expectedPropertyReference = new Faker().Random.Number().ToString();
 
-            _getPropertyUseCaseMock.Setup(m => m.ExecuteAsync(It.IsAny<string>())).ReturnsAsync((PropertyWithAlerts)null);
+            _getPropertyUseCaseMock.Setup(m => m.ExecuteAsync(It.IsAny<string>())).ReturnsAsync((PropertyWithAlerts) null);
 
             // Act
             var result = await _classUnderTest.GetProperty(expectedPropertyReference).ConfigureAwait(false);

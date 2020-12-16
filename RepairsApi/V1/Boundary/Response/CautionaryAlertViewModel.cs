@@ -1,7 +1,7 @@
 namespace RepairsApi.V1.Boundary.Response
 {
     public class CautionaryAlertViewModel
-    { 
+    {
         /// <summary>
         /// Gets or Sets AlertCode
         /// </summary>

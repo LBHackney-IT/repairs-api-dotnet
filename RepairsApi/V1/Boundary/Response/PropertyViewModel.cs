@@ -1,7 +1,7 @@
 namespace RepairsApi.V1.Boundary.Response
 {
     public class PropertyViewModel
-    { 
+    {
         /// <summary>
         /// Gets or Sets PropertyReference
         /// </summary>

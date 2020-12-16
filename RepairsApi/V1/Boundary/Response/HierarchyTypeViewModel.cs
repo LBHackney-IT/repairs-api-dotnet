@@ -1,7 +1,7 @@
 namespace RepairsApi.V1.Boundary.Response
 {
     public class HierarchyTypeViewModel
-    { 
+    {
         /// <summary>
         /// Gets or Sets LevelCode
         /// </summary>

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace RepairsApi.V1.Boundary.Response
 {
     public class CautionaryAlertResponseList
-    { 
+    {
         /// <summary>
         /// Gets or Sets PropertyReference
         /// </summary>

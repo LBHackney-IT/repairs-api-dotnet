@@ -1,7 +1,7 @@
 namespace RepairsApi.V1.Boundary.Response
 {
     public class AddressViewModel
-    { 
+    {
         /// <summary>
         /// Gets or Sets ShortAddress
         /// </summary>
