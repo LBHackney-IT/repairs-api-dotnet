@@ -136,3 +136,6 @@ dotnet_diagnostic.CA1001.severity = none
 
 #Can reassign collections
 dotnet_diagnostic.CA2227.severity = none
+
+#Prefer jagged arrays (ef core migrations with seeded data generate [,] rather than [][])
+dotnet_diagnostic.CA1814.severity = none
