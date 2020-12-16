@@ -38,7 +38,7 @@ namespace RepairsApi.V1.Controllers
         /// <param name="q">A postcode or partial or full address</param>
         /// <response code="200">Properties found</response>
         [HttpGet]
-        public async Task<IActionResult> ListProperties([FromQuery]string address, [FromQuery]string postcode, [FromQuery]string q)
+        public async Task<IActionResult> ListProperties([FromQuery] string address, [FromQuery] string postcode, [FromQuery] string q)
         {
             PropertySearchModel searchModel = new PropertySearchModel
             {
@@ -60,7 +60,7 @@ namespace RepairsApi.V1.Controllers
         /// <response code="404">Property not found</response>
         [HttpGet]
         [Route("{propertyReference}")]
-        public async Task<IActionResult> GetProperty([FromRoute][Required]string propertyReference)
+        public async Task<IActionResult> GetProperty([FromRoute][Required] string propertyReference)
         {
             PropertyWithAlerts property = await _getPropertyUseCase.ExecuteAsync(propertyReference).ConfigureAwait(false);
             if (property is null)
