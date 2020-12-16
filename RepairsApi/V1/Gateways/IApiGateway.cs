@@ -5,6 +5,7 @@ namespace RepairsApi.V1.Gateways
 {
     public interface IApiGateway
     {
-        Task<TResponse> ExecuteRequest<TResponse>(Uri url);
+        Task<TResponse> ExecuteRequest<TResponse>(Uri url)
+            where TResponse : class;
     }
 }
