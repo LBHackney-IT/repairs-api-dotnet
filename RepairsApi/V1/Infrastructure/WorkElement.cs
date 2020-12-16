@@ -13,6 +13,6 @@ namespace RepairsApi.V1.Infrastructure
         [Column("service_charge_subject")] public string ServiceChargeSubject { get; set; }
         [Column("contains_capital_work")] public bool ContainsCapitalWork { get; set; }
 
-        List<RateScheduleItem> RateScheduleItem { get; set; }
+        public virtual List<RateScheduleItem> RateScheduleItem { get; set; }
     }
 }

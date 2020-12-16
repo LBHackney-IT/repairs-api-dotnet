@@ -110,7 +110,10 @@ namespace RepairsApi
             var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
 
             services.AddDbContext<RepairsContext>(
-                opt => opt.UseNpgsql(connectionString));
+                opt => opt
+                    .UseLazyLoadingProxies()
+                    .UseNpgsql(connectionString)
+                );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
