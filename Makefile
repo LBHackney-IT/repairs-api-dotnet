@@ -40,5 +40,5 @@ update-db: start-db
 	dotnet ef database update -p RepairsApi -c RepairsApi.V1.Infrastructure.RepairsContext
 
 .PHONY: test
-test: restart-db
+test: start-db
 	docker-compose build repairs-api-test && docker-compose up repairs-api-test

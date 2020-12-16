@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RepairsApi.V1.Infrastructure;
@@ -9,9 +10,10 @@ using RepairsApi.V1.Infrastructure;
 namespace RepairsApi.V1.Infrastructure.Migrations
 {
     [DbContext(typeof(RepairsContext))]
-    partial class RepairsContextModelSnapshot : ModelSnapshot
+    [Migration("20201214120348_SplitQuantityFromRateScheduleItem")]
+    partial class SplitQuantityFromRateScheduleItem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,49 +36,13 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                         .HasColumnName("custom_name")
                         .HasColumnType("text");
 
-                    b.Property<Guid>("WorkElementId")
-                        .HasColumnName("work_element_id")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("WorkElementId");
 
                     b.ToTable("rate_schedule_item");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.WorkElement", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("ContainsCapitalWork")
-                        .HasColumnName("contains_capital_work")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("ServiceChargeSubject")
-                        .HasColumnName("service_charge_subject")
-                        .HasColumnType("text");
-
-                    b.Property<string>("trade")
-                        .HasColumnName("trade ")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("work_element");
-                });
-
             modelBuilder.Entity("RepairsApi.V1.Infrastructure.RateScheduleItem", b =>
                 {
-                    b.HasOne("RepairsApi.V1.Infrastructure.WorkElement", "WorkElement")
-                        .WithMany()
-                        .HasForeignKey("WorkElementId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.OwnsOne("RepairsApi.V1.Infrastructure.Quantity", "Quantity", b1 =>
                         {
                             b1.Property<Guid>("RateScheduleItemId")
