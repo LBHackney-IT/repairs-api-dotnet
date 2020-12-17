@@ -22,13 +22,13 @@ lint:
 
 .PHONY: start-db
 start-db:
-	docker-compose up test-database &
+	docker-compose up -d test-database
 
 .PHONY: stop-db
 stop-db:
-	docker stop $$(docker ps -q --filter ancestor=test-database -a)
-	-docker rm $$(docker ps -q --filter ancestor=test-database -a)
-	docker rmi test-database
+	docker stop test-database
+	-docker rm test-database
+	docker rmi postgres:12
 
 .PHONY: restart-db
 restart-db: | stop-db start-db
@@ -40,5 +40,5 @@ update-db: start-db
 	dotnet ef database update -p RepairsApi -c RepairsApi.V1.Infrastructure.RepairsContext
 
 .PHONY: test
-test: start-db
+test: | update-db
 	docker-compose build repairs-api-test && docker-compose up repairs-api-test
