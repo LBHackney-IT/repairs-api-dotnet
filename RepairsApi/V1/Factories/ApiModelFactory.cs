@@ -37,15 +37,20 @@ namespace RepairsApi.V1.Factories
             return new PropertyAlertList
             {
                 PropertyReference = apiResponse.PropertyReference,
-                Alerts = apiResponse.Alerts.Select(alertResponse => alertResponse.ToDomain())
+                Alerts = apiResponse.Alerts.ToDomain()
             };
         }
 
-        public static PropertyAlert ToDomain(this AlertApiAlertViewModel apiResponse)
+        public static IEnumerable<Alert> ToDomain(this IEnumerable<AlertApiAlertViewModel> apiResponse)
+        {
+            return apiResponse.Select(alertResponse => alertResponse.ToDomain());
+        }
+
+        public static Alert ToDomain(this AlertApiAlertViewModel apiResponse)
         {
             if (apiResponse is null) return null;
 
-            return new PropertyAlert
+            return new Alert
             {
                 AlertCode = apiResponse.AlertCode,
                 Description = apiResponse.Description,

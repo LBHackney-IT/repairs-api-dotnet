@@ -42,7 +42,7 @@ namespace RepairsApi.Tests.V1.Gateways
             _apiGatewayMock.Setup(gw => gw.ExecuteRequest<AlertsApiResponse>(It.IsAny<Uri>())).ReturnsAsync(stubData);
 
             // Act
-            var result = await _classUnderTest.GetAlertsAsync("");
+            var result = await _classUnderTest.GetLocationAlertsAsync("");
 
             // Assert
             result.PropertyReference.Should().Be(stubData.Content.PropertyReference);
@@ -58,7 +58,7 @@ namespace RepairsApi.Tests.V1.Gateways
             const string expectedPropertyReference = "";
 
             // Act
-            var result = await _classUnderTest.GetAlertsAsync(expectedPropertyReference);
+            var result = await _classUnderTest.GetLocationAlertsAsync(expectedPropertyReference);
 
             // Assert
             result.PropertyReference.Should().Be(expectedPropertyReference);

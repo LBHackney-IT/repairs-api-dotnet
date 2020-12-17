@@ -8,21 +8,22 @@ namespace RepairsApi.V1.Factories
 {
     public static class ResponseFactory
     {
-        public static CautionaryAlertResponseList ToResponse(this PropertyAlertList domain)
+        public static CautionaryAlertResponseList ToResponse(this AlertList domain)
         {
             return new CautionaryAlertResponseList()
             {
-                PropertyReference = domain.PropertyReference,
-                Alerts = domain.Alerts.Select(alert => alert.ToResponse()).ToList()
+                PropertyReference = domain.PropertyAlerts.PropertyReference,
+                LocationAlert = domain.PropertyAlerts.Alerts.Select(alert => alert.ToResponse()).ToList(),
+                PersonAlert = domain.PersonAlerts.Alerts.Select(alert => alert.ToResponse()).ToList()
             };
         }
 
-        public static CautionaryAlertViewModel ToResponse(this PropertyAlert domain)
+        public static CautionaryAlertViewModel ToResponse(this Alert domain)
         {
             return new CautionaryAlertViewModel
             {
-                AlertCode = domain.AlertCode,
-                Description = domain.Description,
+                Type = domain.AlertCode,
+                Comments = domain.Description,
                 EndDate = domain.EndDate,
                 StartDate = domain.StartDate
             };
@@ -64,7 +65,23 @@ namespace RepairsApi.V1.Factories
             return new PropertyResponse
             {
                 Property = domain.PropertyModel.ToResponse(),
-                CautionaryAlerts = domain.Alerts.Select(alert => alert.ToResponse()).ToList()
+                Alerts = new AlertsViewModel
+                {
+                    LocationAlert = domain.LocationAlerts.Select(alert => alert.ToResponse()).ToList(),
+                    PersonAlert = domain.PersonAlerts.Select(alert => alert.ToResponse()).ToList(),
+                },
+                Tenure = domain.Tenure.ToResponse()
+            };
+        }
+
+
+        public static TenureViewModel ToResponse(this TenureInformation domain)
+        {
+            return new TenureViewModel
+            {
+                CanRaiseRepair = domain.CanRaiseRepair,
+                TypeCode = domain.TypeCode,
+                TypeDescription = domain.TypeDescription
             };
         }
 

@@ -30,16 +30,16 @@ namespace RepairsApi.Tests.V1.UseCase
         {
             // Arrange
             var expectedProperty = StubProperties().Generate();
-            var expectedAlerts = StubAlertList(expectedProperty.PropertyReference, 5);
+            var expectedLocationAlerts = StubAlertList(expectedProperty.PropertyReference, 5);
             _propertyGatewayMock.Setup(gm => gm.GetByReferenceAsync(It.IsAny<string>())).ReturnsAsync(expectedProperty);
-            _alertGatewayMock.Setup(gm => gm.GetAlertsAsync(It.IsAny<string>())).ReturnsAsync(expectedAlerts);
+            _alertGatewayMock.Setup(gm => gm.GetLocationAlertsAsync(It.IsAny<string>())).ReturnsAsync(expectedLocationAlerts);
 
             // Act
             var result = await _classUnderTest.ExecuteAsync(expectedProperty.PropertyReference);
 
             // Assert
             result.PropertyModel.Should().Be(expectedProperty);
-            result.Alerts.Should().BeEquivalentTo(expectedAlerts.Alerts);
+            result.LocationAlerts.Should().BeEquivalentTo(expectedLocationAlerts.Alerts);
         }
 
         [Test]

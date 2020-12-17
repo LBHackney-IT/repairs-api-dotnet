@@ -30,7 +30,7 @@ namespace RepairsApi.Tests.V1.UseCase
             const int expectedAlertCount = 5;
             string expectedPropertyReference = new Faker().Random.Number().ToString();
             var expectedAlertList = StubAlertList(expectedPropertyReference, expectedAlertCount);
-            _alertGatewayMock.Setup(gm => gm.GetAlertsAsync(It.IsAny<string>())).ReturnsAsync(expectedAlertList);
+            _alertGatewayMock.Setup(gm => gm.GetLocationAlertsAsync(It.IsAny<string>())).ReturnsAsync(expectedAlertList);
 
             // Act
             var result = await _classUnderTest.ExecuteAsync(expectedPropertyReference);

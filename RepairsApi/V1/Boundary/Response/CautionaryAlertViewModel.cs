@@ -5,12 +5,12 @@ namespace RepairsApi.V1.Boundary.Response
         /// <summary>
         /// Gets or Sets AlertCode
         /// </summary>
-        public string AlertCode { get; set; }
+        public string Type { get; set; }
 
         /// <summary>
         /// Gets or Sets Description
         /// </summary>
-        public string Description { get; set; }
+        public string Comments { get; set; }
 
         /// <summary>
         /// Gets or Sets StartDate

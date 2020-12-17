@@ -5,6 +5,6 @@ namespace RepairsApi.V1.Gateways
 {
     public interface IAlertsGateway
     {
-        Task<PropertyAlertList> GetAlertsAsync(string propertyReference);
+        Task<PropertyAlertList> GetLocationAlertsAsync(string propertyReference);
     }
 }

@@ -20,7 +20,7 @@ namespace RepairsApi.V1.Gateways
             _apiGateway = apiGateway;
         }
 
-        public async Task<PropertyAlertList> GetAlertsAsync(string propertyReference)
+        public async Task<PropertyAlertList> GetLocationAlertsAsync(string propertyReference)
         {
             Uri url = new Uri(_options.AlertsApi + $"cautionary-alerts/properties/{propertyReference}");
 
@@ -38,7 +38,7 @@ namespace RepairsApi.V1.Gateways
         {
             return new PropertyAlertList
             {
-                Alerts = new List<PropertyAlert>(),
+                Alerts = new List<Alert>(),
                 PropertyReference = propertyReference
             };
         }

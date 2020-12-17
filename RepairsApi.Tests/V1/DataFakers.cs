@@ -7,9 +7,9 @@ namespace RepairsApi.Tests.V1
 {
     public static class DataFakers
     {
-        public static Faker<PropertyAlert> StubAlerts()
+        public static Faker<Alert> StubAlerts()
         {
-            return new Faker<PropertyAlert>()
+            return new Faker<Alert>()
                 .RuleFor(pa => pa.AlertCode, f => f.Random.String())
                 .RuleFor(pa => pa.Description, f => f.Random.String())
                 .RuleFor(pa => pa.StartDate, f => f.Random.String())

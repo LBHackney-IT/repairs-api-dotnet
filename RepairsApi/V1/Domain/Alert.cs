@@ -1,6 +1,6 @@
 namespace RepairsApi.V1.Domain
 {
-    public class PropertyAlert
+    public class Alert
     {
         public string AlertCode { get; set; }
         public string Description { get; set; }
