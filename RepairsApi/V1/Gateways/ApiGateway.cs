@@ -14,17 +14,19 @@ namespace RepairsApi.V1.Gateways
             _httpClient = httpClient;
         }
 
-        public async Task<TResponse> ExecuteRequest<TResponse>(Uri url)
+        public async Task<ApiResponse<TResponse>> ExecuteRequest<TResponse>(Uri url)
             where TResponse : class
         {
             var result = await _httpClient.GetAsync(url).ConfigureAwait(false);
+            TResponse response = default;
 
-            result.EnsureSuccessStatusCode();
+            if (result.IsSuccessStatusCode)
+            {
+                var stringResult = await result.Content.ReadAsStringAsync().ConfigureAwait(false);
+                response = JsonConvert.DeserializeObject<TResponse>(stringResult);
+            }
 
-            if (result.Content == null) return null;
-
-            var stringResult = await result.Content.ReadAsStringAsync().ConfigureAwait(false);
-            return JsonConvert.DeserializeObject<TResponse>(stringResult);
+            return new ApiResponse<TResponse>(result.IsSuccessStatusCode, result.StatusCode, response);
         }
     }
 }

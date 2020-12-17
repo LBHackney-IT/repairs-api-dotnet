@@ -17,21 +17,6 @@ namespace RepairsApi.Tests.V1.Gateways
     public class ApiGatewayTests
     {
         [Test]
-        public void ThrowsWhenNonSuccess()
-        {
-            var response = new HttpResponseMessage
-            {
-                StatusCode = HttpStatusCode.NotFound
-            };
-
-            ApiGateway classUnderTest = SetUpHttpMock(response);
-
-            Func<Task> sutCall = async () => await classUnderTest.ExecuteRequest<TestModel>(new Uri("http://test")).ConfigureAwait(false);
-
-            sutCall.Should().Throw<Exception>();
-        }
-
-        [Test]
         public async Task ReturnDeserialisedResult()
         {
             TestModel expectedResponse = new TestModel
@@ -49,7 +34,7 @@ namespace RepairsApi.Tests.V1.Gateways
 
             var result = await classUnderTest.ExecuteRequest<TestModel>(new Uri("http://test")).ConfigureAwait(false);
 
-            result.Should().BeEquivalentTo(expectedResponse);
+            result.Content.Should().BeEquivalentTo(expectedResponse);
         }
 
         private static ApiGateway SetUpHttpMock(HttpResponseMessage response)

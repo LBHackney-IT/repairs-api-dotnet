@@ -7,6 +7,7 @@ using RepairsApi.V1.Gateways;
 using RepairsApi.V1.Gateways.Models;
 using System;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 using static RepairsApi.Tests.V1.DataFakers;
@@ -37,15 +38,25 @@ namespace RepairsApi.Tests.V1.Gateways
         public async Task SendsRequest()
         {
             // Arrange
-            AlertsApiResponse stubData = StubAlertApiResponse(5);
+            var stubData = BuildResponse(StubAlertApiResponse(5).Generate());
             _apiGatewayMock.Setup(gw => gw.ExecuteRequest<AlertsApiResponse>(It.IsAny<Uri>())).ReturnsAsync(stubData);
 
             // Act
             var result = await _classUnderTest.GetAlertsAsync("").ConfigureAwait(false);
 
             // Assert
-            result.PropertyReference.Should().Be(stubData.PropertyReference);
-            result.Alerts.Should().HaveCount(stubData.Alerts.Count);
+            result.PropertyReference.Should().Be(stubData.Content.PropertyReference);
+            result.Alerts.Should().HaveCount(stubData.Content.Alerts.Count);
+        }
+
+        private static ApiResponse<T> BuildResponse<T>(T content) where T : class
+        {
+            if (content == null)
+            {
+                return new ApiResponse<T>(false, HttpStatusCode.NotFound, null);
+            }
+
+            return new ApiResponse<T>(true, HttpStatusCode.OK, content);
         }
     }
 }

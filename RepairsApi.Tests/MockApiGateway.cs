@@ -3,6 +3,7 @@ using RepairsApi.V1.Gateways.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -12,10 +13,10 @@ namespace RepairsApi.Tests
 {
     public class MockApiGateway : IApiGateway
     {
-        public static List<AlertsApiResponse> AlertsApiResponse => StubAlertApiResponse().Generate(20);
-        public static List<PropertyApiResponse> PropertyApiResponse => StubPropertyApiResponse().Generate(40);
+        public static Lazy<List<AlertsApiResponse>> AlertsApiResponse => new Lazy<List<AlertsApiResponse>>(StubAlertApiResponse().Generate(20));
+        public static Lazy<List<PropertyApiResponse>> PropertyApiResponse => new Lazy<List<PropertyApiResponse>>(StubPropertyApiResponse().Generate(40));
 
-        public Task<TResponse> ExecuteRequest<TResponse>(Uri url) where TResponse : class
+        public Task<ApiResponse<TResponse>> ExecuteRequest<TResponse>(Uri url) where TResponse : class
         {
             string urlString = url.ToString();
 
@@ -33,7 +34,7 @@ namespace RepairsApi.Tests
             }
         }
 
-        private static Task<TResponse> HandlePropertyRequest<TResponse>(string urlString) where TResponse : class
+        private static Task<ApiResponse<TResponse>> HandlePropertyRequest<TResponse>(string urlString) where TResponse : class
         {
             if (urlString.Contains("?"))
             {
@@ -45,14 +46,15 @@ namespace RepairsApi.Tests
             }
         }
 
-        private static Task<TResponse> HandleRequestByReference<TResponse>(string urlString) where TResponse : class
+        private static Task<ApiResponse<TResponse>> HandleRequestByReference<TResponse>(string urlString) where TResponse : class
         {
             string propRef = urlString.Split("/").Last();
 
-            return Task.FromResult(PropertyApiResponse.Where(res => res.PropRef == propRef) as TResponse);
+            ApiResponse<TResponse> response = BuildResponse(PropertyApiResponse.Value.Where(res => res.PropRef == propRef).First() as TResponse);
+            return Task.FromResult(response);
         }
 
-        private static Task<TResponse> HandleRequestBySearch<TResponse>(string urlString) where TResponse : class
+        private static Task<ApiResponse<TResponse>> HandleRequestBySearch<TResponse>(string urlString) where TResponse : class
         {
             Regex searchExtractor = new Regex(@"\?(([a-z]+)=(\w*))");
             var groups = searchExtractor.Match(urlString).Groups;
@@ -61,21 +63,34 @@ namespace RepairsApi.Tests
 
             if (param == "address")
             {
-                return Task.FromResult(PropertyApiResponse.Where(prop => prop.Address1.Contains(value)) as TResponse);
+                ApiResponse<TResponse> response = BuildResponse(PropertyApiResponse.Value.Where(prop => prop.Address1.Contains(value)).FirstOrDefault() as TResponse);
+                return Task.FromResult(response);
             }
             else if (param == "postcode")
             {
-                return Task.FromResult(PropertyApiResponse.Where(prop => prop.PostCode.Equals(value)) as TResponse);
+                ApiResponse<TResponse> response = BuildResponse(PropertyApiResponse.Value.Where(prop => prop.PostCode.Equals(value)).FirstOrDefault() as TResponse);
+                return Task.FromResult(response);
             }
 
             return null;
         }
 
-        private static Task<TResponse> HandleAlertRequest<TResponse>(string urlString) where TResponse : class
+        private static Task<ApiResponse<TResponse>> HandleAlertRequest<TResponse>(string urlString) where TResponse : class
         {
             string propRef = urlString.Split("/").Last();
 
-            return Task.FromResult(AlertsApiResponse.Where(res => res.PropertyReference == propRef) as TResponse);
+            ApiResponse<TResponse> response = BuildResponse(AlertsApiResponse.Value.Where(res => res.PropertyReference == propRef).FirstOrDefault() as TResponse);
+            return Task.FromResult(response);
+        }
+
+        private static ApiResponse<T> BuildResponse<T>(T content) where T : class
+        {
+            if (content == null)
+            {
+                return new ApiResponse<T>(false, HttpStatusCode.NotFound, null);
+            }
+
+            return new ApiResponse<T>(true, HttpStatusCode.OK, content);
         }
     }
 }

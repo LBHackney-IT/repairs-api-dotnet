@@ -7,6 +7,7 @@ using RepairsApi.V1.Gateways.Models;
 using RepairsApi.V1.UseCase;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 using static RepairsApi.Tests.V1.DataFakers;
@@ -35,21 +36,21 @@ namespace RepairsApi.Tests.V1.Gateways
         public async Task SendsRequestById()
         {
             // Arrange
-            PropertyApiResponse stubData = StubPropertyApiResponse().Generate();
+            var stubData = BuildResponse(StubPropertyApiResponse().Generate());
             _apiGatewayMock.Setup(gw => gw.ExecuteRequest<PropertyApiResponse>(It.IsAny<Uri>())).ReturnsAsync(stubData);
 
             // Act
             var result = await _classUnderTest.GetByReferenceAsync("").ConfigureAwait(false);
 
             // Assert
-            result.Address.ShortAddress.Should().Be(stubData.Address1);
+            result.Address.ShortAddress.Should().Be(stubData.Content.Address1);
         }
 
         [Test]
         public async Task SendsRequestBySearch()
         {
             // Arrange
-            List<PropertyApiResponse> stubData = StubPropertyApiResponse().Generate(5);
+            var stubData = BuildResponse(StubPropertyApiResponse().Generate(5));
             _apiGatewayMock.Setup(gw => gw.ExecuteRequest<List<PropertyApiResponse>>(It.IsAny<Uri>())).ReturnsAsync(stubData);
             PropertySearchModel searchModel = new PropertySearchModel
             {
@@ -59,7 +60,17 @@ namespace RepairsApi.Tests.V1.Gateways
             var result = await _classUnderTest.GetByQueryAsync(searchModel).ConfigureAwait(false);
 
             // Assert
-            result.Should().HaveCount(stubData.Count);
+            result.Should().HaveCount(stubData.Content.Count);
+        }
+
+        private static ApiResponse<T> BuildResponse<T>(T content) where T : class
+        {
+            if (content == null)
+            {
+                return new ApiResponse<T>(false, HttpStatusCode.NotFound, null);
+            }
+
+            return new ApiResponse<T>(true, HttpStatusCode.OK, content);
         }
     }
 }

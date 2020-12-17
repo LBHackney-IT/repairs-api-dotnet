@@ -32,6 +32,8 @@ namespace RepairsApi.V1.Factories
 
         public static PropertyAlertList ToDomain(this AlertsApiResponse apiResponse)
         {
+            if (apiResponse is null) return null;
+
             return new PropertyAlertList
             {
                 PropertyReference = apiResponse.PropertyReference,
@@ -41,6 +43,8 @@ namespace RepairsApi.V1.Factories
 
         public static PropertyAlert ToDomain(this AlertApiAlertViewModel apiResponse)
         {
+            if (apiResponse is null) return null;
+
             return new PropertyAlert
             {
                 AlertCode = apiResponse.AlertCode,
@@ -57,6 +61,8 @@ namespace RepairsApi.V1.Factories
 
         public static PropertyModel ToDomain(this PropertyApiResponse apiResponse)
         {
+            if (apiResponse is null) return null;
+
             return new PropertyModel
             {
                 PropertyReference = apiResponse.PropRef,

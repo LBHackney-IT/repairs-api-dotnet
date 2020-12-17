@@ -7,10 +7,12 @@ namespace RepairsApi.Tests.V1
 {
     public static class DataFakers
     {
+        const int Seed = 184474;
 
         public static Faker<PropertyAlert> StubAlerts()
         {
             return new Faker<PropertyAlert>()
+                .UseSeed(Seed)
                 .RuleFor(pa => pa.AlertCode, f => f.Random.String())
                 .RuleFor(pa => pa.Description, f => f.Random.String())
                 .RuleFor(pa => pa.StartDate, f => f.Random.String())
@@ -23,6 +25,7 @@ namespace RepairsApi.Tests.V1
             Faker<HierarchyType> hierarchyType = StubHierarchies();
 
             return new Faker<PropertyModel>()
+                .UseSeed(Seed)
                 .RuleFor(pm => pm.Address, f => addresse.Generate())
                 .RuleFor(pm => pm.PropertyReference, f => f.Random.Int(0).ToString())
                 .RuleFor(pm => pm.HierarchyType, f => hierarchyType.Generate());
@@ -31,6 +34,7 @@ namespace RepairsApi.Tests.V1
         public static Faker<HierarchyType> StubHierarchies()
         {
             return new Faker<HierarchyType>()
+                .UseSeed(Seed)
                 .RuleFor(ht => ht.LevelCode, f => f.Random.String())
                 .RuleFor(ht => ht.SubTypeCode, f => f.Random.String())
                 .RuleFor(ht => ht.SubTypeDescription, f => f.Random.String());
@@ -39,6 +43,7 @@ namespace RepairsApi.Tests.V1
         public static Faker<Address> StubAddresses()
         {
             return new Faker<Address>()
+                .UseSeed(Seed)
                 .RuleFor(a => a.PostalCode, f => f.Random.String())
                 .RuleFor(a => a.ShortAddress, f => f.Random.String())
                 .RuleFor(a => a.StreetSuffix, f => f.Random.String())
@@ -57,12 +62,14 @@ namespace RepairsApi.Tests.V1
         public static Faker<AlertsApiResponse> StubAlertApiResponse(int? alertCount = null)
         {
             Faker<AlertApiAlertViewModel> alertsFake = new Faker<AlertApiAlertViewModel>()
+                .UseSeed(Seed)
                 .RuleFor(pa => pa.AlertCode, f => f.Random.String())
                 .RuleFor(pa => pa.Description, f => f.Random.String())
                 .RuleFor(pa => pa.StartDate, f => f.Random.String())
                 .RuleFor(pa => pa.EndDate, f => f.Random.String());
 
             return new Faker<AlertsApiResponse>()
+                .UseSeed(Seed)
                 .RuleFor(res => res.PropertyReference, f => f.Random.Int().ToString())
                 .RuleFor(res => res.Alerts, f => alertsFake.Generate(alertCount ?? f.Random.Int(0, 20)));
         }
@@ -70,6 +77,7 @@ namespace RepairsApi.Tests.V1
         public static Faker<PropertyApiResponse> StubPropertyApiResponse()
         {
             return new Faker<PropertyApiResponse>()
+                .UseSeed(Seed)
                 .RuleFor(res => res.Address1, f => f.Random.String())
                 .RuleFor(res => res.PostCode, f => f.Random.String())
                 .RuleFor(res => res.LevelCode, f => f.Random.String())

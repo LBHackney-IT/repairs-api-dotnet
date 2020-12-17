@@ -16,26 +16,19 @@ namespace RepairsApi.Tests
     public class MockWebApplicationFactory<TStartup>
         : WebApplicationFactory<TStartup> where TStartup : class
     {
-        private readonly DbConnection _connection;
-
-        public MockWebApplicationFactory(DbConnection connection)
-        {
-            _connection = connection;
-        }
-
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.ConfigureServices(services =>
             {
-                //var dbBuilder = new DbContextOptionsBuilder();
-                //dbBuilder.UseNpgsql(_connection);
-                //var context = new RepairsContext(dbBuilder.Options);
-                //services.AddSingleton(context);
+                var dbBuilder = new DbContextOptionsBuilder();
+                dbBuilder.UseSqlite("Data Source=:memory:");
+                var context = new RepairsContext(dbBuilder.Options);
+                services.AddSingleton(context);
 
-                //var serviceProvider = services.BuildServiceProvider();
-                //var dbContext = serviceProvider.GetRequiredService<RepairsContext>();
+                var serviceProvider = services.BuildServiceProvider();
+                var dbContext = serviceProvider.GetRequiredService<RepairsContext>();
 
-                //dbContext.Database.EnsureCreated();
+                dbContext.Database.EnsureCreated();
 
                 //services.Remove(services.Where(s => s.ImplementationType == typeof(ApiGateway)).First());
 

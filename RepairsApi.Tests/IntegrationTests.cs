@@ -13,28 +13,21 @@ namespace RepairsApi.Tests
         protected RepairsContext RepairsContext { get; private set; }
 
         private MockWebApplicationFactory<TStartup> _factory;
-        private NpgsqlConnection _connection;
         private IDbContextTransaction _transaction;
         private DbContextOptionsBuilder _builder;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            _connection = new NpgsqlConnection(ConnectionString.TestDatabase());
-            _connection.Open();
-            var npgsqlCommand = _connection.CreateCommand();
-            npgsqlCommand.CommandText = "SET deadlock_timeout TO 30";
-            npgsqlCommand.ExecuteNonQuery();
-
             _builder = new DbContextOptionsBuilder();
-            _builder.UseNpgsql(_connection);
+            _builder.UseSqlite("Data Source=:memory:");
 
         }
 
         [SetUp]
         public void BaseSetup()
         {
-            _factory = new MockWebApplicationFactory<TStartup>(_connection);
+            _factory = new MockWebApplicationFactory<TStartup>();
             Client = _factory.CreateClient();
             RepairsContext = new RepairsContext(_builder.Options);
             RepairsContext.Database.EnsureCreated();

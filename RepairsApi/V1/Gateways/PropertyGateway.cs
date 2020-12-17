@@ -25,7 +25,7 @@ namespace RepairsApi.V1.Gateways
             Uri url = new Uri(_options.PropertiesAPI + $"properties?{searchModel.GetQueryParameter()}");
             var response = await _apiGateway.ExecuteRequest<List<PropertyApiResponse>>(url).ConfigureAwait(false);
 
-            return response.ToDomain();
+            return response.Content.ToDomain();
         }
 
         public async Task<PropertyModel> GetByReferenceAsync(string propertyReference)
@@ -33,7 +33,7 @@ namespace RepairsApi.V1.Gateways
             Uri url = new Uri(_options.PropertiesAPI + $"properties/{propertyReference}");
             var response = await _apiGateway.ExecuteRequest<PropertyApiResponse>(url).ConfigureAwait(false);
 
-            return response.ToDomain();
+            return response.Content.ToDomain();
         }
     }
 }

@@ -10,7 +10,7 @@ namespace RepairsApi.Tests.V1.E2ETests
         [Test]
         public async Task GetSingleProperty()
         {
-            var property = MockApiGateway.PropertyApiResponse.First();
+            var property = MockApiGateway.PropertyApiResponse.Value.First();
 
             var result = await Client.GetAsync(new Uri($"/api/v1/properties/{property.PropRef}", UriKind.Relative)).ConfigureAwait(false);
         }
