@@ -30,6 +30,7 @@ namespace RepairsApi.V1.Controllers
             _getPropertyUseCase = getPropertyUseCase;
             _listPropertiesUseCase = listPropertiesUseCase;
         }
+
         /// <summary>
         /// Retrieves all matching properties given the query params
         /// </summary>

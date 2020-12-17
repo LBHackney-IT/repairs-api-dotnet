@@ -20,10 +20,7 @@ namespace RepairsApi.V1.UseCase
         {
             var property = await _propertyGateway.GetByReferenceAsync(propertyReference);
 
-            if (property is null)
-            {
-                return null;
-            }
+            if (property is null) return null;
 
             var alertList = await _alertsGateway.GetAlertsAsync(propertyReference);
 
