@@ -56,6 +56,8 @@ namespace RepairsApi.V1.Factories
 
         public static List<PropertyModel> ToDomain(this List<PropertyApiResponse> apiResponse)
         {
+            if (apiResponse is null) return null;
+
             return apiResponse.Select(property => property.ToDomain()).ToList();
         }
 

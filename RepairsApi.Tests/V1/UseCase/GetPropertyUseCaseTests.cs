@@ -41,5 +41,18 @@ namespace RepairsApi.Tests.V1.UseCase
             result.PropertyModel.Should().Be(expectedProperty);
             result.Alerts.Should().BeEquivalentTo(expectedAlerts.Alerts);
         }
+
+        [Test]
+        public async Task ReturnNull()
+        {
+            // Arrange
+            _propertyGatewayMock.Setup(gm => gm.GetByReferenceAsync(It.IsAny<string>())).ReturnsAsync((PropertyModel) null);
+
+            // Act
+            var result = await _classUnderTest.ExecuteAsync("");
+
+            // Assert
+            result.Should().BeNull();
+        }
     }
 }

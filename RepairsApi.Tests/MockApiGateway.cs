@@ -13,8 +13,34 @@ namespace RepairsApi.Tests
 {
     public class MockApiGateway : IApiGateway
     {
-        public static Lazy<List<AlertsApiResponse>> AlertsApiResponse => new Lazy<List<AlertsApiResponse>>(StubAlertApiResponse().Generate(20));
-        public static Lazy<List<PropertyApiResponse>> PropertyApiResponse => new Lazy<List<PropertyApiResponse>>(StubPropertyApiResponse().Generate(40));
+        private static List<AlertsApiResponse> _alertsApiResponse;
+        private static List<PropertyApiResponse> _propertyApiResponse;
+
+        public static List<AlertsApiResponse> AlertsApiResponse
+        {
+            get
+            {
+                if (_alertsApiResponse is null)
+                {
+                    _alertsApiResponse = new List<AlertsApiResponse>(StubAlertApiResponse().Generate(20));
+                };
+
+                return _alertsApiResponse;
+            }
+        }
+
+        public static List<PropertyApiResponse> PropertyApiResponse
+        {
+            get
+            {
+                if (_propertyApiResponse is null)
+                {
+                    _propertyApiResponse = new List<PropertyApiResponse>(StubPropertyApiResponse().Generate(40));
+                };
+
+                return _propertyApiResponse;
+            }
+        }
 
         public Task<ApiResponse<TResponse>> ExecuteRequest<TResponse>(Uri url) where TResponse : class
         {
@@ -50,7 +76,7 @@ namespace RepairsApi.Tests
         {
             string propRef = urlString.Split("/").Last();
 
-            ApiResponse<TResponse> response = BuildResponse(PropertyApiResponse.Value.Where(res => res.PropRef == propRef).First() as TResponse);
+            ApiResponse<TResponse> response = BuildResponse(PropertyApiResponse.Where(res => res.PropRef == propRef).FirstOrDefault() as TResponse);
             return Task.FromResult(response);
         }
 
@@ -58,28 +84,45 @@ namespace RepairsApi.Tests
         {
             Regex searchExtractor = new Regex(@"\?(([a-z]+)=(\w*))");
             var groups = searchExtractor.Match(urlString).Groups;
-            string param = groups[1].Value;
-            string value = groups[2].Value;
+            string param = groups[2].Value;
+            string value = groups[3].Value;
 
             if (param == "address")
             {
-                ApiResponse<TResponse> response = BuildResponse(PropertyApiResponse.Value.Where(prop => prop.Address1.Contains(value)).FirstOrDefault() as TResponse);
+                ApiResponse<TResponse> response = BuildResponse(PropertyApiResponse.Where(prop => prop.Address1.Contains(value)).ToList() as TResponse);
                 return Task.FromResult(response);
             }
             else if (param == "postcode")
             {
-                ApiResponse<TResponse> response = BuildResponse(PropertyApiResponse.Value.Where(prop => prop.PostCode.Equals(value)).FirstOrDefault() as TResponse);
+                ApiResponse<TResponse> response = BuildResponse(PropertyApiResponse.Where(prop => prop.PostCode.Equals(value)).ToList() as TResponse);
                 return Task.FromResult(response);
             }
 
             return null;
         }
 
+        internal static void AddProperties(int count, string postcode = null, string address = null)
+        {
+            var newProperties = StubPropertyApiResponse().Generate(count);
+
+            if (postcode != null)
+            {
+                newProperties.ForEach(property => property.PostCode = postcode);
+            }
+
+            if (address != null)
+            {
+                newProperties.ForEach(property => property.Address1 = address);
+            }
+
+            PropertyApiResponse.AddRange(newProperties);
+        }
+
         private static Task<ApiResponse<TResponse>> HandleAlertRequest<TResponse>(string urlString) where TResponse : class
         {
             string propRef = urlString.Split("/").Last();
 
-            ApiResponse<TResponse> response = BuildResponse(AlertsApiResponse.Value.Where(res => res.PropertyReference == propRef).FirstOrDefault() as TResponse);
+            ApiResponse<TResponse> response = BuildResponse(AlertsApiResponse.Where(res => res.PropertyReference == propRef).FirstOrDefault() as TResponse);
             return Task.FromResult(response);
         }
 

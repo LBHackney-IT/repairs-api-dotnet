@@ -63,8 +63,6 @@ namespace RepairsApi.Tests.V1.Gateways
             result.Should().HaveCount(stubData.Content.Count);
         }
 
-        // TODO Fill in search terms
-
         private static ApiResponse<T> BuildResponse<T>(T content) where T : class
         {
             if (content == null)

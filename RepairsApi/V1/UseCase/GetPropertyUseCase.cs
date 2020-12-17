@@ -19,6 +19,12 @@ namespace RepairsApi.V1.UseCase
         public async Task<PropertyWithAlerts> ExecuteAsync(string propertyReference)
         {
             var property = await _propertyGateway.GetByReferenceAsync(propertyReference);
+
+            if (property is null)
+            {
+                return null;
+            }
+
             var alertList = await _alertsGateway.GetAlertsAsync(propertyReference);
 
             return new PropertyWithAlerts

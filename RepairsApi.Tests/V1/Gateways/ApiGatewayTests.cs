@@ -53,8 +53,6 @@ namespace RepairsApi.Tests.V1.Gateways
         }
     }
 
-    // TODO Error Tests
-
     public class TestModel
     {
         public string TestValue { get; set; }

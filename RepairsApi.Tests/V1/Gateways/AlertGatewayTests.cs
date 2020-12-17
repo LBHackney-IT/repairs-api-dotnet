@@ -49,6 +49,22 @@ namespace RepairsApi.Tests.V1.Gateways
             result.Alerts.Should().HaveCount(stubData.Content.Alerts.Count);
         }
 
+        [Test]
+        public async Task ReturnEmptyListWhen404()
+        {
+            // Arrange
+            var stubData = BuildResponse<AlertsApiResponse>(null);
+            _apiGatewayMock.Setup(gw => gw.ExecuteRequest<AlertsApiResponse>(It.IsAny<Uri>())).ReturnsAsync(stubData);
+            const string expectedPropertyReference = "";
+
+            // Act
+            var result = await _classUnderTest.GetAlertsAsync(expectedPropertyReference);
+
+            // Assert
+            result.PropertyReference.Should().Be(expectedPropertyReference);
+            result.Alerts.Should().BeEmpty();
+        }
+
         private static ApiResponse<T> BuildResponse<T>(T content) where T : class
         {
             if (content == null)
@@ -58,7 +74,5 @@ namespace RepairsApi.Tests.V1.Gateways
 
             return new ApiResponse<T>(true, HttpStatusCode.OK, content);
         }
-
-        // TODO Error Tests
     }
 }
