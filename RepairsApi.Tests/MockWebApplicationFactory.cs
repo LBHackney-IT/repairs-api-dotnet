@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Linq;
+using RepairsApi.V1.Gateways;
+using Microsoft.Extensions.Hosting;
+using System;
 
 namespace RepairsApi.Tests
 {
@@ -21,12 +25,17 @@ namespace RepairsApi.Tests
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder.ConfigureAppConfiguration(b => b.AddEnvironmentVariables())
-                .UseStartup<Startup>();
             builder.ConfigureServices(services =>
             {
                 var dbBuilder = new DbContextOptionsBuilder();
-                dbBuilder.UseNpgsql(_connection);
+                if (_connection != null)
+                {
+                    dbBuilder.UseNpgsql(_connection);
+                }
+                else
+                {
+                    dbBuilder.UseSqlite("Data Source=:memory:");
+                }
                 var context = new RepairsContext(dbBuilder.Options);
                 services.AddSingleton(context);
 
@@ -34,7 +43,12 @@ namespace RepairsApi.Tests
                 var dbContext = serviceProvider.GetRequiredService<RepairsContext>();
 
                 dbContext.Database.EnsureCreated();
-            });
+
+                services.AddTransient<IApiGateway, MockApiGateway>();
+            })
+            .ConfigureAppConfiguration(b => b.AddEnvironmentVariables())
+            .UseEnvironment("IntegrationTests");
+
         }
     }
 }

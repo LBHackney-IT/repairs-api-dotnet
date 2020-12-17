@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace RepairsApi.V1.Controllers
 {
-    [Route("api/v1/healthcheck")]
+    [Route("api/v2/healthcheck")]
     [ApiController]
     [Produces("application/json")]
     public class HealthCheckController : BaseController
