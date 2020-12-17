@@ -37,6 +37,7 @@ namespace RepairsApi.Tests.V1.UseCase
             // Act
             var result = await _classUnderTest.ExecuteAsync(expectedProperty.PropertyReference);
 
+            // Assert
             result.PropertyModel.Should().Be(expectedProperty);
             result.Alerts.Should().BeEquivalentTo(expectedAlerts.Alerts);
         }

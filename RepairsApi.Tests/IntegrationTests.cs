@@ -4,15 +4,19 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Npgsql;
 using NUnit.Framework;
+using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace RepairsApi.Tests
 {
+    [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "<Pending>")]
     public class IntegrationTests<TStartup> where TStartup : class
     {
         protected HttpClient Client { get; private set; }
         protected RepairsContext RepairsContext { get; private set; }
 
         private MockWebApplicationFactory<TStartup> _factory;
+        private NpgsqlConnection _connection = null;
         private IDbContextTransaction _transaction;
         private DbContextOptionsBuilder _builder;
 
@@ -20,14 +24,30 @@ namespace RepairsApi.Tests
         public void OneTimeSetUp()
         {
             _builder = new DbContextOptionsBuilder();
-            _builder.UseSqlite("Data Source=:memory:");
+
+            try
+            {
+                _connection = new NpgsqlConnection(ConnectionString.TestDatabase());
+                _connection.Open();
+                var npgsqlCommand = _connection.CreateCommand();
+                npgsqlCommand.CommandText = "SET deadlock_timeout TO 30";
+                npgsqlCommand.ExecuteNonQuery();
+
+                _builder.UseNpgsql(_connection);
+            }
+            catch
+            {
+                _connection.Dispose();
+                _connection = null;
+                _builder.UseSqlite("Data Source=:memory:");
+            }
 
         }
 
         [SetUp]
         public void BaseSetup()
         {
-            _factory = new MockWebApplicationFactory<TStartup>();
+            _factory = new MockWebApplicationFactory<TStartup>(_connection);
             Client = _factory.CreateClient();
             RepairsContext = new RepairsContext(_builder.Options);
             RepairsContext.Database.EnsureCreated();

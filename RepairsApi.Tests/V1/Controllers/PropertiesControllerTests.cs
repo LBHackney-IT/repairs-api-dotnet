@@ -52,7 +52,7 @@ namespace RepairsApi.Tests.V1.Controllers
         }
 
         [Test]
-        public async Task GetsProperties()
+        public async Task GetsProperty()
         {
             string expectedPropertyReference = new Faker().Random.Number().ToString();
             var property = new PropertyWithAlerts()

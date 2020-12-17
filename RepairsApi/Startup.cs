@@ -32,8 +32,7 @@ namespace RepairsApi
 
         public IConfiguration Configuration { get; }
         private static List<ApiVersionDescription> _apiVersions { get; set; }
-        //TODO update the below to the name of your API
-        private const string ApiName = "Your API Name";
+        private const string ApiName = "Repairs API";
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -114,7 +113,7 @@ namespace RepairsApi
             services.AddTransient<IListPropertiesUseCase, ListPropertiesUseCase>();
             services.AddTransient<IGetPropertyUseCase, GetPropertyUseCase>();
 
-            //services.AddTransient<IApiGateway, ApiGateway>();
+            services.TryAddTransient<IApiGateway, ApiGateway>();
             services.AddTransient<IPropertyGateway, PropertyGateway>();
             services.AddTransient<IAlertsGateway, AlertsGateway>();
         }
