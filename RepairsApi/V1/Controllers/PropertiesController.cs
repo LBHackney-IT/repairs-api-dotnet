@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 namespace RepairsApi.V1.Controllers
 {
     [ApiController]
-    [Route("/api/v1/properties")]
+    [Route("/api/v2/properties")]
     [Produces("application/json")]
-    [ApiVersion("1.0")]
+    [ApiVersion("2.0")]
     public class PropertiesController : BaseController
     {
         private readonly IListAlertsUseCase _listAlertsUseCase;
