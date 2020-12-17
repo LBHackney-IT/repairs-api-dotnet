@@ -63,10 +63,10 @@ namespace RepairsApi.Tests.V1
         {
             Faker<AlertApiAlertViewModel> alertsFake = new Faker<AlertApiAlertViewModel>()
                 .UseSeed(Seed)
-                .RuleFor(pa => pa.AlertCode, f => f.Random.String())
-                .RuleFor(pa => pa.Description, f => f.Random.String())
-                .RuleFor(pa => pa.StartDate, f => f.Random.String())
-                .RuleFor(pa => pa.EndDate, f => f.Random.String());
+                .RuleFor(pa => pa.AlertCode, f => f.Random.String2(0, 100))
+                .RuleFor(pa => pa.Description, f => f.Random.String2(0, 100))
+                .RuleFor(pa => pa.StartDate, f => f.Random.String2(0, 100))
+                .RuleFor(pa => pa.EndDate, f => f.Random.String2(0, 100));
 
             return new Faker<AlertsApiResponse>()
                 .UseSeed(Seed)
@@ -78,9 +78,9 @@ namespace RepairsApi.Tests.V1
         {
             return new Faker<PropertyApiResponse>()
                 .UseSeed(Seed)
-                .RuleFor(res => res.Address1, f => f.Random.String())
-                .RuleFor(res => res.PostCode, f => f.Random.String())
-                .RuleFor(res => res.LevelCode, f => f.Random.String())
+                .RuleFor(res => res.Address1, f => f.Random.String2(0, 100))
+                .RuleFor(res => res.PostCode, f => f.Random.String2(0, 100))
+                .RuleFor(res => res.LevelCode, f => f.Random.String2(0, 100))
                 .RuleFor(res => res.PropRef, f => f.Random.Int().ToString())
                 .RuleFor(res => res.SubtypCode, f => f.PickRandom<string>(ApiModelFactory.HierarchyDescriptions.Keys));
         }
