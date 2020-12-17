@@ -10,7 +10,7 @@ namespace RepairsApi.Tests
     public class IntegrationTests<TStartup> where TStartup : class
     {
         protected HttpClient Client { get; private set; }
-        protected DatabaseContext DatabaseContext { get; private set; }
+        protected RepairsContext RepairsContext { get; private set; }
 
         private MockWebApplicationFactory<TStartup> _factory;
         private NpgsqlConnection _connection;
@@ -36,9 +36,9 @@ namespace RepairsApi.Tests
         {
             _factory = new MockWebApplicationFactory<TStartup>(_connection);
             Client = _factory.CreateClient();
-            DatabaseContext = new DatabaseContext(_builder.Options);
-            DatabaseContext.Database.EnsureCreated();
-            _transaction = DatabaseContext.Database.BeginTransaction();
+            RepairsContext = new RepairsContext(_builder.Options);
+            RepairsContext.Database.EnsureCreated();
+            _transaction = RepairsContext.Database.BeginTransaction();
         }
 
         [TearDown]

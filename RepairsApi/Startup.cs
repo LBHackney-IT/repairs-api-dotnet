@@ -3,10 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using RepairsApi.V1.Gateways;
 using RepairsApi.V1.Infrastructure;
-using RepairsApi.V1.UseCase;
-using RepairsApi.V1.UseCase.Interfaces;
 using RepairsApi.Versioning;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -106,27 +103,17 @@ namespace RepairsApi
                     c.IncludeXmlComments(xmlPath);
             });
             ConfigureDbContext(services);
-            RegisterGateways(services);
-            RegisterUseCases(services);
         }
 
         private static void ConfigureDbContext(IServiceCollection services)
         {
             var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
 
-            services.AddDbContext<DatabaseContext>(
-                opt => opt.UseNpgsql(connectionString));
-        }
-
-        private static void RegisterGateways(IServiceCollection services)
-        {
-            services.AddScoped<IExampleGateway, ExampleGateway>();
-        }
-
-        private static void RegisterUseCases(IServiceCollection services)
-        {
-            services.AddScoped<IGetAllUseCase, GetAllUseCase>();
-            services.AddScoped<IGetByIdUseCase, GetByIdUseCase>();
+            services.AddDbContext<RepairsContext>(
+                opt => opt
+                    .UseLazyLoadingProxies()
+                    .UseNpgsql(connectionString)
+                );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
