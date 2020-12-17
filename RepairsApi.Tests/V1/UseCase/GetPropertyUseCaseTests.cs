@@ -35,7 +35,7 @@ namespace RepairsApi.Tests.V1.UseCase
             _alertGatewayMock.Setup(gm => gm.GetAlertsAsync(It.IsAny<string>())).ReturnsAsync(expectedAlerts);
 
             // Act
-            var result = await _classUnderTest.ExecuteAsync(expectedProperty.PropertyReference).ConfigureAwait(false);
+            var result = await _classUnderTest.ExecuteAsync(expectedProperty.PropertyReference);
 
             result.PropertyModel.Should().Be(expectedProperty);
             result.Alerts.Should().BeEquivalentTo(expectedAlerts.Alerts);

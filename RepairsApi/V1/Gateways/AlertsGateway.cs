@@ -24,7 +24,7 @@ namespace RepairsApi.V1.Gateways
         {
             Uri url = new Uri(_options.AlertsApi + $"cautionary-alerts/properties/{propertyReference}");
 
-            var response = await _apiGateway.ExecuteRequest<AlertsApiResponse>(url).ConfigureAwait(false);
+            var response = await _apiGateway.ExecuteRequest<AlertsApiResponse>(url);
 
             if (response.Status == HttpStatusCode.NotFound)
             {

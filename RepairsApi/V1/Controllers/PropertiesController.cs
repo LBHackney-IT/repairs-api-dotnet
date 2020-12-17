@@ -47,7 +47,7 @@ namespace RepairsApi.V1.Controllers
                 Query = q
             };
 
-            IEnumerable<PropertyModel> properties = await _listPropertiesUseCase.ExecuteAsync(searchModel).ConfigureAwait(false);
+            IEnumerable<PropertyModel> properties = await _listPropertiesUseCase.ExecuteAsync(searchModel);
 
             return Ok(properties.ToResponse());
         }
@@ -62,7 +62,7 @@ namespace RepairsApi.V1.Controllers
         [Route("{propertyReference}")]
         public async Task<IActionResult> GetProperty([FromRoute][Required] string propertyReference)
         {
-            PropertyWithAlerts property = await _getPropertyUseCase.ExecuteAsync(propertyReference).ConfigureAwait(false);
+            PropertyWithAlerts property = await _getPropertyUseCase.ExecuteAsync(propertyReference);
             if (property is null)
             {
                 return NotFound();
@@ -80,7 +80,7 @@ namespace RepairsApi.V1.Controllers
         [Route("{propertyReference}/alerts")]
         public async Task<IActionResult> ListCautionaryAlerts([FromRoute][Required] string propertyReference)
         {
-            PropertyAlertList alerts = await _listAlertsUseCase.ExecuteAsync(propertyReference).ConfigureAwait(false);
+            PropertyAlertList alerts = await _listAlertsUseCase.ExecuteAsync(propertyReference);
 
             return Ok(alerts.ToResponse());
         }

@@ -33,7 +33,7 @@ namespace RepairsApi.Tests.V1.UseCase
             _alertGatewayMock.Setup(gm => gm.GetAlertsAsync(It.IsAny<string>())).ReturnsAsync(expectedAlertList);
 
             // Act
-            var result = await _classUnderTest.ExecuteAsync(expectedPropertyReference).ConfigureAwait(false);
+            var result = await _classUnderTest.ExecuteAsync(expectedPropertyReference);
 
             // Assert
             result.PropertyReference.Should().Be(expectedPropertyReference);

@@ -35,7 +35,7 @@ namespace RepairsApi.Tests.V1.UseCase
             };
 
             // Act
-            var result = await _classUnderTest.ExecuteAsync(searchModel).ConfigureAwait(false);
+            var result = await _classUnderTest.ExecuteAsync(searchModel);
 
             // Assert
             result.Should().HaveCount(expectedPropertyCount);
@@ -48,7 +48,7 @@ namespace RepairsApi.Tests.V1.UseCase
             SetupProperties(5);
 
             // Act
-            var result = await _classUnderTest.ExecuteAsync(new PropertySearchModel()).ConfigureAwait(false);
+            var result = await _classUnderTest.ExecuteAsync(new PropertySearchModel());
 
             // Assert
             result.Should().BeEmpty();

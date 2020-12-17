@@ -42,7 +42,7 @@ namespace RepairsApi.Tests.V1.Controllers
             _listPropertiesUseCaseMock.Setup(m => m.ExecuteAsync(It.IsAny<PropertySearchModel>())).ReturnsAsync(seededProperties);
 
             // Act
-            var result = await _classUnderTest.ListProperties(null, null, null).ConfigureAwait(false);
+            var result = await _classUnderTest.ListProperties(null, null, null);
             var propertyResults = GetResultData<List<PropertyViewModel>>(result);
             var statusCode = GetStatusCode(result);
 
@@ -65,7 +65,7 @@ namespace RepairsApi.Tests.V1.Controllers
             _getPropertyUseCaseMock.Setup(m => m.ExecuteAsync(It.IsAny<string>())).ReturnsAsync(property);
 
             // Act
-            var result = await _classUnderTest.GetProperty(expectedPropertyReference).ConfigureAwait(false);
+            var result = await _classUnderTest.GetProperty(expectedPropertyReference);
             var propertyResult = GetResultData<PropertyResponse>(result);
             var statusCode = GetStatusCode(result);
 
@@ -82,7 +82,7 @@ namespace RepairsApi.Tests.V1.Controllers
             _getPropertyUseCaseMock.Setup(m => m.ExecuteAsync(It.IsAny<string>())).ReturnsAsync((PropertyWithAlerts) null);
 
             // Act
-            var result = await _classUnderTest.GetProperty(expectedPropertyReference).ConfigureAwait(false);
+            var result = await _classUnderTest.GetProperty(expectedPropertyReference);
             var propertyResult = GetResultData<PropertyResponse>(result);
             var statusCode = GetStatusCode(result);
 
@@ -101,7 +101,7 @@ namespace RepairsApi.Tests.V1.Controllers
             _listAlertsUseCaseMock.Setup(m => m.ExecuteAsync(It.IsAny<string>())).ReturnsAsync(alertList);
 
             // Act
-            var result = await _classUnderTest.ListCautionaryAlerts(expectedPropertyReference).ConfigureAwait(false);
+            var result = await _classUnderTest.ListCautionaryAlerts(expectedPropertyReference);
             var alertResult = GetResultData<CautionaryAlertResponseList>(result);
             var statusCode = GetStatusCode(result);
 

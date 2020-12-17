@@ -40,7 +40,7 @@ namespace RepairsApi.Tests.V1.Gateways
             _apiGatewayMock.Setup(gw => gw.ExecuteRequest<PropertyApiResponse>(It.IsAny<Uri>())).ReturnsAsync(stubData);
 
             // Act
-            var result = await _classUnderTest.GetByReferenceAsync("").ConfigureAwait(false);
+            var result = await _classUnderTest.GetByReferenceAsync("");
 
             // Assert
             result.Address.ShortAddress.Should().Be(stubData.Content.Address1);
@@ -57,7 +57,7 @@ namespace RepairsApi.Tests.V1.Gateways
             };
 
             // Act
-            var result = await _classUnderTest.GetByQueryAsync(searchModel).ConfigureAwait(false);
+            var result = await _classUnderTest.GetByQueryAsync(searchModel);
 
             // Assert
             result.Should().HaveCount(stubData.Content.Count);

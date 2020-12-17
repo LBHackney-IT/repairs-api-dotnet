@@ -42,7 +42,7 @@ namespace RepairsApi.Tests.V1.Gateways
             _apiGatewayMock.Setup(gw => gw.ExecuteRequest<AlertsApiResponse>(It.IsAny<Uri>())).ReturnsAsync(stubData);
 
             // Act
-            var result = await _classUnderTest.GetAlertsAsync("").ConfigureAwait(false);
+            var result = await _classUnderTest.GetAlertsAsync("");
 
             // Assert
             result.PropertyReference.Should().Be(stubData.Content.PropertyReference);

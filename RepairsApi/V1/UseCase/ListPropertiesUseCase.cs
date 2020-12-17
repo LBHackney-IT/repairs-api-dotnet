@@ -22,7 +22,7 @@ namespace RepairsApi.V1.UseCase
                 return EmptyList();
             }
 
-            return await _propertyGateway.GetByQueryAsync(searchModel).ConfigureAwait(false);
+            return await _propertyGateway.GetByQueryAsync(searchModel);
         }
 
         private static List<PropertyModel> EmptyList()

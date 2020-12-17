@@ -17,12 +17,12 @@ namespace RepairsApi.V1.Gateways
         public async Task<ApiResponse<TResponse>> ExecuteRequest<TResponse>(Uri url)
             where TResponse : class
         {
-            var result = await _httpClient.GetAsync(url).ConfigureAwait(false);
+            var result = await _httpClient.GetAsync(url);
             TResponse response = default;
 
             if (result.IsSuccessStatusCode)
             {
-                var stringResult = await result.Content.ReadAsStringAsync().ConfigureAwait(false);
+                var stringResult = await result.Content.ReadAsStringAsync();
                 response = JsonConvert.DeserializeObject<TResponse>(stringResult);
             }
 

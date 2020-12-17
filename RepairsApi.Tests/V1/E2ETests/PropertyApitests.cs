@@ -21,7 +21,7 @@ namespace RepairsApi.Tests.V1.E2ETests
 
             ApiGateway client = new ApiGateway(Client);
 
-            var response = await client.ExecuteRequest<PropertyResponse>(new Uri($"/api/v1/properties/{expectedProperty.PropRef}", UriKind.Relative)).ConfigureAwait(false);
+            var response = await client.ExecuteRequest<PropertyResponse>(new Uri($"/api/v1/properties/{expectedProperty.PropRef}", UriKind.Relative));
 
             response.IsSuccess.Should().BeTrue();
             response.Status.Should().Be(HttpStatusCode.OK);
@@ -37,12 +37,16 @@ namespace RepairsApi.Tests.V1.E2ETests
 
             ApiGateway client = new ApiGateway(Client);
 
-            var response = await client.ExecuteRequest<PropertyAlertList>(new Uri($"/api/v1/properties/{expectedAlerts.PropertyReference}/alerts", UriKind.Relative)).ConfigureAwait(false);
+            var response = await client.ExecuteRequest<PropertyAlertList>(new Uri($"/api/v1/properties/{expectedAlerts.PropertyReference}/alerts", UriKind.Relative));
 
             response.IsSuccess.Should().BeTrue();
             response.Status.Should().Be(HttpStatusCode.OK);
             response.Content.PropertyReference.Should().Be(expectedResponse.PropertyReference);
             response.Content.Alerts.Should().BeEquivalentTo(expectedResponse.Alerts);
         }
+
+        // List properties
+
+        // Check alerts on property by ref
     }
 }
