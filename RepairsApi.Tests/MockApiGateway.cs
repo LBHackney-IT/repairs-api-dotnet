@@ -1,20 +1,21 @@
+using Microsoft.AspNetCore.Mvc;
+using RepairsApi.Tests.ApiMocking;
 using RepairsApi.V1.Factories;
 using RepairsApi.V1.Gateways;
 using RepairsApi.V1.Gateways.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
-using System.Text.RegularExpressions;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 using static RepairsApi.Tests.V1.DataFakers;
 
 namespace RepairsApi.Tests
 {
-    internal delegate RouteParams RouteMatcher(string url);
-    internal delegate ApiResponse<object> RequestHandler(string value);
-
+    [SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "Parameters Map to query param values for platform apis")]
     public class MockApiGateway : IApiGateway
     {
         #region Data
@@ -74,131 +75,68 @@ namespace RepairsApi.Tests
 
                 return _tenantApiResponse;
             }
-
+            
         }
         #endregion
+
+        private readonly ApiGateway _innerGateway;
+
+        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Tests")]
+        public MockApiGateway()
+        {
+            var mock = MockHttpMessageHandler.FromClass<MockApiGateway>();
+            HttpClient client = new HttpClient(mock);
+            _innerGateway = new ApiGateway(client);
+        }
 
         public Task<ApiResponse<TResponse>> ExecuteRequest<TResponse>(Uri url) where TResponse : class
         {
-            string urlString = url.ToString();
-
-            foreach (var kv in _router)
-            {
-                RouteParams routeParams = kv.Key.Invoke(urlString);
-                if (routeParams.Matches)
-                {
-                    ApiResponse<object> apiResponse = kv.Value.Invoke(routeParams.QueryValue);
-                    return Task.FromResult(new ApiResponse<TResponse>(apiResponse.IsSuccess, apiResponse.Status, apiResponse.Content as TResponse));
-                }
-            }
-
-            return null;
+            return _innerGateway.ExecuteRequest<TResponse>(url);
         }
 
-        private static RouteParams MatchPropertyReference(string url)
+        [Route("http://testtenanciesapi/tenancies")]
+        public static object HandleTenancyInformation(string property_reference)
         {
-            return new RouteParams
+            return new ListTenanciesApiResponse
             {
-                Matches = url.Contains("testpropertiesapi"),
-                QueryValue = url.Split("/").Last()
+                Tenancies = MockTenantApiResponses.Where(tenant => tenant.PropertyReference == property_reference).ToList()
             };
         }
 
-        #region Routing
-        private Dictionary<RouteMatcher, RequestHandler> _router = new Dictionary<RouteMatcher, RequestHandler>(){
-            { MatchTenancyInformation, HandleTenancyInformation },
-            { MatchPersonAlerts, HandlePersonAlerts },
-            { MatchPropertyAlerts, HandlePropertyAlerts },
-            { MatchPostCodeSearch, HandlePostCodeSearch },
-            { MatchAddressSearch, HandleAddressSearch },
-            { MatchPropertyReference, HandlePropertyReference }
-        };
-
-        private static ApiResponse<object> HandleTenancyInformation(string value)
+        [Route("http://testalertsapi/cautionary-alerts/people")]
+        public static object HandlePersonAlerts(string tag_ref)
         {
-            ListTenanciesApiResponse result = new ListTenanciesApiResponse
+            return new ListPersonAlertsApiResponse
             {
-                Tenancies = MockTenantApiResponses.Where(tenant => tenant.PropertyReference == value).ToList()
-            };
-
-            return BuildResponse<object>(result);
-        }
-
-        private static RouteParams MatchTenancyInformation(string url)
-        {
-            return new RouteParams
-            {
-                Matches = url.Contains("testtenanciesapi"),
-                QueryValue = url.Split("=").Last()
+                Contacts = MockPersonAlertsApiResponses.Where(res => res.TenancyAgreementReference == tag_ref).ToList()
             };
         }
 
-        private static RouteParams MatchPersonAlerts(string url)
+        [Route("http://testalertsapi/cautionary-alerts/properties/{propertyReference}")]
+        public static object HandlePropertyAlerts(string propertyReference)
         {
-            return new RouteParams
-            {
-                Matches = url.Contains("testalertsapi") && url.Contains("people?tag_ref"),
-                QueryValue = url.Split("=").Last()
-            };
+            return MockPropertyAlertsApiResponses.Where(res => res.PropertyReference == propertyReference).FirstOrDefault();
         }
 
-        private static ApiResponse<object> HandlePersonAlerts(string value)
+        [Route("http://testpropertiesapi/properties/{propertyReference}")]
+        public static object HandlePropertyReference(string propertyReference)
         {
-            ListPersonAlertsApiResponse result = new ListPersonAlertsApiResponse
-            {
-                Contacts = MockPersonAlertsApiResponses.Where(res => res.TenancyAgreementReference == value).ToList()
-            };
-
-            return BuildResponse<object>(result);
+            return MockPropertyApiResponses.Where(res => res.PropRef == propertyReference).FirstOrDefault();
         }
 
-        private static RouteParams MatchPostCodeSearch(string url)
+        [Route("http://testpropertiesapi/properties")]
+        public static object HandlePostCodeSearch(string address, string postcode)
         {
-            return new RouteParams
-            {
-                Matches = url.Contains("testpropertiesapi") && url.Contains("?postcode"),
-                QueryValue = url.Split("=").Last()
-            };
+            return MockPropertyApiResponses
+                .Where(prop => (!string.IsNullOrEmpty(postcode) && prop.PostCode.Equals(postcode))
+                            || (!string.IsNullOrEmpty(address) && prop.Address1.Contains(address)))
+                .ToList();
         }
 
-        private static RouteParams MatchAddressSearch(string url)
+        public static object HandleAddressSearch(string value)
         {
-            return new RouteParams
-            {
-                Matches = url.Contains("testpropertiesapi") && url.Contains("?address"),
-                QueryValue = url.Split("=").Last()
-            };
+            return MockPropertyApiResponses.Where(prop => prop.Address1.Contains(value)).ToList();
         }
-
-        private static RouteParams MatchPropertyAlerts(string url)
-        {
-            return new RouteParams
-            {
-                Matches = url.Contains("testalertsapi") && url.Contains("properties"),
-                QueryValue = url.Split("/").Last()
-            };
-        }
-
-        private static ApiResponse<object> HandlePropertyReference(string value)
-        {
-            return BuildResponse<object>(MockPropertyApiResponses.Where(res => res.PropRef == value).FirstOrDefault());
-        }
-
-        private static ApiResponse<object> HandlePostCodeSearch(string value)
-        {
-            return BuildResponse<object>(MockPropertyApiResponses.Where(prop => prop.PostCode.Equals(value)).ToList());
-        }
-
-        private static ApiResponse<object> HandleAddressSearch(string value)
-        {
-            return BuildResponse<object>(MockPropertyApiResponses.Where(prop => prop.Address1.Contains(value)).ToList());
-        }
-
-        private static ApiResponse<object> HandlePropertyAlerts(string value)
-        {
-            return BuildResponse<object>(MockPropertyAlertsApiResponses.Where(res => res.PropertyReference == value).FirstOrDefault());
-        }
-        #endregion
 
         internal static void AddProperties(int count, string postcode = null, string address = null)
         {
@@ -249,22 +187,5 @@ namespace RepairsApi.Tests
 
             MockPersonAlertsApiResponses.Add(mockAlerts);
         }
-
-        private static ApiResponse<T> BuildResponse<T>(T content) where T : class
-        {
-            if (content == null)
-            {
-                return new ApiResponse<T>(false, HttpStatusCode.NotFound, null);
-            }
-
-            return new ApiResponse<T>(true, HttpStatusCode.OK, content);
-        }
-    }
-
-    internal class RouteParams
-    {
-        public bool Matches { get; set; }
-
-        public string QueryValue { get; set; }
     }
 }
