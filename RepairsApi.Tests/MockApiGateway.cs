@@ -75,7 +75,7 @@ namespace RepairsApi.Tests
 
                 return _tenantApiResponse;
             }
-            
+
         }
         #endregion
 
