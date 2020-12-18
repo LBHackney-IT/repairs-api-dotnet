@@ -116,6 +116,7 @@ namespace RepairsApi
             services.TryAddTransient<IApiGateway, ApiGateway>();
             services.AddTransient<IPropertyGateway, PropertyGateway>();
             services.AddTransient<IAlertsGateway, AlertsGateway>();
+            services.AddTransient<ITenancyGateway, TenancyGateway>();
         }
 
         private static void ConfigureDbContext(IServiceCollection services)

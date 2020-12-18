@@ -35,11 +35,11 @@ namespace RepairsApi.Tests.V1.Gateways
         }
 
         [Test]
-        public async Task SendsRequest()
+        public async Task GetsPropertyAlerts()
         {
             // Arrange
-            var stubData = BuildResponse(StubAlertApiResponse(5).Generate());
-            _apiGatewayMock.Setup(gw => gw.ExecuteRequest<AlertsApiResponse>(It.IsAny<Uri>())).ReturnsAsync(stubData);
+            var stubData = BuildResponse(StubPropertyAlertApiResponse(5).Generate());
+            _apiGatewayMock.Setup(gw => gw.ExecuteRequest<PropertyAlertsApiResponse>(It.IsAny<Uri>())).ReturnsAsync(stubData);
 
             // Act
             var result = await _classUnderTest.GetLocationAlertsAsync("");
@@ -50,11 +50,11 @@ namespace RepairsApi.Tests.V1.Gateways
         }
 
         [Test]
-        public async Task ReturnEmptyListWhen404()
+        public async Task ReturnEmptyPropertyAlertsWhen404()
         {
             // Arrange
-            var stubData = BuildResponse<AlertsApiResponse>(null);
-            _apiGatewayMock.Setup(gw => gw.ExecuteRequest<AlertsApiResponse>(It.IsAny<Uri>())).ReturnsAsync(stubData);
+            var stubData = BuildResponse<PropertyAlertsApiResponse>(null);
+            _apiGatewayMock.Setup(gw => gw.ExecuteRequest<PropertyAlertsApiResponse>(It.IsAny<Uri>())).ReturnsAsync(stubData);
             const string expectedPropertyReference = "";
 
             // Act
@@ -63,6 +63,33 @@ namespace RepairsApi.Tests.V1.Gateways
             // Assert
             result.PropertyReference.Should().Be(expectedPropertyReference);
             result.Alerts.Should().BeEmpty();
+        }
+
+        [Test]
+        public async Task ReturnEmptyListWhenNullTenancyReference()
+        {
+            // Act
+            var result = await _classUnderTest.GetPersonAlertsAsync(null);
+
+            // Assert
+            result.Alerts.Should().BeEmpty();
+        }
+
+        [TestCase(10)]
+        [TestCase(4)]
+        [TestCase(0)]
+        public async Task ReturnPersonAlertList(int expectedAlertCount)
+        {
+            // Arrange
+            var stubData = BuildResponse(new ListPersonAlertsApiResponse { Contacts = StubPersonAlertApiResponse(expectedAlertCount).Generate(1) });
+            _apiGatewayMock.Setup(gw => gw.ExecuteRequest<ListPersonAlertsApiResponse>(It.IsAny<Uri>())).ReturnsAsync(stubData);
+            const string expectedPropertyReference = "";
+
+            // Act
+            var result = await _classUnderTest.GetPersonAlertsAsync(expectedPropertyReference);
+
+            // Assert
+            result.Alerts.Should().HaveCount(expectedAlertCount);
         }
 
         private static ApiResponse<T> BuildResponse<T>(T content) where T : class

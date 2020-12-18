@@ -24,17 +24,39 @@ namespace RepairsApi.V1.Gateways
         {
             Uri url = new Uri(_options.AlertsApi + $"cautionary-alerts/properties/{propertyReference}");
 
-            var response = await _apiGateway.ExecuteRequest<AlertsApiResponse>(url);
+            var response = await _apiGateway.ExecuteRequest<PropertyAlertsApiResponse>(url);
 
             if (response.Status == HttpStatusCode.NotFound)
             {
-                return EmptyAlertList(propertyReference);
+                return EmptyPropertyAlertList(propertyReference);
             }
 
             return response.Content.ToDomain();
         }
 
-        private static PropertyAlertList EmptyAlertList(string propertyReference)
+        public async Task<PersonAlertList> GetPersonAlertsAsync(string tenancyReference)
+        {
+            if (tenancyReference == null)
+            {
+                return EmptyPersonAlertList();
+            }
+
+            Uri url = new Uri(_options.AlertsApi + $"cautionary-alerts/people?tag_ref={tenancyReference}");
+
+            var response = await _apiGateway.ExecuteRequest<ListPersonAlertsApiResponse>(url);
+
+            return response.Content.ToDomain();
+        }
+
+        private static PersonAlertList EmptyPersonAlertList()
+        {
+            return new PersonAlertList
+            {
+                Alerts = new List<Alert>()
+            };
+        }
+
+        private static PropertyAlertList EmptyPropertyAlertList(string propertyReference)
         {
             return new PropertyAlertList
             {

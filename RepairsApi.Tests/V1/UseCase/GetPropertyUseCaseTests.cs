@@ -15,6 +15,7 @@ namespace RepairsApi.Tests.V1.UseCase
     {
         private Mock<IPropertyGateway> _propertyGatewayMock;
         private Mock<IAlertsGateway> _alertGatewayMock;
+        private Mock<ITenancyGateway> _tenantGatewayMock;
         private GetPropertyUseCase _classUnderTest;
 
         [SetUp]
@@ -22,7 +23,8 @@ namespace RepairsApi.Tests.V1.UseCase
         {
             _propertyGatewayMock = new Mock<IPropertyGateway>();
             _alertGatewayMock = new Mock<IAlertsGateway>();
-            _classUnderTest = new GetPropertyUseCase(_propertyGatewayMock.Object, _alertGatewayMock.Object);
+            _tenantGatewayMock = new Mock<ITenancyGateway>();
+            _classUnderTest = new GetPropertyUseCase(_propertyGatewayMock.Object, _alertGatewayMock.Object, _tenantGatewayMock.Object);
         }
 
         [Test]
@@ -30,9 +32,11 @@ namespace RepairsApi.Tests.V1.UseCase
         {
             // Arrange
             var expectedProperty = StubProperties().Generate();
-            var expectedLocationAlerts = StubAlertList(expectedProperty.PropertyReference, 5);
+            var expectedLocationAlerts = StubPropertyAlertList(expectedProperty.PropertyReference, 5);
+            var expectedPersonAlerts = new PersonAlertList() { Alerts = StubAlerts().Generate(5) };
             _propertyGatewayMock.Setup(gm => gm.GetByReferenceAsync(It.IsAny<string>())).ReturnsAsync(expectedProperty);
             _alertGatewayMock.Setup(gm => gm.GetLocationAlertsAsync(It.IsAny<string>())).ReturnsAsync(expectedLocationAlerts);
+            _alertGatewayMock.Setup(gm => gm.GetPersonAlertsAsync(It.IsAny<string>())).ReturnsAsync(expectedPersonAlerts);
 
             // Act
             var result = await _classUnderTest.ExecuteAsync(expectedProperty.PropertyReference);
@@ -40,6 +44,7 @@ namespace RepairsApi.Tests.V1.UseCase
             // Assert
             result.PropertyModel.Should().Be(expectedProperty);
             result.LocationAlerts.Should().BeEquivalentTo(expectedLocationAlerts.Alerts);
+            result.PersonAlerts.Should().BeEquivalentTo(expectedPersonAlerts.Alerts);
         }
 
         [Test]

@@ -6,5 +6,6 @@ namespace RepairsApi.V1.Gateways
     {
         public Uri PropertiesAPI { get; set; }
         public Uri AlertsApi { get; set; }
+        public Uri TenancyApi { get; set; }
     }
 }

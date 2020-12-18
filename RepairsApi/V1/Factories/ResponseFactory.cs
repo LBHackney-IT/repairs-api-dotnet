@@ -77,6 +77,8 @@ namespace RepairsApi.V1.Factories
 
         public static TenureViewModel ToResponse(this TenureInformation domain)
         {
+            if (domain == null) return null;
+
             return new TenureViewModel
             {
                 CanRaiseRepair = domain.CanRaiseRepair,

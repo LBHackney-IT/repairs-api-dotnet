@@ -2,6 +2,7 @@ using Bogus;
 using RepairsApi.V1.Domain;
 using RepairsApi.V1.Factories;
 using RepairsApi.V1.Gateways.Models;
+using System.Linq;
 
 namespace RepairsApi.Tests.V1
 {
@@ -44,7 +45,7 @@ namespace RepairsApi.Tests.V1
                 .RuleFor(a => a.AddressLine, f => f.Random.String());
         }
 
-        public static PropertyAlertList StubAlertList(string expectedPropertyReference, int alertCount)
+        public static PropertyAlertList StubPropertyAlertList(string expectedPropertyReference, int alertCount)
         {
             return new PropertyAlertList
             {
@@ -53,7 +54,7 @@ namespace RepairsApi.Tests.V1
             };
         }
 
-        public static Faker<AlertsApiResponse> StubAlertApiResponse(int? alertCount = null, string propertyReference = null)
+        public static Faker<PropertyAlertsApiResponse> StubPropertyAlertApiResponse(int? alertCount = null, string propertyReference = null)
         {
             Faker<AlertApiAlertViewModel> alertsFake = new Faker<AlertApiAlertViewModel>()
                 .RuleFor(pa => pa.AlertCode, f => f.Random.String2(0, 100))
@@ -61,8 +62,21 @@ namespace RepairsApi.Tests.V1
                 .RuleFor(pa => pa.StartDate, f => f.Random.String2(0, 100))
                 .RuleFor(pa => pa.EndDate, f => f.Random.String2(0, 100));
 
-            return new Faker<AlertsApiResponse>()
+            return new Faker<PropertyAlertsApiResponse>()
                 .RuleFor(res => res.PropertyReference, f => propertyReference ?? f.Random.Int().ToString())
+                .RuleFor(res => res.Alerts, f => alertsFake.Generate(alertCount ?? f.Random.Int(0, 20)));
+        }
+
+        public static Faker<PersonAlertsApiResponse> StubPersonAlertApiResponse(int? alertCount = null, string tenancyAgreementReference = null)
+        {
+            Faker<AlertApiAlertViewModel> alertsFake = new Faker<AlertApiAlertViewModel>()
+                .RuleFor(pa => pa.AlertCode, f => f.Random.String2(0, 100))
+                .RuleFor(pa => pa.Description, f => f.Random.String2(0, 100))
+                .RuleFor(pa => pa.StartDate, f => f.Random.String2(0, 100))
+                .RuleFor(pa => pa.EndDate, f => f.Random.String2(0, 100));
+
+            return new Faker<PersonAlertsApiResponse>()
+                .RuleFor(res => res.TenancyAgreementReference, f => tenancyAgreementReference ?? f.Random.Int().ToString())
                 .RuleFor(res => res.Alerts, f => alertsFake.Generate(alertCount ?? f.Random.Int(0, 20)));
         }
 
@@ -74,6 +88,17 @@ namespace RepairsApi.Tests.V1
                 .RuleFor(res => res.LevelCode, f => f.Random.String2(0, 100))
                 .RuleFor(res => res.PropRef, f => f.Random.Int().ToString())
                 .RuleFor(res => res.SubtypCode, f => f.PickRandom<string>(ApiModelFactory.HierarchyDescriptions.Keys));
+        }
+
+        public static Faker<TenancyApiTenancyInformation> StubTenantApiResponse()
+        {
+            return new Faker<TenancyApiTenancyInformation>()
+                .RuleFor(res => res.TenancyAgreementReference, f => f.Random.Int().ToString())
+                .RuleFor(res => res.TenureType, f =>
+                {
+                    string code = f.Random.Bool() ? f.PickRandom(ApiModelFactory.RaisableTenureCodes.AsEnumerable()) : f.Random.String2(3);
+                    return $"{code}: {f.Random.Words(10)}";
+                });
         }
     }
 }
