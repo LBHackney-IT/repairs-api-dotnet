@@ -107,6 +107,7 @@ namespace RepairsApi
             });
             ConfigureDbContext(services);
 
+            services.AddHttpClient();
             services.Configure<GatewayOptions>(Configuration.GetSection(nameof(GatewayOptions)));
 
             services.AddTransient<IListAlertsUseCase, ListAlertsUseCase>();
@@ -116,6 +117,7 @@ namespace RepairsApi
             services.TryAddTransient<IApiGateway, ApiGateway>();
             services.AddTransient<IPropertyGateway, PropertyGateway>();
             services.AddTransient<IAlertsGateway, AlertsGateway>();
+            services.AddTransient<ITenancyGateway, TenancyGateway>();
         }
 
         private static void ConfigureDbContext(IServiceCollection services)

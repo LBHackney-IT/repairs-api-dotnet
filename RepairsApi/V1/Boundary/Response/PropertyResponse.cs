@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace RepairsApi.V1.Boundary.Response
 {
     public class PropertyResponse
@@ -12,6 +10,11 @@ namespace RepairsApi.V1.Boundary.Response
         /// <summary>
         /// Gets or Sets CautionaryAlerts
         /// </summary>
-        public List<CautionaryAlertViewModel> CautionaryAlerts { get; set; }
+        public AlertsViewModel Alerts { get; set; }
+
+        /// <summary>
+        /// Gets or Sets Tenure Information
+        /// </summary>
+        public TenureViewModel Tenure { get; set; }
     }
 }

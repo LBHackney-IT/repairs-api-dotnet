@@ -5,6 +5,6 @@ namespace RepairsApi.V1.UseCase.Interfaces
 {
     public interface IListAlertsUseCase
     {
-        Task<PropertyAlertList> ExecuteAsync(string propertyReference);
+        Task<AlertList> ExecuteAsync(string propertyReference);
     }
 }

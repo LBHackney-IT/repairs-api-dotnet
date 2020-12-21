@@ -9,11 +9,13 @@ namespace RepairsApi.V1.UseCase
     {
         private readonly IPropertyGateway _propertyGateway;
         private readonly IAlertsGateway _alertsGateway;
+        private readonly ITenancyGateway _tenancyGateway;
 
-        public GetPropertyUseCase(IPropertyGateway propertyGateway, IAlertsGateway alertsGateway)
+        public GetPropertyUseCase(IPropertyGateway propertyGateway, IAlertsGateway alertsGateway, ITenancyGateway tenancyGateway)
         {
             _propertyGateway = propertyGateway;
             _alertsGateway = alertsGateway;
+            _tenancyGateway = tenancyGateway;
         }
 
         public async Task<PropertyWithAlerts> ExecuteAsync(string propertyReference)
@@ -22,12 +24,16 @@ namespace RepairsApi.V1.UseCase
 
             if (property is null) return null;
 
-            var alertList = await _alertsGateway.GetAlertsAsync(propertyReference);
+            var locationAlertList = await _alertsGateway.GetLocationAlertsAsync(propertyReference);
+            var tenureInformation = await _tenancyGateway.GetTenancyInformationAsync(propertyReference);
+            var personAlertList = await _alertsGateway.GetPersonAlertsAsync(tenureInformation?.TenancyAgreementReference);
 
             return new PropertyWithAlerts
             {
                 PropertyModel = property,
-                Alerts = alertList.Alerts
+                LocationAlerts = locationAlertList.Alerts,
+                PersonAlerts = personAlertList.Alerts,
+                Tenure = tenureInformation
             };
         }
     }

@@ -30,22 +30,42 @@ namespace RepairsApi.V1.Factories
             {"WLK", "Walk-Up Block" }
         };
 
-        public static PropertyAlertList ToDomain(this AlertsApiResponse apiResponse)
+        public static HashSet<string> RaisableTenureCodes => new HashSet<string>
+        {
+            "ASY",
+            "COM",
+            "DEC",
+            "INT",
+            "MPA",
+            "NON",
+            "PVG",
+            "SEC",
+            "TAF",
+            "TGA",
+            "TRA"
+        };
+
+        public static PropertyAlertList ToDomain(this PropertyAlertsApiResponse apiResponse)
         {
             if (apiResponse is null) return null;
 
             return new PropertyAlertList
             {
                 PropertyReference = apiResponse.PropertyReference,
-                Alerts = apiResponse.Alerts.Select(alertResponse => alertResponse.ToDomain())
+                Alerts = apiResponse.Alerts.ToDomain()
             };
         }
 
-        public static PropertyAlert ToDomain(this AlertApiAlertViewModel apiResponse)
+        public static IEnumerable<Alert> ToDomain(this IEnumerable<AlertApiAlertViewModel> apiResponse)
+        {
+            return apiResponse.Select(alertResponse => alertResponse.ToDomain());
+        }
+
+        public static Alert ToDomain(this AlertApiAlertViewModel apiResponse)
         {
             if (apiResponse is null) return null;
 
-            return new PropertyAlert
+            return new Alert
             {
                 AlertCode = apiResponse.AlertCode,
                 Description = apiResponse.Description,
@@ -92,6 +112,32 @@ namespace RepairsApi.V1.Factories
                 LevelCode = apiResponse.LevelCode,
                 SubTypeCode = apiResponse.SubtypCode,
                 SubTypeDescription = HierarchyDescriptions[apiResponse.SubtypCode]
+            };
+        }
+
+        public static PersonAlertList ToDomain(this ListPersonAlertsApiResponse apiResponse)
+        {
+            if (apiResponse is null) return null;
+
+            return new PersonAlertList
+            {
+                Alerts = apiResponse.Contacts.First().Alerts.ToDomain()
+            };
+        }
+
+        public static TenureInformation ToDomain(this ListTenanciesApiResponse apiResponse)
+        {
+            TenancyApiTenancyInformation tenancyInformation = apiResponse?.Tenancies.FirstOrDefault();
+
+            if (tenancyInformation == null) return null;
+
+            string[] splitTenureType = tenancyInformation.TenureType.Split(": ");
+            return new TenureInformation
+            {
+                TenancyAgreementReference = tenancyInformation.TenancyAgreementReference,
+                TypeCode = splitTenureType.First(),
+                TypeDescription = splitTenureType.Last(),
+                CanRaiseRepair = RaisableTenureCodes.Contains(splitTenureType.First())
             };
         }
     }

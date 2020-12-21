@@ -58,7 +58,8 @@ namespace RepairsApi.Tests.V1.Controllers
             var property = new PropertyWithAlerts()
             {
                 PropertyModel = StubProperties().Generate(),
-                Alerts = StubAlerts().Generate(5)
+                PersonAlerts = StubAlerts().Generate(5),
+                LocationAlerts = StubAlerts().Generate(5)
             };
             property.PropertyModel.PropertyReference = expectedPropertyReference;
 
@@ -90,13 +91,19 @@ namespace RepairsApi.Tests.V1.Controllers
             statusCode.Should().Be(404);
         }
 
-        [TestCase(0)]
-        [TestCase(5)]
-        public async Task ListsAlerts(int alertCount)
+        [TestCase(0, 0)]
+        [TestCase(5, 0)]
+        [TestCase(0, 6)]
+        [TestCase(8, 7)]
+        public async Task ListsAlerts(int propertyAlertCount, int personAlertCount)
         {
             // Arrange
             string expectedPropertyReference = new Faker().Random.Number().ToString();
-            PropertyAlertList alertList = StubAlertList(expectedPropertyReference, alertCount);
+            AlertList alertList = new AlertList
+            {
+                PropertyAlerts = StubPropertyAlertList(expectedPropertyReference, propertyAlertCount),
+                PersonAlerts = new PersonAlertList { Alerts = StubAlerts().Generate(personAlertCount) }
+            };
 
             _listAlertsUseCaseMock.Setup(m => m.ExecuteAsync(It.IsAny<string>())).ReturnsAsync(alertList);
 
@@ -107,7 +114,8 @@ namespace RepairsApi.Tests.V1.Controllers
 
             // Assert
             statusCode.Should().Be(200);
-            alertResult.Alerts.Should().HaveCount(alertCount);
+            alertResult.LocationAlert.Should().HaveCount(propertyAlertCount);
+            alertResult.PersonAlert.Should().HaveCount(personAlertCount);
             alertResult.PropertyReference.Should().Be(expectedPropertyReference);
         }
 

@@ -81,7 +81,7 @@ namespace RepairsApi.V1.Controllers
         [Route("{propertyReference}/alerts")]
         public async Task<IActionResult> ListCautionaryAlerts([FromRoute][Required] string propertyReference)
         {
-            PropertyAlertList alerts = await _listAlertsUseCase.ExecuteAsync(propertyReference);
+            AlertList alerts = await _listAlertsUseCase.ExecuteAsync(propertyReference);
 
             return Ok(alerts.ToResponse());
         }

@@ -2,9 +2,8 @@ using System.Collections.Generic;
 
 namespace RepairsApi.V1.Domain
 {
-    public class PropertyAlertList
+    public class PersonAlertList
     {
-        public string PropertyReference { get; set; }
         public IEnumerable<Alert> Alerts { get; set; }
     }
 }
