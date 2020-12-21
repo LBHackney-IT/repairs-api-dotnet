@@ -46,7 +46,7 @@ module "postgres_db_staging" {
   vpc_id = data.aws_vpc.staging_vpc.id
   db_identifier = "repairs-db"
   db_name = "repairs_db"
-  db_port  = 5302
+  db_port  = 5829
   subnet_ids = data.aws_subnet_ids.staging.ids
   db_engine = "postgres"
   db_engine_version = "11.1" //DMS does not work well with v12
