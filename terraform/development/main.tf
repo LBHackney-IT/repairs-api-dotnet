@@ -24,11 +24,11 @@ data "aws_vpc" "development_vpc" {
     Name = "vpc-development-apis-development"
   }
 }
-data "aws_subnet_ids" "development" {
+data "aws_subnet_ids" "development_private_subnets" {
   vpc_id = data.aws_vpc.development_vpc.id
   filter {
-    name   = "tag:Type"
-    values = ["private"]
+    name   = "tag:environment"
+    values = ["development"]
   }
 }
 
@@ -47,7 +47,7 @@ module "postgres_db_development" {
   db_identifier = "repairs-db"
   db_name = "repairs_db"
   db_port  = 5829
-  subnet_ids = data.aws_subnet_ids.development.ids
+  subnet_ids = data.aws_subnet_ids.development_private_subnets.id
   db_engine = "postgres"
   db_engine_version = "11.1" //DMS does not work well with v12
   db_instance_class = "db.t2.micro"
