@@ -19,7 +19,6 @@ namespace RepairsApi.V1.Gateways
         public async Task<ApiResponse<TResponse>> ExecuteRequest<TResponse>(Uri url)
             where TResponse : class
         {
-            var result = await _httpClient.GetAsync(url);
             var client = _clientFactory.CreateClient();
             TResponse response = default;
             var result = await client.GetAsync(url);

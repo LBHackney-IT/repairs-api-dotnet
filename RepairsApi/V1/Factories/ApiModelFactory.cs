@@ -127,7 +127,7 @@ namespace RepairsApi.V1.Factories
 
         public static TenureInformation ToDomain(this ListTenanciesApiResponse apiResponse)
         {
-            TenancyApiTenancyInformation tenancyInformation = apiResponse.Tenancies.FirstOrDefault();
+            TenancyApiTenancyInformation tenancyInformation = apiResponse?.Tenancies.FirstOrDefault();
 
             if (tenancyInformation == null) return null;
 
