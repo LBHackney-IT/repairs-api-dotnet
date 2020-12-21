@@ -16,6 +16,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using RepairsApi.V1.Gateways;
+using RepairsApi.V1.UseCase.Interfaces;
+using RepairsApi.V1.UseCase;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace RepairsApi
 {
@@ -28,18 +32,17 @@ namespace RepairsApi
 
         public IConfiguration Configuration { get; }
         private static List<ApiVersionDescription> _apiVersions { get; set; }
-        //TODO update the below to the name of your API
-        private const string ApiName = "Your API Name";
+        private const string ApiName = "Repairs API";
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public static void ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services)
         {
             services
                 .AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddApiVersioning(o =>
             {
-                o.DefaultApiVersion = new ApiVersion(1, 0);
+                o.DefaultApiVersion = new ApiVersion(2, 0);
                 o.AssumeDefaultVersionWhenUnspecified = true; // assume that the caller wants the default version if they don't specify
                 o.ApiVersionReader = new UrlSegmentApiVersionReader(); // read the version number from the url segment header)
             });
@@ -103,6 +106,16 @@ namespace RepairsApi
                     c.IncludeXmlComments(xmlPath);
             });
             ConfigureDbContext(services);
+
+            services.Configure<GatewayOptions>(Configuration.GetSection(nameof(GatewayOptions)));
+
+            services.AddTransient<IListAlertsUseCase, ListAlertsUseCase>();
+            services.AddTransient<IListPropertiesUseCase, ListPropertiesUseCase>();
+            services.AddTransient<IGetPropertyUseCase, GetPropertyUseCase>();
+
+            services.TryAddTransient<IApiGateway, ApiGateway>();
+            services.AddTransient<IPropertyGateway, PropertyGateway>();
+            services.AddTransient<IAlertsGateway, AlertsGateway>();
         }
 
         private static void ConfigureDbContext(IServiceCollection services)
