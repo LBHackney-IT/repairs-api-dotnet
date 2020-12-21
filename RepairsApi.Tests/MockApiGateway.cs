@@ -89,7 +89,7 @@ namespace RepairsApi.Tests
             var mock = MockHttpMessageHandler.FromClass<MockApiGateway>();
             HttpClient client = new HttpClient(mock);
             var factoryMock = new HttpClientFactoryWrapper(client);
-            
+
             _innerGateway = new ApiGateway(factoryMock);
         }
 
