@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Moq;
 using RepairsApi.Tests.ApiMocking;
+using RepairsApi.Tests.Helpers;
 using RepairsApi.V1.Factories;
 using RepairsApi.V1.Gateways;
 using RepairsApi.V1.Gateways.Models;
@@ -86,7 +88,9 @@ namespace RepairsApi.Tests
         {
             var mock = MockHttpMessageHandler.FromClass<MockApiGateway>();
             HttpClient client = new HttpClient(mock);
-            _innerGateway = new ApiGateway(client);
+            var factoryMock = new HttpClientFactoryWrapper(client);
+            
+            _innerGateway = new ApiGateway(factoryMock);
         }
 
         public Task<ApiResponse<TResponse>> ExecuteRequest<TResponse>(Uri url) where TResponse : class

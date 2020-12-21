@@ -89,6 +89,8 @@ namespace RepairsApi.V1.Factories
 
         public static List<PropertyViewModel> ToResponse(this IEnumerable<PropertyModel> domainList)
         {
+            if (domainList == null) return new List<PropertyViewModel>();
+
             return domainList.Select(domain => domain.ToResponse()).ToList();
         }
     }

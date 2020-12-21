@@ -107,6 +107,7 @@ namespace RepairsApi
             });
             ConfigureDbContext(services);
 
+            services.AddHttpClient();
             services.Configure<GatewayOptions>(Configuration.GetSection(nameof(GatewayOptions)));
 
             services.AddTransient<IListAlertsUseCase, ListAlertsUseCase>();

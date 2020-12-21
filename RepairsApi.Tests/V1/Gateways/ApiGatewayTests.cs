@@ -3,6 +3,7 @@ using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using RepairsApi.Tests.Helpers;
 using RepairsApi.V1.Gateways;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -49,7 +50,7 @@ namespace RepairsApi.Tests.V1.Gateways
                .ReturnsAsync(response);
 
             var httpClient = new HttpClient(handlerMock.Object);
-            return new ApiGateway(httpClient);
+            return new ApiGateway(new HttpClientFactoryWrapper(httpClient));
         }
     }
 

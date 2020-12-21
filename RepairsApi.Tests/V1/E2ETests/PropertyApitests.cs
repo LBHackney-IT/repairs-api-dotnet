@@ -1,6 +1,7 @@
 using Bogus;
 using FluentAssertions;
 using NUnit.Framework;
+using RepairsApi.Tests.Helpers;
 using RepairsApi.V1.Boundary.Response;
 using RepairsApi.V1.Domain;
 using RepairsApi.V1.Factories;
@@ -31,7 +32,7 @@ namespace RepairsApi.Tests.V1.E2ETests
 
             PropertyViewModel expectedResponse = expectedProperty.ToDomain().ToResponse();
 
-            ApiGateway client = new ApiGateway(Client);
+            ApiGateway client = new ApiGateway(new HttpClientFactoryWrapper(Client));
 
             // Act
             var response = client.ExecuteRequest<PropertyResponse>(new Uri($"/api/v2/properties/{expectedProperty.PropRef}", UriKind.Relative)).Result;
@@ -50,7 +51,7 @@ namespace RepairsApi.Tests.V1.E2ETests
         public void Returns404WhenPropertDoesntExist()
         {
             // Arrange
-            ApiGateway client = new ApiGateway(Client);
+            ApiGateway client = new ApiGateway(new HttpClientFactoryWrapper(Client));
             string dummyReference = "dummyReference";
 
             // Act
@@ -75,7 +76,7 @@ namespace RepairsApi.Tests.V1.E2ETests
             MockApiGateway.AddTenantInformation(tenantReference, expectedProperty.PropRef);
             MockApiGateway.AddPersonAlerts(expectedPersonAlertCount, tenantReference);
 
-            ApiGateway client = new ApiGateway(Client);
+            ApiGateway client = new ApiGateway(new HttpClientFactoryWrapper(Client));
 
             // Act
             var response = client.ExecuteRequest<CautionaryAlertResponseList>(new Uri($"/api/v2/properties/{expectedProperty.PropRef}/alerts", UriKind.Relative)).Result;
@@ -94,7 +95,7 @@ namespace RepairsApi.Tests.V1.E2ETests
             // Arrange
             const string Postcode = "AA11AA";
             MockApiGateway.AddProperties(5, postcode: Postcode);
-            ApiGateway client = new ApiGateway(Client);
+            ApiGateway client = new ApiGateway(new HttpClientFactoryWrapper(Client));
 
             // Act
             var response = client.ExecuteRequest<List<PropertyViewModel>>(new Uri($"/api/v2/properties/?postcode={Postcode}", UriKind.Relative)).Result;
@@ -111,7 +112,7 @@ namespace RepairsApi.Tests.V1.E2ETests
             // Arrange
             const string Address = "1 road street";
             MockApiGateway.AddProperties(7, address: Address);
-            ApiGateway client = new ApiGateway(Client);
+            ApiGateway client = new ApiGateway(new HttpClientFactoryWrapper(Client));
 
             // Act
             var response = client.ExecuteRequest<List<PropertyViewModel>>(new Uri($"/api/v2/properties/?address={Address}", UriKind.Relative)).Result;
@@ -128,7 +129,7 @@ namespace RepairsApi.Tests.V1.E2ETests
             // Arrange
             const string Address = "2 lane way street";
             MockApiGateway.AddProperties(7, address: Address);
-            ApiGateway client = new ApiGateway(Client);
+            ApiGateway client = new ApiGateway(new HttpClientFactoryWrapper(Client));
 
             // Act
             var response = client.ExecuteRequest<List<PropertyViewModel>>(new Uri($"/api/v2/properties/?q={Address}", UriKind.Relative)).Result;
@@ -145,7 +146,7 @@ namespace RepairsApi.Tests.V1.E2ETests
             // Arrange
             const string Postcode = "BB22BB";
             MockApiGateway.AddProperties(5, postcode: Postcode);
-            ApiGateway client = new ApiGateway(Client);
+            ApiGateway client = new ApiGateway(new HttpClientFactoryWrapper(Client));
 
             // Act
             var response = client.ExecuteRequest<List<PropertyViewModel>>(new Uri($"/api/v2/properties/?q={Postcode}", UriKind.Relative)).Result;
