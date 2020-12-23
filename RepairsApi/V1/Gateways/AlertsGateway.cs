@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace RepairsApi.V1.Gateways
 {
+#nullable enable
     public class AlertsGateway : IAlertsGateway
     {
         private readonly ILogger<AlertsGateway> _logger;
@@ -37,7 +38,7 @@ namespace RepairsApi.V1.Gateways
             if (!response.IsSuccess)
             {
                 _logger.LogError($"Call to {url} failed with {response.Status}");
-                throw new PlatformApiException(response.Status);
+                throw new ApiException(response.Status, Resources.LocationAlertsFailure);
             }
 
             return response.Content.ToDomain();
@@ -56,7 +57,7 @@ namespace RepairsApi.V1.Gateways
             if (!response.IsSuccess)
             {
                 _logger.LogError($"Call to {url} failed with {response.Status}");
-                throw new PlatformApiException(response.Status);
+                throw new ApiException(response.Status, Resources.PersonAlertsFailure);
             }
 
             return response.Content.ToDomain();

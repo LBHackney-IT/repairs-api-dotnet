@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 
 namespace RepairsApi.V1.Gateways
 {
+#nullable enable
     public interface IAlertsGateway
     {
         Task<PropertyAlertList> GetLocationAlertsAsync(string propertyReference);

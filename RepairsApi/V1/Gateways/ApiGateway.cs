@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace RepairsApi.V1.Gateways
 {
+#nullable enable
     public class ApiGateway : IApiGateway
     {
         private readonly IHttpClientFactory _clientFactory;
@@ -20,7 +21,7 @@ namespace RepairsApi.V1.Gateways
             where TResponse : class
         {
             var client = _clientFactory.CreateClient();
-            TResponse response = default;
+            TResponse? response = default;
             var result = await client.GetAsync(url);
 
             if (result.IsSuccessStatusCode)

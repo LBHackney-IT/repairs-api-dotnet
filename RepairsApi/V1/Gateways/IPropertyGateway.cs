@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace RepairsApi.V1.Gateways
 {
+#nullable enable
     public interface IPropertyGateway
     {
         Task<PropertyModel> GetByReferenceAsync(string propertyReference);

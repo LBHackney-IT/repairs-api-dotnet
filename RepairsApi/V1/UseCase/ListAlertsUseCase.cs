@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace RepairsApi.V1.UseCase
 {
+#nullable enable
     public class ListAlertsUseCase : IListAlertsUseCase
     {
         private readonly IAlertsGateway _alertsGateway;

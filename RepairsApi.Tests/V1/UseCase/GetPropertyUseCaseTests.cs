@@ -46,18 +46,5 @@ namespace RepairsApi.Tests.V1.UseCase
             result.LocationAlerts.Should().BeEquivalentTo(expectedLocationAlerts.Alerts);
             result.PersonAlerts.Should().BeEquivalentTo(expectedPersonAlerts.Alerts);
         }
-
-        [Test]
-        public async Task ReturnNull()
-        {
-            // Arrange
-            _propertyGatewayMock.Setup(gm => gm.GetByReferenceAsync(It.IsAny<string>())).ReturnsAsync((PropertyModel) null);
-
-            // Act
-            var result = await _classUnderTest.ExecuteAsync("");
-
-            // Assert
-            result.Should().BeNull();
-        }
     }
 }

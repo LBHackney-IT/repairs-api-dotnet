@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace RepairsApi.V1.UseCase
 {
+#nullable enable
     public class ListPropertiesUseCase : IListPropertiesUseCase
     {
         private readonly IPropertyGateway _propertyGateway;

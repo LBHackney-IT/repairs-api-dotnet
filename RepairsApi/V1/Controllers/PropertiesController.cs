@@ -57,7 +57,8 @@ namespace RepairsApi.V1.Controllers
             try
             {
                 properties = await _listPropertiesUseCase.ExecuteAsync(searchModel);
-            } catch (ResourceAcquisitionException ex)
+            }
+            catch (ApiException ex)
             {
                 return StatusCode(ex.StatusCode);
             }
@@ -78,10 +79,15 @@ namespace RepairsApi.V1.Controllers
         [ProducesResponseType(typeof(NotFoundResult), 404)]
         public async Task<IActionResult> GetProperty([FromRoute][Required] string propertyReference)
         {
-            PropertyWithAlerts property = await _getPropertyUseCase.ExecuteAsync(propertyReference);
-            if (property is null)
+            PropertyWithAlerts property;
+
+            try
             {
-                return NotFound();
+                property = await _getPropertyUseCase.ExecuteAsync(propertyReference);
+            }
+            catch(ApiException ex)
+            {
+                return StatusCode(ex.StatusCode);
             }
 
             return Ok(property.ToResponse());
@@ -98,7 +104,16 @@ namespace RepairsApi.V1.Controllers
         [ProducesResponseType(typeof(CautionaryAlertResponseList), 200)]
         public async Task<IActionResult> ListCautionaryAlerts([FromRoute][Required] string propertyReference)
         {
-            AlertList alerts = await _listAlertsUseCase.ExecuteAsync(propertyReference);
+            AlertList alerts;
+
+            try
+            {
+                alerts = await _listAlertsUseCase.ExecuteAsync(propertyReference);
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode);
+            }
 
             return Ok(alerts.ToResponse());
         }

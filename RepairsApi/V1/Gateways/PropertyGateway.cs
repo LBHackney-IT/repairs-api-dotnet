@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace RepairsApi.V1.Gateways
 {
+#nullable enable
     public class PropertyGateway : IPropertyGateway
     {
         private readonly GatewayOptions _options;
@@ -32,7 +33,7 @@ namespace RepairsApi.V1.Gateways
             if (!response.IsSuccess)
             {
                 _logger.LogError($"Call to {url} failed with {response.Status}");
-                throw new PlatformApiException(response.Status);
+                throw new ApiException(response.Status, Resources.PropertiesFailure);
             }
 
             return response.Content.ToDomain();
@@ -46,7 +47,7 @@ namespace RepairsApi.V1.Gateways
             if (!response.IsSuccess)
             {
                 _logger.LogError($"Call to {url} failed with {response.Status}");
-                throw new PlatformApiException(response.Status);
+                throw new ApiException(response.Status, Resources.PropertyFailure);
             }
 
             return response.Content.ToDomain();

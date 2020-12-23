@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace RepairsApi.V1.Gateways
 {
+#nullable enable
     public class TenancyGateway : ITenancyGateway
     {
         private readonly GatewayOptions _options;
@@ -31,10 +32,10 @@ namespace RepairsApi.V1.Gateways
             if (!response.IsSuccess && response.Status != HttpStatusCode.NotFound)
             {
                 _logger.LogError($"Call to {url} failed with {response.Status}");
-                throw new PlatformApiException(response.Status);
+                throw new ApiException(response.Status, Resources.TenancyFailure);
             }
 
-            if (response.Status == HttpStatusCode.NotFound || response.Content.Tenancies.Count == 0)
+            if (response.Status == HttpStatusCode.NotFound || response.Content!.Tenancies.Count == 0)
             {
                 return null;
             }
