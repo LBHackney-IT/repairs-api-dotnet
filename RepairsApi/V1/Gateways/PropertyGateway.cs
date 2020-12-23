@@ -1,5 +1,7 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RepairsApi.V1.Domain;
+using RepairsApi.V1.Exceptions;
 using RepairsApi.V1.Factories;
 using RepairsApi.V1.Gateways.Models;
 using RepairsApi.V1.UseCase;
@@ -13,17 +15,25 @@ namespace RepairsApi.V1.Gateways
     {
         private readonly GatewayOptions _options;
         private readonly IApiGateway _apiGateway;
+        private readonly ILogger<PropertyGateway> _logger;
 
-        public PropertyGateway(IOptions<GatewayOptions> options, IApiGateway apiGateway)
+        public PropertyGateway(IOptions<GatewayOptions> options, IApiGateway apiGateway, ILogger<PropertyGateway> logger)
         {
             _options = options.Value;
             _apiGateway = apiGateway;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<PropertyModel>> GetByQueryAsync(PropertySearchModel searchModel)
         {
             Uri url = new Uri(_options.PropertiesAPI + $"properties?{searchModel.GetQueryParameter()}");
             var response = await _apiGateway.ExecuteRequest<List<PropertyApiResponse>>(url);
+
+            if (!response.IsSuccess)
+            {
+                _logger.LogError($"Call to {url} failed with {response.Status}");
+                throw new PlatformApiException(response.Status);
+            }
 
             return response.Content.ToDomain();
         }
@@ -32,6 +42,12 @@ namespace RepairsApi.V1.Gateways
         {
             Uri url = new Uri(_options.PropertiesAPI + $"properties/{propertyReference}");
             var response = await _apiGateway.ExecuteRequest<PropertyApiResponse>(url);
+
+            if (!response.IsSuccess)
+            {
+                _logger.LogError($"Call to {url} failed with {response.Status}");
+                throw new PlatformApiException(response.Status);
+            }
 
             return response.Content.ToDomain();
         }

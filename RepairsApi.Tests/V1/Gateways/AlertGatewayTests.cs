@@ -1,5 +1,6 @@
 using Bogus;
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
@@ -31,7 +32,7 @@ namespace RepairsApi.Tests.V1.Gateways
             };
 
             _apiGatewayMock = new Mock<IApiGateway>();
-            _classUnderTest = new AlertsGateway(Options.Create(gatewayOptions), _apiGatewayMock.Object);
+            _classUnderTest = new AlertsGateway(Options.Create(gatewayOptions), _apiGatewayMock.Object, new NullLogger<AlertsGateway>());
         }
 
         [Test]

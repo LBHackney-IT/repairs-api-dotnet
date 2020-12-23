@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using static RepairsApi.V1.Gateways.ApiGateway;
 
 namespace RepairsApi.V1.Gateways
 {

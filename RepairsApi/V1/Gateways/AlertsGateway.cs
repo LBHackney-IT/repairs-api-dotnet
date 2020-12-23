@@ -1,5 +1,7 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RepairsApi.V1.Domain;
+using RepairsApi.V1.Exceptions;
 using RepairsApi.V1.Factories;
 using RepairsApi.V1.Gateways.Models;
 using System;
@@ -11,11 +13,13 @@ namespace RepairsApi.V1.Gateways
 {
     public class AlertsGateway : IAlertsGateway
     {
+        private readonly ILogger<AlertsGateway> _logger;
         private readonly GatewayOptions _options;
         private readonly IApiGateway _apiGateway;
 
-        public AlertsGateway(IOptions<GatewayOptions> options, IApiGateway apiGateway)
+        public AlertsGateway(IOptions<GatewayOptions> options, IApiGateway apiGateway, ILogger<AlertsGateway> logger)
         {
+            _logger = logger;
             _options = options.Value;
             _apiGateway = apiGateway;
         }
@@ -23,7 +27,6 @@ namespace RepairsApi.V1.Gateways
         public async Task<PropertyAlertList> GetLocationAlertsAsync(string propertyReference)
         {
             Uri url = new Uri(_options.AlertsApi + $"cautionary-alerts/properties/{propertyReference}");
-
             var response = await _apiGateway.ExecuteRequest<PropertyAlertsApiResponse>(url);
 
             if (response.Status == HttpStatusCode.NotFound)
@@ -31,10 +34,16 @@ namespace RepairsApi.V1.Gateways
                 return EmptyPropertyAlertList(propertyReference);
             }
 
+            if (!response.IsSuccess)
+            {
+                _logger.LogError($"Call to {url} failed with {response.Status}");
+                throw new PlatformApiException(response.Status);
+            }
+
             return response.Content.ToDomain();
         }
 
-        public async Task<PersonAlertList> GetPersonAlertsAsync(string tenancyReference)
+        public async Task<PersonAlertList> GetPersonAlertsAsync(string? tenancyReference)
         {
             if (tenancyReference == null)
             {
@@ -42,8 +51,13 @@ namespace RepairsApi.V1.Gateways
             }
 
             Uri url = new Uri(_options.AlertsApi + $"cautionary-alerts/people?tag_ref={tenancyReference}");
-
             var response = await _apiGateway.ExecuteRequest<ListPersonAlertsApiResponse>(url);
+
+            if (!response.IsSuccess)
+            {
+                _logger.LogError($"Call to {url} failed with {response.Status}");
+                throw new PlatformApiException(response.Status);
+            }
 
             return response.Content.ToDomain();
         }

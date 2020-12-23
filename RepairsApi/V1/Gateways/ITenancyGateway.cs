@@ -5,6 +5,6 @@ namespace RepairsApi.V1.Gateways
 {
     public interface ITenancyGateway
     {
-        Task<TenureInformation> GetTenancyInformationAsync(string propertyReference);
+        Task<TenureInformation?> GetTenancyInformationAsync(string propertyReference);
     }
 }
