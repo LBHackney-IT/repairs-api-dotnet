@@ -81,6 +81,8 @@ namespace RepairsApi.Tests
         }
         #endregion
 
+        public static HttpStatusCode? ForcedCode { get; set; }
+
         private readonly ApiGateway _innerGateway;
 
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Tests")]
@@ -93,9 +95,14 @@ namespace RepairsApi.Tests
             _innerGateway = new ApiGateway(factoryMock);
         }
 
-        public Task<ApiResponse<TResponse>> ExecuteRequest<TResponse>(Uri url) where TResponse : class
+        public Task<ApiResponse<TResponse>> ExecuteRequest<TResponse>(Uri url, string apiKey) where TResponse : class
         {
-            return _innerGateway.ExecuteRequest<TResponse>(url);
+            if (ForcedCode.HasValue)
+            {
+                return Task.FromResult(new ApiResponse<TResponse>(false, ForcedCode.Value, null));
+            }
+
+            return _innerGateway.ExecuteRequest<TResponse>(url, apiKey);
         }
 
         [Route("http://testtenanciesapi/tenancies")]

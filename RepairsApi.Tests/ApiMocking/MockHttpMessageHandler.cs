@@ -64,6 +64,11 @@ namespace RepairsApi.Tests.ApiMocking
             {
                 object result = mockFunction.Execute();
 
+                if (result == null)
+                {
+                    return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
+                }
+
                 HttpResponseMessage httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK);
                 httpResponseMessage.Content = new StringContent(JsonConvert.SerializeObject(result));
                 return Task.FromResult(httpResponseMessage);

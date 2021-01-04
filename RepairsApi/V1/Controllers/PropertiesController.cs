@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RepairsApi.V1.Boundary.Response;
 using RepairsApi.V1.Domain;
+using RepairsApi.V1.Exceptions;
 using RepairsApi.V1.Factories;
 using RepairsApi.V1.UseCase;
 using RepairsApi.V1.UseCase.Interfaces;
@@ -39,8 +41,12 @@ namespace RepairsApi.V1.Controllers
         /// <param name="q">A postcode or partial or full address</param>
         /// <response code="200">Properties found</response>
         [HttpGet]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(List<PropertyViewModel>), 200)]
         public async Task<IActionResult> ListProperties([FromQuery] string address, [FromQuery] string postcode, [FromQuery] string q)
         {
+            IEnumerable<PropertyModel> properties;
+
             PropertySearchModel searchModel = new PropertySearchModel
             {
                 Address = address,
@@ -48,7 +54,14 @@ namespace RepairsApi.V1.Controllers
                 Query = q
             };
 
-            IEnumerable<PropertyModel> properties = await _listPropertiesUseCase.ExecuteAsync(searchModel);
+            try
+            {
+                properties = await _listPropertiesUseCase.ExecuteAsync(searchModel);
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode);
+            }
 
             return Ok(properties.ToResponse());
         }
@@ -61,12 +74,20 @@ namespace RepairsApi.V1.Controllers
         /// <response code="404">Property not found</response>
         [HttpGet]
         [Route("{propertyReference}")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(PropertyResponse), 200)]
+        [ProducesResponseType(typeof(NotFoundResult), 404)]
         public async Task<IActionResult> GetProperty([FromRoute][Required] string propertyReference)
         {
-            PropertyWithAlerts property = await _getPropertyUseCase.ExecuteAsync(propertyReference);
-            if (property is null)
+            PropertyWithAlerts property;
+
+            try
             {
-                return NotFound();
+                property = await _getPropertyUseCase.ExecuteAsync(propertyReference);
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode);
             }
 
             return Ok(property.ToResponse());
@@ -79,9 +100,20 @@ namespace RepairsApi.V1.Controllers
         /// <response code="200">Gets all cautionary alerts for a property</response>
         [HttpGet]
         [Route("{propertyReference}/alerts")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(CautionaryAlertResponseList), 200)]
         public async Task<IActionResult> ListCautionaryAlerts([FromRoute][Required] string propertyReference)
         {
-            AlertList alerts = await _listAlertsUseCase.ExecuteAsync(propertyReference);
+            AlertList alerts;
+
+            try
+            {
+                alerts = await _listAlertsUseCase.ExecuteAsync(propertyReference);
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode);
+            }
 
             return Ok(alerts.ToResponse());
         }

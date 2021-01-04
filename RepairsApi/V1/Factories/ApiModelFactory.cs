@@ -47,8 +47,6 @@ namespace RepairsApi.V1.Factories
 
         public static PropertyAlertList ToDomain(this PropertyAlertsApiResponse apiResponse)
         {
-            if (apiResponse is null) return null;
-
             return new PropertyAlertList
             {
                 PropertyReference = apiResponse.PropertyReference,
@@ -63,8 +61,6 @@ namespace RepairsApi.V1.Factories
 
         public static Alert ToDomain(this AlertApiAlertViewModel apiResponse)
         {
-            if (apiResponse is null) return null;
-
             return new Alert
             {
                 AlertCode = apiResponse.AlertCode,
@@ -76,15 +72,11 @@ namespace RepairsApi.V1.Factories
 
         public static List<PropertyModel> ToDomain(this List<PropertyApiResponse> apiResponse)
         {
-            if (apiResponse is null) return null;
-
             return apiResponse.Select(property => property.ToDomain()).ToList();
         }
 
         public static PropertyModel ToDomain(this PropertyApiResponse apiResponse)
         {
-            if (apiResponse is null) return null;
-
             return new PropertyModel
             {
                 PropertyReference = apiResponse.PropRef,
@@ -117,8 +109,6 @@ namespace RepairsApi.V1.Factories
 
         public static PersonAlertList ToDomain(this ListPersonAlertsApiResponse apiResponse)
         {
-            if (apiResponse is null) return null;
-
             return new PersonAlertList
             {
                 Alerts = apiResponse.Contacts.First().Alerts.ToDomain()
@@ -127,9 +117,7 @@ namespace RepairsApi.V1.Factories
 
         public static TenureInformation ToDomain(this ListTenanciesApiResponse apiResponse)
         {
-            TenancyApiTenancyInformation tenancyInformation = apiResponse?.Tenancies.FirstOrDefault();
-
-            if (tenancyInformation == null) return null;
+            TenancyApiTenancyInformation tenancyInformation = apiResponse.Tenancies.FirstOrDefault();
 
             string[] splitTenureType = tenancyInformation.TenureType.Split(": ");
             return new TenureInformation

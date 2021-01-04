@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
@@ -29,7 +30,7 @@ namespace RepairsApi.Tests.V1.Gateways
             };
 
             _apiGatewayMock = new Mock<IApiGateway>();
-            _classUnderTest = new PropertyGateway(Options.Create(gatewayOptions), _apiGatewayMock.Object);
+            _classUnderTest = new PropertyGateway(Options.Create(gatewayOptions), _apiGatewayMock.Object, new NullLogger<PropertyGateway>());
         }
 
         [Test]
@@ -37,7 +38,7 @@ namespace RepairsApi.Tests.V1.Gateways
         {
             // Arrange
             var stubData = BuildResponse(StubPropertyApiResponse().Generate());
-            _apiGatewayMock.Setup(gw => gw.ExecuteRequest<PropertyApiResponse>(It.IsAny<Uri>())).ReturnsAsync(stubData);
+            _apiGatewayMock.Setup(gw => gw.ExecuteRequest<PropertyApiResponse>(It.IsAny<Uri>(), It.IsAny<string>())).ReturnsAsync(stubData);
 
             // Act
             var result = await _classUnderTest.GetByReferenceAsync("");
@@ -51,7 +52,7 @@ namespace RepairsApi.Tests.V1.Gateways
         {
             // Arrange
             var stubData = BuildResponse(StubPropertyApiResponse().Generate(5));
-            _apiGatewayMock.Setup(gw => gw.ExecuteRequest<List<PropertyApiResponse>>(It.IsAny<Uri>())).ReturnsAsync(stubData);
+            _apiGatewayMock.Setup(gw => gw.ExecuteRequest<List<PropertyApiResponse>>(It.IsAny<Uri>(), It.IsAny<string>())).ReturnsAsync(stubData);
             PropertySearchModel searchModel = new PropertySearchModel
             {
             };

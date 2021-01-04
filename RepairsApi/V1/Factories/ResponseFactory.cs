@@ -1,8 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using RepairsApi.V1.Boundary.Response;
 using RepairsApi.V1.Domain;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace RepairsApi.V1.Factories
 {
@@ -89,8 +88,6 @@ namespace RepairsApi.V1.Factories
 
         public static List<PropertyViewModel> ToResponse(this IEnumerable<PropertyModel> domainList)
         {
-            if (domainList == null) return new List<PropertyViewModel>();
-
             return domainList.Select(domain => domain.ToResponse()).ToList();
         }
     }

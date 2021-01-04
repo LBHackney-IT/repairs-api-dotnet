@@ -75,22 +75,6 @@ namespace RepairsApi.Tests.V1.Controllers
             propertyResult.Property.PropertyReference.Should().Be(expectedPropertyReference);
         }
 
-        [Test]
-        public async Task Returns404WhenPropertyNotFound()
-        {
-            string expectedPropertyReference = new Faker().Random.Number().ToString();
-
-            _getPropertyUseCaseMock.Setup(m => m.ExecuteAsync(It.IsAny<string>())).ReturnsAsync((PropertyWithAlerts) null);
-
-            // Act
-            var result = await _classUnderTest.GetProperty(expectedPropertyReference);
-            var propertyResult = GetResultData<PropertyResponse>(result);
-            var statusCode = GetStatusCode(result);
-
-            // Assert
-            statusCode.Should().Be(404);
-        }
-
         [TestCase(0, 0)]
         [TestCase(5, 0)]
         [TestCase(0, 6)]
