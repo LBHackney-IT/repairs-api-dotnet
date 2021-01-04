@@ -3,13 +3,10 @@ using FluentAssertions;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers;
 using RepairsApi.V1.Boundary.Response;
-using RepairsApi.V1.Domain;
 using RepairsApi.V1.Factories;
 using RepairsApi.V1.Gateways;
-using RepairsApi.V1.Gateways.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 
 namespace RepairsApi.Tests.V1.E2ETests
@@ -17,6 +14,12 @@ namespace RepairsApi.Tests.V1.E2ETests
     [SingleThreaded]
     public class PropertyApitests : IntegrationTests<Startup>
     {
+        [SetUp]
+        public void SetUp()
+        {
+            MockApiGateway.ForcedCode = null;
+        }
+
         [TestCase(8, 7, true)]
         [TestCase(1, 1, false)]
         [TestCase(0, 0, false)]
@@ -48,7 +51,7 @@ namespace RepairsApi.Tests.V1.E2ETests
         }
 
         [Test]
-        public void Returns404WhenPropertDoesntExist()
+        public void Returns404WhenPropertyDoesntExist()
         {
             // Arrange
             ApiGateway client = new ApiGateway(new HttpClientFactoryWrapper(Client));
@@ -155,6 +158,41 @@ namespace RepairsApi.Tests.V1.E2ETests
             response.IsSuccess.Should().BeTrue();
             response.Status.Should().Be(HttpStatusCode.OK);
             response.Content.Should().HaveCount(5);
+        }
+
+        [Test]
+        public void PropertyListForwardsErrorWhenPlatformApiFails()
+        {
+            // Arrange
+            MockApiGateway.ForcedCode = HttpStatusCode.BadGateway;
+
+            const string Postcode = "AA11AA";
+            ApiGateway client = new ApiGateway(new HttpClientFactoryWrapper(Client));
+
+            // Act
+            var response = client.ExecuteRequest<List<PropertyViewModel>>(new Uri($"/api/v2/properties/?postcode={Postcode}", UriKind.Relative)).Result;
+
+            // Assert
+            response.IsSuccess.Should().BeFalse();
+            response.Status.Should().Be(HttpStatusCode.BadGateway);
+        }
+
+
+        [Test]
+        public void AlertListForwardsErrorWhenPlatformApiFails()
+        {
+            // Arrange
+            MockApiGateway.ForcedCode = HttpStatusCode.BadGateway;
+
+            var expectedProperty = MockApiGateway.NewProperty();
+            ApiGateway client = new ApiGateway(new HttpClientFactoryWrapper(Client));
+
+            // Act
+            var response = client.ExecuteRequest<CautionaryAlertResponseList>(new Uri($"/api/v2/properties/{expectedProperty.PropRef}/alerts", UriKind.Relative)).Result;
+
+            // Assert
+            response.IsSuccess.Should().BeFalse();
+            response.Status.Should().Be(HttpStatusCode.BadGateway);
         }
     }
 }

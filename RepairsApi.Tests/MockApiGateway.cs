@@ -81,6 +81,8 @@ namespace RepairsApi.Tests
         }
         #endregion
 
+        public static HttpStatusCode? ForcedCode { get; set; }
+
         private readonly ApiGateway _innerGateway;
 
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Tests")]
@@ -95,6 +97,11 @@ namespace RepairsApi.Tests
 
         public Task<ApiResponse<TResponse>> ExecuteRequest<TResponse>(Uri url, string apiKey) where TResponse : class
         {
+            if (ForcedCode.HasValue)
+            {
+                return Task.FromResult(new ApiResponse<TResponse>(false, ForcedCode.Value, null));
+            }
+
             return _innerGateway.ExecuteRequest<TResponse>(url, apiKey);
         }
 
