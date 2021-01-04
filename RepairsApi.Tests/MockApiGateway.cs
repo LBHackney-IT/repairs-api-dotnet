@@ -93,9 +93,9 @@ namespace RepairsApi.Tests
             _innerGateway = new ApiGateway(factoryMock);
         }
 
-        public Task<ApiResponse<TResponse>> ExecuteRequest<TResponse>(Uri url) where TResponse : class
+        public Task<ApiResponse<TResponse>> ExecuteRequest<TResponse>(Uri url, string apiKey) where TResponse : class
         {
-            return _innerGateway.ExecuteRequest<TResponse>(url);
+            return _innerGateway.ExecuteRequest<TResponse>(url, apiKey);
         }
 
         [Route("http://testtenanciesapi/tenancies")]

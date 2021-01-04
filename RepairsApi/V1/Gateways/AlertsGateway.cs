@@ -28,7 +28,7 @@ namespace RepairsApi.V1.Gateways
         public async Task<PropertyAlertList> GetLocationAlertsAsync(string propertyReference)
         {
             Uri url = new Uri(_options.AlertsApi + $"cautionary-alerts/properties/{propertyReference}");
-            var response = await _apiGateway.ExecuteRequest<PropertyAlertsApiResponse>(url);
+            var response = await _apiGateway.ExecuteRequest<PropertyAlertsApiResponse>(url, _options.AlertsAPIKey);
 
             if (response.Status == HttpStatusCode.NotFound)
             {
@@ -52,7 +52,7 @@ namespace RepairsApi.V1.Gateways
             }
 
             Uri url = new Uri(_options.AlertsApi + $"cautionary-alerts/people?tag_ref={tenancyReference}");
-            var response = await _apiGateway.ExecuteRequest<ListPersonAlertsApiResponse>(url);
+            var response = await _apiGateway.ExecuteRequest<ListPersonAlertsApiResponse>(url, _options.AlertsAPIKey);
 
             if (!response.IsSuccess)
             {

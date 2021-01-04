@@ -27,7 +27,7 @@ namespace RepairsApi.V1.Gateways
         public async Task<TenureInformation?> GetTenancyInformationAsync(string propertyReference)
         {
             Uri url = new Uri(_options.TenancyApi + $"tenancies?property_reference={propertyReference}");
-            var response = await _apiGateway.ExecuteRequest<ListTenanciesApiResponse>(url);
+            var response = await _apiGateway.ExecuteRequest<ListTenanciesApiResponse>(url, _options.TenancyApiKey);
 
             if (!response.IsSuccess && response.Status != HttpStatusCode.NotFound)
             {
