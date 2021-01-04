@@ -66,7 +66,7 @@ namespace RepairsApi.Tests.ApiMocking
 
                 if (result == null)
                 {
-                   return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
+                    return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
                 }
 
                 HttpResponseMessage httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK);

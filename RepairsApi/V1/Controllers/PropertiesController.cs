@@ -85,7 +85,7 @@ namespace RepairsApi.V1.Controllers
             {
                 property = await _getPropertyUseCase.ExecuteAsync(propertyReference);
             }
-            catch(ApiException ex)
+            catch (ApiException ex)
             {
                 return StatusCode(ex.StatusCode);
             }

@@ -10,13 +10,13 @@ namespace RepairsApi.V1.Exceptions
         public ApiException(HttpStatusCode statusCode, string message)
             : this(message)
         {
-            this.StatusCode = (int)statusCode;
+            this.StatusCode = (int) statusCode;
         }
 
-        public ApiException(string message) : base(message) {}
+        public ApiException(string message) : base(message) { }
 
-        public ApiException() {}
+        public ApiException() { }
 
-        public ApiException(string message, Exception innerException) : base(message, innerException) {}
+        public ApiException(string message, Exception innerException) : base(message, innerException) { }
     }
 }
