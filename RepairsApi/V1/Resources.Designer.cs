@@ -61,6 +61,15 @@ namespace RepairsApi.V1 {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Work Order Created.
+        /// </summary>
+        internal static string CreatedWorkOrder {
+            get {
+                return ResourceManager.GetString("CreatedWorkOrder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to fetch location alerts.
         /// </summary>
         internal static string LocationAlertsFailure {
