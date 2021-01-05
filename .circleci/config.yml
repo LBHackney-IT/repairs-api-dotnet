@@ -85,6 +85,47 @@ commands:
           command: |
             cd ./RepairsApi/
             sls deploy --stage <<parameters.stage>> --conceal
+  migrate-database:
+    description: "Migrate database"
+    parameters:
+      stage:
+        type: string
+    steps:
+      - *attach_workspace
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Install Unzip
+          command: apt-get update && apt-get install unzip
+      - run:
+          name: Install AWS CLI
+          command: |
+            curl -L -o awscliv2.zip "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+            unzip awscliv2.zip
+            ./aws/install
+      - run:
+          name: Install Session Manager plugin
+          command: |
+            curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o "session-manager-plugin.deb"
+            dpkg -i session-manager-plugin.deb
+      - run:
+          name: Install dotnet ef core
+          command: dotnet tool install dotnet-ef --tool-path ./dotnet-ef-local/
+      - run:
+          name: SSH into RDS and migrate database
+          command: |
+            aws ssm get-parameter --name "/platform-apis-jump-box-pem-key" --output text --query Parameter.Value > ./private-key.pem
+            chmod 400 ./private-key.pem
+            HOST=$(aws ssm get-parameter --name /repairs-api/<<parameters.stage>>/postgres-hostname --query Parameter.Value)
+            PORT=$(aws ssm get-parameter --name /repairs-api/<<parameters.stage>>/postgres-port --query Parameter.Value)
+            INSTANCE_NAME=$(aws ssm get-parameter --name /platform-apis-jump-box-instance-name --query Parameter.Value)
+            ssh -4 -i ./private-key.pem -Nf -M -L ${PORT//\"}:${HOST//\"}:${PORT//\"} -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -o ProxyCommand="aws ssm start-session --target %h --document AWS-StartSSHSession --parameters portNumber=%p --region=eu-west-2" ec2-user@${INSTANCE_NAME//\"}
+            PASSWORD=$(aws ssm get-parameter --name /repairs-api/<<parameters.stage>>/postgres-password --query Parameter.Value)
+            USERNAME=$(aws ssm get-parameter --name /repairs-api/<<parameters.stage>>/postgres-username --query Parameter.Value)
+            DATABASE=$(aws ssm get-parameter --name /repairs-api/<<parameters.stage>>/postgres-database --query Parameter.Value)
+            CONN_STR="Host=localhost;Password=${PASSWORD};Port=${PORT};Username=${USERNAME};Database=${DATABASE}"
+            cd ./RepairsApi/
+            CONNECTION_STRING=${CONN_STR} ./../dotnet-ef-local/dotnet ef database update -p RepairsApi -c RepairsApi.V1.Infrastructure.RepairsContext
 
 jobs:
   check-code-formatting:
@@ -153,6 +194,11 @@ jobs:
     steps:
       - deploy-lambda:
           stage: "production"
+  migrate-database-development:
+    executor: docker-dotnet
+    steps:
+      - migrate-database:
+          stage: "development"
 
 workflows:
   check-and-deploy-development:
@@ -172,6 +218,13 @@ workflows:
           filters:
             branches:
               only: develop
+      - migrate-database-development:
+          requires:
+              - terraform-init-and-apply-to-development
+              - assume-role-development
+          filters:
+            branches:
+              only: development
       - deploy-to-development:
           requires:
             - assume-role-development
