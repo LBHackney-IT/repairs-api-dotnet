@@ -25,14 +25,8 @@ namespace RepairsApi.Tests.V1.Gateways
         [SetUp]
         public void SetUp()
         {
-            var gatewayOptions = new GatewayOptions
-            {
-                AlertsApi = AlertUri,
-                PropertiesAPI = PropertyUri,
-            };
-
             _apiGatewayMock = new Mock<IApiGateway>();
-            _classUnderTest = new AlertsGateway(Options.Create(gatewayOptions), _apiGatewayMock.Object, new NullLogger<AlertsGateway>());
+            _classUnderTest = new AlertsGateway(_apiGatewayMock.Object, new NullLogger<AlertsGateway>());
         }
 
         [Test]
@@ -40,7 +34,7 @@ namespace RepairsApi.Tests.V1.Gateways
         {
             // Arrange
             var stubData = BuildResponse(StubPropertyAlertApiResponse(5).Generate());
-            _apiGatewayMock.Setup(gw => gw.ExecuteRequest<PropertyAlertsApiResponse>(It.IsAny<Uri>(), It.IsAny<string>())).ReturnsAsync(stubData);
+            _apiGatewayMock.Setup(gw => gw.ExecuteRequest<PropertyAlertsApiResponse>(It.IsAny<string>(), It.IsAny<Uri>())).ReturnsAsync(stubData);
 
             // Act
             var result = await _classUnderTest.GetLocationAlertsAsync("");
@@ -55,7 +49,7 @@ namespace RepairsApi.Tests.V1.Gateways
         {
             // Arrange
             var stubData = BuildResponse<PropertyAlertsApiResponse>(null);
-            _apiGatewayMock.Setup(gw => gw.ExecuteRequest<PropertyAlertsApiResponse>(It.IsAny<Uri>(), It.IsAny<string>())).ReturnsAsync(stubData);
+            _apiGatewayMock.Setup(gw => gw.ExecuteRequest<PropertyAlertsApiResponse>(It.IsAny<string>(), It.IsAny<Uri>())).ReturnsAsync(stubData);
             const string expectedPropertyReference = "";
 
             // Act
@@ -83,7 +77,7 @@ namespace RepairsApi.Tests.V1.Gateways
         {
             // Arrange
             var stubData = BuildResponse(new ListPersonAlertsApiResponse { Contacts = StubPersonAlertApiResponse(expectedAlertCount).Generate(1) });
-            _apiGatewayMock.Setup(gw => gw.ExecuteRequest<ListPersonAlertsApiResponse>(It.IsAny<Uri>(), It.IsAny<string>())).ReturnsAsync(stubData);
+            _apiGatewayMock.Setup(gw => gw.ExecuteRequest<ListPersonAlertsApiResponse>(It.IsAny<string>(), It.IsAny<Uri>())).ReturnsAsync(stubData);
             const string expectedPropertyReference = "";
 
             // Act

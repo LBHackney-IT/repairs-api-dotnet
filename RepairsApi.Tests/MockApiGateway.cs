@@ -86,23 +86,23 @@ namespace RepairsApi.Tests
         private readonly ApiGateway _innerGateway;
 
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Tests")]
-        public MockApiGateway()
+        public MockApiGateway(IHttpClientFactory innerFactory)
         {
-            var mock = MockHttpMessageHandler.FromClass<MockApiGateway>();
-            HttpClient client = new HttpClient(mock);
-            var factoryMock = new HttpClientFactoryWrapper(client);
+            var handlerMock = MockHttpMessageHandler.FromClass<MockApiGateway>();
+
+            var factoryMock = new HttpClientFactoryWrapper(innerFactory, handlerMock);
 
             _innerGateway = new ApiGateway(factoryMock);
         }
 
-        public Task<ApiResponse<TResponse>> ExecuteRequest<TResponse>(Uri url, string apiKey) where TResponse : class
+        public Task<ApiResponse<TResponse>> ExecuteRequest<TResponse>(string clientName, Uri url) where TResponse : class
         {
             if (ForcedCode.HasValue)
             {
                 return Task.FromResult(new ApiResponse<TResponse>(false, ForcedCode.Value, null));
             }
 
-            return _innerGateway.ExecuteRequest<TResponse>(url, apiKey);
+            return _innerGateway.ExecuteRequest<TResponse>(clientName, url);
         }
 
         [Route("http://testtenanciesapi/tenancies")]

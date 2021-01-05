@@ -26,6 +26,12 @@ functions:
     environment:
 # TODO: Create ssm variables for this API's postgres mirror then rename repairs-api below to match api name
       CONNECTION_STRING: Host=${ssm:/repairs-api/${self:provider.stage}/postgres-hostname};Port=${ssm:/repairs-api/${self:provider.stage}/postgres-port};Database=repairs-api-mirror;Username=${ssm:/repairs-api/${self:provider.stage}/postgres-username};Password=${ssm:/repairs-api/${self:provider.stage}/postgres-password}
+      GatewayOptions__PropertiesAPI: ${ssm:/${self:service}/${self:provider.stage}/properties-api-url}
+      GatewayOptions__PropertiesAPIKey: ${ssm:/${self:service}/${self:provider.stage}/properties-api-token}
+      GatewayOptions__AlertsAPI: ${ssm:/${self:service}/${self:provider.stage}/alerts-api-url}
+      GatewayOptions__AlertsAPIKey: ${ssm:/${self:service}/${self:provider.stage}/alerts-api-token}
+      GatewayOptions__TenancyApi: ${ssm:/${self:service}/${self:provider.stage}/tenancy-api-url}
+      GatewayOptions__TenancyApiKey: ${ssm:/${self:service}/${self:provider.stage}/tenancy-api-token}
     events:
       - http:
           path: /{proxy+}
