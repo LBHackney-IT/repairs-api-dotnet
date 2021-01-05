@@ -13,21 +13,19 @@ namespace RepairsApi.V1.Gateways
 #nullable enable
     public class TenancyGateway : ITenancyGateway
     {
-        private readonly GatewayOptions _options;
         private readonly IApiGateway _apiGateway;
         private readonly ILogger<TenancyGateway> _logger;
 
-        public TenancyGateway(IOptions<GatewayOptions> options, IApiGateway apiGateway, ILogger<TenancyGateway> logger)
+        public TenancyGateway(IApiGateway apiGateway, ILogger<TenancyGateway> logger)
         {
-            _options = options.Value;
             _apiGateway = apiGateway;
             _logger = logger;
         }
 
         public async Task<TenureInformation?> GetTenancyInformationAsync(string propertyReference)
         {
-            Uri url = new Uri(_options.TenancyApi + $"tenancies?property_reference={propertyReference}");
-            var response = await _apiGateway.ExecuteRequest<ListTenanciesApiResponse>(url, _options.TenancyApiKey);
+            Uri url = new Uri($"tenancies?property_reference={propertyReference}", UriKind.Relative);
+            var response = await _apiGateway.ExecuteRequest<ListTenanciesApiResponse>(HttpClientNames.Tenancy, url);
 
             if (!response.IsSuccess && response.Status != HttpStatusCode.NotFound)
             {
