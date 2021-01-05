@@ -38,7 +38,7 @@ namespace RepairsApi.Tests.V1.E2ETests
             ApiGateway client = new ApiGateway(new HttpClientFactoryWrapper(Client));
 
             // Act
-            var response = client.ExecuteRequest<PropertyResponse>(new Uri($"/api/v2/properties/{expectedProperty.PropRef}", UriKind.Relative)).Result;
+            var response = client.ExecuteRequest<PropertyResponse>("dummy", new Uri($"/api/v2/properties/{expectedProperty.PropRef}", UriKind.Relative)).Result;
 
             // Assert
             response.IsSuccess.Should().BeTrue();
@@ -58,7 +58,7 @@ namespace RepairsApi.Tests.V1.E2ETests
             string dummyReference = "dummyReference";
 
             // Act
-            var response = client.ExecuteRequest<PropertyResponse>(new Uri($"/api/v2/properties/{dummyReference}", UriKind.Relative)).Result;
+            var response = client.ExecuteRequest<PropertyResponse>("dummy", new Uri($"/api/v2/properties/{dummyReference}", UriKind.Relative)).Result;
 
             // Assert
             response.IsSuccess.Should().BeFalse();
@@ -82,7 +82,7 @@ namespace RepairsApi.Tests.V1.E2ETests
             ApiGateway client = new ApiGateway(new HttpClientFactoryWrapper(Client));
 
             // Act
-            var response = client.ExecuteRequest<CautionaryAlertResponseList>(new Uri($"/api/v2/properties/{expectedProperty.PropRef}/alerts", UriKind.Relative)).Result;
+            var response = client.ExecuteRequest<CautionaryAlertResponseList>("dummy", new Uri($"/api/v2/properties/{expectedProperty.PropRef}/alerts", UriKind.Relative)).Result;
 
             // Assert
             response.IsSuccess.Should().BeTrue();
@@ -101,7 +101,7 @@ namespace RepairsApi.Tests.V1.E2ETests
             ApiGateway client = new ApiGateway(new HttpClientFactoryWrapper(Client));
 
             // Act
-            var response = client.ExecuteRequest<List<PropertyViewModel>>(new Uri($"/api/v2/properties/?postcode={Postcode}", UriKind.Relative)).Result;
+            var response = client.ExecuteRequest<List<PropertyViewModel>>("dummy", new Uri($"/api/v2/properties/?postcode={Postcode}", UriKind.Relative)).Result;
 
             // Assert
             response.IsSuccess.Should().BeTrue();
@@ -118,7 +118,7 @@ namespace RepairsApi.Tests.V1.E2ETests
             ApiGateway client = new ApiGateway(new HttpClientFactoryWrapper(Client));
 
             // Act
-            var response = client.ExecuteRequest<List<PropertyViewModel>>(new Uri($"/api/v2/properties/?address={Address}", UriKind.Relative)).Result;
+            var response = client.ExecuteRequest<List<PropertyViewModel>>("dummy", new Uri($"/api/v2/properties/?address={Address}", UriKind.Relative)).Result;
 
             // Assert
             response.IsSuccess.Should().BeTrue();
@@ -135,7 +135,7 @@ namespace RepairsApi.Tests.V1.E2ETests
             ApiGateway client = new ApiGateway(new HttpClientFactoryWrapper(Client));
 
             // Act
-            var response = client.ExecuteRequest<List<PropertyViewModel>>(new Uri($"/api/v2/properties/?q={Address}", UriKind.Relative)).Result;
+            var response = client.ExecuteRequest<List<PropertyViewModel>>("dummy", new Uri($"/api/v2/properties/?q={Address}", UriKind.Relative)).Result;
 
             // Assert
             response.IsSuccess.Should().BeTrue();
@@ -152,7 +152,7 @@ namespace RepairsApi.Tests.V1.E2ETests
             ApiGateway client = new ApiGateway(new HttpClientFactoryWrapper(Client));
 
             // Act
-            var response = client.ExecuteRequest<List<PropertyViewModel>>(new Uri($"/api/v2/properties/?q={Postcode}", UriKind.Relative)).Result;
+            var response = client.ExecuteRequest<List<PropertyViewModel>>("dummy", new Uri($"/api/v2/properties/?q={Postcode}", UriKind.Relative)).Result;
 
             // Assert
             response.IsSuccess.Should().BeTrue();
@@ -170,7 +170,7 @@ namespace RepairsApi.Tests.V1.E2ETests
             ApiGateway client = new ApiGateway(new HttpClientFactoryWrapper(Client));
 
             // Act
-            var response = client.ExecuteRequest<List<PropertyViewModel>>(new Uri($"/api/v2/properties/?postcode={Postcode}", UriKind.Relative)).Result;
+            var response = client.ExecuteRequest<List<PropertyViewModel>>("dummy", new Uri($"/api/v2/properties/?postcode={Postcode}", UriKind.Relative)).Result;
 
             // Assert
             response.IsSuccess.Should().BeFalse();
@@ -188,7 +188,7 @@ namespace RepairsApi.Tests.V1.E2ETests
             ApiGateway client = new ApiGateway(new HttpClientFactoryWrapper(Client));
 
             // Act
-            var response = client.ExecuteRequest<CautionaryAlertResponseList>(new Uri($"/api/v2/properties/{expectedProperty.PropRef}/alerts", UriKind.Relative)).Result;
+            var response = client.ExecuteRequest<CautionaryAlertResponseList>("dummy", new Uri($"/api/v2/properties/{expectedProperty.PropRef}/alerts", UriKind.Relative)).Result;
 
             // Assert
             response.IsSuccess.Should().BeFalse();

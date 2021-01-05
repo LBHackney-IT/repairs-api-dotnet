@@ -33,7 +33,7 @@ namespace RepairsApi.Tests.V1.Gateways
 
             ApiGateway classUnderTest = SetUpHttpMock(response);
 
-            var result = await classUnderTest.ExecuteRequest<TestModel>(new Uri("http://test"));
+            var result = await classUnderTest.ExecuteRequest<TestModel>("test", new Uri("http://test"));
 
             result.Content.Should().BeEquivalentTo(expectedResponse);
         }

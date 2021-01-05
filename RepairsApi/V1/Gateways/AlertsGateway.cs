@@ -15,20 +15,18 @@ namespace RepairsApi.V1.Gateways
     public class AlertsGateway : IAlertsGateway
     {
         private readonly ILogger<AlertsGateway> _logger;
-        private readonly GatewayOptions _options;
         private readonly IApiGateway _apiGateway;
 
-        public AlertsGateway(IOptions<GatewayOptions> options, IApiGateway apiGateway, ILogger<AlertsGateway> logger)
+        public AlertsGateway(IApiGateway apiGateway, ILogger<AlertsGateway> logger)
         {
             _logger = logger;
-            _options = options.Value;
             _apiGateway = apiGateway;
         }
 
         public async Task<PropertyAlertList> GetLocationAlertsAsync(string propertyReference)
         {
-            Uri url = new Uri(_options.AlertsApi + $"cautionary-alerts/properties/{propertyReference}");
-            var response = await _apiGateway.ExecuteRequest<PropertyAlertsApiResponse>(url, _options.AlertsAPIKey);
+            Uri url = new Uri($"cautionary-alerts/properties/{propertyReference}", UriKind.Relative);
+            var response = await _apiGateway.ExecuteRequest<PropertyAlertsApiResponse>(HttpClientNames.Alerts, url);
 
             if (response.Status == HttpStatusCode.NotFound)
             {
@@ -51,8 +49,8 @@ namespace RepairsApi.V1.Gateways
                 return EmptyPersonAlertList();
             }
 
-            Uri url = new Uri(_options.AlertsApi + $"cautionary-alerts/people?tag_ref={tenancyReference}");
-            var response = await _apiGateway.ExecuteRequest<ListPersonAlertsApiResponse>(url, _options.AlertsAPIKey);
+            Uri url = new Uri($"cautionary-alerts/people?tag_ref={tenancyReference}", UriKind.Relative);
+            var response = await _apiGateway.ExecuteRequest<ListPersonAlertsApiResponse>(HttpClientNames.Alerts, url);
 
             if (!response.IsSuccess)
             {

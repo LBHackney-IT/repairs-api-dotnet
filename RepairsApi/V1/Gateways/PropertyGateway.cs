@@ -14,21 +14,19 @@ namespace RepairsApi.V1.Gateways
 #nullable enable
     public class PropertyGateway : IPropertyGateway
     {
-        private readonly GatewayOptions _options;
         private readonly IApiGateway _apiGateway;
         private readonly ILogger<PropertyGateway> _logger;
 
-        public PropertyGateway(IOptions<GatewayOptions> options, IApiGateway apiGateway, ILogger<PropertyGateway> logger)
+        public PropertyGateway(IApiGateway apiGateway, ILogger<PropertyGateway> logger)
         {
-            _options = options.Value;
             _apiGateway = apiGateway;
             _logger = logger;
         }
 
         public async Task<IEnumerable<PropertyModel>> GetByQueryAsync(PropertySearchModel searchModel)
         {
-            Uri url = new Uri(_options.PropertiesAPI + $"properties?{searchModel.GetQueryParameter()}");
-            var response = await _apiGateway.ExecuteRequest<List<PropertyApiResponse>>(url, _options.PropertiesAPIKey);
+            Uri url = new Uri($"properties?{searchModel.GetQueryParameter()}", UriKind.Relative);
+            var response = await _apiGateway.ExecuteRequest<List<PropertyApiResponse>>(HttpClientNames.Properties, url);
 
             if (!response.IsSuccess)
             {
@@ -41,8 +39,8 @@ namespace RepairsApi.V1.Gateways
 
         public async Task<PropertyModel> GetByReferenceAsync(string propertyReference)
         {
-            Uri url = new Uri(_options.PropertiesAPI + $"properties/{propertyReference}");
-            var response = await _apiGateway.ExecuteRequest<PropertyApiResponse>(url, _options.PropertiesAPIKey);
+            Uri url = new Uri($"properties/{propertyReference}", UriKind.Relative);
+            var response = await _apiGateway.ExecuteRequest<PropertyApiResponse>(HttpClientNames.Properties, url);
 
             if (!response.IsSuccess)
             {

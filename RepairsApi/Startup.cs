@@ -20,6 +20,7 @@ using RepairsApi.V1.Gateways;
 using RepairsApi.V1.UseCase.Interfaces;
 using RepairsApi.V1.UseCase;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.Net.Http.Headers;
 
 namespace RepairsApi
 {
@@ -107,7 +108,7 @@ namespace RepairsApi
             });
             ConfigureDbContext(services);
 
-            services.AddHttpClient();
+            AddHttpClients(services);
             services.Configure<GatewayOptions>(Configuration.GetSection(nameof(GatewayOptions)));
 
             services.AddTransient<IListAlertsUseCase, ListAlertsUseCase>();
@@ -118,6 +119,25 @@ namespace RepairsApi
             services.AddTransient<IPropertyGateway, PropertyGateway>();
             services.AddTransient<IAlertsGateway, AlertsGateway>();
             services.AddTransient<ITenancyGateway, TenancyGateway>();
+        }
+
+        private void AddHttpClients(IServiceCollection services)
+        {
+            GatewayOptions options = new GatewayOptions();
+            Configuration.Bind(nameof(GatewayOptions), options);
+
+            AddClient(services, HttpClientNames.Properties, options.PropertiesAPI, options.PropertiesAPIKey);
+            AddClient(services, HttpClientNames.Alerts, options.AlertsApi, options.AlertsAPIKey);
+            AddClient(services, HttpClientNames.Tenancy, options.TenancyApi, options.TenancyApiKey);
+        }
+
+        private static void AddClient(IServiceCollection services, string clientName, Uri uri, string key)
+        {
+            services.AddHttpClient(clientName, c =>
+            {
+                c.BaseAddress = uri;
+                c.DefaultRequestHeaders.Add("Authorization", key);
+            });
         }
 
         private static void ConfigureDbContext(IServiceCollection services)
