@@ -2,7 +2,7 @@ using System;
 
 namespace RepairsApi.V1.Domain.Repair
 {
-    public class Priority
+    public class WorkPriority
     {
         public string PriorityCode { get; set; }
 

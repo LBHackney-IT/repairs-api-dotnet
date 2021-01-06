@@ -6,7 +6,7 @@ namespace RepairsApi.V1.Domain.Repair
     {
         public string DescriptionOfWork { get; set; }
 
-        public Priority Priority { get; set; }
+        public WorkPriority WorkPriority { get; set; }
 
         public WorkClass WorkClass { get; set; }
 

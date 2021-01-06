@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using RepairsApi.V1.Domain.Repair;
 using RepairsApi.V1.UseCase.Interfaces;
 using System;
 using System.Threading.Tasks;
+using RepairsApi.V1.Boundary;
 
 namespace RepairsApi.V1.Controllers
 {
@@ -26,23 +26,11 @@ namespace RepairsApi.V1.Controllers
 
             if (result)
             {
-                return Ok(request);
+                return Ok();
             }
 
             return BadRequest();
         }
     }
 
-    public class RaiseRepairRequest
-    {
-        public string Description { get; set; }
-
-        internal WorkOrder ToDomain()
-        {
-            WorkOrder raiseRepair = new WorkOrder();
-            raiseRepair.DescriptionOfWork = Description;
-
-            return raiseRepair;
-        }
-    }
 }

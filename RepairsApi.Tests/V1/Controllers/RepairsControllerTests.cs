@@ -7,6 +7,7 @@ using RepairsApi.V1.Domain.Repair;
 using RepairsApi.V1.UseCase.Interfaces;
 using System.Net;
 using System.Threading.Tasks;
+using RepairsApi.V1.Boundary;
 
 namespace RepairsApi.Tests.V1.Controllers
 {
