@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NJsonSchema;
 using NJsonSchema.CodeGeneration.CSharp;
@@ -42,10 +42,11 @@ namespace SchemaGeneration
                 DateTimeType = "System.DateTime",
                 DateType = "System.DateTime",
                 GenerateOptionalPropertiesAsNullable = true,
+                Namespace = "RepairsApi.V1.Generated"
             });
             var codeFile = generator.GenerateFile();
 
-            await File.WriteAllTextAsync($"./cs/{file}.cs", codeFile);
+            await File.WriteAllTextAsync($"../../../../RepairsApi/V1/Generated/{file}.cs", codeFile);
         }
 
         private static void DisallowAdditionalProperties(JsonSchema schema, string pref)

@@ -6,13 +6,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="json\*">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <Compile Remove="cs\**" />
+    <EmbeddedResource Remove="cs\**" />
+    <None Remove="cs\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="cs\" />
+    <None Update="json\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
