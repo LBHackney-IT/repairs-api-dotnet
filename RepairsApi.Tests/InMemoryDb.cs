@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RepairsApi.V1.Infrastructure;
+using System;
 
 namespace RepairsApi.Tests
 {
@@ -14,7 +15,7 @@ namespace RepairsApi.Tests
                 if (_context == null)
                 {
                     DbContextOptionsBuilder builder = new DbContextOptionsBuilder();
-                    builder.UseInMemoryDatabase("default");
+                    builder.UseInMemoryDatabase(Guid.NewGuid().ToString());
 
                     _context = new RepairsContext(builder.Options);
                 }

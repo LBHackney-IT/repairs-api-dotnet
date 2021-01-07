@@ -9,9 +9,8 @@ namespace RepairsApi.Tests.V1.Controllers
     {
 
         protected static T GetResultData<T>(IActionResult result)
-            where T : class
         {
-            return (result as ObjectResult)?.Value as T;
+            return (T)(result as ObjectResult)?.Value;
         }
 
         protected static int? GetStatusCode(IActionResult result)

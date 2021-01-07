@@ -5,6 +5,6 @@ namespace RepairsApi.V1.Gateways
 {
     public interface IRepairsGateway
     {
-        Task CreateWorkOrder(WorkOrder raiseRepair);
+        Task<int> CreateWorkOrder(WorkOrder raiseRepair);
     }
 }

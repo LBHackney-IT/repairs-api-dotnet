@@ -15,10 +15,12 @@ namespace RepairsApi.V1.Gateways
             _repairsContext = repairsContext;
         }
 
-        public Task CreateWorkOrder(WorkOrder raiseRepair)
+        public async Task<int> CreateWorkOrder(WorkOrder raiseRepair)
         {
-            _repairsContext.WorkOrders.Add(raiseRepair.ToDb());
-            return Task.CompletedTask;
+            var entry = _repairsContext.WorkOrders.Add(raiseRepair.ToDb());
+            await _repairsContext.SaveChangesAsync();
+
+            return entry.Entity.Id;
         }
     }
 }

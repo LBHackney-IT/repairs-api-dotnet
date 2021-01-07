@@ -5,6 +5,6 @@ namespace RepairsApi.V1.UseCase.Interfaces
 {
     public interface IRaiseRepairUseCase
     {
-        Task<bool> Execute(WorkOrder raiseRepair);
+        Task<int> Execute(WorkOrder raiseRepair);
     }
 }

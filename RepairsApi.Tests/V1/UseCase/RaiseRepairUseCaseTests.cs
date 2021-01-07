@@ -11,21 +11,24 @@ namespace RepairsApi.Tests.V1.UseCase
 {
     public class RaiseRepairUseCaseTests
     {
+        private Mock<IRepairsGateway> _repairsGatewayMock;
         private RaiseRepairUseCase _classUnderTest;
 
         [SetUp]
         public void Setup()
         {
-            var mock = new Mock<IRepairsGateway>();
-            _classUnderTest = new RaiseRepairUseCase(mock.Object, new NullLogger<RaiseRepairUseCase>());
+            _repairsGatewayMock = new Mock<IRepairsGateway>();
+            _classUnderTest = new RaiseRepairUseCase(_repairsGatewayMock.Object, new NullLogger<RaiseRepairUseCase>());
         }
 
         [Test]
         public async Task Runs()
         {
+            int newId = 1;
+            _repairsGatewayMock.Setup(m => m.CreateWorkOrder(It.IsAny<WorkOrder>())).ReturnsAsync(newId);
             var result = await _classUnderTest.Execute(new WorkOrder());
 
-            result.Should().BeTrue();
+            result.Should().Be(newId);
         }
     }
 }

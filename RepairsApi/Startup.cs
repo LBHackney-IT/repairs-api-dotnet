@@ -116,7 +116,7 @@ namespace RepairsApi
             services.AddTransient<IRaiseRepairUseCase, RaiseRepairUseCase>();
             services.AddTransient<IGetPropertyUseCase, GetPropertyUseCase>();
 
-            services.TryAddTransient<IApiGateway, ApiGateway>();
+            services.AddTransient<IApiGateway, ApiGateway>();
             services.AddTransient<IPropertyGateway, PropertyGateway>();
             services.AddTransient<IAlertsGateway, AlertsGateway>();
             services.AddTransient<ITenancyGateway, TenancyGateway>();
@@ -144,7 +144,7 @@ namespace RepairsApi
 
         private static void ConfigureDbContext(IServiceCollection services)
         {
-            var connectionString = "Host=127.0.0.1;Port=5432;Username=postgres;Password=mypassword;Database=testdb";//Environment.GetEnvironmentVariable("CONNECTION_STRING");
+            var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
 
             services.AddDbContext<RepairsContext>(
                 opt => opt

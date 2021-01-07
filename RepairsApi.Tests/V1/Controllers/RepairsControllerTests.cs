@@ -24,30 +24,14 @@ namespace RepairsApi.Tests.V1.Controllers
         }
 
         [Test]
-        public async Task ReturnsOk()
+        public async Task ReturnsOkWithInt()
         {
-            UseCaseReturns(true);
+            int newId = 2;
+            _raiseRepairUseCaseMock.Setup(m => m.Execute(It.IsAny<WorkOrder>())).ReturnsAsync(newId);
             var result = await _classUnderTest.RaiseRepair(new RaiseRepairRequest());
 
-            var code = GetStatusCode(result);
-
-            code.Should().Be(200);
-        }
-
-        [Test]
-        public async Task ReturnsBadRequestWhenUnsuccesful()
-        {
-            UseCaseReturns(false);
-            var result = await _classUnderTest.RaiseRepair(new RaiseRepairRequest());
-
-            var code = GetStatusCode(result);
-
-            code.Should().Be((int) HttpStatusCode.BadRequest);
-        }
-
-        private void UseCaseReturns(bool result)
-        {
-            _raiseRepairUseCaseMock.Setup(m => m.Execute(It.IsAny<WorkOrder>())).ReturnsAsync(result);
+            result.Should().BeOfType<OkObjectResult>();
+            GetResultData<int>(result).Should().Be(newId);
         }
     }
 }

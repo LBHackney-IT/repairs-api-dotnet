@@ -21,10 +21,10 @@ namespace RepairsApi.V1.Factories
             return new WorkOrderDB
             {
                 DescriptionOfWork = domain.DescriptionOfWork,
-                Priority = domain.WorkPriority.ToDb(),
-                SitePropertyUnits = domain.SitePropertyUnits.ToDb(),
-                WorkElements = domain.WorkElements.ToDb(),
-                WorkClass = domain.WorkClass.ToDb()
+                Priority = domain.WorkPriority?.ToDb(),
+                SitePropertyUnits = domain.SitePropertyUnits?.ToDb(),
+                WorkElements = domain.WorkElements?.ToDb(),
+                WorkClass = domain.WorkClass?.ToDb()
             };
         }
 

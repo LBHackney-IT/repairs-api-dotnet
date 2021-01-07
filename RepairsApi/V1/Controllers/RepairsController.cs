@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using RepairsApi.V1.Boundary;
 using RepairsApi.V1.UseCase.Interfaces;
 using System;
 using System.Threading.Tasks;
-using RepairsApi.V1.Boundary;
 
 namespace RepairsApi.V1.Controllers
 {
@@ -22,11 +22,13 @@ namespace RepairsApi.V1.Controllers
         [HttpPost]
         public async Task<IActionResult> RaiseRepair([FromBody] RaiseRepairRequest request)
         {
-            var result = await _raiseRepairUseCase.Execute(request.ToDomain());
-
-            if (result)
+            try
             {
-                return Ok();
+                var result = await _raiseRepairUseCase.Execute(request.ToDomain());
+                return Ok(result);
+            } catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
 
             return BadRequest();

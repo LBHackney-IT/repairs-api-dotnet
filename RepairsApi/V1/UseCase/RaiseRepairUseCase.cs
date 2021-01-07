@@ -18,11 +18,11 @@ namespace RepairsApi.V1.UseCase
             _logger = logger;
         }
 
-        public async Task<bool> Execute(WorkOrder workOrder)
+        public async Task<int> Execute(WorkOrder workOrder)
         {
-            await _repairsGateway.CreateWorkOrder(workOrder);
+            var id = await _repairsGateway.CreateWorkOrder(workOrder);
             _logger.LogInformation(Resources.CreatedWorkOrder);
-            return true;
+            return id;
         }
     }
 }
