@@ -8,6 +8,7 @@ using RepairsApi.V1.UseCase.Interfaces;
 using System.Net;
 using System.Threading.Tasks;
 using RepairsApi.V1.Boundary;
+using RepairsApi.V1.Generated;
 
 namespace RepairsApi.Tests.V1.Controllers
 {
@@ -28,7 +29,7 @@ namespace RepairsApi.Tests.V1.Controllers
         {
             int newId = 2;
             _raiseRepairUseCaseMock.Setup(m => m.Execute(It.IsAny<WorkOrder>())).ReturnsAsync(newId);
-            var result = await _classUnderTest.RaiseRepair(new RaiseRepairRequest());
+            var result = await _classUnderTest.RaiseRepair(new RaiseRepair());
 
             result.Should().BeOfType<OkObjectResult>();
             GetResultData<int>(result).Should().Be(newId);

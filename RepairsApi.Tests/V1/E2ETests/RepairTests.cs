@@ -1,8 +1,10 @@
 using FluentAssertions;
 using NUnit.Framework;
 using RepairsApi.V1.Boundary;
+using RepairsApi.V1.Generated;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -18,7 +20,8 @@ namespace RepairsApi.Tests.V1.E2ETests
         {
             var client = CreateClient();
 
-            RaiseRepairRequest request = new RaiseRepairRequest
+            // Request is auto filling properties
+            RaiseRepair request = new RaiseRepair
             {
                 DescriptionOfWork = "test description"
             };
@@ -26,6 +29,7 @@ namespace RepairsApi.Tests.V1.E2ETests
 
             var response = await client.PostAsync(new Uri("/api/v2/repairs", UriKind.Relative), content);
 
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
             string responseContent = await response.Content.ReadAsStringAsync();
             var id = JsonSerializer.Deserialize<int>(responseContent);
 

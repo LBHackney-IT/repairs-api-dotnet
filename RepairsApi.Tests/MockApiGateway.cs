@@ -183,7 +183,7 @@ namespace RepairsApi.Tests
 
         internal static void AddTenantInformation(string tenantReference, string propRef, bool canRaiseRepair = false)
         {
-            string code = canRaiseRepair ? ApiModelFactory.RaisableTenureCodes.First() : "not a valid code";
+            string code = canRaiseRepair ? ApiToDomainFactory.RaisableTenureCodes.First() : "not a valid code";
             MockTenantApiResponses.Add(new TenancyApiTenancyInformation
             {
                 TenancyAgreementReference = tenantReference,

@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace RepairsApi.V1.Factories
 {
-    public static class ApiModelFactory
+    public static class ApiToDomainFactory
     {
         public static Dictionary<string, string> HierarchyDescriptions => new Dictionary<string, string>
         {

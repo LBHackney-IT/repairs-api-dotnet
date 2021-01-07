@@ -29,6 +29,7 @@ namespace SchemaGeneration
             var data = parsedFile.Last;
             JObject properties = data.Last as JObject;
             parsedFile.Add("properties", properties.GetValue("properties"));
+            parsedFile.Add("required", properties.GetValue("required"));
             data.Remove();
 
             var fixedFile = JsonConvert.SerializeObject(parsedFile);
@@ -38,11 +39,10 @@ namespace SchemaGeneration
             DisallowAdditionalProperties(schema, "");
             var generator = new CSharpGenerator(schema, new CSharpGeneratorSettings
             {
-                GenerateNullableReferenceTypes = true,
                 DateTimeType = "System.DateTime",
                 DateType = "System.DateTime",
-                GenerateOptionalPropertiesAsNullable = true,
-                Namespace = "RepairsApi.V1.Generated"
+                Namespace = "RepairsApi.V1.Generated",
+                GenerateDefaultValues = false
             });
             var codeFile = generator.GenerateFile();
 

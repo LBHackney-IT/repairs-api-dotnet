@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using RepairsApi.V1.Boundary;
+using RepairsApi.V1.Factories;
+using RepairsApi.V1.Generated;
 using RepairsApi.V1.UseCase.Interfaces;
 using System;
 using System.Threading.Tasks;
@@ -20,8 +21,10 @@ namespace RepairsApi.V1.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> RaiseRepair([FromBody] RaiseRepairRequest request)
+        public async Task<IActionResult> RaiseRepair([FromBody] RaiseRepair request)
         {
+            if (!ModelState.IsValid) return BadRequest();
+
             try
             {
                 var result = await _raiseRepairUseCase.Execute(request.ToDomain());
@@ -31,7 +34,7 @@ namespace RepairsApi.V1.Controllers
                 Console.WriteLine(e);
             }
 
-            return BadRequest();
+            return StatusCode(500);
         }
     }
 

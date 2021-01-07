@@ -87,7 +87,7 @@ namespace RepairsApi.Tests.V1
                 .RuleFor(res => res.PostCode, f => f.Random.String2(0, 100))
                 .RuleFor(res => res.LevelCode, f => f.Random.String2(0, 100))
                 .RuleFor(res => res.PropRef, f => f.Random.Int().ToString())
-                .RuleFor(res => res.SubtypCode, f => f.PickRandom<string>(ApiModelFactory.HierarchyDescriptions.Keys));
+                .RuleFor(res => res.SubtypCode, f => f.PickRandom<string>(ApiToDomainFactory.HierarchyDescriptions.Keys));
         }
 
         public static Faker<TenancyApiTenancyInformation> StubTenantApiResponse()
@@ -96,7 +96,7 @@ namespace RepairsApi.Tests.V1
                 .RuleFor(res => res.TenancyAgreementReference, f => f.Random.Int().ToString())
                 .RuleFor(res => res.TenureType, f =>
                 {
-                    string code = f.Random.Bool() ? f.PickRandom(ApiModelFactory.RaisableTenureCodes.AsEnumerable()) : f.Random.String2(3);
+                    string code = f.Random.Bool() ? f.PickRandom(ApiToDomainFactory.RaisableTenureCodes.AsEnumerable()) : f.Random.String2(3);
                     return $"{code}: {f.Random.Words(10)}";
                 });
         }
