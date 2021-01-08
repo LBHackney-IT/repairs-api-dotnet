@@ -188,7 +188,8 @@ namespace RepairsApi.Tests
             {
                 TenancyAgreementReference = tenantReference,
                 PropertyReference = propRef,
-                TenureType = $"{code}: Rnadom descirption"
+                TenureType = $"{code}: Rnadom descirption",
+                Present = true
             });
         }
 
