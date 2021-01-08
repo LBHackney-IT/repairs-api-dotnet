@@ -21,7 +21,7 @@ namespace RepairsApi.Tests.V1.E2ETests
             var client = CreateClient();
 
             // These request need to pulled from json to stop c sharp adding in default enum properties
-            string request = Requests.RaiseRepair; 
+            string request = Requests.RaiseRepair;
             StringContent content = new StringContent(request, Encoding.UTF8, "application/json");
 
             var response = await client.PostAsync(new Uri("/api/v2/repairs", UriKind.Relative), content);

@@ -32,7 +32,7 @@ namespace RepairsApi.V1.Factories
         {
             return new WorkClass
             {
-                WorkClassCode = (int)request.WorkClassCode,
+                WorkClassCode = (int) request.WorkClassCode,
             };
         }
 

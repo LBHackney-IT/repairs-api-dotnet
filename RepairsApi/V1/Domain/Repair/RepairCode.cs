@@ -1,4 +1,4 @@
-﻿namespace RepairsApi.V1.Domain.Repair
+namespace RepairsApi.V1.Domain.Repair
 {
     public class RepairCode
     {

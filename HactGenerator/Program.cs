@@ -24,7 +24,7 @@ namespace SchemaGeneration
                 .Replace(@"""type"": ""date""", "\"type\": \"string\", \"format\": \"date\"")
                 .Replace(@"""type"": ""date-time""", "\"type\": \"string\", \"format\": \"date-time\"");
 
-            JObject parsedFile = (JObject)JsonConvert.DeserializeObject(replacedJson);
+            JObject parsedFile = (JObject) JsonConvert.DeserializeObject(replacedJson);
 
             var data = parsedFile.Last;
             JObject properties = data.Last as JObject;
@@ -34,7 +34,7 @@ namespace SchemaGeneration
 
             var fixedFile = JsonConvert.SerializeObject(parsedFile);
 
-            var schema  = await JsonSchema.FromJsonAsync(fixedFile);
+            var schema = await JsonSchema.FromJsonAsync(fixedFile);
             schema.Title = file.Split('-', '.')[0];
             DisallowAdditionalProperties(schema, "");
             var generator = new CSharpGenerator(schema, new CSharpGeneratorSettings

@@ -27,7 +27,8 @@ namespace RepairsApi.V1.Controllers
             {
                 var result = await _raiseRepairUseCase.Execute(request.ToDomain());
                 return Ok(result);
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 Console.WriteLine(e);
             }
