@@ -32,7 +32,7 @@ namespace RepairsApi.V1.Factories
         {
             return new WorkClass
             {
-                WorkClassCode = (int) request.WorkClassCode,
+                WorkClassCode = request.WorkClassCode,
             };
         }
 
@@ -59,7 +59,7 @@ namespace RepairsApi.V1.Factories
             return new Quantity
             {
                 Amount = Convert.ToInt32(request.Amount.Single()),
-                UnitOfMeasurementCode = GetEnumMemberAttrValue(request.UnitOfMeasurementCode)
+                UnitOfMeasurementCode = request.UnitOfMeasurementCode
             };
         }
 

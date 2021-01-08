@@ -1,14 +1,25 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace RepairsApi.V1.Infrastructure
 {
-    public class SitePropertyUnit
+    public class Unit
     {
-        [Key] [Column("id")] public int Id { get; set; }
-        [Column("reference")] public string Reference { get; set; }
-        public virtual Address Address { get; set; }
+        [Key] public int Id { get; set; }
+        public virtual PropertyAddress Address { get; set; }
+        public virtual KeySafe KeySafe { get; set; }
     }
 
+    public class PropertyClass
+    {
+        [Key] public int Id { get; set; }
+        public virtual ICollection<Unit> Unit { get; set; }
+    }
+
+    public class Site
+    {
+        [Key] public int Id { get; set; }
+        public virtual ICollection<PropertyClass> PropertyRef { get; set; }
+    }
 }

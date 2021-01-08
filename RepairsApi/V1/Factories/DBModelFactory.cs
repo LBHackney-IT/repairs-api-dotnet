@@ -1,16 +1,20 @@
 using System.Collections.Generic;
 using System.Linq;
-using RepairsApi.V1.Domain.Repair;
-
+using RepairsApi.V1.Infrastructure;
+using Quantity = RepairsApi.V1.Domain.Repair.Quantity;
 using WorkPriorityCode = RepairsApi.V1.Infrastructure.WorkPriorityCode;
 using SitePropertyUnit = RepairsApi.V1.Domain.Repair.SitePropertyUnit;
 using WorkOrderDB = RepairsApi.V1.Infrastructure.WorkOrder;
 using WorkClassDB = RepairsApi.V1.Infrastructure.WorkClass;
 using WorkElementDB = RepairsApi.V1.Infrastructure.WorkElement;
 using WorkPriorityDB = RepairsApi.V1.Infrastructure.WorkPriority;
-using SitePropertyUnitDB = RepairsApi.V1.Infrastructure.SitePropertyUnit;
 using RateScheduleItemDB = RepairsApi.V1.Infrastructure.RateScheduleItem;
 using QuantityDB = RepairsApi.V1.Infrastructure.Quantity;
+using RateScheduleItem = RepairsApi.V1.Domain.Repair.RateScheduleItem;
+using WorkClass = RepairsApi.V1.Domain.Repair.WorkClass;
+using WorkElement = RepairsApi.V1.Domain.Repair.WorkElement;
+using WorkOrder = RepairsApi.V1.Domain.Repair.WorkOrder;
+using WorkPriority = RepairsApi.V1.Domain.Repair.WorkPriority;
 
 namespace RepairsApi.V1.Factories
 {
@@ -21,8 +25,8 @@ namespace RepairsApi.V1.Factories
             return new WorkOrderDB
             {
                 DescriptionOfWork = domain.DescriptionOfWork,
-                Priority = domain.WorkPriority?.ToDb(),
-                SitePropertyUnits = domain.SitePropertyUnits?.ToDb(),
+                WorkPriority = domain.WorkPriority?.ToDb(),
+                // TODO: map site
                 WorkElements = domain.WorkElements?.ToDb(),
                 WorkClass = domain.WorkClass?.ToDb()
             };
@@ -38,16 +42,6 @@ namespace RepairsApi.V1.Factories
                 },
                 RequiredCompletionDateTime = domain.RequiredCompletionDateTime
             };
-        }
-
-        public static List<SitePropertyUnitDB> ToDb(this IList<SitePropertyUnit> domain)
-        {
-            return domain.Select(u =>
-                new SitePropertyUnitDB
-                {
-                    Reference = u.Reference
-                }
-            ).ToList();
         }
 
         public static List<WorkElementDB> ToDb(this IList<WorkElement> domain)

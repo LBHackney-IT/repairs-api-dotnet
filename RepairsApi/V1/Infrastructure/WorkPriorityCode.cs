@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RepairsApi.V1.Infrastructure
 {
-    [Table("work_priority_code")]
     public class WorkPriorityCode
     {
         [Key] [Column("id")] public int Id { get; set; }

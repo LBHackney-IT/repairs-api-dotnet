@@ -2,17 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using CostSubjectCode = RepairsApi.V1.Generated.CostSubjectCode;
 
 namespace RepairsApi.V1.Infrastructure
 {
-    [Table("work_element")]
     public class WorkElement
     {
-        [Key] [Column("id")] public Guid Id { get; set; }
-        [Column("trade ")] public string Trade { get; set; }
-        [Column("service_charge_subject")] public string ServiceChargeSubject { get; set; }
-        [Column("contains_capital_work")] public bool ContainsCapitalWork { get; set; }
+        [Key] public Guid Id { get; set; }
+        public CostSubjectCode ServiceChargeSubject { get; set; }
+        public bool ContainsCapitalWork { get; set; }
 
         public virtual List<RateScheduleItem> RateScheduleItem { get; set; }
+        public virtual List<Trade> Trade { get; set; }
+        public virtual List<WorkElementDependency> DependsOn { get; set; }
     }
+
 }

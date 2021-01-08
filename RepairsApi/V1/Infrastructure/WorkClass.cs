@@ -1,11 +1,21 @@
-using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
+using WorkClassCode = RepairsApi.V1.Generated.WorkClassCode;
 
 namespace RepairsApi.V1.Infrastructure
 {
-    [Owned]
     public class WorkClass
     {
-        [Column("work_class_code")] public int WorkClassCode { get; set; }
+        [Key] public int Id { get; set; }
+        public string WorkClassDescription { get; set; }
+        public WorkClassCode WorkClassCode { get; set; }
+        public virtual WorkClassSubType WorkClassSubType { get; set; }
+    }
+
+    public class WorkClassSubType
+    {
+        [Key] public int Id { get; set; }
+        public string WorkClassSubTypeName { get; set; }
+        public string WorkClassSubTypeDescription { get; set; }
     }
 }

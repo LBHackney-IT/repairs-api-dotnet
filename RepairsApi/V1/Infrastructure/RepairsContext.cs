@@ -10,8 +10,8 @@ namespace RepairsApi.V1.Infrastructure
         }
 
         public DbSet<WorkOrder> WorkOrders { get; set; }
-        public DbSet<PersonAlert> PersonAlerts { get; set; }
-        public DbSet<LocationAlert> LocationAlerts { get; set; }
+        public DbSet<AlertRegardingPerson> PersonAlerts { get; set; }
+        public DbSet<AlertRegardingLocation> LocationAlerts { get; set; }
         public DbSet<RateScheduleItem> RateScheduleItems { get; set; }
         public DbSet<WorkElement> WorkElements { get; set; }
         public DbSet<WorkPriority> WorkPriorities { get; set; }

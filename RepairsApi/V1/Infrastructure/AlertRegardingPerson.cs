@@ -4,10 +4,10 @@ using RepairsApi.V1.Generated;
 
 namespace RepairsApi.V1.Infrastructure
 {
-    public class PersonAlert
+    public class AlertRegardingPerson
     {
-        [Key] [Column("id")] public int Id { get; set; }
-        [Column("comments")] public string Comments { get; set; }
+        [Key] public int Id { get; set; }
+        public string Comments { get; set; }
         public PersonAlertTypeCode Type { get; set; }
     }
 

@@ -151,6 +151,7 @@ namespace RepairsApi
                 opt => opt
                     .UseLazyLoadingProxies()
                     .UseNpgsql(connectionString)
+                    .UseSnakeCaseNamingConvention()
                 );
         }
 

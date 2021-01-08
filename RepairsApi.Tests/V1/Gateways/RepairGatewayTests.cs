@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Common;
 using RepairsApi.V1.Factories;
+using RepairsApi.V1.Generated;
+using SitePropertyUnit = RepairsApi.V1.Domain.Repair.SitePropertyUnit;
+using WorkClass = RepairsApi.V1.Domain.Repair.WorkClass;
+using WorkElement = RepairsApi.V1.Domain.Repair.WorkElement;
 
 namespace RepairsApi.Tests.V1.Gateways
 {
@@ -46,7 +50,7 @@ namespace RepairsApi.Tests.V1.Gateways
                 },
                 WorkClass = new WorkClass
                 {
-                    WorkClassCode = 5
+                    WorkClassCode = WorkClassCode._0
                 },
                 WorkElements = new List<WorkElement>(),
                 DescriptionOfWork = "description",
