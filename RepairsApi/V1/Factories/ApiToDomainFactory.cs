@@ -117,7 +117,7 @@ namespace RepairsApi.V1.Factories
 
         public static TenureInformation ToDomain(this ListTenanciesApiResponse apiResponse)
         {
-            TenancyApiTenancyInformation tenancyInformation = apiResponse.Tenancies.SingleOrDefault(t => t.Present);
+            TenancyApiTenancyInformation tenancyInformation = apiResponse.Tenancies.FirstOrDefault(t => t.Present);
 
             string[] splitTenureType = tenancyInformation.TenureType.Split(": ");
             return new TenureInformation
