@@ -1,14 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
+using RepairsApi.V1.Generated;
 
 namespace RepairsApi.V1.Infrastructure
 {
-    public class SitePropertyUnit
+    public class LocationAlert
     {
         [Key] [Column("id")] public int Id { get; set; }
-        [Column("reference")] public string Reference { get; set; }
-        public virtual Address Address { get; set; }
+        [Column("comments")] public string Comments { get; set; }
+        [Column("type")] public LocationAlertTypeCode Type { get; set; }
     }
-
 }
