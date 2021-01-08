@@ -13,19 +13,16 @@ using System.Threading.Tasks;
 namespace RepairsApi.Tests.V1.E2ETests
 {
     [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Tests")]
-    public class RepairTests : MockWebApplicationFactory
+    public class RepairApiTests : MockWebApplicationFactory
     {
         [Test]
         public async Task CreatesRepair()
         {
             var client = CreateClient();
 
-            // Request is auto filling properties
-            RaiseRepair request = new RaiseRepair
-            {
-                DescriptionOfWork = "test description"
-            };
-            StringContent content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+            // These request need to pulled from json to stop c sharp adding in default enum properties
+            string request = Requests.RaiseRepair; 
+            StringContent content = new StringContent(request, Encoding.UTF8, "application/json");
 
             var response = await client.PostAsync(new Uri("/api/v2/repairs", UriKind.Relative), content);
 

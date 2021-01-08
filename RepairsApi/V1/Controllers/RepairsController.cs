@@ -23,8 +23,6 @@ namespace RepairsApi.V1.Controllers
         [HttpPost]
         public async Task<IActionResult> RaiseRepair([FromBody] RaiseRepair request)
         {
-            if (!ModelState.IsValid) return BadRequest();
-
             try
             {
                 var result = await _raiseRepairUseCase.Execute(request.ToDomain());

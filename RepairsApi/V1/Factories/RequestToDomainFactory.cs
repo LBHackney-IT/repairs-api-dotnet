@@ -1,5 +1,6 @@
 using RepairsApi.V1.Domain.Repair;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
@@ -12,10 +13,10 @@ namespace RepairsApi.V1.Factories
             return new WorkOrder
             {
                 DescriptionOfWork = request.DescriptionOfWork,
-                SitePropertyUnits = request.SitePropertyUnit.Select(spu => spu.ToDomain()).ToList(),
-                WorkClass = request.WorkClass.ToDomain(),
-                WorkElements = request.WorkElement.Select(we => we.ToDomain()).ToList(),
-                WorkPriority = request.Priority.ToDomain()
+                SitePropertyUnits = request.SitePropertyUnit.MapList(spu => spu.ToDomain()),
+                WorkClass = request.WorkClass?.ToDomain(),
+                WorkElements = request.WorkElement.MapList(we => we.ToDomain()),
+                WorkPriority = request.Priority?.ToDomain()
             };
         }
 
@@ -82,6 +83,18 @@ namespace RepairsApi.V1.Factories
             }
 
             return null;
+        }
+
+        public static IList<TResult> MapList<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> selector)
+        {
+            if (source is null)
+            {
+                return new List<TResult>();
+            }
+            else
+            {
+                return source.Select(selector).ToList();
+            }
         }
     }
 }

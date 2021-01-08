@@ -69249,7 +69249,7 @@ namespace RepairsApi.V1.Generated
         public string DescriptionOfWork { get; set; }
     
         [Newtonsoft.Json.JsonProperty("EstimatedLaborHours", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double EstimatedLaborHours { get; set; }
+        public double? EstimatedLaborHours { get; set; }
     
         [Newtonsoft.Json.JsonProperty("Priority", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
@@ -69261,7 +69261,7 @@ namespace RepairsApi.V1.Generated
     
         [Newtonsoft.Json.JsonProperty("WorkType", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public WorkType WorkType { get; set; }
+        public WorkType? WorkType { get; set; }
     
         [Newtonsoft.Json.JsonProperty("ParkingArrangements", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string ParkingArrangements { get; set; }
@@ -69282,7 +69282,7 @@ namespace RepairsApi.V1.Generated
         public System.Collections.Generic.ICollection<LocationAlert> LocationAlert { get; set; }
     
         [Newtonsoft.Json.JsonProperty("DateReported", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTime DateReported { get; set; }
+        public System.DateTime? DateReported { get; set; }
     
         [Newtonsoft.Json.JsonProperty("SitePropertyUnit", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<SitePropertyUnit> SitePropertyUnit { get; set; }
@@ -69338,10 +69338,10 @@ namespace RepairsApi.V1.Generated
     
         [Newtonsoft.Json.JsonProperty("ServiceChargeSubject", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public CostSubjectCode ServiceChargeSubject { get; set; }
+        public CostSubjectCode? ServiceChargeSubject { get; set; }
     
         [Newtonsoft.Json.JsonProperty("ContainsCapitalWork", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool ContainsCapitalWork { get; set; }
+        public bool? ContainsCapitalWork { get; set; }
     
         [Newtonsoft.Json.JsonProperty("DependsOn", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<DependsOn> DependsOn { get; set; }
@@ -69443,7 +69443,7 @@ namespace RepairsApi.V1.Generated
     {
         [Newtonsoft.Json.JsonProperty("M3NHFSORCode", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public M3NHFScheduleOfRatesCodeC0 M3NHFSORCode { get; set; }
+        public M3NHFScheduleOfRatesCodeC0? M3NHFSORCode { get; set; }
     
         [Newtonsoft.Json.JsonProperty("CustomCode", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string CustomCode { get; set; }
@@ -69466,7 +69466,7 @@ namespace RepairsApi.V1.Generated
     
         [Newtonsoft.Json.JsonProperty("Type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public DependencyTypeCode Type { get; set; }
+        public DependencyTypeCode? Type { get; set; }
     
         [Newtonsoft.Json.JsonProperty("Timing", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Timing Timing { get; set; }
@@ -69482,10 +69482,10 @@ namespace RepairsApi.V1.Generated
     
         [Newtonsoft.Json.JsonProperty("AsOfDate", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(DateFormatConverter))]
-        public System.DateTime AsOfDate { get; set; }
+        public System.DateTime? AsOfDate { get; set; }
     
         [Newtonsoft.Json.JsonProperty("CreationDateTime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTime CreationDateTime { get; set; }
+        public System.DateTime? CreationDateTime { get; set; }
     
         [Newtonsoft.Json.JsonProperty("Reference", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<Reference> Reference { get; set; }
@@ -69543,7 +69543,7 @@ namespace RepairsApi.V1.Generated
     
         [Newtonsoft.Json.JsonProperty("Country", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public CountryCode Country { get; set; }
+        public CountryCode? Country { get; set; }
     
         [Newtonsoft.Json.JsonProperty("AddressLine", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.MaxLength(7)]
@@ -69566,7 +69566,7 @@ namespace RepairsApi.V1.Generated
     
         [Newtonsoft.Json.JsonProperty("UnitOfMeasurementCode", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public UNECEUnitOfMeasurementCodeC0 UnitOfMeasurementCode { get; set; }
+        public UNECEUnitOfMeasurementCodeC0? UnitOfMeasurementCode { get; set; }
     
     
     }
@@ -69575,16 +69575,16 @@ namespace RepairsApi.V1.Generated
     public partial class Timing 
     {
         [Newtonsoft.Json.JsonProperty("Months", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int Months { get; set; }
+        public int? Months { get; set; }
     
         [Newtonsoft.Json.JsonProperty("Weeks", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int Weeks { get; set; }
+        public int? Weeks { get; set; }
     
         [Newtonsoft.Json.JsonProperty("Days", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int Days { get; set; }
+        public int? Days { get; set; }
     
         [Newtonsoft.Json.JsonProperty("Hours", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int Hours { get; set; }
+        public int? Hours { get; set; }
     
     
     }

@@ -17,6 +17,7 @@
     <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="5.1.1" />
     <PackageReference Include="Mapster" Version="7.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.HealthChecks" Version="1.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.10" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="4.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="4.1.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.0.0" />

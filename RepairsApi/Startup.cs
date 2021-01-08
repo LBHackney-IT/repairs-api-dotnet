@@ -40,6 +40,7 @@ namespace RepairsApi
         {
             services
                 .AddMvc()
+                .AddNewtonsoftJson() // Required for the generated json attributes on hact models function as model validation
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddApiVersioning(o =>
             {
