@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using RepairsApi.V1.Generated;
 
@@ -13,11 +13,13 @@ namespace RepairsApi.Tests.V1.E2ETests
             {
                 Priority = new Priority
                 {
-                    PriorityCode = WorkPriorityCode._1, RequiredCompletionDateTime = DateTime.UtcNow
+                    PriorityCode = WorkPriorityCode._1,
+                    RequiredCompletionDateTime = DateTime.UtcNow
                 },
                 AccessInformation = new AccessInformation
                 {
-                    Description = "description", Keysafe = CreateKeysafe()
+                    Description = "description",
+                    Keysafe = CreateKeysafe()
                 },
                 DateReported = DateTime.UtcNow,
                 ParkingArrangements = "parkingArrangments",
@@ -52,7 +54,8 @@ namespace RepairsApi.Tests.V1.E2ETests
 
             return new Keysafe
             {
-                Code = "code", Location = "location"
+                Code = "code",
+                Location = "location"
             };
         }
 
@@ -125,7 +128,10 @@ namespace RepairsApi.Tests.V1.E2ETests
             {
                 Timing = new Timing
                 {
-                    Days = 4, Hours = 6, Months = 2, Weeks = 7
+                    Days = 4,
+                    Hours = 6,
+                    Months = 2,
+                    Weeks = 7
                 },
                 Type = DependencyTypeCode._10,
                 DependsOnWorkElementReference = CreateReference()
@@ -137,7 +143,9 @@ namespace RepairsApi.Tests.V1.E2ETests
 
             return new Trade
             {
-                Code = TradeCode.B2, CustomCode = "tradeCustomCode", CustomName = "tradeCustomName"
+                Code = TradeCode.B2,
+                CustomCode = "tradeCustomCode",
+                CustomName = "tradeCustomName"
             };
         }
 
@@ -146,7 +154,8 @@ namespace RepairsApi.Tests.V1.E2ETests
 
             return new PersonAlert
             {
-                Comments = "personAlertComment", Type = PersonAlertTypeCode._0
+                Comments = "personAlertComment",
+                Type = PersonAlertTypeCode._0
             };
         }
 
@@ -155,7 +164,9 @@ namespace RepairsApi.Tests.V1.E2ETests
 
             return new LocationAlert
             {
-                Comments = "locationAlertComments", Type = LocationAlertTypeCode._0, Attachment = CreateList(CreateAttachment, 1)
+                Comments = "locationAlertComments",
+                Type = LocationAlertTypeCode._0,
+                Attachment = CreateList(CreateAttachment, 1)
             };
         }
 
@@ -179,7 +190,9 @@ namespace RepairsApi.Tests.V1.E2ETests
         {
             return new Reference
             {
-                Description = "refDescription", AllocatedBy = "refAllocatedBy", ID = "refId"
+                Description = "refDescription",
+                AllocatedBy = "refAllocatedBy",
+                ID = "refId"
             };
         }
 
