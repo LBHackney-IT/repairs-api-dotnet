@@ -130,6 +130,7 @@ namespace RepairsApi
             services.AddTransient<IListAlertsUseCase, ListAlertsUseCase>();
             services.AddTransient<IListPropertiesUseCase, ListPropertiesUseCase>();
             services.AddTransient<IGetPropertyUseCase, GetPropertyUseCase>();
+            services.AddTransient<IRaiseRepairUseCase, RaiseRepairUseCase>();
             services.AddScoped<IListScheduleOfRatesUseCase, ListScheduleOfRatesUseCase>();
         }
 
