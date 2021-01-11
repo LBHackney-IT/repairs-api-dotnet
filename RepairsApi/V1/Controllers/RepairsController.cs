@@ -23,17 +23,8 @@ namespace RepairsApi.V1.Controllers
         [HttpPost]
         public async Task<IActionResult> RaiseRepair([FromBody] RaiseRepair request)
         {
-            try
-            {
-                var result = await _raiseRepairUseCase.Execute(request.ToDb());
-                return Ok(result);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-
-            return StatusCode(500);
+            var result = await _raiseRepairUseCase.Execute(request.ToDb());
+            return Ok(result);
         }
     }
 
