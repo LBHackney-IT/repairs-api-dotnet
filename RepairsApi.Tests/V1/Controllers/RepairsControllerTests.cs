@@ -3,12 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using RepairsApi.V1.Controllers;
-using RepairsApi.V1.Domain.Repair;
-using RepairsApi.V1.UseCase.Interfaces;
-using System.Net;
-using System.Threading.Tasks;
-using RepairsApi.V1.Boundary;
 using RepairsApi.V1.Generated;
+using RepairsApi.V1.Infrastructure;
+using RepairsApi.V1.UseCase.Interfaces;
+using System.Threading.Tasks;
 
 namespace RepairsApi.Tests.V1.Controllers
 {

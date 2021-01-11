@@ -1,16 +1,11 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using RepairsApi.V1.Domain.Repair;
 using RepairsApi.V1.Gateways;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Common;
-using RepairsApi.V1.Factories;
-using RepairsApi.V1.Generated;
-using SitePropertyUnit = RepairsApi.V1.Domain.Repair.SitePropertyUnit;
-using WorkClass = RepairsApi.V1.Domain.Repair.WorkClass;
-using WorkElement = RepairsApi.V1.Domain.Repair.WorkElement;
+using RepairsApi.V1.Infrastructure;
 
 namespace RepairsApi.Tests.V1.Gateways
 {
@@ -35,7 +30,7 @@ namespace RepairsApi.Tests.V1.Gateways
             await InMemoryDb.Instance.SaveChangesAsync();
 
             // assert
-            InMemoryDb.Instance.WorkOrders.Should().ContainSingle().Which.IsSameOrEqualTo(expected.ToDb());
+            InMemoryDb.Instance.WorkOrders.Should().ContainSingle().Which.IsSameOrEqualTo(expected);
         }
 
         private static WorkOrder CreateWorkOrder()
@@ -45,16 +40,15 @@ namespace RepairsApi.Tests.V1.Gateways
             {
                 WorkPriority = new WorkPriority
                 {
-                    PriorityCode = "priorityCode",
+                    PriorityCode = RepairsApi.V1.Generated.WorkPriorityCode._1,
                     RequiredCompletionDateTime = DateTime.UtcNow
                 },
                 WorkClass = new WorkClass
                 {
-                    WorkClassCode = WorkClassCode._0
+                    WorkClassCode = RepairsApi.V1.Generated.WorkClassCode._0
                 },
                 WorkElements = new List<WorkElement>(),
-                DescriptionOfWork = "description",
-                SitePropertyUnits = new List<SitePropertyUnit>()
+                DescriptionOfWork = "description"
             };
             return expected;
         }

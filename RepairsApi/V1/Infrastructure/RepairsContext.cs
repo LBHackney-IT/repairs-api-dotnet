@@ -15,7 +15,6 @@ namespace RepairsApi.V1.Infrastructure
         public DbSet<RateScheduleItem> RateScheduleItems { get; set; }
         public DbSet<WorkElement> WorkElements { get; set; }
         public DbSet<WorkPriority> WorkPriorities { get; set; }
-        public DbSet<WorkPriorityCode> WorkPriorityCodes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

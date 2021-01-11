@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using RepairsApi.V1.Generated;
 
 namespace RepairsApi.V1.Infrastructure

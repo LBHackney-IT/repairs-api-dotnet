@@ -1,85 +1,149 @@
+using RepairsApi.V1.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using RepairsApi.V1.Infrastructure;
-using Quantity = RepairsApi.V1.Domain.Repair.Quantity;
-using WorkPriorityCode = RepairsApi.V1.Infrastructure.WorkPriorityCode;
-using SitePropertyUnit = RepairsApi.V1.Domain.Repair.SitePropertyUnit;
-using WorkOrderDB = RepairsApi.V1.Infrastructure.WorkOrder;
-using WorkClassDB = RepairsApi.V1.Infrastructure.WorkClass;
-using WorkElementDB = RepairsApi.V1.Infrastructure.WorkElement;
-using WorkPriorityDB = RepairsApi.V1.Infrastructure.WorkPriority;
-using RateScheduleItemDB = RepairsApi.V1.Infrastructure.RateScheduleItem;
-using QuantityDB = RepairsApi.V1.Infrastructure.Quantity;
-using RateScheduleItem = RepairsApi.V1.Domain.Repair.RateScheduleItem;
-using WorkClass = RepairsApi.V1.Domain.Repair.WorkClass;
-using WorkElement = RepairsApi.V1.Domain.Repair.WorkElement;
-using WorkOrder = RepairsApi.V1.Domain.Repair.WorkOrder;
-using WorkPriority = RepairsApi.V1.Domain.Repair.WorkPriority;
 
 namespace RepairsApi.V1.Factories
 {
     public static class DBModelFactory
     {
-        public static WorkOrderDB ToDb(this WorkOrder domain)
+        public static WorkOrder ToDb(this Generated.RaiseRepair raiseRepair)
         {
-            return new WorkOrderDB
+            return new WorkOrder
             {
-                DescriptionOfWork = domain.DescriptionOfWork,
-                WorkPriority = domain.WorkPriority?.ToDb(),
-                // TODO: map site
-                WorkElements = domain.WorkElements?.ToDb(),
-                WorkClass = domain.WorkClass?.ToDb()
+                DescriptionOfWork = raiseRepair.DescriptionOfWork,
+                DateReported = raiseRepair.DateReported,
+                EstimatedLaborHours = raiseRepair.EstimatedLaborHours,
+                ParkingArrangements = raiseRepair.ParkingArrangements,
+                LocationOfRepair = raiseRepair.LocationOfRepair,
+                WorkType = raiseRepair.WorkType,
+                WorkPriority = raiseRepair.Priority?.ToDb(),
+                WorkClass = raiseRepair.WorkClass?.ToDb(),
+                Site = raiseRepair.SitePropertyUnit?.ToDb(),
+                AccessInformation = raiseRepair.AccessInformation?.ToDb(),
+                LocationAlert = raiseRepair.LocationAlert.MapList(la => la.ToDb()),
+                PersonAlert = raiseRepair.PersonAlert.MapList(pa => pa.ToDb()),
+                WorkElements = raiseRepair.WorkElement.MapList(we => we.ToDb())
             };
         }
 
-        public static WorkPriorityDB ToDb(this WorkPriority domain)
+        public static Site ToDb(this ICollection<Generated.SitePropertyUnit> raiseRepair)
         {
-            return new WorkPriorityDB
+            return null;
+        }
+
+        public static WorkElement ToDb(this Generated.WorkElement raiseRepair)
+        {
+            return new WorkElement
             {
-                PriorityCode = new WorkPriorityCode
-                {
-                    Name = domain.PriorityCode
-                },
-                RequiredCompletionDateTime = domain.RequiredCompletionDateTime
+                ContainsCapitalWork = raiseRepair.ContainsCapitalWork,
+                ServiceChargeSubject = raiseRepair.ServiceChargeSubject,
+                Trade = raiseRepair.Trade.MapList(t => t.ToDb()),
+                RateScheduleItem = raiseRepair.RateScheduleItem.MapList(rsi => rsi.ToDb())
             };
         }
 
-        public static List<WorkElementDB> ToDb(this IList<WorkElement> domain)
+        public static RateScheduleItem ToDb(this Generated.RateScheduleItem raiseRepair)
         {
-            return domain.Select(u =>
-                new WorkElementDB
-                {
-                    RateScheduleItem = u.RateScheduleItems.ToDb()
-                }
-            ).ToList();
-        }
-
-        public static List<RateScheduleItemDB> ToDb(this IList<RateScheduleItem> domain)
-        {
-            return domain.Select(u =>
-                new RateScheduleItemDB
-                {
-                    Quantity = u.Quantity.ToDb(),
-                    CustomCode = u.CustomCode,
-                    CustomName = u.CustomName
-                }
-            ).ToList();
-        }
-
-        public static WorkClassDB ToDb(this WorkClass domain)
-        {
-            return new WorkClassDB
+            return new RateScheduleItem
             {
-                WorkClassCode = domain.WorkClassCode
+                CustomCode = raiseRepair.CustomCode,
+                CustomName = raiseRepair.CustomName,
+                Quantity = raiseRepair.Quantity?.ToDb()
             };
         }
-        public static QuantityDB ToDb(this Quantity domain)
+
+        public static Quantity ToDb(this Generated.Quantity raiseRepair)
         {
-            return new QuantityDB
+            if (raiseRepair.Amount.Count != 1) throw new NotSupportedException("Multiple amounts is not supported");
+
+            return new Quantity
             {
-                Amount = domain.Amount,
-                UnitOfMeasurementCode = domain.UnitOfMeasurementCode
+                Amount = raiseRepair.Amount.Single(),
+                UnitOfMeasurementCode = raiseRepair.UnitOfMeasurementCode
             };
+        }
+
+        public static Trade ToDb(this Generated.Trade raiseRepair)
+        {
+            return new Trade
+            {
+                Code = raiseRepair.Code,
+                CustomCode = raiseRepair.CustomCode,
+                CustomName = raiseRepair.CustomName
+            };
+        }
+
+        public static AlertRegardingPerson ToDb(this Generated.PersonAlert raiseRepair)
+        {
+            return new AlertRegardingPerson
+            {
+                Comments = raiseRepair.Comments,
+                Type = raiseRepair.Type
+            };
+        }
+
+        public static AlertRegardingLocation ToDb(this Generated.LocationAlert raiseRepair)
+        {
+            return new AlertRegardingLocation
+            {
+                Comments = raiseRepair.Comments,
+                Type = raiseRepair.Type,
+                // NOTE: Attachment Not handled
+            };
+        }
+
+        public static WorkClass ToDb(this Generated.WorkClass raiseRepair)
+        {
+            return new WorkClass
+            {
+                WorkClassCode = raiseRepair.WorkClassCode,
+                WorkClassDescription = raiseRepair.WorkClassDescription,
+                WorkClassSubType = raiseRepair.WorkClassSubType?.ToDb()
+            };
+        }
+
+        public static WorkClassSubType ToDb(this Generated.WorkClassSubType raiseRepair)
+        {
+            return new WorkClassSubType
+            {
+                WorkClassSubTypeDescription = raiseRepair.WorkClassSubTypeDescription,
+                WorkClassSubTypeName = string.Join(',', raiseRepair.WorkClassSubType1)
+            };
+        }
+
+        public static WorkOrderAccessInformation ToDb(this Generated.AccessInformation raiseRepair)
+        {
+            return new WorkOrderAccessInformation
+            {
+                Description = raiseRepair.Description,
+                Keysafe = raiseRepair.Keysafe?.ToDb()
+            };
+        }
+
+        public static KeySafe ToDb(this Generated.Keysafe raiseRepair)
+        {
+            return new KeySafe
+            {
+                Code = raiseRepair.Code,
+                Location = raiseRepair.Location
+            };
+        }
+
+        public static WorkPriority ToDb(this Generated.Priority raiseRepair)
+        {
+            return new WorkPriority
+            {
+                PriorityCode = raiseRepair.PriorityCode,
+                RequiredCompletionDateTime = raiseRepair.RequiredCompletionDateTime
+            };
+        }
+
+        public static List<TResult> MapList<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> map)
+        {
+            if (source is null) return new List<TResult>();
+
+            return source.Select(map).ToList();
         }
     }
 }

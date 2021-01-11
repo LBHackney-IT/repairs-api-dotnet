@@ -1,8 +1,7 @@
 using Microsoft.Extensions.Logging;
-using RepairsApi.V1.Domain.Repair;
 using RepairsApi.V1.Gateways;
+using RepairsApi.V1.Infrastructure;
 using RepairsApi.V1.UseCase.Interfaces;
-using System;
 using System.Threading.Tasks;
 
 namespace RepairsApi.V1.UseCase

@@ -36,5 +36,18 @@ namespace RepairsApi.Tests.V1.E2ETests
                 repair.Should().NotBeNull();
             });
         }
+
+        [Test]
+        public async Task BadRequestWhenDoesntHaveRequired()
+        {
+            var client = CreateClient();
+
+            string request = Requests.InvalidRaiseRepair;
+            StringContent content = new StringContent(request, Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync(new Uri("/api/v2/repairs", UriKind.Relative), content);
+
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
     }
 }

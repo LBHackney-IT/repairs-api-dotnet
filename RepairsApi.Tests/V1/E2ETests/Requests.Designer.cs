@@ -62,7 +62,32 @@ namespace RepairsApi.Tests.V1.E2ETests {
         
         /// <summary>
         ///   Looks up a localized string similar to {
-        ///
+        ///  &quot;descriptionOfWork&quot;: &quot;string&quot;,
+        ///  &quot;estimatedLaborHours&quot;: 0,
+        ///  &quot;priority&quot;: {
+        ///    &quot;priorityCode&quot;: 0,
+        ///    &quot;requiredCompletionDateTime&quot;: &quot;2021-01-08T09:43:14.997Z&quot;
+        ///  },
+        ///  &quot;workClass&quot;: {
+        ///    &quot;workClassCode&quot;: 0
+        ///  }
+        ///}
+        ///.
+        /// </summary>
+        internal static string InvalidRaiseRepair {
+            get {
+                return ResourceManager.GetString("InvalidRaiseRepair", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {
+        ///  &quot;descriptionOfWork&quot;: &quot;string&quot;,
+        ///  &quot;estimatedLaborHours&quot;: 0,
+        ///  &quot;priority&quot;: {
+        ///    &quot;priorityCode&quot;: 0,
+        ///    &quot;requiredCompletionDateTime&quot;: &quot;2021-01-08T09:43:14.997Z&quot;
+        ///  }
         ///}
         ///.
         /// </summary>
