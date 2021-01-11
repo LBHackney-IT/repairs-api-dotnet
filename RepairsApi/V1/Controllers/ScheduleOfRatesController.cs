@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RepairsApi.V1.UseCase.Interfaces;
+using RepairsApi.V1.Boundary.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +16,10 @@ namespace RepairsApi.V1.Controllers
     public class ScheduleOfRatesController : Controller
     {
 
-        public ScheduleOfRatesController()
+        private IListScheduleOfRatesUseCase _listScheduleOfRates;
+        public ScheduleOfRatesController(IListScheduleOfRatesUseCase listScheduleOfRates)
         {
-
+            _listScheduleOfRates = listScheduleOfRates;
         }
 
         /// <summary>
@@ -29,7 +32,8 @@ namespace RepairsApi.V1.Controllers
         [HttpGet]
         public IActionResult ListRecords()
         {
-            return Ok(new { sor = "sor" });
+            return Ok(_listScheduleOfRates.Execute());
+            //var sorPattern = "^[A-Za-z0-9]{7,8}$";
         }
 
         [HttpGet]
@@ -38,10 +42,5 @@ namespace RepairsApi.V1.Controllers
         {
             return Ok(new { sor = sorCode });
         }
-        //public IActionResult Index()
-        //{
-        //    //var sorPattern = "^[A-Za-z0-9]{7,8}$";
-        //    return View();
-        //}
     }
 }

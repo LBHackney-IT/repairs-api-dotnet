@@ -5,14 +5,14 @@ namespace RepairsApi.V1.Domain
     public class SORPriority
     {
 
-        public WorkPriorityCode PriorityCode
+        public int PriorityCode
         {
             get; set;
         }
 
         public string Description
         {
-            get { return PriorityCode.ToString(); }
+            get; set;
         }
     }
 }

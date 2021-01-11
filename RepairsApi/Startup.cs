@@ -111,14 +111,24 @@ namespace RepairsApi
             AddHttpClients(services);
             services.Configure<GatewayOptions>(Configuration.GetSection(nameof(GatewayOptions)));
 
-            services.AddTransient<IListAlertsUseCase, ListAlertsUseCase>();
-            services.AddTransient<IListPropertiesUseCase, ListPropertiesUseCase>();
-            services.AddTransient<IGetPropertyUseCase, GetPropertyUseCase>();
+            RegisterGateways(services);
+            RegisterUseCases(services);
+        }
 
+        private static void RegisterGateways(IServiceCollection services)
+        {
             services.TryAddTransient<IApiGateway, ApiGateway>();
             services.AddTransient<IPropertyGateway, PropertyGateway>();
             services.AddTransient<IAlertsGateway, AlertsGateway>();
             services.AddTransient<ITenancyGateway, TenancyGateway>();
+        }
+
+        private static void RegisterUseCases(IServiceCollection services)
+        {
+            services.AddTransient<IListAlertsUseCase, ListAlertsUseCase>();
+            services.AddTransient<IListPropertiesUseCase, ListPropertiesUseCase>();
+            services.AddTransient<IGetPropertyUseCase, GetPropertyUseCase>();
+            services.AddScoped<IListScheduleOfRatesUseCase, ListScheduleOfRatesUseCase>();
         }
 
         private void AddHttpClients(IServiceCollection services)
