@@ -23,8 +23,15 @@ namespace RepairsApi.V1.Controllers
         [HttpPost]
         public async Task<IActionResult> RaiseRepair([FromBody] RaiseRepair request)
         {
-            var result = await _raiseRepairUseCase.Execute(request.ToDb());
-            return Ok(result);
+            try
+            {
+                var result = await _raiseRepairUseCase.Execute(request.ToDb());
+                return Ok(result);
+            }
+            catch (NotSupportedException e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 

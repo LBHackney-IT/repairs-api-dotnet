@@ -1,7 +1,5 @@
 using FluentAssertions;
 using NUnit.Framework;
-using RepairsApi.V1.Boundary;
-using RepairsApi.V1.Generated;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
