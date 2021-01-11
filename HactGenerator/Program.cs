@@ -65,6 +65,10 @@ namespace SchemaGeneration
 
             foreach (var kv in schema.Properties)
             {
+                if (kv.Value.Name == "M3NHFSORCode")
+                {
+                    kv.Value.ActualTypeSchema.Enumeration.Clear();
+                }
                 string arrow = pref + " -> prop -> " + kv.Key;
                 Console.WriteLine(arrow);
                 DisallowAdditionalProperties(kv.Value, arrow);
