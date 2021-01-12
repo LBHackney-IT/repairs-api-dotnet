@@ -5,6 +5,7 @@ provider:
   vpc: ${self:custom.vpc.${opt:stage}}
   stage: ${opt:stage}
   region: eu-west-2
+  timeout: 15
   apiKeys:
     - secureAccess:
       - api-key-${self:service}-${self:provider.stage}
