@@ -117,22 +117,11 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="CreatedWorkOrder" xml:space="preserve">
-    <value>Work Order Created</value>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="InvalidRaiseRepair" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Requests\InvalidRaiseRepair.json;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
-  <data name="LocationAlertsFailure" xml:space="preserve">
-    <value>Unable to fetch location alerts</value>
-  </data>
-  <data name="PersonAlertsFailure" xml:space="preserve">
-    <value>Unable to fetch person alerts</value>
-  </data>
-  <data name="PropertiesFailure" xml:space="preserve">
-    <value>Unable to fetch properties</value>
-  </data>
-  <data name="PropertyFailure" xml:space="preserve">
-    <value>Unable to fetch property</value>
-  </data>
-  <data name="TenancyFailure" xml:space="preserve">
-    <value>Unable to fetch tenancy</value>
+  <data name="RaiseRepair" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Requests\RaiseRepair.json;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
 </root>

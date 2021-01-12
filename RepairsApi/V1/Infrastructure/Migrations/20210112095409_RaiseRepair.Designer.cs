@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RepairsApi.V1.Infrastructure;
@@ -9,9 +10,10 @@ using RepairsApi.V1.Infrastructure;
 namespace RepairsApi.V1.Infrastructure.Migrations
 {
     [DbContext(typeof(RepairsContext))]
-    partial class RepairsContextModelSnapshot : ModelSnapshot
+    [Migration("20210112095409_RaiseRepair")]
+    partial class RaiseRepair
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,7 +49,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                         .HasColumnName("complex_name")
                         .HasColumnType("text");
 
-                    b.Property<int?>("Country")
+                    b.Property<int>("Country")
                         .HasColumnName("country")
                         .HasColumnType("integer");
 
@@ -219,19 +221,12 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<int?>("AddressId")
-                        .HasColumnName("address_id")
-                        .HasColumnType("integer");
-
                     b.Property<int?>("SiteId")
                         .HasColumnName("site_id")
                         .HasColumnType("integer");
 
                     b.HasKey("Id")
                         .HasName("pk_property_class");
-
-                    b.HasIndex("AddressId")
-                        .HasName("ix_property_class_address_id");
 
                     b.HasIndex("SiteId")
                         .HasName("ix_property_class_site_id");
@@ -593,13 +588,8 @@ namespace RepairsApi.V1.Infrastructure.Migrations
 
             modelBuilder.Entity("RepairsApi.V1.Infrastructure.PropertyClass", b =>
                 {
-                    b.HasOne("RepairsApi.V1.Infrastructure.PropertyAddress", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressId")
-                        .HasConstraintName("fk_property_class_property_address_address_id");
-
                     b.HasOne("RepairsApi.V1.Infrastructure.Site", null)
-                        .WithMany("PropertyClass")
+                        .WithMany("PropertyRef")
                         .HasForeignKey("SiteId")
                         .HasConstraintName("fk_property_class_site_site_id");
                 });

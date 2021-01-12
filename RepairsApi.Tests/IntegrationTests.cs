@@ -1,11 +1,9 @@
-using System.Net.Http;
-using RepairsApi.V1.Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Npgsql;
 using NUnit.Framework;
-using System;
+using RepairsApi.V1.Infrastructure;
 using System.Diagnostics.CodeAnalysis;
+using System.Net.Http;
 
 namespace RepairsApi.Tests
 {
@@ -15,9 +13,8 @@ namespace RepairsApi.Tests
         protected HttpClient Client { get; private set; }
         protected RepairsContext RepairsContext { get; private set; }
 
-        private MockWebApplicationFactory<TStartup> _factory;
+        private MockWebApplicationFactory _factory;
         private NpgsqlConnection _connection = null;
-        private IDbContextTransaction _transaction;
         private DbContextOptionsBuilder _builder;
 
         [OneTimeSetUp]
@@ -47,11 +44,10 @@ namespace RepairsApi.Tests
         [SetUp]
         public void BaseSetup()
         {
-            _factory = new MockWebApplicationFactory<TStartup>(_connection);
+            _factory = new MockWebApplicationFactory(_connection);
             Client = _factory.CreateClient();
             RepairsContext = new RepairsContext(_builder.Options);
             RepairsContext.Database.EnsureCreated();
-            _transaction = RepairsContext.Database.BeginTransaction();
         }
 
         [TearDown]
@@ -59,8 +55,6 @@ namespace RepairsApi.Tests
         {
             Client.Dispose();
             _factory.Dispose();
-            _transaction.Rollback();
-            _transaction.Dispose();
         }
     }
 }

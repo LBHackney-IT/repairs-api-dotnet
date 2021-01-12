@@ -18,7 +18,7 @@ using static RepairsApi.Tests.V1.DataFakers;
 namespace RepairsApi.Tests.V1.Controllers
 {
     [TestFixture]
-    public class PropertiesControllerTests
+    public class PropertiesControllerTests : ControllerTests
     {
         private PropertiesController _classUnderTest;
         private Mock<IListAlertsUseCase> _listAlertsUseCaseMock;
@@ -105,17 +105,6 @@ namespace RepairsApi.Tests.V1.Controllers
             alertResult.LocationAlert.Should().HaveCount(propertyAlertCount);
             alertResult.PersonAlert.Should().HaveCount(personAlertCount);
             alertResult.PropertyReference.Should().Be(expectedPropertyReference);
-        }
-
-        private static int? GetStatusCode(IActionResult result)
-        {
-            return (result as IStatusCodeActionResult).StatusCode;
-        }
-
-        private static T GetResultData<T>(IActionResult result)
-            where T : class
-        {
-            return (result as ObjectResult)?.Value as T;
         }
     }
 }

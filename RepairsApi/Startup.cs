@@ -40,6 +40,7 @@ namespace RepairsApi
         {
             services
                 .AddMvc()
+                .AddNewtonsoftJson() // Required for the generated json attributes on hact models function as model validation
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddApiVersioning(o =>
             {
@@ -117,10 +118,11 @@ namespace RepairsApi
 
         private static void RegisterGateways(IServiceCollection services)
         {
-            services.TryAddTransient<IApiGateway, ApiGateway>();
+            services.AddTransient<IApiGateway, ApiGateway>();
             services.AddTransient<IPropertyGateway, PropertyGateway>();
             services.AddTransient<IAlertsGateway, AlertsGateway>();
             services.AddTransient<ITenancyGateway, TenancyGateway>();
+            services.AddTransient<IRepairsGateway, RepairsGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
@@ -128,6 +130,7 @@ namespace RepairsApi
             services.AddTransient<IListAlertsUseCase, ListAlertsUseCase>();
             services.AddTransient<IListPropertiesUseCase, ListPropertiesUseCase>();
             services.AddTransient<IGetPropertyUseCase, GetPropertyUseCase>();
+            services.AddTransient<IRaiseRepairUseCase, RaiseRepairUseCase>();
             services.AddScoped<IListScheduleOfRatesUseCase, ListScheduleOfRatesUseCase>();
         }
 
@@ -158,6 +161,7 @@ namespace RepairsApi
                 opt => opt
                     .UseLazyLoadingProxies()
                     .UseNpgsql(connectionString)
+                    .UseSnakeCaseNamingConvention()
                 );
         }
 

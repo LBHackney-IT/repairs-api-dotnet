@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepairsApi", "RepairsApi\RepairsApi.csproj", "{6F482163-3F51-487F-8F7D-37A1D4DAEA8B}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RepairsApi", "RepairsApi\RepairsApi.csproj", "{6F482163-3F51-487F-8F7D-37A1D4DAEA8B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepairsApi.Tests", "RepairsApi.Tests\RepairsApi.Tests.csproj", "{DE8E4E61-EB76-416B-8417-E8F2F6A0C0D3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RepairsApi.Tests", "RepairsApi.Tests\RepairsApi.Tests.csproj", "{DE8E4E61-EB76-416B-8417-E8F2F6A0C0D3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SchemaGeneration", "HactGenerator\SchemaGeneration.csproj", "{71F7B215-EDAB-4DD0-A067-99C5DF1C3BEB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,5 +23,15 @@ Global
 		{DE8E4E61-EB76-416B-8417-E8F2F6A0C0D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE8E4E61-EB76-416B-8417-E8F2F6A0C0D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE8E4E61-EB76-416B-8417-E8F2F6A0C0D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71F7B215-EDAB-4DD0-A067-99C5DF1C3BEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71F7B215-EDAB-4DD0-A067-99C5DF1C3BEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71F7B215-EDAB-4DD0-A067-99C5DF1C3BEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71F7B215-EDAB-4DD0-A067-99C5DF1C3BEB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DBADC998-E1A7-4055-A588-81080DC1F91E}
 	EndGlobalSection
 EndGlobal

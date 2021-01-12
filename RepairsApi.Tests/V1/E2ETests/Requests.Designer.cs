@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace RepairsApi.V1 {
+namespace RepairsApi.Tests.V1.E2ETests {
     using System;
     
     
@@ -22,14 +22,14 @@ namespace RepairsApi.V1 {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    internal class Requests {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal Resources() {
+        internal Requests() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace RepairsApi.V1 {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("RepairsApi.V1.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("RepairsApi.Tests.V1.E2ETests.Requests", typeof(Requests).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,56 +61,39 @@ namespace RepairsApi.V1 {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Work Order Created.
+        ///   Looks up a localized string similar to {
+        ///  &quot;descriptionOfWork&quot;: &quot;string&quot;,
+        ///  &quot;estimatedLaborHours&quot;: 0,
+        ///  &quot;priority&quot;: {
+        ///    &quot;priorityCode&quot;: 0,
+        ///    &quot;requiredCompletionDateTime&quot;: &quot;2021-01-08T09:43:14.997Z&quot;
+        ///  },
+        ///  &quot;workClass&quot;: {
+        ///    &quot;workClassCode&quot;: 0
+        ///  }
+        ///}
+        ///.
         /// </summary>
-        internal static string CreatedWorkOrder {
+        internal static string InvalidRaiseRepair {
             get {
-                return ResourceManager.GetString("CreatedWorkOrder", resourceCulture);
+                return ResourceManager.GetString("InvalidRaiseRepair", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to fetch location alerts.
+        ///   Looks up a localized string similar to {
+        ///  &quot;descriptionOfWork&quot;: &quot;string&quot;,
+        ///  &quot;estimatedLaborHours&quot;: 0,
+        ///  &quot;priority&quot;: {
+        ///    &quot;priorityCode&quot;: 0,
+        ///    &quot;requiredCompletionDateTime&quot;: &quot;2021-01-08T09:43:14.997Z&quot;
+        ///  }
+        ///}
+        ///.
         /// </summary>
-        internal static string LocationAlertsFailure {
+        internal static string RaiseRepair {
             get {
-                return ResourceManager.GetString("LocationAlertsFailure", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to fetch person alerts.
-        /// </summary>
-        internal static string PersonAlertsFailure {
-            get {
-                return ResourceManager.GetString("PersonAlertsFailure", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to fetch properties.
-        /// </summary>
-        internal static string PropertiesFailure {
-            get {
-                return ResourceManager.GetString("PropertiesFailure", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to fetch property.
-        /// </summary>
-        internal static string PropertyFailure {
-            get {
-                return ResourceManager.GetString("PropertyFailure", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to fetch tenancy.
-        /// </summary>
-        internal static string TenancyFailure {
-            get {
-                return ResourceManager.GetString("TenancyFailure", resourceCulture);
+                return ResourceManager.GetString("RaiseRepair", resourceCulture);
             }
         }
     }

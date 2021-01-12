@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace RepairsApi.V1.Factories
 {
-    public static class ApiModelFactory
+    public static class ApiToDomainFactory
     {
         public static Dictionary<string, string> HierarchyDescriptions => new Dictionary<string, string>
         {
@@ -117,7 +117,7 @@ namespace RepairsApi.V1.Factories
 
         public static TenureInformation ToDomain(this ListTenanciesApiResponse apiResponse)
         {
-            TenancyApiTenancyInformation tenancyInformation = apiResponse.Tenancies.FirstOrDefault();
+            TenancyApiTenancyInformation tenancyInformation = apiResponse.Tenancies.FirstOrDefault(t => t.Present);
 
             string[] splitTenureType = tenancyInformation.TenureType.Split(": ");
             return new TenureInformation
