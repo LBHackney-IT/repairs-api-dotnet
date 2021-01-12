@@ -49,7 +49,7 @@ module "postgres_db_staging" {
   db_port  = 5829
   subnet_ids = data.aws_subnet_ids.staging.ids
   db_engine = "postgres"
-  db_engine_version = "11.8"
+  db_engine_version = "11.8" //DMS does not work well with v12
   db_instance_class = "db.t2.micro"
   db_allocated_storage = 20
   maintenance_window = "sun:10:00-sun:10:30"
