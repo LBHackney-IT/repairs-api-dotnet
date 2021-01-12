@@ -29,7 +29,47 @@ namespace RepairsApi.V1.Factories
 
         public static Site ToDb(this ICollection<Generated.SitePropertyUnit> raiseRepair)
         {
-            return null;
+            if (raiseRepair.Count != 1) throw new NotSupportedException("Multiple addresses is not supported");
+
+            var raiseRepairProp = raiseRepair.Single();
+
+            return new Site
+            {
+                PropertyClass = new List<PropertyClass>
+                {
+                    new PropertyClass
+                    {
+                        Address = raiseRepairProp.Address?.ToDb(),
+                    }
+                }
+            };
+        }
+
+        public static PropertyAddress ToDb(this Generated.Address raiseRepair)
+        {
+            return new PropertyAddress
+            {
+                Address = new PostalAddress
+                {
+                    Address = new Address
+                    {
+                        AddressLine = string.Join(';', raiseRepair.AddressLine),
+                        BuildingName = raiseRepair.BuildingName,
+                        BuildingNumber = raiseRepair.BuildingNumber,
+                        CityName = raiseRepair.CityName,
+                        ComplexName = raiseRepair.ComplexName,
+                        Country = raiseRepair.Country,
+                        Department = raiseRepair.Department,
+                        Floor = raiseRepair.Floor,
+                        Plot = raiseRepair.Plot,
+                        PostalCode = raiseRepair.PostalCode,
+                        Postbox = raiseRepair.Postbox,
+                        Room = raiseRepair.Room,
+                        StreetName = raiseRepair.StreetName,
+                        Type = raiseRepair.Type
+                    }
+                }
+            };
         }
 
         public static WorkElement ToDb(this Generated.WorkElement raiseRepair)

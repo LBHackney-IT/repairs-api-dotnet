@@ -1,8 +1,5 @@
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 using RepairsApi.V1.Generated;
+using System.ComponentModel.DataAnnotations;
 
 namespace RepairsApi.V1.Infrastructure
 {
@@ -19,7 +16,7 @@ namespace RepairsApi.V1.Infrastructure
         public string ComplexName { get; set; }
         public string StreetName { get; set; }
         public string CityName { get; set; }
-        public CountryCode Country { get; set; }
+        public CountryCode? Country { get; set; }
         public string AddressLine { get; set; }
         public string Type { get; set; }
         public string PostalCode { get; set; }

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RepairsApi.V1.Infrastructure
 {
@@ -15,11 +14,12 @@ namespace RepairsApi.V1.Infrastructure
     {
         [Key] public int Id { get; set; }
         public virtual ICollection<Unit> Unit { get; set; }
+        public virtual PropertyAddress Address { get; set; }
     }
 
     public class Site
     {
         [Key] public int Id { get; set; }
-        public virtual ICollection<PropertyClass> PropertyRef { get; set; }
+        public virtual ICollection<PropertyClass> PropertyClass { get; set; }
     }
 }

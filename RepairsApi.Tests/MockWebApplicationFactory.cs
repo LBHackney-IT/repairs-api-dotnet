@@ -49,7 +49,8 @@ namespace RepairsApi.Tests
 
                 services.RemoveAll<IApiGateway>();
                 services.AddTransient<IApiGateway, MockApiGateway>();
-            });
+            })
+            .UseEnvironment("IntegrationTests");
         }
 
         private static void InitialiseDB(ServiceProvider serviceProvider)
