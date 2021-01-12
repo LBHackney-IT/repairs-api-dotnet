@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace RepairsApi.V1.Infrastructure.Migrations
 {
-    public partial class Spec : Migration
+    public partial class RaiseRepair : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -16,12 +16,15 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                 name: "FK_work_priority_work_priority_code_PriorityCodeId",
                 table: "work_priority");
 
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_work_priority_code",
-                table: "work_priority_code");
+            migrationBuilder.DropTable(
+                name: "work_priority_code");
 
             migrationBuilder.DropPrimaryKey(
                 name: "PK_work_priority",
+                table: "work_priority");
+
+            migrationBuilder.DropIndex(
+                name: "IX_work_priority_PriorityCodeId",
                 table: "work_priority");
 
             migrationBuilder.DropPrimaryKey(
@@ -41,16 +44,16 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                 table: "work_priority");
 
             migrationBuilder.DropColumn(
+                name: "PriorityCodeId",
+                table: "work_priority");
+
+            migrationBuilder.DropColumn(
                 name: "priority_description",
                 table: "work_priority");
 
             migrationBuilder.DropColumn(
                 name: "trade ",
                 table: "work_element");
-
-            migrationBuilder.RenameTable(
-                name: "work_priority_code",
-                newName: "work_priority_codes");
 
             migrationBuilder.RenameTable(
                 name: "work_priority",
@@ -69,20 +72,22 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                 table: "work_priorities",
                 newName: "required_completion_date_time");
 
-            migrationBuilder.RenameColumn(
-                name: "PriorityCodeId",
-                table: "work_priorities",
-                newName: "priority_code_id");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_work_priority_PriorityCodeId",
-                table: "work_priorities",
-                newName: "ix_work_priorities_priority_code_id");
-
             migrationBuilder.RenameIndex(
                 name: "IX_rate_schedule_item_work_element_id",
                 table: "rate_schedule_items",
                 newName: "ix_rate_schedule_items_work_element_id");
+
+            migrationBuilder.AlterColumn<DateTime>(
+                name: "required_completion_date_time",
+                table: "work_priorities",
+                nullable: true,
+                oldClrType: typeof(DateTime),
+                oldType: "timestamp without time zone");
+
+            migrationBuilder.AddColumn<int>(
+                name: "priority_code",
+                table: "work_priorities",
+                nullable: true);
 
 
             migrationBuilder.DropColumn(
@@ -92,7 +97,14 @@ namespace RepairsApi.V1.Infrastructure.Migrations
             migrationBuilder.AddColumn<int>(
                 name: "service_charge_subject",
                 table: "work_elements",
-                nullable: false);
+                nullable: true);
+
+            migrationBuilder.AlterColumn<bool>(
+                name: "contains_capital_work",
+                table: "work_elements",
+                nullable: true,
+                oldClrType: typeof(bool),
+                oldType: "boolean");
 
             migrationBuilder.AddColumn<int>(
                 name: "work_order_id",
@@ -105,7 +117,6 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                 nullable: true,
                 oldClrType: typeof(Guid),
                 oldType: "uuid");
-
 
             migrationBuilder.DropColumn(
                 name: "unit_of_measurement_code",
@@ -124,16 +135,10 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                 oldType: "integer",
                 oldNullable: true);
 
-            migrationBuilder.AddColumn<int>(
+            migrationBuilder.AddColumn<string>(
                 name: "m3nhfsor_code",
                 table: "rate_schedule_items",
-                nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddPrimaryKey(
-                name: "pk_work_priority_codes",
-                table: "work_priority_codes",
-                column: "id");
+                nullable: true);
 
             migrationBuilder.AddPrimaryKey(
                 name: "pk_work_priorities",
@@ -182,8 +187,8 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                 {
                     id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    type = table.Column<int>(nullable: false),
-                    duration = table.Column<DateTimeOffset>(nullable: false)
+                    type = table.Column<int>(nullable: true),
+                    duration = table.Column<DateTimeOffset>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -208,7 +213,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                 {
                     id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    code = table.Column<int>(nullable: false),
+                    code = table.Column<int>(nullable: true),
                     custom_code = table.Column<string>(nullable: true),
                     custom_name = table.Column<string>(nullable: true),
                     work_element_id = table.Column<Guid>(nullable: true)
@@ -324,7 +329,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     work_class_description = table.Column<string>(nullable: true),
-                    work_class_code = table.Column<int>(nullable: false),
+                    work_class_code = table.Column<int>(nullable: true),
                     work_class_sub_type_id = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
@@ -365,11 +370,11 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                         .Annotation("Npgsql:IdentitySequenceOptions", "'10000000', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     description_of_work = table.Column<string>(nullable: true),
-                    estimated_labor_hours = table.Column<double>(nullable: false),
-                    work_type = table.Column<int>(nullable: false),
+                    estimated_labor_hours = table.Column<double>(nullable: true),
+                    work_type = table.Column<int>(nullable: true),
                     parking_arrangements = table.Column<string>(nullable: true),
                     location_of_repair = table.Column<string>(nullable: true),
-                    date_reported = table.Column<DateTime>(nullable: false),
+                    date_reported = table.Column<DateTime>(nullable: true),
                     work_class_id = table.Column<int>(nullable: true),
                     work_priority_id = table.Column<Guid>(nullable: true),
                     site_id = table.Column<int>(nullable: true),
@@ -439,7 +444,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     comments = table.Column<string>(nullable: true),
-                    type = table.Column<int>(nullable: false),
+                    type = table.Column<int>(nullable: true),
                     work_order_id = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
@@ -460,7 +465,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     comments = table.Column<string>(nullable: true),
-                    type = table.Column<int>(nullable: false),
+                    type = table.Column<int>(nullable: true),
                     work_order_id = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
@@ -569,14 +574,6 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                 principalTable: "work_orders",
                 principalColumn: "id",
                 onDelete: ReferentialAction.Restrict);
-
-            migrationBuilder.AddForeignKey(
-                name: "fk_work_priorities_work_priority_codes_priority_code_id",
-                table: "work_priorities",
-                column: "priority_code_id",
-                principalTable: "work_priority_codes",
-                principalColumn: "id",
-                onDelete: ReferentialAction.Restrict);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -588,10 +585,6 @@ namespace RepairsApi.V1.Infrastructure.Migrations
             migrationBuilder.DropForeignKey(
                 name: "fk_work_elements_work_orders_work_order_id",
                 table: "work_elements");
-
-            migrationBuilder.DropForeignKey(
-                name: "fk_work_priorities_work_priority_codes_priority_code_id",
-                table: "work_priorities");
 
             migrationBuilder.DropTable(
                 name: "location_alerts");
@@ -639,10 +632,6 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                 name: "address");
 
             migrationBuilder.DropPrimaryKey(
-                name: "pk_work_priority_codes",
-                table: "work_priority_codes");
-
-            migrationBuilder.DropPrimaryKey(
                 name: "pk_work_priorities",
                 table: "work_priorities");
 
@@ -659,16 +648,16 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                 table: "rate_schedule_items");
 
             migrationBuilder.DropColumn(
+                name: "priority_code",
+                table: "work_priorities");
+
+            migrationBuilder.DropColumn(
                 name: "work_order_id",
                 table: "work_elements");
 
             migrationBuilder.DropColumn(
                 name: "m3nhfsor_code",
                 table: "rate_schedule_items");
-
-            migrationBuilder.RenameTable(
-                name: "work_priority_codes",
-                newName: "work_priority_code");
 
             migrationBuilder.RenameTable(
                 name: "work_priorities",
@@ -687,20 +676,18 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                 table: "work_priority",
                 newName: "required_completion_datetime");
 
-            migrationBuilder.RenameColumn(
-                name: "priority_code_id",
-                table: "work_priority",
-                newName: "PriorityCodeId");
-
-            migrationBuilder.RenameIndex(
-                name: "ix_work_priorities_priority_code_id",
-                table: "work_priority",
-                newName: "IX_work_priority_PriorityCodeId");
-
             migrationBuilder.RenameIndex(
                 name: "ix_rate_schedule_items_work_element_id",
                 table: "rate_schedule_item",
                 newName: "IX_rate_schedule_item_work_element_id");
+
+            migrationBuilder.AlterColumn<DateTime>(
+                name: "required_completion_datetime",
+                table: "work_priority",
+                type: "timestamp without time zone",
+                nullable: false,
+                oldClrType: typeof(DateTime),
+                oldNullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "comments",
@@ -715,6 +702,12 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                 nullable: false,
                 defaultValue: 0.0);
 
+            migrationBuilder.AddColumn<int>(
+                name: "PriorityCodeId",
+                table: "work_priority",
+                type: "integer",
+                nullable: true);
+
             migrationBuilder.AddColumn<string>(
                 name: "priority_description",
                 table: "work_priority",
@@ -726,7 +719,16 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                 table: "work_element",
                 type: "text",
                 nullable: true,
-                oldClrType: typeof(int));
+                oldClrType: typeof(int),
+                oldNullable: true);
+
+            migrationBuilder.AlterColumn<bool>(
+                name: "contains_capital_work",
+                table: "work_element",
+                type: "boolean",
+                nullable: false,
+                oldClrType: typeof(bool),
+                oldNullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "trade ",
@@ -759,11 +761,6 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                 oldNullable: true);
 
             migrationBuilder.AddPrimaryKey(
-                name: "PK_work_priority_code",
-                table: "work_priority_code",
-                column: "id");
-
-            migrationBuilder.AddPrimaryKey(
                 name: "PK_work_priority",
                 table: "work_priority",
                 column: "id");
@@ -777,6 +774,36 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                 name: "PK_rate_schedule_item",
                 table: "rate_schedule_item",
                 column: "id");
+
+            migrationBuilder.CreateTable(
+                name: "work_priority_code",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    name = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_work_priority_code", x => x.id);
+                });
+
+            migrationBuilder.InsertData(
+                table: "work_priority_code",
+                columns: new[] { "id", "name" },
+                values: new object[,]
+                {
+                    { 1, "Emergency" },
+                    { 2, "High" },
+                    { 3, "Medium" },
+                    { 4, "Low" },
+                    { 5, "Deferred" }
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_work_priority_PriorityCodeId",
+                table: "work_priority",
+                column: "PriorityCodeId");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_rate_schedule_item_work_element_work_element_id",
