@@ -22,15 +22,18 @@ namespace RepairsApi.V1.Controllers
         private readonly IListAlertsUseCase _listAlertsUseCase;
         private readonly IGetPropertyUseCase _getPropertyUseCase;
         private readonly IListPropertiesUseCase _listPropertiesUseCase;
+        private readonly ILogger<PropertiesController> _logger;
 
         public PropertiesController(
             IListAlertsUseCase listAlertsUseCase,
             IGetPropertyUseCase getPropertyUseCase,
-            IListPropertiesUseCase listPropertiesUseCase)
+            IListPropertiesUseCase listPropertiesUseCase,
+            ILogger<PropertiesController> logger)
         {
             _listAlertsUseCase = listAlertsUseCase;
             _getPropertyUseCase = getPropertyUseCase;
             _listPropertiesUseCase = listPropertiesUseCase;
+            _logger = logger;
         }
 
         /// <summary>
@@ -56,6 +59,7 @@ namespace RepairsApi.V1.Controllers
 
             try
             {
+                _logger.LogInformation("Listing properties");
                 properties = await _listPropertiesUseCase.ExecuteAsync(searchModel);
             }
             catch (ApiException ex)
@@ -63,7 +67,9 @@ namespace RepairsApi.V1.Controllers
                 return StatusCode(ex.StatusCode);
             }
 
-            return Ok(properties.ToResponse());
+            List<PropertyViewModel> response = properties.ToResponse();
+            _logger.LogInformation($"Found {response.Count} properties");
+            return Ok(response);
         }
 
         /// <summary>
