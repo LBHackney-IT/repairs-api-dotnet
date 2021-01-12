@@ -5,6 +5,7 @@ provider:
   vpc: ${self:custom.vpc.${opt:stage}}
   stage: ${opt:stage}
   region: eu-west-2
+  timeout: 15
   apiKeys:
     - secureAccess:
       - api-key-${self:service}-${self:provider.stage}
@@ -15,17 +16,21 @@ provider:
           rateLimit: 100
 
 package:
-# TODO: Rename zipfile in build.sh and build.cmd to match this
   artifact: ./bin/release/netcoreapp3.1/repairs-api.zip
 
 functions:
-  baseApi:
+  RepairsApi:
     name: ${self:service}-${self:provider.stage}
     handler: RepairsApi::RepairsApi.LambdaEntryPoint::FunctionHandlerAsync
     role: lambdaExecutionRole
     environment:
-# TODO: Create ssm variables for this API's postgres mirror then rename repairs-api below to match api name
       CONNECTION_STRING: Host=${ssm:/repairs-api/${self:provider.stage}/postgres-hostname};Port=${ssm:/repairs-api/${self:provider.stage}/postgres-port};Database=repairs-api-mirror;Username=${ssm:/repairs-api/${self:provider.stage}/postgres-username};Password=${ssm:/repairs-api/${self:provider.stage}/postgres-password}
+      GatewayOptions__PropertiesAPI: ${ssm:/${self:service}/${self:provider.stage}/properties-api-url}
+      GatewayOptions__PropertiesAPIKey: ${ssm:/${self:service}/${self:provider.stage}/properties-api-token}
+      GatewayOptions__AlertsAPI: ${ssm:/${self:service}/${self:provider.stage}/alerts-api-url}
+      GatewayOptions__AlertsAPIKey: ${ssm:/${self:service}/${self:provider.stage}/alerts-api-token}
+      GatewayOptions__TenancyApi: ${ssm:/${self:service}/${self:provider.stage}/tenancy-api-url}
+      GatewayOptions__TenancyApiKey: ${ssm:/${self:service}/${self:provider.stage}/tenancy-api-token}
     events:
       - http:
           path: /{proxy+}
@@ -85,10 +90,14 @@ resources:
 custom:
   vpc:
     development:
+      securityGroupIds:
+        - sg-0835968e22d1f2a73
       subnetIds:
         - subnet-0deabb5d8fb9c3446
         - subnet-000b89c249f12a8ad
     staging:
+      securityGroupIds:
+        - sg-011122be56aa0af9e
       subnetIds:
         - subnet-06d3de1bd9181b0d7
         - subnet-0ed7d7713d1127656

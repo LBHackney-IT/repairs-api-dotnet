@@ -1,44 +1,53 @@
-using System.Net.Http;
-using RepairsApi.V1.Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Npgsql;
 using NUnit.Framework;
+using RepairsApi.V1.Infrastructure;
+using System.Diagnostics.CodeAnalysis;
+using System.Net.Http;
 
 namespace RepairsApi.Tests
 {
+    [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "<Pending>")]
     public class IntegrationTests<TStartup> where TStartup : class
     {
         protected HttpClient Client { get; private set; }
-        protected DatabaseContext DatabaseContext { get; private set; }
+        protected RepairsContext RepairsContext { get; private set; }
 
-        private MockWebApplicationFactory<TStartup> _factory;
-        private NpgsqlConnection _connection;
-        private IDbContextTransaction _transaction;
+        private MockWebApplicationFactory _factory;
+        private NpgsqlConnection _connection = null;
         private DbContextOptionsBuilder _builder;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            _connection = new NpgsqlConnection(ConnectionString.TestDatabase());
-            _connection.Open();
-            var npgsqlCommand = _connection.CreateCommand();
-            npgsqlCommand.CommandText = "SET deadlock_timeout TO 30";
-            npgsqlCommand.ExecuteNonQuery();
-
             _builder = new DbContextOptionsBuilder();
-            _builder.UseNpgsql(_connection);
+
+            try
+            {
+                _connection = new NpgsqlConnection(ConnectionString.TestDatabase());
+                _connection.Open();
+                var npgsqlCommand = _connection.CreateCommand();
+                npgsqlCommand.CommandText = "SET deadlock_timeout TO 30";
+                npgsqlCommand.ExecuteNonQuery();
+
+                _builder.UseNpgsql(_connection);
+            }
+            catch
+            {
+                _connection.Dispose();
+                _connection = null;
+                _builder.UseSqlite("Data Source=:memory:");
+            }
 
         }
 
         [SetUp]
         public void BaseSetup()
         {
-            _factory = new MockWebApplicationFactory<TStartup>(_connection);
+            _factory = new MockWebApplicationFactory(_connection);
             Client = _factory.CreateClient();
-            DatabaseContext = new DatabaseContext(_builder.Options);
-            DatabaseContext.Database.EnsureCreated();
-            _transaction = DatabaseContext.Database.BeginTransaction();
+            RepairsContext = new RepairsContext(_builder.Options);
+            RepairsContext.Database.EnsureCreated();
         }
 
         [TearDown]
@@ -46,8 +55,6 @@ namespace RepairsApi.Tests
         {
             Client.Dispose();
             _factory.Dispose();
-            _transaction.Rollback();
-            _transaction.Dispose();
         }
     }
 }
