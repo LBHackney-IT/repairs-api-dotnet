@@ -1,5 +1,8 @@
 using Bogus;
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
 using RepairsApi.V1.Boundary.Response;
@@ -28,7 +31,10 @@ namespace RepairsApi.Tests.V1.Controllers
             _listAlertsUseCaseMock = new Mock<IListAlertsUseCase>();
             _getPropertyUseCaseMock = new Mock<IGetPropertyUseCase>();
             _listPropertiesUseCaseMock = new Mock<IListPropertiesUseCase>();
-            _classUnderTest = new PropertiesController(_listAlertsUseCaseMock.Object, _getPropertyUseCaseMock.Object, _listPropertiesUseCaseMock.Object);
+            _classUnderTest = new PropertiesController(_listAlertsUseCaseMock.Object,
+                _getPropertyUseCaseMock.Object,
+                _listPropertiesUseCaseMock.Object,
+                new NullLogger<PropertiesController>());
         }
 
         [TestCase(0)]
