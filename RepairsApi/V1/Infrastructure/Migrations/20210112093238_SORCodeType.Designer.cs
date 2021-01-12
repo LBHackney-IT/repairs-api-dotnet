@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RepairsApi.V1.Infrastructure;
@@ -9,9 +10,10 @@ using RepairsApi.V1.Infrastructure;
 namespace RepairsApi.V1.Infrastructure.Migrations
 {
     [DbContext(typeof(RepairsContext))]
-    partial class RepairsContextModelSnapshot : ModelSnapshot
+    [Migration("20210112093238_SORCodeType")]
+    partial class SORCodeType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -101,7 +103,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                         .HasColumnName("comments")
                         .HasColumnType("text");
 
-                    b.Property<int?>("Type")
+                    b.Property<int>("Type")
                         .HasColumnName("type")
                         .HasColumnType("integer");
 
@@ -130,7 +132,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                         .HasColumnName("comments")
                         .HasColumnType("text");
 
-                    b.Property<int?>("Type")
+                    b.Property<int>("Type")
                         .HasColumnName("type")
                         .HasColumnType("integer");
 
@@ -155,11 +157,11 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<DateTimeOffset?>("Duration")
+                    b.Property<DateTimeOffset>("Duration")
                         .HasColumnName("duration")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("Type")
+                    b.Property<int>("Type")
                         .HasColumnName("type")
                         .HasColumnType("integer");
 
@@ -286,7 +288,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<int?>("Code")
+                    b.Property<int>("Code")
                         .HasColumnName("code")
                         .HasColumnType("integer");
 
@@ -347,7 +349,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<int?>("WorkClassCode")
+                    b.Property<int>("WorkClassCode")
                         .HasColumnName("work_class_code")
                         .HasColumnType("integer");
 
@@ -397,11 +399,11 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                         .HasColumnName("id")
                         .HasColumnType("uuid");
 
-                    b.Property<bool?>("ContainsCapitalWork")
+                    b.Property<bool>("ContainsCapitalWork")
                         .HasColumnName("contains_capital_work")
                         .HasColumnType("boolean");
 
-                    b.Property<int?>("ServiceChargeSubject")
+                    b.Property<int>("ServiceChargeSubject")
                         .HasColumnName("service_charge_subject")
                         .HasColumnType("integer");
 
@@ -459,7 +461,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                         .HasColumnName("access_information_id")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("DateReported")
+                    b.Property<DateTime>("DateReported")
                         .HasColumnName("date_reported")
                         .HasColumnType("timestamp without time zone");
 
@@ -467,7 +469,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                         .HasColumnName("description_of_work")
                         .HasColumnType("text");
 
-                    b.Property<double?>("EstimatedLaborHours")
+                    b.Property<double>("EstimatedLaborHours")
                         .HasColumnName("estimated_labor_hours")
                         .HasColumnType("double precision");
 
@@ -491,7 +493,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                         .HasColumnName("work_priority_id")
                         .HasColumnType("uuid");
 
-                    b.Property<int?>("WorkType")
+                    b.Property<int>("WorkType")
                         .HasColumnName("work_type")
                         .HasColumnType("integer");
 
@@ -538,11 +540,11 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                         .HasColumnName("id")
                         .HasColumnType("uuid");
 
-                    b.Property<int?>("PriorityCode")
+                    b.Property<int>("PriorityCode")
                         .HasColumnName("priority_code")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("RequiredCompletionDateTime")
+                    b.Property<DateTime>("RequiredCompletionDateTime")
                         .HasColumnName("required_completion_date_time")
                         .HasColumnType("timestamp without time zone");
 
@@ -609,7 +611,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                                 .HasColumnName("amount")
                                 .HasColumnType("double precision");
 
-                            b1.Property<int?>("UnitOfMeasurementCode")
+                            b1.Property<int>("UnitOfMeasurementCode")
                                 .HasColumnName("unit_of_measurement_code")
                                 .HasColumnType("integer");
 

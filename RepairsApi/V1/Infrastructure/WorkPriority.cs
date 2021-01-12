@@ -7,7 +7,7 @@ namespace RepairsApi.V1.Infrastructure
     public class WorkPriority
     {
         [Key] public Guid Id { get; set; }
-        public WorkPriorityCode PriorityCode { get; set; }
-        public DateTime RequiredCompletionDateTime { get; set; }
+        public WorkPriorityCode? PriorityCode { get; set; }
+        public DateTime? RequiredCompletionDateTime { get; set; }
     }
 }

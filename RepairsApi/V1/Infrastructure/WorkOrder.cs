@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using RepairsApi.V1.Generated;
 
 namespace RepairsApi.V1.Infrastructure
@@ -10,11 +9,11 @@ namespace RepairsApi.V1.Infrastructure
     {
         [Key] public int Id { get; set; }
         public string DescriptionOfWork { get; set; }
-        public double EstimatedLaborHours { get; set; }
-        public WorkType WorkType { get; set; }
+        public double? EstimatedLaborHours { get; set; }
+        public WorkType? WorkType { get; set; }
         public string ParkingArrangements { get; set; }
         public string LocationOfRepair { get; set; }
-        public DateTime DateReported { get; set; }
+        public DateTime? DateReported { get; set; }
         public virtual WorkClass WorkClass { get; set; }
 
         public virtual WorkPriority WorkPriority { get; set; }

@@ -8,7 +8,7 @@ namespace RepairsApi.V1.Infrastructure
     {
         [Key] public int Id { get; set; }
         public string Comments { get; set; }
-        public PersonAlertTypeCode Type { get; set; }
+        public PersonAlertTypeCode? Type { get; set; }
     }
 
 }

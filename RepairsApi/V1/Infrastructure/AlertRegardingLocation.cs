@@ -8,6 +8,6 @@ namespace RepairsApi.V1.Infrastructure
         [Key] public int Id { get; set; }
         public string Comments { get; set; }
         // TODO: Missing out attachments as this raises many other questions and is currently out of scope
-        public LocationAlertTypeCode Type { get; set; }
+        public LocationAlertTypeCode? Type { get; set; }
     }
 }

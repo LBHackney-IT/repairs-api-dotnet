@@ -84,13 +84,15 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                 table: "rate_schedule_items",
                 newName: "ix_rate_schedule_items_work_element_id");
 
-            migrationBuilder.AlterColumn<int>(
+
+            migrationBuilder.DropColumn(
+                name: "service_charge_subject",
+                table: "work_elements");
+
+            migrationBuilder.AddColumn<int>(
                 name: "service_charge_subject",
                 table: "work_elements",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "text",
-                oldNullable: true);
+                nullable: false);
 
             migrationBuilder.AddColumn<int>(
                 name: "work_order_id",
@@ -104,13 +106,15 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                 oldClrType: typeof(Guid),
                 oldType: "uuid");
 
-            migrationBuilder.AlterColumn<int>(
+
+            migrationBuilder.DropColumn(
+                name: "unit_of_measurement_code",
+                table: "rate_schedule_items");
+
+            migrationBuilder.AddColumn<int>(
                 name: "unit_of_measurement_code",
                 table: "rate_schedule_items",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "text",
-                oldNullable: true);
+                nullable: true);
 
             migrationBuilder.AlterColumn<double>(
                 name: "amount",

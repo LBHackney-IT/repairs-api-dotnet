@@ -8,7 +8,7 @@ namespace RepairsApi.V1.Infrastructure
     {
         [Key] public int Id { get; set; }
         public string WorkClassDescription { get; set; }
-        public WorkClassCode WorkClassCode { get; set; }
+        public WorkClassCode? WorkClassCode { get; set; }
         public virtual WorkClassSubType WorkClassSubType { get; set; }
     }
 

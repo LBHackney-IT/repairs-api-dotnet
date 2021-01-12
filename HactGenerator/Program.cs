@@ -43,7 +43,7 @@ namespace SchemaGeneration
                 DateType = "System.DateTime",
                 Namespace = "RepairsApi.V1.Generated",
                 GenerateDefaultValues = false,
-                GenerateOptionalPropertiesAsNullable = false
+                GenerateOptionalPropertiesAsNullable = true
             });
             var codeFile = generator.GenerateFile();
 
