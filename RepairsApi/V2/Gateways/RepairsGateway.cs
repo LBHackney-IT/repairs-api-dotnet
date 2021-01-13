@@ -24,7 +24,7 @@ namespace RepairsApi.V2.Gateways
 
         public IEnumerable<WorkOrder> GetWorkOrders()
         {
-            return _repairsContext.WorkOrders.AsEnumerable();
+            return _repairsContext.WorkOrders.ToList();
         }
     }
 }

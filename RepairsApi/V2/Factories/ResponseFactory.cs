@@ -101,8 +101,8 @@ namespace RepairsApi.V2.Factories
                 Reference = workOrder.Id,
                 Description = workOrder.DescriptionOfWork,
                 Owner = "", // TODO: populate owner
-                Priority = "", // TODO: populate priority
-                Property = "", // TODO: populate property
+                Priority = workOrder.WorkPriority.PriorityDescription,
+                Property = "", // TODO: populate address
                 DateRaised = workOrder.DateReported,
                 LastUpdated = null
             };
