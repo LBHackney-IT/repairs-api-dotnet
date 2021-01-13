@@ -14,7 +14,10 @@ namespace RepairsApi.Tests.V1.E2ETests
                 Priority = new Priority
                 {
                     PriorityCode = WorkPriorityCode._1,
-                    RequiredCompletionDateTime = DateTime.UtcNow
+                    RequiredCompletionDateTime = DateTime.UtcNow,
+                    Comments = "priority comments",
+                    NumberOfDays = 1.5,
+                    PriorityDescription = "priority description"
                 },
                 AccessInformation = new AccessInformation
                 {

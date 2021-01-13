@@ -47,8 +47,4 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="V1\Generated\" />
-  </ItemGroup>
-
 </Project>

@@ -9,5 +9,8 @@ namespace RepairsApi.V1.Infrastructure
         [Key] public Guid Id { get; set; }
         public WorkPriorityCode? PriorityCode { get; set; }
         public DateTime? RequiredCompletionDateTime { get; set; }
+        public string PriorityDescription { get; set; }
+        public string Comments { get; set; }
+        public double? NumberOfDays { get; set; }
     }
 }

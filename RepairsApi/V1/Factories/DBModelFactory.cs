@@ -175,7 +175,10 @@ namespace RepairsApi.V1.Factories
             return new WorkPriority
             {
                 PriorityCode = raiseRepair.PriorityCode,
-                RequiredCompletionDateTime = raiseRepair.RequiredCompletionDateTime
+                RequiredCompletionDateTime = raiseRepair.RequiredCompletionDateTime,
+                Comments = raiseRepair.Comments,
+                PriorityDescription = raiseRepair.PriorityDescription,
+                NumberOfDays = raiseRepair.NumberOfDays
             };
         }
 

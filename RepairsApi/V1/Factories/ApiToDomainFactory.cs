@@ -99,11 +99,16 @@ namespace RepairsApi.V1.Factories
 
         private static HierarchyType ToDomainHierarachy(this PropertyApiResponse apiResponse)
         {
+            var subTypeDescription =
+                HierarchyDescriptions.ContainsKey(apiResponse.SubtypCode) ?
+                HierarchyDescriptions[apiResponse.SubtypCode] :
+                "Unknown";
+
             return new HierarchyType
             {
                 LevelCode = apiResponse.LevelCode,
                 SubTypeCode = apiResponse.SubtypCode,
-                SubTypeDescription = HierarchyDescriptions[apiResponse.SubtypCode]
+                SubTypeDescription = subTypeDescription
             };
         }
 
