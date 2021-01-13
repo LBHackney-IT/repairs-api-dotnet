@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using RepairsApi.Tests.ApiMocking;
 using RepairsApi.Tests.Helpers;
-using RepairsApi.V1.Factories;
-using RepairsApi.V1.Gateways;
-using RepairsApi.V1.Gateways.Models;
+using RepairsApi.V2.Factories;
+using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Gateways.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -13,7 +13,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-using static RepairsApi.Tests.V1.DataFakers;
+using static RepairsApi.Tests.V2.DataFakers;
 
 namespace RepairsApi.Tests
 {

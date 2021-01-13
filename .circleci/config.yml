@@ -125,7 +125,7 @@ commands:
             DATABASE=$(aws ssm get-parameter --name /repairs-api/<<parameters.stage>>/postgres-database --query Parameter.Value)
             CONN_STR="Host=localhost;Password=${PASSWORD};Port=${PORT};Username=${USERNAME};Database=${DATABASE}"
             cd ./RepairsApi/
-            CONNECTION_STRING=${CONN_STR} ./../dotnet-ef-local/dotnet-ef database update -c RepairsApi.V1.Infrastructure.RepairsContext
+            CONNECTION_STRING=${CONN_STR} ./../dotnet-ef-local/dotnet-ef database update -c RepairsApi.V2.Infrastructure.RepairsContext
 
 jobs:
   check-code-formatting:

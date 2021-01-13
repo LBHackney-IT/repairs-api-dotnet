@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using RepairsApi.V1.Infrastructure;
+using RepairsApi.V2.Infrastructure;
 using System;
 
 namespace RepairsApi.Tests
