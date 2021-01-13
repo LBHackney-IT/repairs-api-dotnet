@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Factories;
