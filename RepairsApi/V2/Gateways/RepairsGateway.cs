@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using RepairsApi.V2.Infrastructure;
 using System.Threading.Tasks;
 
@@ -18,6 +20,11 @@ namespace RepairsApi.V2.Gateways
             await _repairsContext.SaveChangesAsync();
 
             return entry.Entity.Id;
+        }
+
+        public IEnumerable<WorkOrder> GetWorkOrders()
+        {
+            return _repairsContext.WorkOrders.ToList();
         }
     }
 }

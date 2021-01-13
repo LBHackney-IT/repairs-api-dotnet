@@ -14,10 +14,14 @@ namespace RepairsApi.V2.Controllers
     public class RepairsController : Controller
     {
         private readonly IRaiseRepairUseCase _raiseRepairUseCase;
+        private readonly IListWorkOrdersUseCase _listWorkOrdersUseCase;
 
-        public RepairsController(IRaiseRepairUseCase raiseRepairUseCase)
+        public RepairsController(
+            IRaiseRepairUseCase raiseRepairUseCase,
+            IListWorkOrdersUseCase listWorkOrdersUseCase)
         {
             _raiseRepairUseCase = raiseRepairUseCase;
+            _listWorkOrdersUseCase = listWorkOrdersUseCase;
         }
 
         [HttpPost]
@@ -32,6 +36,12 @@ namespace RepairsApi.V2.Controllers
             {
                 return BadRequest(e.Message);
             }
+        }
+
+        [HttpGet]
+        public IActionResult GetList()
+        {
+            return Ok(_listWorkOrdersUseCase.Execute());
         }
     }
 

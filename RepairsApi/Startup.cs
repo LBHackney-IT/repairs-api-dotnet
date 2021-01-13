@@ -19,8 +19,6 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.UseCase.Interfaces;
 using RepairsApi.V2.UseCase;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using System.Net.Http.Headers;
 
 namespace RepairsApi
 {
@@ -132,6 +130,7 @@ namespace RepairsApi
             services.AddTransient<IGetPropertyUseCase, GetPropertyUseCase>();
             services.AddTransient<IRaiseRepairUseCase, RaiseRepairUseCase>();
             services.AddScoped<IListScheduleOfRatesUseCase, ListScheduleOfRatesUseCase>();
+            services.AddTransient<IListWorkOrdersUseCase, ListWorkOrdersUseCase>();
         }
 
         private void AddHttpClients(IServiceCollection services)
