@@ -23,5 +23,10 @@ namespace RepairsApi.Tests
                 return _context;
             }
         }
+
+        public static void Teardown()
+        {
+            _context = null;
+        }
     }
 }

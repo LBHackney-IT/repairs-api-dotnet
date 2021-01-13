@@ -2,6 +2,9 @@ using RepairsApi.V1.Boundary.Response;
 using RepairsApi.V1.Domain;
 using System.Collections.Generic;
 using System.Linq;
+using RepairsApi.V1.Infrastructure;
+using RepairsApi.V2.Enums;
+using Address = RepairsApi.V1.Domain.Address;
 
 namespace RepairsApi.V1.Factories
 {
@@ -89,6 +92,25 @@ namespace RepairsApi.V1.Factories
         public static List<PropertyViewModel> ToResponse(this IEnumerable<PropertyModel> domainList)
         {
             return domainList.Select(domain => domain.ToResponse()).ToList();
+        }
+
+        public static WorkOrderListItem ToResponse(this WorkOrder workOrder)
+        {
+            return new WorkOrderListItem
+            {
+                Reference = workOrder.Id,
+                Description = workOrder.DescriptionOfWork,
+                Owner = "", // TODO: populate owner
+                Priority = "", // TODO: populate priority
+                Property = "", // TODO: populate property
+                DateRaised = workOrder.DateReported,
+                LastUpdated = null
+            };
+        }
+
+        public static WorkPriorityCode ToResponse(this Generated.WorkPriorityCode code)
+        {
+            return (WorkPriorityCode) code;
         }
     }
 }

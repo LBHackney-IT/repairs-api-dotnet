@@ -1,6 +1,7 @@
 using FluentAssertions;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
@@ -8,6 +9,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using RepairsApi.V1.Boundary.Response;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace RepairsApi.Tests.V1.E2ETests
@@ -66,6 +68,27 @@ namespace RepairsApi.Tests.V1.E2ETests
             var response = await client.PostAsync(new Uri("/api/v2/repairs", UriKind.Relative), content);
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Test]
+        public async Task GetListOfWorkOrders()
+        {
+            var client = CreateClient();
+
+            var request = RepairMockBuilder.CreateFullRaiseRepair();
+            request.DescriptionOfWork = "expectedDescription";
+            var serializedContent = JsonConvert.SerializeObject(request);
+            StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
+
+            await RaiseRepairAndValidate(client, content);
+
+            var response = await client.GetAsync(new Uri("/api/v2/repairs", UriKind.Relative));
+
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var workOrders = JsonConvert.DeserializeObject<List<WorkOrderListItem>>(responseContent);
+            workOrders.Should().ContainSingle(wo => wo.Description == request.DescriptionOfWork);
         }
 
         private async Task RaiseRepairAndValidate(HttpClient client, StringContent content)

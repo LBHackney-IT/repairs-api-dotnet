@@ -19,8 +19,14 @@ namespace RepairsApi.Tests.V1.Gateways
             _classUnderTest = new RepairsGateway(InMemoryDb.Instance);
         }
 
+        [TearDown]
+        public void Teardown()
+        {
+            InMemoryDb.Teardown();
+        }
+
         [Test]
-        public async Task Run()
+        public async Task CanCreateWorkOrder()
         {
             // arrange
             var expected = CreateWorkOrder();
@@ -31,6 +37,21 @@ namespace RepairsApi.Tests.V1.Gateways
 
             // assert
             InMemoryDb.Instance.WorkOrders.Should().ContainSingle().Which.IsSameOrEqualTo(expected);
+        }
+
+        [Test]
+        public async Task CanGetWorkOrders()
+        {
+            // arrange
+            var expectedWorkOrders = CreateWorkOrder();
+            await InMemoryDb.Instance.WorkOrders.AddAsync(expectedWorkOrders);
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            // act
+            var workOrders = _classUnderTest.GetWorkOrders();
+
+            // assert
+            workOrders.Should().ContainSingle().Which.Should().BeEquivalentTo(expectedWorkOrders);
         }
 
         private static WorkOrder CreateWorkOrder()
