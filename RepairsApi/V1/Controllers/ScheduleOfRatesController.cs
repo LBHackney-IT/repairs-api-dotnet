@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace RepairsApi.V1.Controllers
 {
     [ApiController]
-    [Route("/api/v2/schedule-of-rates")]
+    [Route("api/v2/schedule-of-rates")]
     [Produces("application/json")]
     [ApiVersion("2.0")]
     public class ScheduleOfRatesController : Controller
@@ -28,7 +28,7 @@ namespace RepairsApi.V1.Controllers
         /// <response code="200">Success. Returns a list of SOR codes</response>
         /// <response code="400">Invalid Query Parameter.</response>
         [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
-        [Route("/codes")]
+        [Route("codes")]
         [HttpGet]
         public IActionResult ListRecords()
         {
