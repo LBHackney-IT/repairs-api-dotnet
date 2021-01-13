@@ -194,5 +194,22 @@ namespace RepairsApi.Tests.V1.E2ETests
             response.IsSuccess.Should().BeFalse();
             response.Status.Should().Be(HttpStatusCode.BadGateway);
         }
+
+        [Test]
+        public void HandlePropertyWithNoSubType()
+        {
+            // Arrange
+            var expectedProperty = MockApiGateway.NewProperty();
+            expectedProperty.SubtypCode = string.Empty;
+
+            ApiGateway client = new ApiGateway(new HttpClientFactoryWrapper(Client));
+
+            // Act
+            var response = client.ExecuteRequest<PropertyResponse>("dummy", new Uri($"/api/v2/properties/{expectedProperty.PropRef}", UriKind.Relative)).Result;
+
+            // Assert
+            response.IsSuccess.Should().BeTrue();
+            response.Status.Should().Be(HttpStatusCode.OK);
+        }
     }
 }

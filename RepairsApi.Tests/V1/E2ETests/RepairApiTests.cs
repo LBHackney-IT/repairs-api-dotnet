@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
+using RepairsApi.V1.Infrastructure;
 
 namespace RepairsApi.Tests.V1.E2ETests
 {
@@ -37,7 +38,10 @@ namespace RepairsApi.Tests.V1.E2ETests
             var serializedContent = JsonConvert.SerializeObject(request);
             StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
 
-            await RaiseRepairAndValidate(client, content);
+            await RaiseRepairAndValidate(client, content, repair =>
+            {
+                repair.WorkPriority.NumberOfDays.Should().Be(request.Priority.NumberOfDays);
+            });
         }
 
         [Test]
@@ -68,7 +72,7 @@ namespace RepairsApi.Tests.V1.E2ETests
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
 
-        private async Task RaiseRepairAndValidate(HttpClient client, StringContent content)
+        private async Task RaiseRepairAndValidate(HttpClient client, StringContent content, Action<WorkOrder> assertions = null)
         {
             var response = await client.PostAsync(new Uri("/api/v2/repairs", UriKind.Relative), content);
 
@@ -80,6 +84,7 @@ namespace RepairsApi.Tests.V1.E2ETests
             {
                 var repair = repairsContext.WorkOrders.Find(id);
                 repair.Should().NotBeNull();
+                assertions?.Invoke(repair);
             });
         }
 

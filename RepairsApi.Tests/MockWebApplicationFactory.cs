@@ -36,11 +36,13 @@ namespace RepairsApi.Tests
                 {
                     if (_connection != null)
                     {
-                        options.UseNpgsql(_connection);
+                        options.UseNpgsql(_connection)
+                            .UseLazyLoadingProxies();
                     }
                     else
                     {
-                        options.UseInMemoryDatabase("integration");
+                        options.UseInMemoryDatabase("integration")
+                            .UseLazyLoadingProxies();
                     }
                 });
 
