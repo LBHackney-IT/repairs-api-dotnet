@@ -13,7 +13,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-using static RepairsApi.Tests.V1.DataFakers;
+using static RepairsApi.Tests.V2.DataFakers;
 
 namespace RepairsApi.Tests
 {

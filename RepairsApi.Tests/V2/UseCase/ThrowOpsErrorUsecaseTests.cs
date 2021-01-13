@@ -2,7 +2,7 @@ using RepairsApi.V2.UseCase;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace RepairsApi.Tests.V1.UseCase
+namespace RepairsApi.Tests.V2.UseCase
 {
     [TestFixture]
     public class ThrowOpsErrorUsecaseTests

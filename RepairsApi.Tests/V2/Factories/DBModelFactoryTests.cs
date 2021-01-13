@@ -5,7 +5,7 @@ using NUnit.Framework;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Generated;
 
-namespace RepairsApi.Tests.V1.Factories
+namespace RepairsApi.Tests.V2.Factories
 {
     public class DBModelFactoryTests
     {

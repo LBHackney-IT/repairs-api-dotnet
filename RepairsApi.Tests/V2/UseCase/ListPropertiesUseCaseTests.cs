@@ -5,9 +5,9 @@ using RepairsApi.V2.Gateways;
 using RepairsApi.V2.UseCase;
 using System.Linq;
 using System.Threading.Tasks;
-using static RepairsApi.Tests.V1.DataFakers;
+using static RepairsApi.Tests.V2.DataFakers;
 
-namespace RepairsApi.Tests.V1.UseCase
+namespace RepairsApi.Tests.V2.UseCase
 {
     [TestFixture]
     public class ListPropertiesUseCaseTests

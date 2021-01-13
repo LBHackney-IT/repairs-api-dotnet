@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using RepairsApi.V2.Generated;
 
-namespace RepairsApi.Tests.V1.E2ETests
+namespace RepairsApi.Tests.V2.E2ETests
 {
     public static class RepairMockBuilder
     {

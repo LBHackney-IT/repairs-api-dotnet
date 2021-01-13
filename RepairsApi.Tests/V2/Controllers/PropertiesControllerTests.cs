@@ -13,9 +13,9 @@ using RepairsApi.V2.UseCase.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using static RepairsApi.Tests.V1.DataFakers;
+using static RepairsApi.Tests.V2.DataFakers;
 
-namespace RepairsApi.Tests.V1.Controllers
+namespace RepairsApi.Tests.V2.Controllers
 {
     [TestFixture]
     public class PropertiesControllerTests : ControllerTests

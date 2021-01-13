@@ -2,7 +2,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using RepairsApi.V2.UseCase;
 
-namespace RepairsApi.Tests.V1.Entities
+namespace RepairsApi.Tests.V2.Entities
 {
     public class SearchModelTests
     {

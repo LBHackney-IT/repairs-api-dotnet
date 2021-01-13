@@ -8,7 +8,7 @@ using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase.Interfaces;
 using System.Threading.Tasks;
 
-namespace RepairsApi.Tests.V1.Controllers
+namespace RepairsApi.Tests.V2.Controllers
 {
     public class RepairsControllerTests : ControllerTests
     {

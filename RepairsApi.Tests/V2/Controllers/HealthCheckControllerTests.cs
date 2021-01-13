@@ -5,7 +5,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using NUnit.Framework;
 
-namespace RepairsApi.Tests.V1.Controllers
+namespace RepairsApi.Tests.V2.Controllers
 {
 
     [TestFixture]

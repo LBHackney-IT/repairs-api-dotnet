@@ -47,7 +47,7 @@ namespace SchemaGeneration
             });
             var codeFile = generator.GenerateFile();
 
-            await File.WriteAllTextAsync($"../../../../RepairsApi/V1/Generated/{file}.cs", codeFile);
+            await File.WriteAllTextAsync($"../../../../RepairsApi/V2/Generated/{file}.cs", codeFile);
         }
 
         private static void DisallowAdditionalProperties(JsonSchema schema, string pref)

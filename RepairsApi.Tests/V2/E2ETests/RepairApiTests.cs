@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using RepairsApi.V2.Infrastructure;
 
-namespace RepairsApi.Tests.V1.E2ETests
+namespace RepairsApi.Tests.V2.E2ETests
 {
 
     [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Tests")]

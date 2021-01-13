@@ -12,7 +12,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace RepairsApi.Tests.V1.Gateways
+namespace RepairsApi.Tests.V2.Gateways
 {
     [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "They are disposed by the DI system in prod")]
     public class ApiGatewayTests

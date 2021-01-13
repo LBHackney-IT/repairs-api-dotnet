@@ -7,7 +7,7 @@ using FluentAssertions;
 using FluentAssertions.Common;
 using RepairsApi.V2.Infrastructure;
 
-namespace RepairsApi.Tests.V1.Gateways
+namespace RepairsApi.Tests.V2.Gateways
 {
     public class RepairGatewayTests
     {

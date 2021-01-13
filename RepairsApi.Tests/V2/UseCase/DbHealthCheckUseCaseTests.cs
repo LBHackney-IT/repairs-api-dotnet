@@ -6,7 +6,7 @@ using Microsoft.Extensions.HealthChecks;
 using Moq;
 using NUnit.Framework;
 
-namespace RepairsApi.Tests.V1.UseCase
+namespace RepairsApi.Tests.V2.UseCase
 {
     [TestFixture]
     public class DbHealthCheckUseCaseTests

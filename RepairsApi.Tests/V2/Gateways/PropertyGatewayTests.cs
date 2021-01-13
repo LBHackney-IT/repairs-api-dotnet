@@ -11,9 +11,9 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
-using static RepairsApi.Tests.V1.DataFakers;
+using static RepairsApi.Tests.V2.DataFakers;
 
-namespace RepairsApi.Tests.V1.Gateways
+namespace RepairsApi.Tests.V2.Gateways
 {
     public class PropertyGatewayTests
     {

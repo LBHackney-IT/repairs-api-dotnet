@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 
-namespace RepairsApi.Tests.V1.E2ETests
+namespace RepairsApi.Tests.V2.E2ETests
 {
     [SingleThreaded]
     public class PropertyApitests : IntegrationTests<Startup>

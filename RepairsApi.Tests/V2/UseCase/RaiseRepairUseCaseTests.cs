@@ -7,7 +7,7 @@ using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase;
 using System.Threading.Tasks;
 
-namespace RepairsApi.Tests.V1.UseCase
+namespace RepairsApi.Tests.V2.UseCase
 {
     public class RaiseRepairUseCaseTests
     {
