@@ -41,13 +41,13 @@ namespace SchemaGeneration
             {
                 DateTimeType = "System.DateTime",
                 DateType = "System.DateTime",
-                Namespace = "RepairsApi.V1.Generated",
+                Namespace = "RepairsApi.V2.Generated",
                 GenerateDefaultValues = false,
                 GenerateOptionalPropertiesAsNullable = true
             });
             var codeFile = generator.GenerateFile();
 
-            await File.WriteAllTextAsync($"../../../../RepairsApi/V1/Generated/{file}.cs", codeFile);
+            await File.WriteAllTextAsync($"../../../../RepairsApi/V2/Generated/{file}.cs", codeFile);
         }
 
         private static void DisallowAdditionalProperties(JsonSchema schema, string pref)

@@ -37,7 +37,7 @@ restart-db: | stop-db start-db
 update-db: start-db
 	-dotnet tool install -g dotnet-ef
 	CONNECTION_STRING="Host=127.0.0.1;Port=5432;Username=postgres;Password=mypassword;Database=testdb" \
-	dotnet ef database update -p RepairsApi -c RepairsApi.V1.Infrastructure.RepairsContext
+	dotnet ef database update -p RepairsApi -c RepairsApi.V2.Infrastructure.RepairsContext
 
 .PHONY: test
 test: | update-db

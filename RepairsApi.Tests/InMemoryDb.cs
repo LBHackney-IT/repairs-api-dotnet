@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using RepairsApi.V1.Infrastructure;
+using RepairsApi.V2.Infrastructure;
 using System;
 
 namespace RepairsApi.Tests
@@ -22,6 +22,11 @@ namespace RepairsApi.Tests
 
                 return _context;
             }
+        }
+
+        public static void Teardown()
+        {
+            _context = null;
         }
     }
 }

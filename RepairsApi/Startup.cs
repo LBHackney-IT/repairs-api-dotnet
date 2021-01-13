@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using RepairsApi.V1.Infrastructure;
+using RepairsApi.V2.Infrastructure;
 using RepairsApi.Versioning;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -16,11 +16,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using RepairsApi.V1.Gateways;
-using RepairsApi.V1.UseCase.Interfaces;
-using RepairsApi.V1.UseCase;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using System.Net.Http.Headers;
+using RepairsApi.V2.Gateways;
+using RepairsApi.V2.UseCase.Interfaces;
+using RepairsApi.V2.UseCase;
 
 namespace RepairsApi
 {
@@ -132,6 +130,7 @@ namespace RepairsApi
             services.AddTransient<IGetPropertyUseCase, GetPropertyUseCase>();
             services.AddTransient<IRaiseRepairUseCase, RaiseRepairUseCase>();
             services.AddScoped<IListScheduleOfRatesUseCase, ListScheduleOfRatesUseCase>();
+            services.AddTransient<IListWorkOrdersUseCase, ListWorkOrdersUseCase>();
         }
 
         private void AddHttpClients(IServiceCollection services)
