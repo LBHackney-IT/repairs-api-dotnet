@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using Obj.Genarator;
-using RepairsApi.V1.Gateways;
-using RepairsApi.V1.Infrastructure;
-using RepairsApi.V1.UseCase;
+using RepairsApi.Tests.Helpers;
+using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.UseCase;
 
-namespace RepairsApi.Tests.V1.UseCase
+namespace RepairsApi.Tests.V2.UseCase
 {
     [TestFixture]
     public class ListWorkOrdersUseCaseTests

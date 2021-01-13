@@ -2,9 +2,9 @@ using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Domain;
 using System.Collections.Generic;
 using System.Linq;
-using RepairsApi.V1.Infrastructure;
+using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Enums;
-using Address = RepairsApi.V1.Domain.Address;
+using Address = RepairsApi.V2.Domain.Address;
 
 namespace RepairsApi.V2.Factories
 {

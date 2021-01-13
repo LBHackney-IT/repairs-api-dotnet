@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using RepairsApi.V1.Boundary.Response;
-using RepairsApi.V1.Factories;
-using RepairsApi.V1.Gateways;
-using RepairsApi.V1.UseCase.Interfaces;
+using RepairsApi.V2.Boundary.Response;
+using RepairsApi.V2.Factories;
+using RepairsApi.V2.Gateways;
+using RepairsApi.V2.UseCase.Interfaces;
 
-namespace RepairsApi.V1.UseCase
+namespace RepairsApi.V2.UseCase
 {
     public class ListWorkOrdersUseCase : IListWorkOrdersUseCase
     {

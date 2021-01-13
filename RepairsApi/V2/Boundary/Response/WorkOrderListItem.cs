@@ -1,8 +1,6 @@
 ﻿using System;
-using RepairsApi.V1.Infrastructure;
-using RepairsApi.V2.Enums;
 
-namespace RepairsApi.V1.Boundary.Response
+namespace RepairsApi.V2.Boundary.Response
 {
     public class WorkOrderListItem
     {

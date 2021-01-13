@@ -19,8 +19,6 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.UseCase.Interfaces;
 using RepairsApi.V2.UseCase;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using System.Net.Http.Headers;
 
 namespace RepairsApi
 {

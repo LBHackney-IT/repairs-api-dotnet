@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using RepairsApi.V1.Boundary.Response;
+using RepairsApi.V2.Boundary.Response;
 
-namespace RepairsApi.V1.UseCase.Interfaces
+namespace RepairsApi.V2.UseCase.Interfaces
 {
     public interface IListWorkOrdersUseCase
     {

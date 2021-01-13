@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Obj.Genarator
+namespace RepairsApi.Tests.Helpers
 {
 
     class Generator<T>

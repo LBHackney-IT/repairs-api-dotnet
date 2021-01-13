@@ -10,9 +10,9 @@ using RepairsApi.V2.Generated;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase.Interfaces;
 using System.Threading.Tasks;
-using Obj.Genarator;
-using RepairsApi.V1.Boundary.Response;
-using RepairsApi.V1.Factories;
+using RepairsApi.Tests.Helpers;
+using RepairsApi.V2.Factories;
+using RepairsApi.V2.Boundary.Response;
 
 namespace RepairsApi.Tests.V2.Controllers
 {
