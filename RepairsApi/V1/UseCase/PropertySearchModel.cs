@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace RepairsApi.V1.UseCase
+namespace RepairsApi.V2.UseCase
 {
     public class PropertySearchModel
     {

@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
-using RepairsApi.V1.Factories;
-using RepairsApi.V1.Generated;
-using RepairsApi.V1.UseCase.Interfaces;
+using RepairsApi.V2.Factories;
+using RepairsApi.V2.Generated;
+using RepairsApi.V2.UseCase.Interfaces;
 using System;
 using System.Threading.Tasks;
 
-namespace RepairsApi.V1.Controllers
+namespace RepairsApi.V2.Controllers
 {
     [ApiController]
     [Route("/api/v2/repairs")]

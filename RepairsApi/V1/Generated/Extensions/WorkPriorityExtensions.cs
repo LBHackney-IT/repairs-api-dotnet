@@ -1,4 +1,4 @@
-namespace RepairsApi.V1.Generated
+namespace RepairsApi.V2.Generated
 {
     public partial class Priority
     {

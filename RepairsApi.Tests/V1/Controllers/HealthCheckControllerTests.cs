@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using RepairsApi.V1.Controllers;
-using RepairsApi.V1.UseCase;
+using RepairsApi.V2.Controllers;
+using RepairsApi.V2.UseCase;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using NUnit.Framework;

@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace RepairsApi.V1.Gateways
+namespace RepairsApi.V2.Gateways
 {
 #nullable enable
     public interface IApiGateway

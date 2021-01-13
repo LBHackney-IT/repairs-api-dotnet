@@ -1,8 +1,8 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using RepairsApi.V1.Generated;
+using RepairsApi.V2.Generated;
 
-namespace RepairsApi.V1.Infrastructure
+namespace RepairsApi.V2.Infrastructure
 {
     public class Dependency
     {

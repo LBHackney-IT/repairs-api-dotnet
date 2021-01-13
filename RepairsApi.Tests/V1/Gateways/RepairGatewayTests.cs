@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using RepairsApi.V1.Gateways;
+using RepairsApi.V2.Gateways;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Common;
-using RepairsApi.V1.Infrastructure;
+using RepairsApi.V2.Infrastructure;
 
 namespace RepairsApi.Tests.V1.Gateways
 {
@@ -40,12 +40,12 @@ namespace RepairsApi.Tests.V1.Gateways
             {
                 WorkPriority = new WorkPriority
                 {
-                    PriorityCode = RepairsApi.V1.Generated.WorkPriorityCode._1,
+                    PriorityCode = RepairsApi.V2.Generated.WorkPriorityCode._1,
                     RequiredCompletionDateTime = DateTime.UtcNow
                 },
                 WorkClass = new WorkClass
                 {
-                    WorkClassCode = RepairsApi.V1.Generated.WorkClassCode._0
+                    WorkClassCode = RepairsApi.V2.Generated.WorkClassCode._0
                 },
                 WorkElements = new List<WorkElement>(),
                 DescriptionOfWork = "description"

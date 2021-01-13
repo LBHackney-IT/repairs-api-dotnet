@@ -1,4 +1,4 @@
-namespace RepairsApi.V1.Gateways.Models
+namespace RepairsApi.V2.Gateways.Models
 {
     public class PropertyApiResponse
     {

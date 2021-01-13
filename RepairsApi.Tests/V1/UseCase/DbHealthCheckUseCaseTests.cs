@@ -1,5 +1,5 @@
 using System.Threading;
-using RepairsApi.V1.UseCase;
+using RepairsApi.V2.UseCase;
 using Bogus;
 using FluentAssertions;
 using Microsoft.Extensions.HealthChecks;

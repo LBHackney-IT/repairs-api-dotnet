@@ -1,7 +1,7 @@
-using RepairsApi.V1.Boundary;
+using RepairsApi.V2.Boundary;
 using Microsoft.Extensions.HealthChecks;
 
-namespace RepairsApi.V1.UseCase
+namespace RepairsApi.V2.UseCase
 {
     public class DbHealthCheckUseCase
     {

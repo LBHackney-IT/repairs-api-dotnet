@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace RepairsApi.V1.Infrastructure
+namespace RepairsApi.V2.Infrastructure
 {
 
     public class RepairsContext : DbContext

@@ -1,7 +1,7 @@
 using Bogus;
-using RepairsApi.V1.Domain;
-using RepairsApi.V1.Factories;
-using RepairsApi.V1.Gateways.Models;
+using RepairsApi.V2.Domain;
+using RepairsApi.V2.Factories;
+using RepairsApi.V2.Gateways.Models;
 using System.Linq;
 
 namespace RepairsApi.Tests.V1

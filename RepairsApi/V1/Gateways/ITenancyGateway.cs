@@ -1,7 +1,7 @@
-using RepairsApi.V1.Domain;
+using RepairsApi.V2.Domain;
 using System.Threading.Tasks;
 
-namespace RepairsApi.V1.Gateways
+namespace RepairsApi.V2.Gateways
 {
 #nullable enable
     public interface ITenancyGateway

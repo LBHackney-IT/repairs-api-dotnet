@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace RepairsApi.V1.Gateways
+namespace RepairsApi.V2.Gateways
 {
 #nullable enable
     public class ApiGateway : IApiGateway

@@ -1,6 +1,6 @@
 using FluentAssertions;
 using NUnit.Framework;
-using RepairsApi.V1.UseCase;
+using RepairsApi.V2.UseCase;
 
 namespace RepairsApi.Tests.V1.Entities
 {

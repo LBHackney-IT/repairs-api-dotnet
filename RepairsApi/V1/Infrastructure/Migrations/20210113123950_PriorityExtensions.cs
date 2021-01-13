@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace RepairsApi.V1.Infrastructure.Migrations
+namespace RepairsApi.V2.Infrastructure.Migrations
 {
     public partial class PriorityExtensions : Migration
     {

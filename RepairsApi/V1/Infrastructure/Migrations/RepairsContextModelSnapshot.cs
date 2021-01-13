@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using RepairsApi.V1.Infrastructure;
+using RepairsApi.V2.Infrastructure;
 
-namespace RepairsApi.V1.Infrastructure.Migrations
+namespace RepairsApi.V2.Infrastructure.Migrations
 {
     [DbContext(typeof(RepairsContext))]
     partial class RepairsContextModelSnapshot : ModelSnapshot
@@ -19,7 +19,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                 .HasAnnotation("ProductVersion", "3.1.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.Address", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Address", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -89,7 +89,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     b.ToTable("address");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.AlertRegardingLocation", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.AlertRegardingLocation", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -118,7 +118,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     b.ToTable("location_alerts");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.AlertRegardingPerson", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.AlertRegardingPerson", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -147,7 +147,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     b.ToTable("person_alerts");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.Dependency", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Dependency", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -169,7 +169,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     b.ToTable("dependency");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.PostalAddress", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.PostalAddress", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -190,7 +190,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     b.ToTable("postal_address");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.PropertyAddress", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.PropertyAddress", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -211,7 +211,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     b.ToTable("property_address");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.PropertyClass", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.PropertyClass", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -239,7 +239,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     b.ToTable("property_class");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.RateScheduleItem", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.RateScheduleItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -271,7 +271,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     b.ToTable("rate_schedule_items");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.Site", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Site", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -285,7 +285,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     b.ToTable("site");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.Trade", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Trade", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -318,7 +318,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     b.ToTable("trade");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.Unit", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Unit", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -346,7 +346,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     b.ToTable("unit");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.WorkClass", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkClass", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -375,7 +375,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     b.ToTable("work_class");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.WorkClassSubType", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkClassSubType", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -397,7 +397,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     b.ToTable("work_class_sub_type");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.WorkElement", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkElement", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -425,7 +425,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     b.ToTable("work_elements");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.WorkElementDependency", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkElementDependency", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -453,7 +453,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     b.ToTable("work_element_dependency");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.WorkOrder", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrder", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -520,7 +520,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     b.ToTable("work_orders");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.WorkOrderAccessInformation", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrderAccessInformation", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -538,7 +538,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     b.ToTable("work_order_access_information");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.WorkPriority", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkPriority", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -571,59 +571,59 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     b.ToTable("work_priorities");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.AlertRegardingLocation", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.AlertRegardingLocation", b =>
                 {
-                    b.HasOne("RepairsApi.V1.Infrastructure.WorkOrder", null)
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkOrder", null)
                         .WithMany("LocationAlert")
                         .HasForeignKey("WorkOrderId")
                         .HasConstraintName("fk_location_alerts_work_orders_work_order_id");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.AlertRegardingPerson", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.AlertRegardingPerson", b =>
                 {
-                    b.HasOne("RepairsApi.V1.Infrastructure.WorkOrder", null)
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkOrder", null)
                         .WithMany("PersonAlert")
                         .HasForeignKey("WorkOrderId")
                         .HasConstraintName("fk_person_alerts_work_orders_work_order_id");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.PostalAddress", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.PostalAddress", b =>
                 {
-                    b.HasOne("RepairsApi.V1.Infrastructure.Address", "Address")
+                    b.HasOne("RepairsApi.V2.Infrastructure.Address", "Address")
                         .WithMany()
                         .HasForeignKey("AddressId")
                         .HasConstraintName("fk_postal_address_address_address_id");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.PropertyAddress", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.PropertyAddress", b =>
                 {
-                    b.HasOne("RepairsApi.V1.Infrastructure.PostalAddress", "Address")
+                    b.HasOne("RepairsApi.V2.Infrastructure.PostalAddress", "Address")
                         .WithMany()
                         .HasForeignKey("AddressId")
                         .HasConstraintName("fk_property_address_postal_address_address_id");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.PropertyClass", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.PropertyClass", b =>
                 {
-                    b.HasOne("RepairsApi.V1.Infrastructure.PropertyAddress", "Address")
+                    b.HasOne("RepairsApi.V2.Infrastructure.PropertyAddress", "Address")
                         .WithMany()
                         .HasForeignKey("AddressId")
                         .HasConstraintName("fk_property_class_property_address_address_id");
 
-                    b.HasOne("RepairsApi.V1.Infrastructure.Site", null)
+                    b.HasOne("RepairsApi.V2.Infrastructure.Site", null)
                         .WithMany("PropertyClass")
                         .HasForeignKey("SiteId")
                         .HasConstraintName("fk_property_class_site_site_id");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.RateScheduleItem", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.RateScheduleItem", b =>
                 {
-                    b.HasOne("RepairsApi.V1.Infrastructure.WorkElement", null)
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkElement", null)
                         .WithMany("RateScheduleItem")
                         .HasForeignKey("WorkElementId")
                         .HasConstraintName("fk_rate_schedule_items_work_elements_work_element_id");
 
-                    b.OwnsOne("RepairsApi.V1.Infrastructure.Quantity", "Quantity", b1 =>
+                    b.OwnsOne("RepairsApi.V2.Infrastructure.Quantity", "Quantity", b1 =>
                         {
                             b1.Property<Guid>("RateScheduleItemId")
                                 .HasColumnName("id")
@@ -648,27 +648,27 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.Trade", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Trade", b =>
                 {
-                    b.HasOne("RepairsApi.V1.Infrastructure.WorkElement", null)
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkElement", null)
                         .WithMany("Trade")
                         .HasForeignKey("WorkElementId")
                         .HasConstraintName("fk_trade_work_elements_work_element_id");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.Unit", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Unit", b =>
                 {
-                    b.HasOne("RepairsApi.V1.Infrastructure.PropertyAddress", "Address")
+                    b.HasOne("RepairsApi.V2.Infrastructure.PropertyAddress", "Address")
                         .WithMany()
                         .HasForeignKey("AddressId")
                         .HasConstraintName("fk_unit_property_address_address_id");
 
-                    b.HasOne("RepairsApi.V1.Infrastructure.PropertyClass", null)
+                    b.HasOne("RepairsApi.V2.Infrastructure.PropertyClass", null)
                         .WithMany("Unit")
                         .HasForeignKey("PropertyClassId")
                         .HasConstraintName("fk_unit_property_class_property_class_id");
 
-                    b.OwnsOne("RepairsApi.V1.Infrastructure.KeySafe", "KeySafe", b1 =>
+                    b.OwnsOne("RepairsApi.V2.Infrastructure.KeySafe", "KeySafe", b1 =>
                         {
                             b1.Property<int>("UnitId")
                                 .HasColumnName("id")
@@ -693,61 +693,61 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.WorkClass", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkClass", b =>
                 {
-                    b.HasOne("RepairsApi.V1.Infrastructure.WorkClassSubType", "WorkClassSubType")
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkClassSubType", "WorkClassSubType")
                         .WithMany()
                         .HasForeignKey("WorkClassSubTypeId")
                         .HasConstraintName("fk_work_class_work_class_sub_type_work_class_sub_type_id");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.WorkElement", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkElement", b =>
                 {
-                    b.HasOne("RepairsApi.V1.Infrastructure.WorkOrder", null)
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkOrder", null)
                         .WithMany("WorkElements")
                         .HasForeignKey("WorkOrderId")
                         .HasConstraintName("fk_work_elements_work_orders_work_order_id");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.WorkElementDependency", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkElementDependency", b =>
                 {
-                    b.HasOne("RepairsApi.V1.Infrastructure.Dependency", "Dependency")
+                    b.HasOne("RepairsApi.V2.Infrastructure.Dependency", "Dependency")
                         .WithMany()
                         .HasForeignKey("DependencyId")
                         .HasConstraintName("fk_work_element_dependency_dependency_dependency_id");
 
-                    b.HasOne("RepairsApi.V1.Infrastructure.WorkElement", "DependsOnWorkElement")
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkElement", "DependsOnWorkElement")
                         .WithMany("DependsOn")
                         .HasForeignKey("DependsOnWorkElementId")
                         .HasConstraintName("fk_work_element_dependency_work_elements_depends_on_work_eleme");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.WorkOrder", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrder", b =>
                 {
-                    b.HasOne("RepairsApi.V1.Infrastructure.WorkOrderAccessInformation", "AccessInformation")
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkOrderAccessInformation", "AccessInformation")
                         .WithMany()
                         .HasForeignKey("AccessInformationId")
                         .HasConstraintName("fk_work_orders_work_order_access_information_access_informatio");
 
-                    b.HasOne("RepairsApi.V1.Infrastructure.Site", "Site")
+                    b.HasOne("RepairsApi.V2.Infrastructure.Site", "Site")
                         .WithMany()
                         .HasForeignKey("SiteId")
                         .HasConstraintName("fk_work_orders_site_site_id");
 
-                    b.HasOne("RepairsApi.V1.Infrastructure.WorkClass", "WorkClass")
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkClass", "WorkClass")
                         .WithMany()
                         .HasForeignKey("WorkClassId")
                         .HasConstraintName("fk_work_orders_work_class_work_class_id");
 
-                    b.HasOne("RepairsApi.V1.Infrastructure.WorkPriority", "WorkPriority")
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkPriority", "WorkPriority")
                         .WithMany()
                         .HasForeignKey("WorkPriorityId")
                         .HasConstraintName("fk_work_orders_work_priorities_work_priority_id");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.WorkOrderAccessInformation", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrderAccessInformation", b =>
                 {
-                    b.OwnsOne("RepairsApi.V1.Infrastructure.KeySafe", "Keysafe", b1 =>
+                    b.OwnsOne("RepairsApi.V2.Infrastructure.KeySafe", "Keysafe", b1 =>
                         {
                             b1.Property<int>("WorkOrderAccessInformationId")
                                 .HasColumnName("id")

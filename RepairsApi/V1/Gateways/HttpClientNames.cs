@@ -1,4 +1,4 @@
-namespace RepairsApi.V1.Gateways
+namespace RepairsApi.V2.Gateways
 {
     public static class HttpClientNames
     {

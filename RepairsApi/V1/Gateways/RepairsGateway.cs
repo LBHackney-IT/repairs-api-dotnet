@@ -1,7 +1,7 @@
-using RepairsApi.V1.Infrastructure;
+using RepairsApi.V2.Infrastructure;
 using System.Threading.Tasks;
 
-namespace RepairsApi.V1.Gateways
+namespace RepairsApi.V2.Gateways
 {
     public class RepairsGateway : IRepairsGateway
     {

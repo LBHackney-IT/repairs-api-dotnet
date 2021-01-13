@@ -1,17 +1,17 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using RepairsApi.V1.Boundary.Response;
-using RepairsApi.V1.Domain;
-using RepairsApi.V1.Exceptions;
-using RepairsApi.V1.Factories;
-using RepairsApi.V1.UseCase;
-using RepairsApi.V1.UseCase.Interfaces;
+using RepairsApi.V2.Boundary.Response;
+using RepairsApi.V2.Domain;
+using RepairsApi.V2.Exceptions;
+using RepairsApi.V2.Factories;
+using RepairsApi.V2.UseCase;
+using RepairsApi.V2.UseCase.Interfaces;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
-namespace RepairsApi.V1.Controllers
+namespace RepairsApi.V2.Controllers
 {
     [ApiController]
     [Route("/api/v2/properties")]

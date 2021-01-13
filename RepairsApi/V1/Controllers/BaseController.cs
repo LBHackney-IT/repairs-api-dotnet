@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace RepairsApi.V1.Controllers
+namespace RepairsApi.V2.Controllers
 {
     public class BaseController : Controller
     {

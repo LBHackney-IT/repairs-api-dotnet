@@ -2,9 +2,9 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
-using RepairsApi.V1.Gateways;
-using RepairsApi.V1.Infrastructure;
-using RepairsApi.V1.UseCase;
+using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.UseCase;
 using System.Threading.Tasks;
 
 namespace RepairsApi.Tests.V1.UseCase

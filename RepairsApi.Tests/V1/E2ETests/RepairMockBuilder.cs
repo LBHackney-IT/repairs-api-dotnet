@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using RepairsApi.V1.Generated;
+using RepairsApi.V2.Generated;
 
 namespace RepairsApi.Tests.V1.E2ETests
 {

@@ -2,10 +2,10 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
-using RepairsApi.V1.Controllers;
-using RepairsApi.V1.Generated;
-using RepairsApi.V1.Infrastructure;
-using RepairsApi.V1.UseCase.Interfaces;
+using RepairsApi.V2.Controllers;
+using RepairsApi.V2.Generated;
+using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.UseCase.Interfaces;
 using System.Threading.Tasks;
 
 namespace RepairsApi.Tests.V1.Controllers

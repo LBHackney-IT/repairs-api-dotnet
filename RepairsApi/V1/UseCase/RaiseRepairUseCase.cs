@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Logging;
-using RepairsApi.V1.Gateways;
-using RepairsApi.V1.Infrastructure;
-using RepairsApi.V1.UseCase.Interfaces;
+using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.UseCase.Interfaces;
 using System.Threading.Tasks;
 
-namespace RepairsApi.V1.UseCase
+namespace RepairsApi.V2.UseCase
 {
     public class RaiseRepairUseCase : IRaiseRepairUseCase
     {

@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RepairsApi.V1.UseCase.Interfaces;
-using RepairsApi.V1.Boundary.Response;
+using RepairsApi.V2.UseCase.Interfaces;
+using RepairsApi.V2.Boundary.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace RepairsApi.V1.Controllers
+namespace RepairsApi.V2.Controllers
 {
     [ApiController]
     [Route("api/v2/schedule-of-rates")]

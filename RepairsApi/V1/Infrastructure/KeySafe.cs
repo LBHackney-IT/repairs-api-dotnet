@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace RepairsApi.V1.Infrastructure
+namespace RepairsApi.V2.Infrastructure
 {
     [Owned]
     public class KeySafe

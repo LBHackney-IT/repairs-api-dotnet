@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace RepairsApi.V1.Domain
+namespace RepairsApi.V2.Domain
 {
     public class HierarchyType
     {

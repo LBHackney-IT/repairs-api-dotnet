@@ -4,7 +4,7 @@ using Moq.Protected;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers;
-using RepairsApi.V1.Gateways;
+using RepairsApi.V2.Gateways;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;

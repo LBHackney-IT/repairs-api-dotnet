@@ -1,14 +1,14 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using RepairsApi.V1.Domain;
-using RepairsApi.V1.Exceptions;
-using RepairsApi.V1.Factories;
-using RepairsApi.V1.Gateways.Models;
+using RepairsApi.V2.Domain;
+using RepairsApi.V2.Exceptions;
+using RepairsApi.V2.Factories;
+using RepairsApi.V2.Gateways.Models;
 using System;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace RepairsApi.V1.Gateways
+namespace RepairsApi.V2.Gateways
 {
 #nullable enable
     public class TenancyGateway : ITenancyGateway

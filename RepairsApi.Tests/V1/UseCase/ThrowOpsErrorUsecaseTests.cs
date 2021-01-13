@@ -1,4 +1,4 @@
-using RepairsApi.V1.UseCase;
+using RepairsApi.V2.UseCase;
 using FluentAssertions;
 using NUnit.Framework;
 

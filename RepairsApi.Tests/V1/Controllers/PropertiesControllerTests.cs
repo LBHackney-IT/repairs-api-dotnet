@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
-using RepairsApi.V1.Boundary.Response;
-using RepairsApi.V1.Controllers;
-using RepairsApi.V1.Domain;
-using RepairsApi.V1.UseCase;
-using RepairsApi.V1.UseCase.Interfaces;
+using RepairsApi.V2.Boundary.Response;
+using RepairsApi.V2.Controllers;
+using RepairsApi.V2.Domain;
+using RepairsApi.V2.UseCase;
+using RepairsApi.V2.UseCase.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

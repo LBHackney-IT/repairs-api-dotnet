@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using RepairsApi.V1.Infrastructure;
+using RepairsApi.V2.Infrastructure;
 
-namespace RepairsApi.V1.Infrastructure.Migrations
+namespace RepairsApi.V2.Infrastructure.Migrations
 {
     [DbContext(typeof(RepairsContext))]
     [Migration("20201215161417_AddWorkElement")]
@@ -21,7 +21,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                 .HasAnnotation("ProductVersion", "3.1.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.RateScheduleItem", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.RateScheduleItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -47,7 +47,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     b.ToTable("rate_schedule_item");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.WorkElement", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkElement", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -71,15 +71,15 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     b.ToTable("work_element");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.RateScheduleItem", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.RateScheduleItem", b =>
                 {
-                    b.HasOne("RepairsApi.V1.Infrastructure.WorkElement", "WorkElement")
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkElement", "WorkElement")
                         .WithMany()
                         .HasForeignKey("WorkElementId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("RepairsApi.V1.Infrastructure.Quantity", "Quantity", b1 =>
+                    b.OwnsOne("RepairsApi.V2.Infrastructure.Quantity", "Quantity", b1 =>
                         {
                             b1.Property<Guid>("RateScheduleItemId")
                                 .HasColumnType("uuid");

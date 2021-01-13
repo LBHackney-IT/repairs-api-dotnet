@@ -1,8 +1,8 @@
-using RepairsApi.V1.Boundary.Response;
+using RepairsApi.V2.Boundary.Response;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace RepairsApi.V1.UseCase.Interfaces
+namespace RepairsApi.V2.UseCase.Interfaces
 {
 #nullable enable
     public class ListScheduleOfRatesUseCase : IListScheduleOfRatesUseCase

@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using RepairsApi.V1.Gateways;
-using RepairsApi.V1.Infrastructure;
+using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Infrastructure;
 using System;
 using System.Data.Common;
 

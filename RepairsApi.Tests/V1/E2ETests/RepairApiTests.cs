@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
-using RepairsApi.V1.Infrastructure;
+using RepairsApi.V2.Infrastructure;
 
 namespace RepairsApi.Tests.V1.E2ETests
 {

@@ -1,4 +1,4 @@
-namespace RepairsApi.V1.Boundary.Response
+namespace RepairsApi.V2.Boundary.Response
 {
     public class TenureViewModel
     {

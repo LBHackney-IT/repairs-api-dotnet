@@ -1,4 +1,4 @@
-namespace RepairsApi.V1.Domain
+namespace RepairsApi.V2.Domain
 {
     public class PropertyModel // Model suffix to avoid usage of keyword
     {

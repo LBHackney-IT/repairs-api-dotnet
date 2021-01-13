@@ -1,9 +1,9 @@
-using RepairsApi.V1.Domain;
-using RepairsApi.V1.Gateways;
-using RepairsApi.V1.UseCase.Interfaces;
+using RepairsApi.V2.Domain;
+using RepairsApi.V2.Gateways;
+using RepairsApi.V2.UseCase.Interfaces;
 using System.Threading.Tasks;
 
-namespace RepairsApi.V1.UseCase
+namespace RepairsApi.V2.UseCase
 {
 #nullable enable
     public class GetPropertyUseCase : IGetPropertyUseCase

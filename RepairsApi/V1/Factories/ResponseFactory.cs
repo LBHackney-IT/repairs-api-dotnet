@@ -1,9 +1,9 @@
-using RepairsApi.V1.Boundary.Response;
-using RepairsApi.V1.Domain;
+using RepairsApi.V2.Boundary.Response;
+using RepairsApi.V2.Domain;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace RepairsApi.V1.Factories
+namespace RepairsApi.V2.Factories
 {
     public static class ResponseFactory
     {

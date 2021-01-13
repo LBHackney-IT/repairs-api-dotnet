@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using RepairsApi.V1.UseCase;
+using RepairsApi.V2.UseCase;
 using Microsoft.AspNetCore.Mvc;
 
-namespace RepairsApi.V1.Controllers
+namespace RepairsApi.V2.Controllers
 {
     [Route("api/v2/healthcheck")]
     [ApiController]

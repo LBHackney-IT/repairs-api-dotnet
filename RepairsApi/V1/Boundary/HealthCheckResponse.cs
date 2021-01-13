@@ -1,4 +1,4 @@
-namespace RepairsApi.V1.Boundary
+namespace RepairsApi.V2.Boundary
 {
     public class HealthCheckResponse
     {

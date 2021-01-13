@@ -1,6 +1,6 @@
 using RepairsApi.V2.Enums;
 
-namespace RepairsApi.V1.Domain
+namespace RepairsApi.V2.Domain
 {
     public class SORPriority
     {

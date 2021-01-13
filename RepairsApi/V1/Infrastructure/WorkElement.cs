@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using CostSubjectCode = RepairsApi.V1.Generated.CostSubjectCode;
+using CostSubjectCode = RepairsApi.V2.Generated.CostSubjectCode;
 
-namespace RepairsApi.V1.Infrastructure
+namespace RepairsApi.V2.Infrastructure
 {
     public class WorkElement
     {

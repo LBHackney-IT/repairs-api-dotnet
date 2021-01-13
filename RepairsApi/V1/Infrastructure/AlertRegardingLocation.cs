@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using LocationAlertTypeCode = RepairsApi.V1.Generated.LocationAlertTypeCode;
+using LocationAlertTypeCode = RepairsApi.V2.Generated.LocationAlertTypeCode;
 
-namespace RepairsApi.V1.Infrastructure
+namespace RepairsApi.V2.Infrastructure
 {
     public class AlertRegardingLocation
     {

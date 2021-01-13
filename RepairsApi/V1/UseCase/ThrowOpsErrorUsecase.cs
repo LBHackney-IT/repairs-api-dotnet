@@ -1,5 +1,5 @@
 
-namespace RepairsApi.V1.UseCase
+namespace RepairsApi.V2.UseCase
 {
     public static class ThrowOpsErrorUsecase
     {

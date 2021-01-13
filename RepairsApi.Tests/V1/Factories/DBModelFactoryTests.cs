@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
-using RepairsApi.V1.Factories;
-using RepairsApi.V1.Generated;
+using RepairsApi.V2.Factories;
+using RepairsApi.V2.Generated;
 
 namespace RepairsApi.Tests.V1.Factories
 {

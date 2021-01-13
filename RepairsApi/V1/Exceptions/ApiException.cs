@@ -1,7 +1,7 @@
 using System;
 using System.Net;
 
-namespace RepairsApi.V1.Exceptions
+namespace RepairsApi.V2.Exceptions
 {
     public class ApiException : Exception
     {

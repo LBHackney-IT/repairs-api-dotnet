@@ -1,6 +1,6 @@
 using System;
 
-namespace RepairsApi.V1.UseCase
+namespace RepairsApi.V2.UseCase
 {
     public class TestOpsErrorException : Exception
     {

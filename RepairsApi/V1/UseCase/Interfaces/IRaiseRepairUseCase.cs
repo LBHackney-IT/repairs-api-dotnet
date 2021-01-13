@@ -1,7 +1,7 @@
-using RepairsApi.V1.Infrastructure;
+using RepairsApi.V2.Infrastructure;
 using System.Threading.Tasks;
 
-namespace RepairsApi.V1.UseCase.Interfaces
+namespace RepairsApi.V2.UseCase.Interfaces
 {
     public interface IRaiseRepairUseCase
     {

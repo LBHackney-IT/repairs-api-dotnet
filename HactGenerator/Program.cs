@@ -41,7 +41,7 @@ namespace SchemaGeneration
             {
                 DateTimeType = "System.DateTime",
                 DateType = "System.DateTime",
-                Namespace = "RepairsApi.V1.Generated",
+                Namespace = "RepairsApi.V2.Generated",
                 GenerateDefaultValues = false,
                 GenerateOptionalPropertiesAsNullable = true
             });

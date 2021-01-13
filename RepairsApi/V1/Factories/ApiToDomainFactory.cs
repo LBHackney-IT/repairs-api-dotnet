@@ -1,9 +1,9 @@
-using RepairsApi.V1.Domain;
-using RepairsApi.V1.Gateways.Models;
+using RepairsApi.V2.Domain;
+using RepairsApi.V2.Gateways.Models;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace RepairsApi.V1.Factories
+namespace RepairsApi.V2.Factories
 {
     public static class ApiToDomainFactory
     {

@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using RepairsApi.V1.Infrastructure;
+using RepairsApi.V2.Infrastructure;
 
-namespace RepairsApi.V1.Infrastructure.Migrations
+namespace RepairsApi.V2.Infrastructure.Migrations
 {
     [DbContext(typeof(RepairsContext))]
     [Migration("20201216152728_AddWorkPriority")]
@@ -21,7 +21,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                 .HasAnnotation("ProductVersion", "3.1.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.RateScheduleItem", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.RateScheduleItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -47,7 +47,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     b.ToTable("rate_schedule_item");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.WorkElement", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkElement", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -71,7 +71,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     b.ToTable("work_element");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.WorkPriority", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkPriority", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -104,7 +104,7 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                     b.ToTable("work_priority");
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.WorkPriorityCode", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkPriorityCode", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -148,15 +148,15 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.RateScheduleItem", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.RateScheduleItem", b =>
                 {
-                    b.HasOne("RepairsApi.V1.Infrastructure.WorkElement", "WorkElement")
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkElement", "WorkElement")
                         .WithMany("RateScheduleItem")
                         .HasForeignKey("WorkElementId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("RepairsApi.V1.Infrastructure.Quantity", "Quantity", b1 =>
+                    b.OwnsOne("RepairsApi.V2.Infrastructure.Quantity", "Quantity", b1 =>
                         {
                             b1.Property<Guid>("RateScheduleItemId")
                                 .HasColumnType("uuid");
@@ -178,9 +178,9 @@ namespace RepairsApi.V1.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("RepairsApi.V1.Infrastructure.WorkPriority", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkPriority", b =>
                 {
-                    b.HasOne("RepairsApi.V1.Infrastructure.WorkPriorityCode", "PriorityCode")
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkPriorityCode", "PriorityCode")
                         .WithMany()
                         .HasForeignKey("PriorityCodeId");
                 });

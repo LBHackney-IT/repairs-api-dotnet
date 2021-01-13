@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
-using WorkClassCode = RepairsApi.V1.Generated.WorkClassCode;
+using WorkClassCode = RepairsApi.V2.Generated.WorkClassCode;
 
-namespace RepairsApi.V1.Infrastructure
+namespace RepairsApi.V2.Infrastructure
 {
     public class WorkClass
     {

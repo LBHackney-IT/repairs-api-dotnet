@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace RepairsApi.V1.Gateways
+namespace RepairsApi.V2.Gateways
 {
 #nullable enable
     public class ApiResponse<T>

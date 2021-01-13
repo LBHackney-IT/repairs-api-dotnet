@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace RepairsApi.V1.Domain
+namespace RepairsApi.V2.Domain
 {
     public class PropertyWithAlerts
     {

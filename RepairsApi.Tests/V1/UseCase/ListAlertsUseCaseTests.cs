@@ -2,9 +2,9 @@ using Bogus;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using RepairsApi.V1.Domain;
-using RepairsApi.V1.Gateways;
-using RepairsApi.V1.UseCase;
+using RepairsApi.V2.Domain;
+using RepairsApi.V2.Gateways;
+using RepairsApi.V2.UseCase;
 using System.Threading.Tasks;
 
 using static RepairsApi.Tests.V1.DataFakers;

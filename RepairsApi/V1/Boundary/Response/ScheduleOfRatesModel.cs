@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using RepairsApi.V1.Domain;
+using RepairsApi.V2.Domain;
 
-namespace RepairsApi.V1.Boundary.Response
+namespace RepairsApi.V2.Boundary.Response
 {
     public class ScheduleOfRatesModel
     {
