@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using NUnit.Framework;
-using RepairsApi.V1.Infrastructure;
+using RepairsApi.V2.Infrastructure;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 
