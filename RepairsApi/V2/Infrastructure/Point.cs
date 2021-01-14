@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace RepairsApi.V2.Infrastructure
 {
@@ -6,8 +6,8 @@ namespace RepairsApi.V2.Infrastructure
     {
         [Key] public int Id { get; set; }
         public int Sequence { get; set; }
-        public double Easting { get; set; }
-        public double Northing { get; set; }
+        public double? Easting { get; set; }
+        public double? Northing { get; set; }
     }
 
 

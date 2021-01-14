@@ -10,8 +10,8 @@ namespace RepairsApi.V2.Infrastructure
     {
         [Key] public int Id { get; set; }
         public virtual List<WorkElement> RelatedWorkElement { get; set; }
-        public DateTime EventTime { get; set; }
-        public JobStatusUpdateTypeCode TypeCode { get; set; }
+        public DateTime? EventTime { get; set; }
+        public JobStatusUpdateTypeCode? TypeCode { get; set; }
         public string OtherType { get; set; }
         public virtual List<Person> OperativesAssigned { get; set; }
         public virtual Appointment RefinedAppointmentWindow { get; set; }
