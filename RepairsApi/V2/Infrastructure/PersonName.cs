@@ -1,10 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace RepairsApi.V2.Infrastructure
 {
+    [Owned]
     public class PersonName
     {
-        [Key] public int Id { get; set; }
         public string Full { get; set; }
     }
 

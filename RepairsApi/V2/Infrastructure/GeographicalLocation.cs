@@ -13,7 +13,5 @@ namespace RepairsApi.V2.Infrastructure
         public string PositionalAccuracy { get; set; }
         public virtual List<Point> Polyline { get; set; }
     }
-
-
 }
 

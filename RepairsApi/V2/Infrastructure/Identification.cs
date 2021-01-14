@@ -1,10 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace RepairsApi.V2.Infrastructure
 {
+    [Owned]
     public class Identification
     {
-        [Key] public int Id { get; set; }
         public string Type { get; set; }
         public string Number { get; set; }
     }

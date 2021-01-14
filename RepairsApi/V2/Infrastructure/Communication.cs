@@ -1,10 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace RepairsApi.V2.Infrastructure
 {
+    [Owned]
     public class Communication
     {
-        [Key] public int Id { get; set; }
         public virtual CommunicationChannel Channel { get; set; }
         public string Value { get; set; }
     }
