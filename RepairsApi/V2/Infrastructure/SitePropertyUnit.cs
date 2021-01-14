@@ -15,11 +15,15 @@ namespace RepairsApi.V2.Infrastructure
         [Key] public int Id { get; set; }
         public virtual ICollection<Unit> Unit { get; set; }
         public virtual PropertyAddress Address { get; set; }
+        public string MasterKeySystem { get; set; }
+        public virtual GeographicalLocation GeographicalLocation { get; set; }
     }
 
     public class Site
     {
         [Key] public int Id { get; set; }
         public virtual ICollection<PropertyClass> PropertyClass { get; set; }
+        public string Name { get; set; }
+        public virtual GeographicalLocation GeographicalLocation { get; set; }
     }
 }
