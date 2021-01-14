@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+using RepairsApi.V2.Generated;
+using System.ComponentModel.DataAnnotations;
 
 namespace RepairsApi.V2.Infrastructure
 {
@@ -6,7 +7,7 @@ namespace RepairsApi.V2.Infrastructure
     {
         [Key] public int Id { get; set; }
         public CommunicationMediumCode Medium { get; set; }
-        public CommunicationChannelCode Code { get; set; }
+        public CommunicationChannelCodeC0 Code { get; set; }
     }
 
 
