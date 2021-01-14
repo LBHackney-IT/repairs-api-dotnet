@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace RepairsApi.V2.Infrastructure
 {
@@ -8,7 +8,5 @@ namespace RepairsApi.V2.Infrastructure
         public string Name { get; set; }
         public string Role { get; set; }
     }
-
-
 }
 

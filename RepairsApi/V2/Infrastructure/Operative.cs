@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace RepairsApi.V2.Infrastructure
@@ -10,7 +10,5 @@ namespace RepairsApi.V2.Infrastructure
         public virtual List<Trade> Trade { get; set; }
         public virtual List<WorkElement> WorkElement { get; set; }
     }
-
-
 }
 

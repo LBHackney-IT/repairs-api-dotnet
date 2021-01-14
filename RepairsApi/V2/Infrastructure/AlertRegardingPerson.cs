@@ -10,5 +10,4 @@ namespace RepairsApi.V2.Infrastructure
         public string Comments { get; set; }
         public PersonAlertTypeCode? Type { get; set; }
     }
-
 }

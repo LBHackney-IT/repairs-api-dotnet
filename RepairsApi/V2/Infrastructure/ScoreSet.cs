@@ -14,7 +14,5 @@ namespace RepairsApi.V2.Infrastructure
         public string Description { get; set; }
         public virtual List<Categorization> Categorization { get; set; }
     }
-
-
 }
 

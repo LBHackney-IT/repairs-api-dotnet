@@ -8,7 +8,5 @@ namespace RepairsApi.V2.Infrastructure
         public string Type { get; set; }
         public string Number { get; set; }
     }
-
-
 }
 

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace RepairsApi.V2.Infrastructure
 {
@@ -8,7 +8,5 @@ namespace RepairsApi.V2.Infrastructure
         public virtual PersonName Name { get; set; }
         public virtual Identification Identification { get; set; }
     }
-
-
 }
 

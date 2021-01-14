@@ -10,7 +10,5 @@ namespace RepairsApi.V2.Infrastructure
         public CommunicationMediumCode? Medium { get; set; }
         public CommunicationChannelCodeC0? Code { get; set; }
     }
-
-
 }
 

@@ -31,5 +31,4 @@ namespace RepairsApi.V2.Infrastructure
         public string Description { get; set; }
         public virtual KeySafe Keysafe { get; set; }
     }
-
 }

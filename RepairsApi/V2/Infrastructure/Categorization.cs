@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace RepairsApi.V2.Infrastructure
 {
@@ -10,7 +10,5 @@ namespace RepairsApi.V2.Infrastructure
         public string VersionUsed { get; set; }
         public string SubCategory { get; set; }
     }
-
-
 }
 

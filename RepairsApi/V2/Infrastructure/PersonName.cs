@@ -7,7 +7,5 @@ namespace RepairsApi.V2.Infrastructure
     {
         public string Full { get; set; }
     }
-
-
 }
 

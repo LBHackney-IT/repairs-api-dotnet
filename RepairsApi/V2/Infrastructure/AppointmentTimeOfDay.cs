@@ -4,7 +4,6 @@ using System;
 
 namespace RepairsApi.V2.Infrastructure
 {
-
     [Owned]
     public class AppointmentTimeOfDay
     {
@@ -13,7 +12,5 @@ namespace RepairsApi.V2.Infrastructure
         public DateTime? LatestArrivalTime { get; set; }
         public DateTime? LatestCompletionTime { get; set; }
     }
-
-
 }
 

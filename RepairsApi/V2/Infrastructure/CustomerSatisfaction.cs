@@ -10,7 +10,5 @@ namespace RepairsApi.V2.Infrastructure
         public virtual Party PartyCarryingOutSurvey { get; set; }
         public virtual List<ScoreSet> FeedbackSet { get; set; }
     }
-
-
 }
 
