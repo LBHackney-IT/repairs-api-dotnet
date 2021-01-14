@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace RepairsApi.V2.Infrastructure
 {
@@ -12,7 +12,5 @@ namespace RepairsApi.V2.Infrastructure
         public string FollowUpQuestion { get; set; }
         public string Comment { get; set; }
     }
-
-
 }
 
