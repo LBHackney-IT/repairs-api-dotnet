@@ -9,7 +9,5 @@ namespace RepairsApi.V2.Infrastructure
         public double? Easting { get; set; }
         public double? Northing { get; set; }
     }
-
-
 }
 
