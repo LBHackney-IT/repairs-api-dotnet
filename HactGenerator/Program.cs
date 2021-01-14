@@ -14,6 +14,7 @@ namespace SchemaGeneration
         {
             Run("RaiseRepair-M3SoR-v7").Wait();
             Run("WorkOrderComplete-M3SoR-v7").Wait();
+            Run("JobStatusUpdate-M3SoR-v7").Wait();
         }
 
         public static async Task Run(string file)
