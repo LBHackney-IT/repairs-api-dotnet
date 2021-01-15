@@ -26,5 +26,10 @@ namespace RepairsApi.V2.Gateways
         {
             return _repairsContext.WorkOrders.ToList();
         }
+
+        public WorkOrder GetWorkOrder(int id)
+        {
+            return _repairsContext.WorkOrders.Find(id);
+        }
     }
 }

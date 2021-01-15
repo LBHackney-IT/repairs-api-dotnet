@@ -8,10 +8,13 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RepairsApi.V2.Boundary.Response;
+using RepairsApi.V2.Generated;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using RepairsApi.V2.Infrastructure;
+using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 
 namespace RepairsApi.Tests.V2.E2ETests
 {
@@ -92,7 +95,37 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             string responseContent = await response.Content.ReadAsStringAsync();
             var workOrders = JsonConvert.DeserializeObject<List<WorkOrderListItem>>(responseContent);
-            workOrders.Should().ContainSingle(wo => wo.Description == request.DescriptionOfWork);
+            workOrders.Should().Contain(wo => wo.Description == request.DescriptionOfWork);
+        }
+
+        [Test]
+        public async Task CompleteWorkOrder()
+        {
+            var client = CreateClient();
+
+            var request = RepairMockBuilder.CreateFullRaiseRepair();
+            request.DescriptionOfWork = "expectedDescription";
+            var serializedContent = JsonConvert.SerializeObject(request);
+            StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
+
+            await RaiseRepairAndValidate(client, content);
+
+            var response = await client.GetAsync(new Uri("/api/v2/repairs", UriKind.Relative));
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var workOrders = JsonConvert.DeserializeObject<List<WorkOrderListItem>>(responseContent);
+
+            var completeRequest = new WorkOrderComplete
+            {
+                WorkOrderReference = new Reference
+                {
+                    ID = workOrders.First().Reference.ToString()
+                }
+            };
+
+            var serializedCompleteContent = JsonConvert.SerializeObject(completeRequest);
+            StringContent completeContent = new StringContent(serializedCompleteContent, Encoding.UTF8, "application/json");
+            var completeResponse = await client.PostAsync(new Uri("/api/v2/workOrderComplete", UriKind.Relative), completeContent);
+            completeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         }
 
         private async Task RaiseRepairAndValidate(HttpClient client, StringContent content, Action<WorkOrder> assertions = null)
@@ -110,6 +143,5 @@ namespace RepairsApi.Tests.V2.E2ETests
                 assertions?.Invoke(repair);
             });
         }
-
     }
 }
