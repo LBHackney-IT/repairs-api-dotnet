@@ -20,7 +20,9 @@ namespace RepairsApi.V2.UseCase
         {
             var workOrders = _repairsGateway.GetWorkOrders();
 
-            return workOrders.Select(wo => wo.ToResponse()).ToList();
+            return workOrders.Select(wo => wo.ToResponse())
+                .OrderByDescending(wo => wo.DateRaised)
+                .ToList();
         }
     }
 }
