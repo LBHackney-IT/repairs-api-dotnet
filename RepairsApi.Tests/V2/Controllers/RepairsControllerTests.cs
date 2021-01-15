@@ -15,6 +15,7 @@ using RepairsApi.V2.Factories;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Generated;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
+using RepairsApi.Tests.Helpers.StubGeneration;
 
 namespace RepairsApi.Tests.V2.Controllers
 {
@@ -42,18 +43,8 @@ namespace RepairsApi.Tests.V2.Controllers
 
         private void ConfigureGenerator()
         {
-            _generator = new Generator<WorkOrder>(new Dictionary<Type, IGenerator>
-            {
-                {
-                    typeof(string), new RandomStringGenerator(10)
-                },
-                {
-                    typeof(double), new RandomDoubleGenerator(0, 50)
-                },
-                {
-                    typeof(bool), new RandomBoolGenerator()
-                }
-            });
+            _generator = new Generator<WorkOrder>()
+                .AddDefaultValueGenerators();
         }
 
         [Test]
