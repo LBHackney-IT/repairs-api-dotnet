@@ -434,13 +434,13 @@ namespace RepairsApi.V2.Generated
         public string Name { get; set; }
 
         [Newtonsoft.Json.JsonProperty("EarliestArrivalTime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public object EarliestArrivalTime { get; set; }
+        public System.DateTime EarliestArrivalTime { get; set; }
 
         [Newtonsoft.Json.JsonProperty("LatestArrivalTime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public object LatestArrivalTime { get; set; }
+        public System.DateTime LatestArrivalTime { get; set; }
 
         [Newtonsoft.Json.JsonProperty("LatestCompletionTime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public object LatestCompletionTime { get; set; }
+        public System.DateTime LatestCompletionTime { get; set; }
 
 
     }
