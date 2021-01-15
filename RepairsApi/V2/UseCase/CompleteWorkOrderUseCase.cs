@@ -53,12 +53,12 @@ namespace RepairsApi.V2.UseCase
         {
             if (!(request.JobStatusUpdates is null))
             {
-                if (request.JobStatusUpdates.Any(jsu => !(jsu.RelatedWorkElementReference is null) && jsu.RelatedWorkElementReference.Count > 0))
+                if (request.JobStatusUpdates.Any(jsu => jsu.RelatedWorkElementReference != null && jsu.RelatedWorkElementReference.Count > 0))
                     throw new NotSupportedException("Related work element references not supported during job completion.");
-                if (request.JobStatusUpdates.Any(jsu => !(jsu.AdditionalWork is null)))
+                if (request.JobStatusUpdates.Any(jsu => jsu.AdditionalWork != null))
                     throw new NotSupportedException("Additional work not supported during job completion.");
             }
-            if (!(request.FollowOnWorkOrderReference is null) && request.FollowOnWorkOrderReference.Count > 0)
+            if (request.FollowOnWorkOrderReference != null && request.FollowOnWorkOrderReference.Count > 0)
                 throw new NotSupportedException("Follow on work order reference not supported during job completion.");
         }
 

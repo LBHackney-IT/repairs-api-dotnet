@@ -4,7 +4,6 @@ using RepairsApi.V2.Generated;
 using RepairsApi.V2.UseCase.Interfaces;
 using System;
 using System.Threading.Tasks;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -53,9 +52,16 @@ namespace RepairsApi.V2.Controllers
         [Route("/api/v2/workOrderComplete")]
         public async Task<IActionResult> WorkOrderComplete([FromBody] WorkOrderComplete request)
         {
-            var result = await _completeWorkOrderUseCase.Execute(request);
+            try
+            {
+                var result = await _completeWorkOrderUseCase.Execute(request);
+                return result ? (IActionResult) Ok() : BadRequest();
+            }
+            catch (NotSupportedException e)
+            {
+                return BadRequest(e.Message);
+            }
 
-            return result ? (IActionResult) Ok() : BadRequest();
         }
     }
 
