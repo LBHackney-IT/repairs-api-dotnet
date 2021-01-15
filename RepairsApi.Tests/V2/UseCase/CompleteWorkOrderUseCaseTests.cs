@@ -50,9 +50,7 @@ namespace RepairsApi.Tests.V2.UseCase
         public async Task CanCompleteWorkOrder()
         {
             // arrange
-            var expectedWorkOrder = _generator.Generate();
-            _repairsGatewayMock.Setup(r => r.GetWorkOrder(expectedWorkOrder.Id))
-                .ReturnsAsync(expectedWorkOrder);
+            var expectedWorkOrder = CreateWorkOrder();
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
 
             // act
@@ -70,9 +68,7 @@ namespace RepairsApi.Tests.V2.UseCase
         public async Task CanCompleteWorkOrderWithJobStatusUpdates()
         {
             // arrange
-            var expectedWorkOrder = _generator.Generate();
-            _repairsGatewayMock.Setup(r => r.GetWorkOrder(expectedWorkOrder.Id))
-                .ReturnsAsync(expectedWorkOrder);
+            var expectedWorkOrder = CreateWorkOrder();
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
             workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
             {
@@ -106,6 +102,53 @@ namespace RepairsApi.Tests.V2.UseCase
             result.Should().BeFalse();
         }
 
+        [Test]
+        public void ThrowsExceptionWhenRelatedWorkElementPresent()
+        {
+            // arrange
+            var expectedWorkOrder = CreateWorkOrder();
+            var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
+            workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
+            {
+                new Generated.JobStatusUpdates
+                {
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0,
+                    OtherType = "expectedOtherType",
+                    Comments = "expectedComment",
+                    RelatedWorkElementReference = new List<Generated.Reference>
+                    {
+                        new Generated.Reference()
+                    }
+                }
+            };
+
+            // act
+            // assert
+            Assert.ThrowsAsync<NotSupportedException>(() => _classUnderTest.Execute(workOrderCompleteRequest));
+        }
+
+        [Test]
+        public void ThrowsExceptionWhenAdditionalWorkPresent()
+        {
+            // arrange
+            var expectedWorkOrder = CreateWorkOrder();
+            var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
+            workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
+            {
+                new Generated.JobStatusUpdates
+                {
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0,
+                    OtherType = "expectedOtherType",
+                    Comments = "expectedComment",
+                    AdditionalWork = new Generated.AdditionalWork()
+                }
+            };
+
+            // act
+            // assert
+            Assert.ThrowsAsync<NotSupportedException>(() => _classUnderTest.Execute(workOrderCompleteRequest));
+        }
+
         private static Generated.WorkOrderComplete CreateRequest(int expectedWorkOrderId)
         {
             var request = new Generated.WorkOrderComplete
@@ -116,6 +159,15 @@ namespace RepairsApi.Tests.V2.UseCase
                 }
             };
             return request;
+        }
+
+        private WorkOrder CreateWorkOrder()
+        {
+
+            var expectedWorkOrder = _generator.Generate();
+            _repairsGatewayMock.Setup(r => r.GetWorkOrder(expectedWorkOrder.Id))
+                .Returns(expectedWorkOrder);
+            return expectedWorkOrder;
         }
     }
 

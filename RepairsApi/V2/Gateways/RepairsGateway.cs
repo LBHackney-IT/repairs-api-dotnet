@@ -27,9 +27,9 @@ namespace RepairsApi.V2.Gateways
             return _repairsContext.WorkOrders.ToList();
         }
 
-        public Task<WorkOrder> GetWorkOrder(int id)
+        public WorkOrder GetWorkOrder(int id)
         {
-            throw new System.NotImplementedException();
+            return _repairsContext.WorkOrders.Find(id);
         }
     }
 }
