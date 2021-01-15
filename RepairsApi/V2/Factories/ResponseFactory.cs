@@ -103,7 +103,7 @@ namespace RepairsApi.V2.Factories
                 Owner = "", // TODO: populate owner
                 Priority = workOrder.WorkPriority.PriorityDescription,
                 Property = "", // TODO: populate address
-                DateRaised = workOrder.DateReported,
+                DateRaised = workOrder.DateRaised,
                 LastUpdated = null
             };
         }
