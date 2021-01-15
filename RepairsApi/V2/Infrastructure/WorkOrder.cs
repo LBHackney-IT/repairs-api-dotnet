@@ -14,6 +14,7 @@ namespace RepairsApi.V2.Infrastructure
         public WorkType? WorkType { get; set; }
         public string ParkingArrangements { get; set; }
         public string LocationOfRepair { get; set; }
+        public DateTime? DateRaised { get; set; }
         public DateTime? DateReported { get; set; }
         public virtual WorkClass WorkClass { get; set; }
 
