@@ -15,13 +15,17 @@ namespace RepairsApi.V2.Controllers
     {
         private readonly IRaiseRepairUseCase _raiseRepairUseCase;
         private readonly IListWorkOrdersUseCase _listWorkOrdersUseCase;
+        private readonly ICompleteWorkOrderUseCase _completeWorkOrderUseCase;
 
         public RepairsController(
             IRaiseRepairUseCase raiseRepairUseCase,
-            IListWorkOrdersUseCase listWorkOrdersUseCase)
+            IListWorkOrdersUseCase listWorkOrdersUseCase,
+            ICompleteWorkOrderUseCase completeWorkOrderUseCase
+        )
         {
             _raiseRepairUseCase = raiseRepairUseCase;
             _listWorkOrdersUseCase = listWorkOrdersUseCase;
+            _completeWorkOrderUseCase = completeWorkOrderUseCase;
         }
 
         [HttpPost]
@@ -42,6 +46,22 @@ namespace RepairsApi.V2.Controllers
         public IActionResult GetList()
         {
             return Ok(_listWorkOrdersUseCase.Execute());
+        }
+
+        [HttpPost]
+        [Route("/api/v2/workOrderComplete")]
+        public async Task<IActionResult> WorkOrderComplete([FromBody] WorkOrderComplete request)
+        {
+            try
+            {
+                var result = await _completeWorkOrderUseCase.Execute(request);
+                return result ? (IActionResult) Ok() : BadRequest();
+            }
+            catch (NotSupportedException e)
+            {
+                return BadRequest(e.Message);
+            }
+
         }
     }
 
