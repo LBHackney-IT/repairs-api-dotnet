@@ -11,6 +11,7 @@ using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
 using Generated = RepairsApi.V2.Generated;
 using RepairsApi.V2.UseCase;
+using RepairsApi.Tests.Helpers.StubGeneration;
 
 namespace RepairsApi.Tests.V2.UseCase
 {
@@ -24,26 +25,16 @@ namespace RepairsApi.Tests.V2.UseCase
         [SetUp]
         public void Setup()
         {
-            configureGenerator();
+            ConfigureGenerator();
             _repairsGatewayMock = new Mock<IRepairsGateway>();
             _workOrderCompletionGatewayMock = new MockWorkOrderCompletionGateway();
             _classUnderTest = new CompleteWorkOrderUseCase(_repairsGatewayMock.Object, _workOrderCompletionGatewayMock.Object);
         }
 
-        private void configureGenerator()
+        private void ConfigureGenerator()
         {
-            _generator = new Generator<WorkOrder>(new Dictionary<Type, IGenerator>
-            {
-                {
-                    typeof(string), new RandomStringGenerator(10)
-                },
-                {
-                    typeof(double), new RandomDoubleGenerator(0, 50)
-                },
-                {
-                    typeof(bool), new RandomBoolGenerator()
-                }
-            });
+            _generator = new Generator<WorkOrder>()
+                .AddDefaultValueGenerators();
         }
 
         [Test]

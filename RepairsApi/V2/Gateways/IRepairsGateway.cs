@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 
 namespace RepairsApi.V2.Gateways
 {
+#nullable enable
     public interface IRepairsGateway
     {
         Task<int> CreateWorkOrder(WorkOrder raiseRepair);
         IEnumerable<WorkOrder> GetWorkOrders();
-        WorkOrder GetWorkOrder(int id);
+        WorkOrder? GetWorkOrder(int id);
     }
 }

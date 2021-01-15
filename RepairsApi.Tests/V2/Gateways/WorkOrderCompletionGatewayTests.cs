@@ -5,6 +5,7 @@ using FluentAssertions;
 using FluentAssertions.Common;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers;
+using RepairsApi.Tests.Helpers.StubGeneration;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
 
@@ -24,18 +25,8 @@ namespace RepairsApi.Tests.V2.Gateways
 
         private void SetupGenerator()
         {
-            _generator = new Generator<WorkOrderComplete>(new Dictionary<Type, IGenerator>
-            {
-                {
-                    typeof(string), new RandomStringGenerator(10)
-                },
-                {
-                    typeof(double), new RandomDoubleGenerator(0, 50)
-                },
-                {
-                    typeof(bool), new RandomBoolGenerator()
-                }
-            });
+            _generator = new Generator<WorkOrderComplete>()
+                .AddDefaultValueGenerators();
         }
 
         [TearDown]
