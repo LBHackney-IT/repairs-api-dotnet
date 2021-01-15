@@ -102,7 +102,7 @@ namespace RepairsApi.Tests.V2.Controllers
         }
 
         [Test]
-        public async Task ReturnsBadRequestWhenCanCompleteWorkOrder()
+        public async Task ReturnsBadRequestWhenCantCompleteWorkOrder()
         {
             // arrange
             UseCaseReturns(false);
