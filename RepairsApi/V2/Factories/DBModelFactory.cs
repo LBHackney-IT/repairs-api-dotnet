@@ -189,5 +189,101 @@ namespace RepairsApi.V2.Factories
 
             return source.Select(map).ToList();
         }
+
+        public static CustomerSatisfaction ToDb(this Generated.CustomerFeedback customerFeedback)
+        {
+            return new CustomerSatisfaction
+            {
+                FeedbackSet = customerFeedback.FeedbackSet.Select(f => f.ToDb()).ToList(),
+                PartyProvidingFeedback = customerFeedback.PartyProvidingFeedback.ToDb(),
+                PartyCarryingOutSurvey = customerFeedback.PartyCarryingOutSurvey.ToDb()
+            };
+        }
+
+        public static ScoreSet ToDb(this Generated.FeedbackSet feedbackSet)
+        {
+            return new ScoreSet
+            {
+                Categorization = feedbackSet.Categorization.Select(c => c.ToDb()).ToList(),
+                Description = feedbackSet.Description,
+                Score = feedbackSet.Score.Select(s => s.ToDb()).ToList(),
+                DateTime = feedbackSet.DateTime,
+                PreviousDateTime = feedbackSet.PreviousDateTime
+            };
+        }
+
+        public static Categorization ToDb(this Generated.Categorization categorization)
+        {
+            return new Categorization
+            {
+                Category = categorization.Category,
+                Type = categorization.Type,
+                SubCategory = categorization.SubCategory,
+                VersionUsed = categorization.VersionUsed
+            };
+        }
+
+        public static Score ToDb(this Generated.Score score)
+        {
+            return new Score
+            {
+                Comment = score.Comment,
+                Maximum = score.Maximum,
+                Minimum = score.Minimum,
+                Name = score.Name,
+                CurrentScore = score.CurrentScore,
+                FollowUpQuestion = score.FollowUpQuestion
+            };
+        }
+
+        public static Party ToDb(this Generated.Party party)
+        {
+            return new Party
+            {
+                Name = party.Name,
+                Role = party.Role
+            };
+        }
+
+        public static Person ToDb(this Generated.OperativesAssigned operativesAssigned)
+        {
+            return new Person
+            {
+                Identification = operativesAssigned.Identification.ToDb(),
+                Name = new PersonName
+                {
+                    Full = operativesAssigned.NameFull
+                }
+            };
+        }
+
+        public static Identification ToDb(this Generated.Identification identification)
+        {
+            return new Identification
+            {
+                Number = identification.Number,
+                Type = identification.Type
+            };
+        }
+
+        public static Appointment ToDb(this Generated.RefinedAppointmentWindow refinedAppointmentWindow)
+        {
+            return new Appointment
+            {
+                Date = refinedAppointmentWindow.Date,
+                TimeOfDay = refinedAppointmentWindow.TimeOfDay.ToDb()
+            };
+        }
+
+        public static AppointmentTimeOfDay ToDb(this Generated.TimeOfDay timeOfDay)
+        {
+            return new AppointmentTimeOfDay
+            {
+                Name = timeOfDay.Name,
+                EarliestArrivalTime = timeOfDay.EarliestArrivalTime,
+                LatestArrivalTime = timeOfDay.LatestArrivalTime,
+                LatestCompletionTime = timeOfDay.LatestCompletionTime
+            };
+        }
     }
 }

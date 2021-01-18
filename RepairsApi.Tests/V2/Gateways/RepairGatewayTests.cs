@@ -54,6 +54,21 @@ namespace RepairsApi.Tests.V2.Gateways
             workOrders.Should().ContainSingle().Which.Should().BeEquivalentTo(expectedWorkOrders);
         }
 
+        [Test]
+        public async Task CanGetWorkOrderById()
+        {
+            // arrange
+            var expectedWorkOrder = CreateWorkOrder();
+            await InMemoryDb.Instance.WorkOrders.AddAsync(expectedWorkOrder);
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            // act
+            var workOrders = _classUnderTest.GetWorkOrder(expectedWorkOrder.Id);
+
+            // assert
+            workOrders.Should().BeEquivalentTo(expectedWorkOrder);
+        }
+
         private static WorkOrder CreateWorkOrder()
         {
 

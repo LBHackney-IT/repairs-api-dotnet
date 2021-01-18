@@ -4,6 +4,7 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers;
+using RepairsApi.Tests.Helpers.StubGeneration;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase;
@@ -27,18 +28,8 @@ namespace RepairsApi.Tests.V2.UseCase
 
         private void configureGenerator()
         {
-            _generator = new Generator<WorkOrder>(new Dictionary<Type, IGenerator>
-            {
-                {
-                    typeof(string), new RandomStringGenerator(10)
-                },
-                {
-                    typeof(double), new RandomDoubleGenerator(0, 50)
-                },
-                {
-                    typeof(bool), new RandomBoolGenerator()
-                }
-            });
+            _generator = new Generator<WorkOrder>()
+                .AddDefaultValueGenerators();
         }
 
         [Test]

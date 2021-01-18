@@ -1,27 +1,35 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace RepairsApi.Tests.Helpers
+namespace RepairsApi.Tests.Helpers.StubGeneration
 {
 
-    class Generator<T>
+    public class Generator<T>
     {
-        private readonly Dictionary<Type, IGenerator> _generators;
+        private readonly Dictionary<Type, IValueGenerator> _generators;
         private readonly Stack<Type> _typeStack;
 
         public Generator()
-            : this(new Dictionary<Type, IGenerator>())
+            : this(new Dictionary<Type, IValueGenerator>())
         {
         }
 
-        public Generator(Dictionary<Type, IGenerator> generators)
+        public Generator(Dictionary<Type, IValueGenerator> generators)
         {
             _typeStack = new Stack<Type>();
             _generators = generators;
 
-            _generators.TryAdd(typeof(string), new Generator(() => string.Empty));
+            _generators.TryAdd(typeof(string), new SimpleValueGenerator<string>(() => string.Empty));
+        }
+
+        public Generator<T> AddGenerator<TValue>(AbstractValueGenerator<TValue> generator)
+        {
+            Type valueType = typeof(TValue);
+            if (_generators.ContainsKey(valueType)) _generators.Remove(valueType);
+
+            _generators.Add(valueType, generator);
+            return this;
         }
 
         public T Generate()
@@ -50,7 +58,7 @@ namespace RepairsApi.Tests.Helpers
 
             _typeStack.Push(actualType);
 
-            IGenerator gen;
+            IValueGenerator gen;
             if (_generators.TryGetValue(actualType, out gen))
             {
                 _typeStack.Pop();
@@ -99,73 +107,37 @@ namespace RepairsApi.Tests.Helpers
         }
     }
 
-    public interface IGenerator
+    public interface IValueGenerator
     {
         object Create();
     }
 
-    public class Generator : IGenerator
+    public abstract class AbstractValueGenerator<T> : IValueGenerator
     {
-        private readonly Func<object> _gen;
-
-        public Generator(Func<object> gen)
+        public object Create()
         {
-            _gen = gen;
+            return GenerateValue();
         }
 
-        public object Create()
+        public abstract T GenerateValue();
+    }
+
+    public class SimpleValueGenerator<T> : AbstractValueGenerator<T>
+    {
+        private readonly Func<T> _gen;
+
+        public SimpleValueGenerator(T value)
+            : this(() => value)
+        { }
+
+        public SimpleValueGenerator(Func<T> generatorFunction)
+        {
+            _gen = generatorFunction;
+        }
+
+        public override T GenerateValue()
         {
             return _gen.Invoke();
-        }
-    }
-
-    public class RandomStringGenerator : IGenerator
-    {
-        private readonly int _length;
-        private static readonly Random _random = new Random();
-
-        public RandomStringGenerator(int length)
-        {
-            _length = length;
-        }
-
-        public object Create()
-        {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            return new string(Enumerable.Repeat(chars, _length)
-                .Select(s => s[_random.Next(s.Length)]).ToArray());
-        }
-    }
-
-    public class RandomDoubleGenerator : IGenerator
-    {
-        private readonly double _min;
-        private readonly double _max;
-        private static readonly Random _random = new Random();
-
-        public RandomDoubleGenerator(double min = 0, double max = 10)
-        {
-            _min = min;
-            _max = max;
-        }
-
-        public object Create()
-        {
-            return (_random.NextDouble() * (_max - _min)) + _min;
-        }
-    }
-
-    public class RandomBoolGenerator : IGenerator
-    {
-        private static readonly Random _random = new Random();
-
-        public RandomBoolGenerator()
-        {
-        }
-
-        public object Create()
-        {
-            return _random.NextDouble() >= 0.5;
         }
     }
 }

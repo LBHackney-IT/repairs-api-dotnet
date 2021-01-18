@@ -1,12 +1,13 @@
+using Microsoft.EntityFrameworkCore;
 using RepairsApi.V2.Generated;
 using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace RepairsApi.V2.Infrastructure
 {
+    [Owned]
     public class WorkPriority
     {
-        [Key] public Guid Id { get; set; }
         public WorkPriorityCode? PriorityCode { get; set; }
         public DateTime? RequiredCompletionDateTime { get; set; }
         public string PriorityDescription { get; set; }

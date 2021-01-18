@@ -15,73 +15,73 @@ namespace RepairsApi.V2.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.10")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+                .UseIdentityByDefaultColumns()
+                .HasAnnotation("Relational:MaxIdentifierLength", 63)
+                .HasAnnotation("ProductVersion", "5.0.2");
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Address", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<string>("AddressLine")
-                        .HasColumnName("address_line")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("address_line");
 
                     b.Property<string>("BuildingName")
-                        .HasColumnName("building_name")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("building_name");
 
                     b.Property<string>("BuildingNumber")
-                        .HasColumnName("building_number")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("building_number");
 
                     b.Property<string>("CityName")
-                        .HasColumnName("city_name")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("city_name");
 
                     b.Property<string>("ComplexName")
-                        .HasColumnName("complex_name")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("complex_name");
 
                     b.Property<int?>("Country")
-                        .HasColumnName("country")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("country");
 
                     b.Property<string>("Department")
-                        .HasColumnName("department")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("department");
 
                     b.Property<string>("Floor")
-                        .HasColumnName("floor")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("floor");
 
                     b.Property<string>("Plot")
-                        .HasColumnName("plot")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("plot");
 
                     b.Property<string>("PostalCode")
-                        .HasColumnName("postal_code")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("postal_code");
 
                     b.Property<string>("Postbox")
-                        .HasColumnName("postbox")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("postbox");
 
                     b.Property<string>("Room")
-                        .HasColumnName("room")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("room");
 
                     b.Property<string>("StreetName")
-                        .HasColumnName("street_name")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("street_name");
 
                     b.Property<string>("Type")
-                        .HasColumnName("type")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("type");
 
                     b.HasKey("Id")
                         .HasName("pk_address");
@@ -93,99 +93,363 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<string>("Comments")
-                        .HasColumnName("comments")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("comments");
 
                     b.Property<int?>("Type")
-                        .HasColumnName("type")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
 
                     b.Property<int?>("WorkOrderId")
-                        .HasColumnName("work_order_id")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("work_order_id");
 
                     b.HasKey("Id")
-                        .HasName("pk_location_alerts");
+                        .HasName("pk_alert_regarding_location");
 
                     b.HasIndex("WorkOrderId")
-                        .HasName("ix_location_alerts_work_order_id");
+                        .HasDatabaseName("ix_alert_regarding_location_work_order_id");
 
-                    b.ToTable("location_alerts");
+                    b.ToTable("alert_regarding_location");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.AlertRegardingPerson", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<string>("Comments")
-                        .HasColumnName("comments")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("comments");
 
                     b.Property<int?>("Type")
-                        .HasColumnName("type")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
 
                     b.Property<int?>("WorkOrderId")
-                        .HasColumnName("work_order_id")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("work_order_id");
 
                     b.HasKey("Id")
-                        .HasName("pk_person_alerts");
+                        .HasName("pk_alert_regarding_person");
 
                     b.HasIndex("WorkOrderId")
-                        .HasName("ix_person_alerts_work_order_id");
+                        .HasDatabaseName("ix_alert_regarding_person_work_order_id");
 
-                    b.ToTable("person_alerts");
+                    b.ToTable("alert_regarding_person");
                 });
 
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Dependency", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Appointment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
 
-                    b.Property<DateTimeOffset?>("Duration")
-                        .HasColumnName("duration")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("Type")
-                        .HasColumnName("type")
-                        .HasColumnType("integer");
+                    b.Property<DateTime?>("Date")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("date");
 
                     b.HasKey("Id")
-                        .HasName("pk_dependency");
+                        .HasName("pk_appointment");
 
-                    b.ToTable("dependency");
+                    b.ToTable("appointment");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Categorization", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<string>("Category")
+                        .HasColumnType("text")
+                        .HasColumnName("category");
+
+                    b.Property<int?>("ScoreSetId")
+                        .HasColumnType("integer")
+                        .HasColumnName("score_set_id");
+
+                    b.Property<string>("SubCategory")
+                        .HasColumnType("text")
+                        .HasColumnName("sub_category");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("text")
+                        .HasColumnName("type");
+
+                    b.Property<string>("VersionUsed")
+                        .HasColumnType("text")
+                        .HasColumnName("version_used");
+
+                    b.HasKey("Id")
+                        .HasName("pk_categorization");
+
+                    b.HasIndex("ScoreSetId")
+                        .HasDatabaseName("ix_categorization_score_set_id");
+
+                    b.ToTable("categorization");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.CustomerSatisfaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<int?>("PartyCarryingOutSurveyId")
+                        .HasColumnType("integer")
+                        .HasColumnName("party_carrying_out_survey_id");
+
+                    b.Property<int?>("PartyProvidingFeedbackId")
+                        .HasColumnType("integer")
+                        .HasColumnName("party_providing_feedback_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_customer_satisfaction");
+
+                    b.HasIndex("PartyCarryingOutSurveyId")
+                        .HasDatabaseName("ix_customer_satisfaction_party_carrying_out_survey_id");
+
+                    b.HasIndex("PartyProvidingFeedbackId")
+                        .HasDatabaseName("ix_customer_satisfaction_party_providing_feedback_id");
+
+                    b.ToTable("customer_satisfaction");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.GeographicalLocation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<double?>("Elevation")
+                        .HasColumnType("double precision")
+                        .HasColumnName("elevation");
+
+                    b.Property<string>("ElevationReferenceSystem")
+                        .HasColumnType("text")
+                        .HasColumnName("elevation_reference_system");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("double precision")
+                        .HasColumnName("latitude");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("double precision")
+                        .HasColumnName("longitude");
+
+                    b.Property<string>("PositionalAccuracy")
+                        .HasColumnType("text")
+                        .HasColumnName("positional_accuracy");
+
+                    b.HasKey("Id")
+                        .HasName("pk_geographical_location");
+
+                    b.ToTable("geographical_location");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.JobStatusUpdate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<string>("Comments")
+                        .HasColumnType("text")
+                        .HasColumnName("comments");
+
+                    b.Property<int?>("CustomerFeedbackId")
+                        .HasColumnType("integer")
+                        .HasColumnName("customer_feedback_id");
+
+                    b.Property<DateTime?>("EventTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("event_time");
+
+                    b.Property<Guid?>("MoreSpecificSORCodeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("more_specific_sor_code_id");
+
+                    b.Property<string>("OtherType")
+                        .HasColumnType("text")
+                        .HasColumnName("other_type");
+
+                    b.Property<int?>("RefinedAppointmentWindowId")
+                        .HasColumnType("integer")
+                        .HasColumnName("refined_appointment_window_id");
+
+                    b.Property<int?>("RelatedWorkOrderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("related_work_order_id");
+
+                    b.Property<int?>("TypeCode")
+                        .HasColumnType("integer")
+                        .HasColumnName("type_code");
+
+                    b.Property<int?>("WorkOrderCompleteId")
+                        .HasColumnType("integer")
+                        .HasColumnName("work_order_complete_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_job_status_updates");
+
+                    b.HasIndex("CustomerFeedbackId")
+                        .HasDatabaseName("ix_job_status_updates_customer_feedback_id");
+
+                    b.HasIndex("MoreSpecificSORCodeId")
+                        .HasDatabaseName("ix_job_status_updates_more_specific_sor_code_id");
+
+                    b.HasIndex("RefinedAppointmentWindowId")
+                        .HasDatabaseName("ix_job_status_updates_refined_appointment_window_id");
+
+                    b.HasIndex("RelatedWorkOrderId")
+                        .HasDatabaseName("ix_job_status_updates_related_work_order_id");
+
+                    b.HasIndex("WorkOrderCompleteId")
+                        .HasDatabaseName("ix_job_status_updates_work_order_complete_id");
+
+                    b.ToTable("job_status_updates");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Operative", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<int?>("PersonId")
+                        .HasColumnType("integer")
+                        .HasColumnName("person_id");
+
+                    b.Property<int?>("WorkOrderCompleteId")
+                        .HasColumnType("integer")
+                        .HasColumnName("work_order_complete_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_operative");
+
+                    b.HasIndex("PersonId")
+                        .HasDatabaseName("ix_operative_person_id");
+
+                    b.HasIndex("WorkOrderCompleteId")
+                        .HasDatabaseName("ix_operative_work_order_complete_id");
+
+                    b.ToTable("operative");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Party", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Role")
+                        .HasColumnType("text")
+                        .HasColumnName("role");
+
+                    b.HasKey("Id")
+                        .HasName("pk_party");
+
+                    b.ToTable("party");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Person", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<int?>("JobStatusUpdateId")
+                        .HasColumnType("integer")
+                        .HasColumnName("job_status_update_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_person");
+
+                    b.HasIndex("JobStatusUpdateId")
+                        .HasDatabaseName("ix_person_job_status_update_id");
+
+                    b.ToTable("person");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Point", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<double?>("Easting")
+                        .HasColumnType("double precision")
+                        .HasColumnName("easting");
+
+                    b.Property<int?>("GeographicalLocationId")
+                        .HasColumnType("integer")
+                        .HasColumnName("geographical_location_id");
+
+                    b.Property<double?>("Northing")
+                        .HasColumnType("double precision")
+                        .HasColumnName("northing");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("integer")
+                        .HasColumnName("sequence");
+
+                    b.HasKey("Id")
+                        .HasName("pk_point");
+
+                    b.HasIndex("GeographicalLocationId")
+                        .HasDatabaseName("ix_point_geographical_location_id");
+
+                    b.ToTable("point");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.PostalAddress", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<int?>("AddressId")
-                        .HasColumnName("address_id")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("address_id");
 
                     b.HasKey("Id")
                         .HasName("pk_postal_address");
 
                     b.HasIndex("AddressId")
-                        .HasName("ix_postal_address_address_id");
+                        .HasDatabaseName("ix_postal_address_address_id");
 
                     b.ToTable("postal_address");
                 });
@@ -194,19 +458,19 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<int?>("AddressId")
-                        .HasColumnName("address_id")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("address_id");
 
                     b.HasKey("Id")
                         .HasName("pk_property_address");
 
                     b.HasIndex("AddressId")
-                        .HasName("ix_property_address_address_id");
+                        .HasDatabaseName("ix_property_address_address_id");
 
                     b.ToTable("property_address");
                 });
@@ -215,26 +479,37 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<int?>("AddressId")
-                        .HasColumnName("address_id")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("address_id");
+
+                    b.Property<int?>("GeographicalLocationId")
+                        .HasColumnType("integer")
+                        .HasColumnName("geographical_location_id");
+
+                    b.Property<string>("MasterKeySystem")
+                        .HasColumnType("text")
+                        .HasColumnName("master_key_system");
 
                     b.Property<int?>("SiteId")
-                        .HasColumnName("site_id")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("site_id");
 
                     b.HasKey("Id")
                         .HasName("pk_property_class");
 
                     b.HasIndex("AddressId")
-                        .HasName("ix_property_class_address_id");
+                        .HasDatabaseName("ix_property_class_address_id");
+
+                    b.HasIndex("GeographicalLocationId")
+                        .HasDatabaseName("ix_property_class_geographical_location_id");
 
                     b.HasIndex("SiteId")
-                        .HasName("ix_property_class_site_id");
+                        .HasDatabaseName("ix_property_class_site_id");
 
                     b.ToTable("property_class");
                 });
@@ -243,44 +518,140 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<string>("CustomCode")
-                        .HasColumnName("custom_code")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("custom_code");
 
                     b.Property<string>("CustomName")
-                        .HasColumnName("custom_name")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("custom_name");
 
                     b.Property<string>("M3NHFSORCode")
-                        .HasColumnName("m3nhfsor_code")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("m3nhfsor_code");
 
                     b.Property<Guid?>("WorkElementId")
-                        .HasColumnName("work_element_id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("work_element_id");
+
+                    b.Property<int?>("WorkOrderCompleteId")
+                        .HasColumnType("integer")
+                        .HasColumnName("work_order_complete_id");
 
                     b.HasKey("Id")
-                        .HasName("pk_rate_schedule_items");
+                        .HasName("pk_rate_schedule_item");
 
                     b.HasIndex("WorkElementId")
-                        .HasName("ix_rate_schedule_items_work_element_id");
+                        .HasDatabaseName("ix_rate_schedule_item_work_element_id");
 
-                    b.ToTable("rate_schedule_items");
+                    b.HasIndex("WorkOrderCompleteId")
+                        .HasDatabaseName("ix_rate_schedule_item_work_order_complete_id");
+
+                    b.ToTable("rate_schedule_item");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Score", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("text")
+                        .HasColumnName("comment");
+
+                    b.Property<string>("CurrentScore")
+                        .HasColumnType("text")
+                        .HasColumnName("current_score");
+
+                    b.Property<string>("FollowUpQuestion")
+                        .HasColumnType("text")
+                        .HasColumnName("follow_up_question");
+
+                    b.Property<string>("Maximum")
+                        .HasColumnType("text")
+                        .HasColumnName("maximum");
+
+                    b.Property<string>("Minimum")
+                        .HasColumnType("text")
+                        .HasColumnName("minimum");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<int?>("ScoreSetId")
+                        .HasColumnType("integer")
+                        .HasColumnName("score_set_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_score");
+
+                    b.HasIndex("ScoreSetId")
+                        .HasDatabaseName("ix_score_score_set_id");
+
+                    b.ToTable("score");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.ScoreSet", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<int?>("CustomerSatisfactionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("customer_satisfaction_id");
+
+                    b.Property<DateTime?>("DateTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("date_time");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<DateTime?>("PreviousDateTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("previous_date_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_score_set");
+
+                    b.HasIndex("CustomerSatisfactionId")
+                        .HasDatabaseName("ix_score_set_customer_satisfaction_id");
+
+                    b.ToTable("score_set");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Site", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<int?>("GeographicalLocationId")
+                        .HasColumnType("integer")
+                        .HasColumnName("geographical_location_id");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
 
                     b.HasKey("Id")
                         .HasName("pk_site");
+
+                    b.HasIndex("GeographicalLocationId")
+                        .HasDatabaseName("ix_site_geographical_location_id");
 
                     b.ToTable("site");
                 });
@@ -289,31 +660,38 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<int?>("Code")
-                        .HasColumnName("code")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("code");
 
                     b.Property<string>("CustomCode")
-                        .HasColumnName("custom_code")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("custom_code");
 
                     b.Property<string>("CustomName")
-                        .HasColumnName("custom_name")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("custom_name");
+
+                    b.Property<int?>("OperativeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("operative_id");
 
                     b.Property<Guid?>("WorkElementId")
-                        .HasColumnName("work_element_id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("work_element_id");
 
                     b.HasKey("Id")
                         .HasName("pk_trade");
 
+                    b.HasIndex("OperativeId")
+                        .HasDatabaseName("ix_trade_operative_id");
+
                     b.HasIndex("WorkElementId")
-                        .HasName("ix_trade_work_element_id");
+                        .HasDatabaseName("ix_trade_work_element_id");
 
                     b.ToTable("trade");
                 });
@@ -322,133 +700,96 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<int?>("AddressId")
-                        .HasColumnName("address_id")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("address_id");
 
                     b.Property<int?>("PropertyClassId")
-                        .HasColumnName("property_class_id")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("property_class_id");
 
                     b.HasKey("Id")
                         .HasName("pk_unit");
 
                     b.HasIndex("AddressId")
-                        .HasName("ix_unit_address_id");
+                        .HasDatabaseName("ix_unit_address_id");
 
                     b.HasIndex("PropertyClassId")
-                        .HasName("ix_unit_property_class_id");
+                        .HasDatabaseName("ix_unit_property_class_id");
 
                     b.ToTable("unit");
-                });
-
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkClass", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<int?>("WorkClassCode")
-                        .HasColumnName("work_class_code")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("WorkClassDescription")
-                        .HasColumnName("work_class_description")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("WorkClassSubTypeId")
-                        .HasColumnName("work_class_sub_type_id")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id")
-                        .HasName("pk_work_class");
-
-                    b.HasIndex("WorkClassSubTypeId")
-                        .HasName("ix_work_class_work_class_sub_type_id");
-
-                    b.ToTable("work_class");
-                });
-
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkClassSubType", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<string>("WorkClassSubTypeDescription")
-                        .HasColumnName("work_class_sub_type_description")
-                        .HasColumnType("text");
-
-                    b.Property<string>("WorkClassSubTypeName")
-                        .HasColumnName("work_class_sub_type_name")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id")
-                        .HasName("pk_work_class_sub_type");
-
-                    b.ToTable("work_class_sub_type");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkElement", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<bool?>("ContainsCapitalWork")
-                        .HasColumnName("contains_capital_work")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("contains_capital_work");
+
+                    b.Property<int?>("JobStatusUpdateId")
+                        .HasColumnType("integer")
+                        .HasColumnName("job_status_update_id");
+
+                    b.Property<int?>("OperativeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("operative_id");
 
                     b.Property<int?>("ServiceChargeSubject")
-                        .HasColumnName("service_charge_subject")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("service_charge_subject");
+
+                    b.Property<int?>("WorkOrderCompleteId")
+                        .HasColumnType("integer")
+                        .HasColumnName("work_order_complete_id");
 
                     b.Property<int?>("WorkOrderId")
-                        .HasColumnName("work_order_id")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("work_order_id");
 
                     b.HasKey("Id")
-                        .HasName("pk_work_elements");
+                        .HasName("pk_work_element");
+
+                    b.HasIndex("JobStatusUpdateId")
+                        .HasDatabaseName("ix_work_element_job_status_update_id");
+
+                    b.HasIndex("OperativeId")
+                        .HasDatabaseName("ix_work_element_operative_id");
+
+                    b.HasIndex("WorkOrderCompleteId")
+                        .HasDatabaseName("ix_work_element_work_order_complete_id");
 
                     b.HasIndex("WorkOrderId")
-                        .HasName("ix_work_elements_work_order_id");
+                        .HasDatabaseName("ix_work_element_work_order_id");
 
-                    b.ToTable("work_elements");
+                    b.ToTable("work_element");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkElementDependency", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<int?>("DependencyId")
-                        .HasColumnName("dependency_id")
-                        .HasColumnType("integer");
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<Guid?>("DependsOnWorkElementId")
-                        .HasColumnName("depends_on_work_element_id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("depends_on_work_element_id");
 
                     b.HasKey("Id")
                         .HasName("pk_work_element_dependency");
 
-                    b.HasIndex("DependencyId")
-                        .HasName("ix_work_element_dependency_dependency_id");
-
                     b.HasIndex("DependsOnWorkElementId")
-                        .HasName("ix_work_element_dependency_depends_on_work_element_id");
+                        .HasDatabaseName("ix_work_element_dependency_depends_on_work_element_id");
 
                     b.ToTable("work_element_dependency");
                 });
@@ -457,118 +798,78 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:IdentitySequenceOptions", "'10000000', '1', '', '', 'False', '1'")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn()
+                        .HasIdentityOptions(10000000L, null, null, null, null, null);
 
-                    b.Property<int?>("AccessInformationId")
-                        .HasColumnName("access_information_id")
-                        .HasColumnType("integer");
+                    b.Property<DateTime?>("DateRaised")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("date_raised");
 
                     b.Property<DateTime?>("DateReported")
-                        .HasColumnName("date_reported")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("date_reported");
 
                     b.Property<string>("DescriptionOfWork")
-                        .HasColumnName("description_of_work")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("description_of_work");
 
                     b.Property<double?>("EstimatedLaborHours")
-                        .HasColumnName("estimated_labor_hours")
-                        .HasColumnType("double precision");
+                        .HasColumnType("double precision")
+                        .HasColumnName("estimated_labor_hours");
 
                     b.Property<string>("LocationOfRepair")
-                        .HasColumnName("location_of_repair")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("location_of_repair");
 
                     b.Property<string>("ParkingArrangements")
-                        .HasColumnName("parking_arrangements")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("parking_arrangements");
 
                     b.Property<int?>("SiteId")
-                        .HasColumnName("site_id")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("site_id");
 
-                    b.Property<int?>("WorkClassId")
-                        .HasColumnName("work_class_id")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid?>("WorkPriorityId")
-                        .HasColumnName("work_priority_id")
-                        .HasColumnType("uuid");
+                    b.Property<int?>("WorkOrderCompleteId")
+                        .HasColumnType("integer")
+                        .HasColumnName("work_order_complete_id");
 
                     b.Property<int?>("WorkType")
-                        .HasColumnName("work_type")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("work_type");
 
                     b.HasKey("Id")
                         .HasName("pk_work_orders");
 
-                    b.HasIndex("AccessInformationId")
-                        .HasName("ix_work_orders_access_information_id");
-
                     b.HasIndex("SiteId")
-                        .HasName("ix_work_orders_site_id");
+                        .HasDatabaseName("ix_work_orders_site_id");
 
-                    b.HasIndex("WorkClassId")
-                        .HasName("ix_work_orders_work_class_id");
-
-                    b.HasIndex("WorkPriorityId")
-                        .HasName("ix_work_orders_work_priority_id");
+                    b.HasIndex("WorkOrderCompleteId")
+                        .HasDatabaseName("ix_work_orders_work_order_complete_id");
 
                     b.ToTable("work_orders");
                 });
 
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrderAccessInformation", b =>
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrderComplete", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<string>("Description")
-                        .HasColumnName("description")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id")
-                        .HasName("pk_work_order_access_information");
-
-                    b.ToTable("work_order_access_information");
-                });
-
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkPriority", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnName("id")
-                        .HasColumnType("uuid");
+                        .UseIdentityByDefaultColumn();
 
-                    b.Property<string>("Comments")
-                        .HasColumnName("comments")
-                        .HasColumnType("text");
-
-                    b.Property<double?>("NumberOfDays")
-                        .HasColumnName("number_of_days")
-                        .HasColumnType("double precision");
-
-                    b.Property<int?>("PriorityCode")
-                        .HasColumnName("priority_code")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("PriorityDescription")
-                        .HasColumnName("priority_description")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("RequiredCompletionDateTime")
-                        .HasColumnName("required_completion_date_time")
-                        .HasColumnType("timestamp without time zone");
+                    b.Property<int?>("WorkOrderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("work_order_id");
 
                     b.HasKey("Id")
-                        .HasName("pk_work_priorities");
+                        .HasName("pk_work_order_completes");
 
-                    b.ToTable("work_priorities");
+                    b.HasIndex("WorkOrderId")
+                        .HasDatabaseName("ix_work_order_completes_work_order_id");
+
+                    b.ToTable("work_order_completes");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.AlertRegardingLocation", b =>
@@ -576,7 +877,7 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.HasOne("RepairsApi.V2.Infrastructure.WorkOrder", null)
                         .WithMany("LocationAlert")
                         .HasForeignKey("WorkOrderId")
-                        .HasConstraintName("fk_location_alerts_work_orders_work_order_id");
+                        .HasConstraintName("fk_alert_regarding_location_work_orders_work_order_id");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.AlertRegardingPerson", b =>
@@ -584,7 +885,280 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.HasOne("RepairsApi.V2.Infrastructure.WorkOrder", null)
                         .WithMany("PersonAlert")
                         .HasForeignKey("WorkOrderId")
-                        .HasConstraintName("fk_person_alerts_work_orders_work_order_id");
+                        .HasConstraintName("fk_alert_regarding_person_work_orders_work_order_id");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Appointment", b =>
+                {
+                    b.OwnsOne("RepairsApi.V2.Infrastructure.AppointmentTimeOfDay", "TimeOfDay", b1 =>
+                        {
+                            b1.Property<int>("AppointmentId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer")
+                                .HasColumnName("id")
+                                .UseIdentityByDefaultColumn();
+
+                            b1.Property<DateTime?>("EarliestArrivalTime")
+                                .HasColumnType("timestamp without time zone")
+                                .HasColumnName("time_of_day_earliest_arrival_time");
+
+                            b1.Property<DateTime?>("LatestArrivalTime")
+                                .HasColumnType("timestamp without time zone")
+                                .HasColumnName("time_of_day_latest_arrival_time");
+
+                            b1.Property<DateTime?>("LatestCompletionTime")
+                                .HasColumnType("timestamp without time zone")
+                                .HasColumnName("time_of_day_latest_completion_time");
+
+                            b1.Property<string>("Name")
+                                .HasColumnType("text")
+                                .HasColumnName("time_of_day_name");
+
+                            b1.HasKey("AppointmentId")
+                                .HasName("pk_appointment");
+
+                            b1.ToTable("appointment");
+
+                            b1.WithOwner()
+                                .HasForeignKey("AppointmentId")
+                                .HasConstraintName("fk_appointment_appointment_id");
+                        });
+
+                    b.Navigation("TimeOfDay");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Categorization", b =>
+                {
+                    b.HasOne("RepairsApi.V2.Infrastructure.ScoreSet", null)
+                        .WithMany("Categorization")
+                        .HasForeignKey("ScoreSetId")
+                        .HasConstraintName("fk_categorization_score_set_score_set_id");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.CustomerSatisfaction", b =>
+                {
+                    b.HasOne("RepairsApi.V2.Infrastructure.Party", "PartyCarryingOutSurvey")
+                        .WithMany()
+                        .HasForeignKey("PartyCarryingOutSurveyId")
+                        .HasConstraintName("fk_customer_satisfaction_party_party_carrying_out_survey_id");
+
+                    b.HasOne("RepairsApi.V2.Infrastructure.Party", "PartyProvidingFeedback")
+                        .WithMany()
+                        .HasForeignKey("PartyProvidingFeedbackId")
+                        .HasConstraintName("fk_customer_satisfaction_party_party_providing_feedback_id");
+
+                    b.Navigation("PartyCarryingOutSurvey");
+
+                    b.Navigation("PartyProvidingFeedback");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.JobStatusUpdate", b =>
+                {
+                    b.HasOne("RepairsApi.V2.Infrastructure.CustomerSatisfaction", "CustomerFeedback")
+                        .WithMany()
+                        .HasForeignKey("CustomerFeedbackId")
+                        .HasConstraintName("fk_job_status_updates_customer_satisfaction_customer_feedback_");
+
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkElement", "MoreSpecificSORCode")
+                        .WithMany()
+                        .HasForeignKey("MoreSpecificSORCodeId")
+                        .HasConstraintName("fk_job_status_updates_work_element_more_specific_sor_code_id");
+
+                    b.HasOne("RepairsApi.V2.Infrastructure.Appointment", "RefinedAppointmentWindow")
+                        .WithMany()
+                        .HasForeignKey("RefinedAppointmentWindowId")
+                        .HasConstraintName("fk_job_status_updates_appointment_refined_appointment_window_id");
+
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkOrder", "RelatedWorkOrder")
+                        .WithMany()
+                        .HasForeignKey("RelatedWorkOrderId")
+                        .HasConstraintName("fk_job_status_updates_work_orders_related_work_order_id");
+
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkOrderComplete", null)
+                        .WithMany("JobStatusUpdates")
+                        .HasForeignKey("WorkOrderCompleteId")
+                        .HasConstraintName("fk_job_status_updates_work_order_completes_work_order_complete");
+
+                    b.OwnsOne("RepairsApi.V2.Infrastructure.AdditionalWork", "AdditionalWork", b1 =>
+                        {
+                            b1.Property<int>("JobStatusUpdateId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer")
+                                .HasColumnName("id")
+                                .UseIdentityByDefaultColumn();
+
+                            b1.Property<int?>("AdditionalWorkOrderId")
+                                .HasColumnType("integer")
+                                .HasColumnName("additional_work_additional_work_order_id");
+
+                            b1.Property<string>("ReasonRequired")
+                                .HasColumnType("text")
+                                .HasColumnName("additional_work_reason_required");
+
+                            b1.HasKey("JobStatusUpdateId")
+                                .HasName("pk_job_status_updates");
+
+                            b1.HasIndex("AdditionalWorkOrderId")
+                                .HasDatabaseName("ix_job_status_updates_additional_work_additional_work_order_id");
+
+                            b1.ToTable("job_status_updates");
+
+                            b1.HasOne("RepairsApi.V2.Infrastructure.WorkOrder", "AdditionalWorkOrder")
+                                .WithMany()
+                                .HasForeignKey("AdditionalWorkOrderId")
+                                .HasConstraintName("fk_job_status_updates_work_orders_additional_work_additional_w");
+
+                            b1.WithOwner()
+                                .HasForeignKey("JobStatusUpdateId")
+                                .HasConstraintName("fk_job_status_updates_job_status_updates_id");
+
+                            b1.Navigation("AdditionalWorkOrder");
+                        });
+
+                    b.OwnsOne("RepairsApi.V2.Infrastructure.Communication", "CustomerCommunicationChannelAttempted", b1 =>
+                        {
+                            b1.Property<int>("JobStatusUpdateId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer")
+                                .HasColumnName("id")
+                                .UseIdentityByDefaultColumn();
+
+                            b1.Property<string>("Value")
+                                .HasColumnType("text")
+                                .HasColumnName("customer_communication_channel_attempted_value");
+
+                            b1.HasKey("JobStatusUpdateId")
+                                .HasName("pk_job_status_updates");
+
+                            b1.ToTable("job_status_updates");
+
+                            b1.WithOwner()
+                                .HasForeignKey("JobStatusUpdateId")
+                                .HasConstraintName("fk_job_status_updates_job_status_updates_id");
+
+                            b1.OwnsOne("RepairsApi.V2.Infrastructure.CommunicationChannel", "Channel", b2 =>
+                                {
+                                    b2.Property<int>("CommunicationJobStatusUpdateId")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("integer")
+                                        .HasColumnName("id")
+                                        .UseIdentityByDefaultColumn();
+
+                                    b2.Property<int?>("Code")
+                                        .HasColumnType("integer")
+                                        .HasColumnName("customer_communication_channel_attempted_channel_code");
+
+                                    b2.Property<int?>("Medium")
+                                        .HasColumnType("integer")
+                                        .HasColumnName("customer_communication_channel_attempted_channel_medium");
+
+                                    b2.HasKey("CommunicationJobStatusUpdateId")
+                                        .HasName("pk_job_status_updates");
+
+                                    b2.ToTable("job_status_updates");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("CommunicationJobStatusUpdateId")
+                                        .HasConstraintName("fk_job_status_updates_job_status_updates_id");
+                                });
+
+                            b1.Navigation("Channel");
+                        });
+
+                    b.Navigation("AdditionalWork");
+
+                    b.Navigation("CustomerCommunicationChannelAttempted");
+
+                    b.Navigation("CustomerFeedback");
+
+                    b.Navigation("MoreSpecificSORCode");
+
+                    b.Navigation("RefinedAppointmentWindow");
+
+                    b.Navigation("RelatedWorkOrder");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Operative", b =>
+                {
+                    b.HasOne("RepairsApi.V2.Infrastructure.Person", "Person")
+                        .WithMany()
+                        .HasForeignKey("PersonId")
+                        .HasConstraintName("fk_operative_person_person_id");
+
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkOrderComplete", null)
+                        .WithMany("OperativesUsed")
+                        .HasForeignKey("WorkOrderCompleteId")
+                        .HasConstraintName("fk_operative_work_order_completes_work_order_complete_id");
+
+                    b.Navigation("Person");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Person", b =>
+                {
+                    b.HasOne("RepairsApi.V2.Infrastructure.JobStatusUpdate", null)
+                        .WithMany("OperativesAssigned")
+                        .HasForeignKey("JobStatusUpdateId")
+                        .HasConstraintName("fk_person_job_status_updates_job_status_update_id");
+
+                    b.OwnsOne("RepairsApi.V2.Infrastructure.Identification", "Identification", b1 =>
+                        {
+                            b1.Property<int>("PersonId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer")
+                                .HasColumnName("id")
+                                .UseIdentityByDefaultColumn();
+
+                            b1.Property<string>("Number")
+                                .HasColumnType("text")
+                                .HasColumnName("identification_number");
+
+                            b1.Property<string>("Type")
+                                .HasColumnType("text")
+                                .HasColumnName("identification_type");
+
+                            b1.HasKey("PersonId")
+                                .HasName("pk_person");
+
+                            b1.ToTable("person");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PersonId")
+                                .HasConstraintName("fk_person_person_id");
+                        });
+
+                    b.OwnsOne("RepairsApi.V2.Infrastructure.PersonName", "Name", b1 =>
+                        {
+                            b1.Property<int>("PersonId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer")
+                                .HasColumnName("id")
+                                .UseIdentityByDefaultColumn();
+
+                            b1.Property<string>("Full")
+                                .HasColumnType("text")
+                                .HasColumnName("name_full");
+
+                            b1.HasKey("PersonId")
+                                .HasName("pk_person");
+
+                            b1.ToTable("person");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PersonId")
+                                .HasConstraintName("fk_person_person_id");
+                        });
+
+                    b.Navigation("Identification");
+
+                    b.Navigation("Name");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Point", b =>
+                {
+                    b.HasOne("RepairsApi.V2.Infrastructure.GeographicalLocation", null)
+                        .WithMany("Polyline")
+                        .HasForeignKey("GeographicalLocationId")
+                        .HasConstraintName("fk_point_geographical_location_geographical_location_id");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.PostalAddress", b =>
@@ -593,6 +1167,8 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("AddressId")
                         .HasConstraintName("fk_postal_address_address_address_id");
+
+                    b.Navigation("Address");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.PropertyAddress", b =>
@@ -601,6 +1177,8 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("AddressId")
                         .HasConstraintName("fk_property_address_postal_address_address_id");
+
+                    b.Navigation("Address");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.PropertyClass", b =>
@@ -610,10 +1188,19 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasForeignKey("AddressId")
                         .HasConstraintName("fk_property_class_property_address_address_id");
 
+                    b.HasOne("RepairsApi.V2.Infrastructure.GeographicalLocation", "GeographicalLocation")
+                        .WithMany()
+                        .HasForeignKey("GeographicalLocationId")
+                        .HasConstraintName("fk_property_class_geographical_location_geographical_location_");
+
                     b.HasOne("RepairsApi.V2.Infrastructure.Site", null)
                         .WithMany("PropertyClass")
                         .HasForeignKey("SiteId")
                         .HasConstraintName("fk_property_class_site_site_id");
+
+                    b.Navigation("Address");
+
+                    b.Navigation("GeographicalLocation");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.RateScheduleItem", b =>
@@ -621,39 +1208,77 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.HasOne("RepairsApi.V2.Infrastructure.WorkElement", null)
                         .WithMany("RateScheduleItem")
                         .HasForeignKey("WorkElementId")
-                        .HasConstraintName("fk_rate_schedule_items_work_elements_work_element_id");
+                        .HasConstraintName("fk_rate_schedule_item_work_element_work_element_id");
+
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkOrderComplete", null)
+                        .WithMany("BillOfMaterialItem")
+                        .HasForeignKey("WorkOrderCompleteId")
+                        .HasConstraintName("fk_rate_schedule_item_work_order_completes_work_order_complete");
 
                     b.OwnsOne("RepairsApi.V2.Infrastructure.Quantity", "Quantity", b1 =>
                         {
                             b1.Property<Guid>("RateScheduleItemId")
-                                .HasColumnName("id")
-                                .HasColumnType("uuid");
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
 
                             b1.Property<double>("Amount")
-                                .HasColumnName("amount")
-                                .HasColumnType("double precision");
+                                .HasColumnType("double precision")
+                                .HasColumnName("quantity_amount");
 
                             b1.Property<int?>("UnitOfMeasurementCode")
-                                .HasColumnName("unit_of_measurement_code")
-                                .HasColumnType("integer");
+                                .HasColumnType("integer")
+                                .HasColumnName("quantity_unit_of_measurement_code");
 
                             b1.HasKey("RateScheduleItemId")
-                                .HasName("pk_rate_schedule_items");
+                                .HasName("pk_rate_schedule_item");
 
-                            b1.ToTable("rate_schedule_items");
+                            b1.ToTable("rate_schedule_item");
 
                             b1.WithOwner()
                                 .HasForeignKey("RateScheduleItemId")
-                                .HasConstraintName("fk_quantity_rate_schedule_items_rate_schedule_item_id");
+                                .HasConstraintName("fk_rate_schedule_item_rate_schedule_item_id");
                         });
+
+                    b.Navigation("Quantity");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Score", b =>
+                {
+                    b.HasOne("RepairsApi.V2.Infrastructure.ScoreSet", null)
+                        .WithMany("Score")
+                        .HasForeignKey("ScoreSetId")
+                        .HasConstraintName("fk_score_score_set_score_set_id");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.ScoreSet", b =>
+                {
+                    b.HasOne("RepairsApi.V2.Infrastructure.CustomerSatisfaction", null)
+                        .WithMany("FeedbackSet")
+                        .HasForeignKey("CustomerSatisfactionId")
+                        .HasConstraintName("fk_score_set_customer_satisfaction_customer_satisfaction_id");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Site", b =>
+                {
+                    b.HasOne("RepairsApi.V2.Infrastructure.GeographicalLocation", "GeographicalLocation")
+                        .WithMany()
+                        .HasForeignKey("GeographicalLocationId")
+                        .HasConstraintName("fk_site_geographical_location_geographical_location_id");
+
+                    b.Navigation("GeographicalLocation");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Trade", b =>
                 {
+                    b.HasOne("RepairsApi.V2.Infrastructure.Operative", null)
+                        .WithMany("Trade")
+                        .HasForeignKey("OperativeId")
+                        .HasConstraintName("fk_trade_operative_operative_id");
+
                     b.HasOne("RepairsApi.V2.Infrastructure.WorkElement", null)
                         .WithMany("Trade")
                         .HasForeignKey("WorkElementId")
-                        .HasConstraintName("fk_trade_work_elements_work_element_id");
+                        .HasConstraintName("fk_trade_work_element_work_element_id");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Unit", b =>
@@ -671,16 +1296,18 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.OwnsOne("RepairsApi.V2.Infrastructure.KeySafe", "KeySafe", b1 =>
                         {
                             b1.Property<int>("UnitId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer")
                                 .HasColumnName("id")
-                                .HasColumnType("integer");
+                                .UseIdentityByDefaultColumn();
 
                             b1.Property<string>("Code")
-                                .HasColumnName("key_safe_code")
-                                .HasColumnType("text");
+                                .HasColumnType("text")
+                                .HasColumnName("key_safe_code");
 
                             b1.Property<string>("Location")
-                                .HasColumnName("key_safe_location")
-                                .HasColumnType("text");
+                                .HasColumnType("text")
+                                .HasColumnName("key_safe_location");
 
                             b1.HasKey("UnitId")
                                 .HasName("pk_unit");
@@ -691,85 +1318,316 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                                 .HasForeignKey("UnitId")
                                 .HasConstraintName("fk_unit_unit_id");
                         });
-                });
 
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkClass", b =>
-                {
-                    b.HasOne("RepairsApi.V2.Infrastructure.WorkClassSubType", "WorkClassSubType")
-                        .WithMany()
-                        .HasForeignKey("WorkClassSubTypeId")
-                        .HasConstraintName("fk_work_class_work_class_sub_type_work_class_sub_type_id");
+                    b.Navigation("Address");
+
+                    b.Navigation("KeySafe");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkElement", b =>
                 {
+                    b.HasOne("RepairsApi.V2.Infrastructure.JobStatusUpdate", null)
+                        .WithMany("RelatedWorkElement")
+                        .HasForeignKey("JobStatusUpdateId")
+                        .HasConstraintName("fk_work_element_job_status_updates_job_status_update_id");
+
+                    b.HasOne("RepairsApi.V2.Infrastructure.Operative", null)
+                        .WithMany("WorkElement")
+                        .HasForeignKey("OperativeId")
+                        .HasConstraintName("fk_work_element_operative_operative_id");
+
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkOrderComplete", null)
+                        .WithMany("CompletedWorkElements")
+                        .HasForeignKey("WorkOrderCompleteId")
+                        .HasConstraintName("fk_work_element_work_order_completes_work_order_complete_id");
+
                     b.HasOne("RepairsApi.V2.Infrastructure.WorkOrder", null)
                         .WithMany("WorkElements")
                         .HasForeignKey("WorkOrderId")
-                        .HasConstraintName("fk_work_elements_work_orders_work_order_id");
+                        .HasConstraintName("fk_work_element_work_orders_work_order_id");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkElementDependency", b =>
                 {
-                    b.HasOne("RepairsApi.V2.Infrastructure.Dependency", "Dependency")
-                        .WithMany()
-                        .HasForeignKey("DependencyId")
-                        .HasConstraintName("fk_work_element_dependency_dependency_dependency_id");
-
                     b.HasOne("RepairsApi.V2.Infrastructure.WorkElement", "DependsOnWorkElement")
                         .WithMany("DependsOn")
                         .HasForeignKey("DependsOnWorkElementId")
-                        .HasConstraintName("fk_work_element_dependency_work_elements_depends_on_work_eleme");
+                        .HasConstraintName("fk_work_element_dependency_work_element_depends_on_work_elemen");
+
+                    b.OwnsOne("RepairsApi.V2.Infrastructure.Dependency", "Dependency", b1 =>
+                        {
+                            b1.Property<int>("WorkElementDependencyId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer")
+                                .HasColumnName("id")
+                                .UseIdentityByDefaultColumn();
+
+                            b1.Property<DateTimeOffset?>("Duration")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("dependency_duration");
+
+                            b1.Property<int?>("Type")
+                                .HasColumnType("integer")
+                                .HasColumnName("dependency_type");
+
+                            b1.HasKey("WorkElementDependencyId")
+                                .HasName("pk_work_element_dependency");
+
+                            b1.ToTable("work_element_dependency");
+
+                            b1.WithOwner()
+                                .HasForeignKey("WorkElementDependencyId")
+                                .HasConstraintName("fk_work_element_dependency_work_element_dependency_id");
+                        });
+
+                    b.Navigation("Dependency");
+
+                    b.Navigation("DependsOnWorkElement");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrder", b =>
                 {
-                    b.HasOne("RepairsApi.V2.Infrastructure.WorkOrderAccessInformation", "AccessInformation")
-                        .WithMany()
-                        .HasForeignKey("AccessInformationId")
-                        .HasConstraintName("fk_work_orders_work_order_access_information_access_informatio");
-
                     b.HasOne("RepairsApi.V2.Infrastructure.Site", "Site")
                         .WithMany()
                         .HasForeignKey("SiteId")
                         .HasConstraintName("fk_work_orders_site_site_id");
 
-                    b.HasOne("RepairsApi.V2.Infrastructure.WorkClass", "WorkClass")
-                        .WithMany()
-                        .HasForeignKey("WorkClassId")
-                        .HasConstraintName("fk_work_orders_work_class_work_class_id");
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkOrderComplete", null)
+                        .WithMany("FollowOnWorkOrder")
+                        .HasForeignKey("WorkOrderCompleteId")
+                        .HasConstraintName("fk_work_orders_work_order_completes_work_order_complete_id");
 
-                    b.HasOne("RepairsApi.V2.Infrastructure.WorkPriority", "WorkPriority")
-                        .WithMany()
-                        .HasForeignKey("WorkPriorityId")
-                        .HasConstraintName("fk_work_orders_work_priorities_work_priority_id");
-                });
-
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrderAccessInformation", b =>
-                {
-                    b.OwnsOne("RepairsApi.V2.Infrastructure.KeySafe", "Keysafe", b1 =>
+                    b.OwnsOne("RepairsApi.V2.Infrastructure.WorkClass", "WorkClass", b1 =>
                         {
-                            b1.Property<int>("WorkOrderAccessInformationId")
+                            b1.Property<int>("WorkOrderId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer")
                                 .HasColumnName("id")
-                                .HasColumnType("integer");
+                                .UseIdentityByDefaultColumn();
 
-                            b1.Property<string>("Code")
-                                .HasColumnName("keysafe_code")
-                                .HasColumnType("text");
+                            b1.Property<int?>("WorkClassCode")
+                                .HasColumnType("integer")
+                                .HasColumnName("work_class_work_class_code");
 
-                            b1.Property<string>("Location")
-                                .HasColumnName("keysafe_location")
-                                .HasColumnType("text");
+                            b1.Property<string>("WorkClassDescription")
+                                .HasColumnType("text")
+                                .HasColumnName("work_class_work_class_description");
 
-                            b1.HasKey("WorkOrderAccessInformationId")
-                                .HasName("pk_work_order_access_information");
+                            b1.HasKey("WorkOrderId")
+                                .HasName("pk_work_orders");
 
-                            b1.ToTable("work_order_access_information");
+                            b1.ToTable("work_orders");
 
                             b1.WithOwner()
-                                .HasForeignKey("WorkOrderAccessInformationId")
-                                .HasConstraintName("fk_work_order_access_information_work_order_access_information");
+                                .HasForeignKey("WorkOrderId")
+                                .HasConstraintName("fk_work_orders_work_orders_id");
+
+                            b1.OwnsOne("RepairsApi.V2.Infrastructure.WorkClassSubType", "WorkClassSubType", b2 =>
+                                {
+                                    b2.Property<int>("WorkClassWorkOrderId")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("integer")
+                                        .HasColumnName("id")
+                                        .UseIdentityByDefaultColumn();
+
+                                    b2.Property<string>("WorkClassSubTypeDescription")
+                                        .HasColumnType("text")
+                                        .HasColumnName("work_class_work_class_sub_type_work_class_sub_type_description");
+
+                                    b2.Property<string>("WorkClassSubTypeName")
+                                        .HasColumnType("text")
+                                        .HasColumnName("work_class_work_class_sub_type_work_class_sub_type_name");
+
+                                    b2.HasKey("WorkClassWorkOrderId")
+                                        .HasName("pk_work_orders");
+
+                                    b2.ToTable("work_orders");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("WorkClassWorkOrderId")
+                                        .HasConstraintName("fk_work_orders_work_orders_id");
+                                });
+
+                            b1.Navigation("WorkClassSubType");
                         });
+
+                    b.OwnsOne("RepairsApi.V2.Infrastructure.WorkOrderAccessInformation", "AccessInformation", b1 =>
+                        {
+                            b1.Property<int>("WorkOrderId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer")
+                                .HasColumnName("id")
+                                .UseIdentityByDefaultColumn();
+
+                            b1.Property<string>("Description")
+                                .HasColumnType("text")
+                                .HasColumnName("access_information_description");
+
+                            b1.HasKey("WorkOrderId")
+                                .HasName("pk_work_orders");
+
+                            b1.ToTable("work_orders");
+
+                            b1.WithOwner()
+                                .HasForeignKey("WorkOrderId")
+                                .HasConstraintName("fk_work_orders_work_orders_id");
+
+                            b1.OwnsOne("RepairsApi.V2.Infrastructure.KeySafe", "Keysafe", b2 =>
+                                {
+                                    b2.Property<int>("WorkOrderAccessInformationWorkOrderId")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("integer")
+                                        .HasColumnName("id")
+                                        .UseIdentityByDefaultColumn();
+
+                                    b2.Property<string>("Code")
+                                        .HasColumnType("text")
+                                        .HasColumnName("access_information_keysafe_code");
+
+                                    b2.Property<string>("Location")
+                                        .HasColumnType("text")
+                                        .HasColumnName("access_information_keysafe_location");
+
+                                    b2.HasKey("WorkOrderAccessInformationWorkOrderId")
+                                        .HasName("pk_work_orders");
+
+                                    b2.ToTable("work_orders");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("WorkOrderAccessInformationWorkOrderId")
+                                        .HasConstraintName("fk_work_orders_work_orders_id");
+                                });
+
+                            b1.Navigation("Keysafe");
+                        });
+
+                    b.OwnsOne("RepairsApi.V2.Infrastructure.WorkPriority", "WorkPriority", b1 =>
+                        {
+                            b1.Property<int>("WorkOrderId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer")
+                                .HasColumnName("id")
+                                .UseIdentityByDefaultColumn();
+
+                            b1.Property<string>("Comments")
+                                .HasColumnType("text")
+                                .HasColumnName("work_priority_comments");
+
+                            b1.Property<double?>("NumberOfDays")
+                                .HasColumnType("double precision")
+                                .HasColumnName("work_priority_number_of_days");
+
+                            b1.Property<int?>("PriorityCode")
+                                .HasColumnType("integer")
+                                .HasColumnName("work_priority_priority_code");
+
+                            b1.Property<string>("PriorityDescription")
+                                .HasColumnType("text")
+                                .HasColumnName("work_priority_priority_description");
+
+                            b1.Property<DateTime?>("RequiredCompletionDateTime")
+                                .HasColumnType("timestamp without time zone")
+                                .HasColumnName("work_priority_required_completion_date_time");
+
+                            b1.HasKey("WorkOrderId")
+                                .HasName("pk_work_orders");
+
+                            b1.ToTable("work_orders");
+
+                            b1.WithOwner()
+                                .HasForeignKey("WorkOrderId")
+                                .HasConstraintName("fk_work_orders_work_orders_id");
+                        });
+
+                    b.Navigation("AccessInformation");
+
+                    b.Navigation("Site");
+
+                    b.Navigation("WorkClass");
+
+                    b.Navigation("WorkPriority");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrderComplete", b =>
+                {
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkOrder", "WorkOrder")
+                        .WithMany()
+                        .HasForeignKey("WorkOrderId")
+                        .HasConstraintName("fk_work_order_completes_work_orders_work_order_id");
+
+                    b.Navigation("WorkOrder");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.CustomerSatisfaction", b =>
+                {
+                    b.Navigation("FeedbackSet");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.GeographicalLocation", b =>
+                {
+                    b.Navigation("Polyline");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.JobStatusUpdate", b =>
+                {
+                    b.Navigation("OperativesAssigned");
+
+                    b.Navigation("RelatedWorkElement");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Operative", b =>
+                {
+                    b.Navigation("Trade");
+
+                    b.Navigation("WorkElement");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.PropertyClass", b =>
+                {
+                    b.Navigation("Unit");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.ScoreSet", b =>
+                {
+                    b.Navigation("Categorization");
+
+                    b.Navigation("Score");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Site", b =>
+                {
+                    b.Navigation("PropertyClass");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkElement", b =>
+                {
+                    b.Navigation("DependsOn");
+
+                    b.Navigation("RateScheduleItem");
+
+                    b.Navigation("Trade");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrder", b =>
+                {
+                    b.Navigation("LocationAlert");
+
+                    b.Navigation("PersonAlert");
+
+                    b.Navigation("WorkElements");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrderComplete", b =>
+                {
+                    b.Navigation("BillOfMaterialItem");
+
+                    b.Navigation("CompletedWorkElements");
+
+                    b.Navigation("FollowOnWorkOrder");
+
+                    b.Navigation("JobStatusUpdates");
+
+                    b.Navigation("OperativesUsed");
                 });
 #pragma warning restore 612, 618
         }

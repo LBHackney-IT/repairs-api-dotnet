@@ -20,6 +20,7 @@ namespace RepairsApi.V2.UseCase
 
         public async Task<int> Execute(WorkOrder workOrder)
         {
+            workOrder.DateRaised = DateTime.UtcNow;
             var id = await _repairsGateway.CreateWorkOrder(workOrder);
             _logger.LogInformation(Resources.CreatedWorkOrder);
             return id;

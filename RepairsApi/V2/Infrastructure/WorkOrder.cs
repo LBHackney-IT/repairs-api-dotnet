@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 using RepairsApi.V2.Generated;
 
 namespace RepairsApi.V2.Infrastructure
@@ -13,6 +14,7 @@ namespace RepairsApi.V2.Infrastructure
         public WorkType? WorkType { get; set; }
         public string ParkingArrangements { get; set; }
         public string LocationOfRepair { get; set; }
+        public DateTime? DateRaised { get; set; }
         public DateTime? DateReported { get; set; }
         public virtual WorkClass WorkClass { get; set; }
 
@@ -24,11 +26,10 @@ namespace RepairsApi.V2.Infrastructure
         public virtual List<AlertRegardingLocation> LocationAlert { get; set; }
     }
 
+    [Owned]
     public class WorkOrderAccessInformation
     {
-        [Key] public int Id { get; set; }
         public string Description { get; set; }
         public virtual KeySafe Keysafe { get; set; }
     }
-
 }
