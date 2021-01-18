@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using RepairsApi.V2;
+using RepairsApi.V2.Boundary.Response;
 
 namespace RepairsApi.V2.Factories
 {
@@ -283,6 +284,17 @@ namespace RepairsApi.V2.Factories
                 EarliestArrivalTime = timeOfDay.EarliestArrivalTime,
                 LatestArrivalTime = timeOfDay.LatestArrivalTime,
                 LatestCompletionTime = timeOfDay.LatestCompletionTime
+            };
+        }
+
+        public static ScheduleOfRates ToDb(this ScheduleOfRatesModel sorCode)
+        {
+            return new ScheduleOfRates
+            {
+                CustomCode = sorCode.CustomCode,
+                CustomName = sorCode.CustomName,
+                SORContractorRef = sorCode.SORContractor.Reference,
+                PriorityId = sorCode.Priority.PriorityCode
             };
         }
     }

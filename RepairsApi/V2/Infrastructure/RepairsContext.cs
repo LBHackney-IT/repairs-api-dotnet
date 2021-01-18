@@ -5,13 +5,21 @@ namespace RepairsApi.V2.Infrastructure
 
     public class RepairsContext : DbContext
     {
-        public RepairsContext(DbContextOptions options) : base(options)
+        private readonly DataImporter _dataImporter;
+
+        public RepairsContext(
+            DbContextOptions options,
+            DataImporter dataImporter
+        ) : base(options)
         {
+            _dataImporter = dataImporter;
         }
 
         public DbSet<WorkOrder> WorkOrders { get; set; }
         public DbSet<WorkOrderComplete> WorkOrderCompletes { get; set; }
         public DbSet<JobStatusUpdate> JobStatusUpdates { get; set; }
+        public DbSet<ScheduleOfRates> SORCodes { get; set; }
+        public DbSet<SORPriority> SORPriorities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -19,7 +27,7 @@ namespace RepairsApi.V2.Infrastructure
                 .Property(wo => wo.Id)
                 .HasIdentityOptions(startValue: 10000000);
 
-            modelBuilder.Seed();
+            modelBuilder.Seed(_dataImporter);
         }
     }
 }

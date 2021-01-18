@@ -5,6 +5,7 @@ using System.Linq;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Enums;
 using Address = RepairsApi.V2.Domain.Address;
+using SORPriority = RepairsApi.V2.Domain.SORPriority;
 
 namespace RepairsApi.V2.Factories
 {
@@ -111,6 +112,24 @@ namespace RepairsApi.V2.Factories
         public static WorkPriorityCode ToResponse(this Generated.WorkPriorityCode code)
         {
             return (WorkPriorityCode) code;
+        }
+
+        public static ScheduleOfRatesModel ToResponse(this ScheduleOfRates sorCode)
+        {
+            return new ScheduleOfRatesModel
+            {
+                CustomCode = sorCode.CustomCode,
+                CustomName = sorCode.CustomName,
+                SORContractor = new Contractor
+                {
+                    Reference = sorCode.SORContractorRef
+                },
+                Priority = new SORPriority
+                {
+                    Description = sorCode.Priority.Description,
+                    PriorityCode = sorCode.Priority.PriorityCode
+                }
+            };
         }
     }
 }
