@@ -48,9 +48,9 @@ namespace RepairsApi.V2.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetList()
+        public async Task<IActionResult> GetList([FromQuery]WorkOrderSearchParamters parameters)
         {
-            return Ok(_listWorkOrdersUseCase.Execute());
+            return Ok(await _listWorkOrdersUseCase.Execute(parameters));
         }
 
         [Route("{id}")]
@@ -62,13 +62,12 @@ namespace RepairsApi.V2.Controllers
             try
             {
                 workOrderResponse = await _getWorkOrderUseCase.Execute(id);
+                return Ok(workOrderResponse);
             }
             catch (ResourceNotFoundException ex)
             {
                 return NotFound(ex.Message);
             }
-
-            return Ok(workOrderResponse);
         }
 
         [HttpPost]
@@ -84,7 +83,11 @@ namespace RepairsApi.V2.Controllers
             {
                 return BadRequest(e.Message);
             }
-
         }
+    }
+
+    public class WorkOrderSearchParamters
+    {
+        public string PropertyReference { get; set; }
     }
 }

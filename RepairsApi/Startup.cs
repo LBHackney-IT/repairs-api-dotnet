@@ -133,6 +133,7 @@ namespace RepairsApi
             services.AddScoped<IListScheduleOfRatesUseCase, ListScheduleOfRatesUseCase>();
             services.AddTransient<IListWorkOrdersUseCase, ListWorkOrdersUseCase>();
             services.AddTransient<ICompleteWorkOrderUseCase, CompleteWorkOrderUseCase>();
+            services.AddTransient<IGetWorkOrderUseCase, GetWorkOrderUseCase>();
         }
 
         private void AddHttpClients(IServiceCollection services)

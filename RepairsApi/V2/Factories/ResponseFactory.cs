@@ -5,6 +5,7 @@ using System.Linq;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Enums;
 using Address = RepairsApi.V2.Domain.Address;
+using RepairsApi.V2.Boundary;
 
 namespace RepairsApi.V2.Factories
 {
@@ -94,7 +95,21 @@ namespace RepairsApi.V2.Factories
             return domainList.Select(domain => domain.ToResponse()).ToList();
         }
 
-        public static WorkOrderListItem ToResponse(this WorkOrder workOrder)
+        public static WorkOrderResponse ToResponse(this WorkOrder workOrder)
+        {
+            return new WorkOrderResponse
+            {
+                Reference = workOrder.Id,
+                Description = workOrder.DescriptionOfWork,
+                Owner = "", // TODO: populate owner
+                Priority = workOrder.WorkPriority.PriorityDescription,
+                Property = "", // TODO: populate address
+                DateRaised = workOrder.DateRaised,
+                LastUpdated = null
+            };
+        }
+
+        public static WorkOrderListItem ToListItem(this WorkOrder workOrder)
         {
             return new WorkOrderListItem
             {

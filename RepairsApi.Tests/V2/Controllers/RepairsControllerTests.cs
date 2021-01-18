@@ -68,13 +68,13 @@ namespace RepairsApi.Tests.V2.Controllers
         }
 
         [Test]
-        public void GetWorkOrders()
+        public async Task GetWorkOrders()
         {
             // arrange
             var expectedWorkOrders = CreateWorkOrders();
 
             // act
-            var result = _classUnderTest.GetList();
+            var result = await _classUnderTest.GetList(new WorkOrderSearchParamters());
 
             // assert
             result.Should().BeOfType<OkObjectResult>()
@@ -146,7 +146,7 @@ namespace RepairsApi.Tests.V2.Controllers
         {
 
             var expectedWorkOrders = _generator.GenerateList(5);
-            _listWorkOrdersUseCase.Setup(m => m.Execute()).Returns(expectedWorkOrders.Select(wo => wo.ToResponse()).ToList());
+            _listWorkOrdersUseCase.Setup(m => m.Execute(It.IsAny<WorkOrderSearchParamters>())).ReturnsAsync(expectedWorkOrders.Select(wo => wo.ToListItem()).ToList());
             return expectedWorkOrders;
         }
 

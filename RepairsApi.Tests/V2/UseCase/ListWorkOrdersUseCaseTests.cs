@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers;
 using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.V2.Controllers;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase;
@@ -33,15 +35,15 @@ namespace RepairsApi.Tests.V2.UseCase
         }
 
         [Test]
-        public void ReturnsWorkOrders()
+        public async Task ReturnsWorkOrders()
         {
             //Arrange
             const int expectedWorkOrderCount = 5;
             _repairsMock.Setup(r => r.GetWorkOrders())
-                .Returns(_generator.GenerateList(expectedWorkOrderCount));
+                .ReturnsAsync(_generator.GenerateList(expectedWorkOrderCount));
 
             //Act
-            var workOrders = _classUnderTest.Execute();
+            var workOrders = await _classUnderTest.Execute(new WorkOrderSearchParamters());
 
             //Assert
             workOrders.Should().HaveCount(expectedWorkOrderCount);
