@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using RepairsApi.V2.Boundary;
+using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.UseCase.Interfaces;
@@ -16,16 +18,19 @@ namespace RepairsApi.V2.Controllers
         private readonly IRaiseRepairUseCase _raiseRepairUseCase;
         private readonly IListWorkOrdersUseCase _listWorkOrdersUseCase;
         private readonly ICompleteWorkOrderUseCase _completeWorkOrderUseCase;
+        private readonly IGetWorkOrderUseCase _getWorkOrderUseCase;
 
         public RepairsController(
             IRaiseRepairUseCase raiseRepairUseCase,
             IListWorkOrdersUseCase listWorkOrdersUseCase,
-            ICompleteWorkOrderUseCase completeWorkOrderUseCase
+            ICompleteWorkOrderUseCase completeWorkOrderUseCase,
+            IGetWorkOrderUseCase getWorkOrderUseCase
         )
         {
             _raiseRepairUseCase = raiseRepairUseCase;
             _listWorkOrdersUseCase = listWorkOrdersUseCase;
             _completeWorkOrderUseCase = completeWorkOrderUseCase;
+            _getWorkOrderUseCase = getWorkOrderUseCase;
         }
 
         [HttpPost]
@@ -48,6 +53,24 @@ namespace RepairsApi.V2.Controllers
             return Ok(_listWorkOrdersUseCase.Execute());
         }
 
+        [Route("{id}")]
+        [HttpGet]
+        public async Task<IActionResult> Get(int id)
+        {
+            WorkOrderResponse workOrderResponse;
+
+            try
+            {
+                workOrderResponse = await _getWorkOrderUseCase.Execute(id);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+
+            return Ok(workOrderResponse);
+        }
+
         [HttpPost]
         [Route("/api/v2/workOrderComplete")]
         public async Task<IActionResult> WorkOrderComplete([FromBody] WorkOrderComplete request)
@@ -64,5 +87,4 @@ namespace RepairsApi.V2.Controllers
 
         }
     }
-
 }

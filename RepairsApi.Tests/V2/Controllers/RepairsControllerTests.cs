@@ -16,6 +16,8 @@ using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Generated;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.V2.Boundary;
+using RepairsApi.V2.Exceptions;
 
 namespace RepairsApi.Tests.V2.Controllers
 {
@@ -26,6 +28,7 @@ namespace RepairsApi.Tests.V2.Controllers
         private Mock<IListWorkOrdersUseCase> _listWorkOrdersUseCase;
         private Generator<WorkOrder> _generator;
         private Mock<ICompleteWorkOrderUseCase> _completeWorkOrderUseCase;
+        private Mock<IGetWorkOrderUseCase> _getWorkOrderUseCase;
 
         [SetUp]
         public void SetUp()
@@ -34,10 +37,12 @@ namespace RepairsApi.Tests.V2.Controllers
             _raiseRepairUseCaseMock = new Mock<IRaiseRepairUseCase>();
             _listWorkOrdersUseCase = new Mock<IListWorkOrdersUseCase>();
             _completeWorkOrderUseCase = new Mock<ICompleteWorkOrderUseCase>();
+            _getWorkOrderUseCase = new Mock<IGetWorkOrderUseCase>();
             _classUnderTest = new RepairsController(
                 _raiseRepairUseCaseMock.Object,
                 _listWorkOrdersUseCase.Object,
-                _completeWorkOrderUseCase.Object
+                _completeWorkOrderUseCase.Object,
+                _getWorkOrderUseCase.Object
                 );
         }
 
@@ -105,6 +110,30 @@ namespace RepairsApi.Tests.V2.Controllers
 
             // assert
             response.Should().BeOfType<BadRequestResult>();
+        }
+
+        [Test]
+        public async Task ReturnsObjectFromUseCase()
+        {
+            var expectedWorkOrderResponse = new Generator<WorkOrderResponse>().AddDefaultValueGenerators().Generate();
+            _getWorkOrderUseCase.Setup(uc => uc.Execute(It.IsAny<int>())).ReturnsAsync(expectedWorkOrderResponse);
+
+            var result = await _classUnderTest.Get(1);
+
+            GetStatusCode(result).Should().Be(200);
+            GetResultData<WorkOrderResponse>(result).Should().Be(expectedWorkOrderResponse);
+        }
+
+        [Test]
+        public async Task Returns404WhenCatching()
+        {
+            ResourceNotFoundException expectedException = new ResourceNotFoundException("test");
+            _getWorkOrderUseCase.Setup(uc => uc.Execute(It.IsAny<int>())).ThrowsAsync(expectedException);
+
+            var result = await _classUnderTest.Get(1);
+
+            GetStatusCode(result).Should().Be(404);
+            GetResultData<string>(result).Should().Be(expectedException.Message);
         }
 
         private void UseCaseReturns(bool result)
