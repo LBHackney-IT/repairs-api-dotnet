@@ -7,6 +7,6 @@ namespace RepairsApi.V2.UseCase.Interfaces
 #nullable enable
     public interface IListScheduleOfRatesUseCase
     {
-        Task<IList<ScheduleOfRatesModel>> Execute();
+        Task<IEnumerable<ScheduleOfRatesModel>> Execute();
     }
 }

@@ -17,7 +17,8 @@ namespace RepairsApi.Tests
                     DbContextOptionsBuilder builder = new DbContextOptionsBuilder();
                     builder.UseInMemoryDatabase(Guid.NewGuid().ToString());
 
-                    _context = new RepairsContext(builder.Options);
+                    _context = new RepairsContext(builder.Options, new DataImporter("../../../../RepairsApi/V2/SeededData"));
+                    _context.Database.EnsureCreated();
                 }
 
                 return _context;

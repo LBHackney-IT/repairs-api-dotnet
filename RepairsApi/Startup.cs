@@ -24,8 +24,11 @@ namespace RepairsApi
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private readonly IWebHostEnvironment _env;
+
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
+            _env = env;
             Configuration = configuration;
         }
 
@@ -107,6 +110,8 @@ namespace RepairsApi
             });
             ConfigureDbContext(services);
 
+            services.AddTransient(provider => new DataImporter(Path.Combine(_env.ContentRootPath, "V2/SeededData")));
+
             AddHttpClients(services);
             services.Configure<GatewayOptions>(Configuration.GetSection(nameof(GatewayOptions)));
 
@@ -122,6 +127,7 @@ namespace RepairsApi
             services.AddTransient<ITenancyGateway, TenancyGateway>();
             services.AddTransient<IRepairsGateway, RepairsGateway>();
             services.AddTransient<IWorkOrderCompletionGateway, WorkOrderCompletionGateway>();
+            services.AddTransient<IScheduleOfRatesGateway, ScheduleOfRatesGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
