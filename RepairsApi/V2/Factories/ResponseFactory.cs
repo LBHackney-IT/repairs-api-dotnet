@@ -31,10 +31,11 @@ namespace RepairsApi.V2.Factories
             };
         }
 
-        public static PropertyViewModel ToResponse(this PropertyModel domain)
+        public static PropertyViewModel ToResponse(this PropertyModel domain, TenureInformation tenure)
         {
             return new PropertyViewModel
             {
+                CanRaiseRepair = (tenure is null) || tenure.CanRaiseRepair, // If there is no tenure then we CAN raise repairs
                 PropertyReference = domain.PropertyReference,
                 Address = domain.Address.ToResponse(),
                 HierarchyType = domain.HierarchyType.ToResponse()
@@ -66,7 +67,7 @@ namespace RepairsApi.V2.Factories
         {
             return new PropertyResponse
             {
-                Property = domain.PropertyModel.ToResponse(),
+                Property = domain.PropertyModel.ToResponse(domain.Tenure),
                 Alerts = new AlertsViewModel
                 {
                     LocationAlert = domain.LocationAlerts.Select(alert => alert.ToResponse()).ToList(),
@@ -83,7 +84,6 @@ namespace RepairsApi.V2.Factories
 
             return new TenureViewModel
             {
-                CanRaiseRepair = domain.CanRaiseRepair,
                 TypeCode = domain.TypeCode,
                 TypeDescription = domain.TypeDescription
             };
