@@ -10,11 +10,11 @@
     },
     {
       "priorityCode": 3,
-      "description": "U - Urgent (5 Working days)"
+      "description": "U - Urgent 7 days (5 Working days)"
     },
     {
       "priorityCode": 4,
-      "description": "N - Normal (21 working days)"
+      "description": "N - Normal 28 days (21 working days)"
     },
     {
       "priorityCode": 5,
