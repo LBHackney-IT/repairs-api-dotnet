@@ -1,6 +1,6 @@
 namespace RepairsApi.V2.Boundary.Response
 {
-    public class PropertyViewModel
+    public class PropertyListItem
     {
         /// <summary>
         /// Gets or Sets PropertyReference
@@ -16,10 +16,5 @@ namespace RepairsApi.V2.Boundary.Response
         /// Gets or Sets HierarchyType
         /// </summary>
         public HierarchyTypeViewModel HierarchyType { get; set; }
-
-        /// <summary>
-        /// Gets or Sets CanRaiseRepair
-        /// </summary>
-        public bool CanRaiseRepair { get; set; }
     }
 }

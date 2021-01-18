@@ -42,6 +42,16 @@ namespace RepairsApi.V2.Factories
             };
         }
 
+        public static PropertyListItem ToResponseListItem(this PropertyModel domain)
+        {
+            return new PropertyListItem
+            {
+                PropertyReference = domain.PropertyReference,
+                Address = domain.Address.ToResponse(),
+                HierarchyType = domain.HierarchyType.ToResponse()
+            };
+        }
+
         public static AddressViewModel ToResponse(this Address domain)
         {
             return new AddressViewModel
@@ -89,9 +99,9 @@ namespace RepairsApi.V2.Factories
             };
         }
 
-        public static List<PropertyViewModel> ToResponse(this IEnumerable<PropertyModel> domainList)
+        public static List<PropertyListItem> ToResponse(this IEnumerable<PropertyModel> domainList)
         {
-            return domainList.Select(domain => domain.ToResponse()).ToList();
+            return domainList.Select(domain => domain.ToResponseListItem()).ToList();
         }
 
         public static WorkOrderListItem ToResponse(this WorkOrder workOrder)
