@@ -124,6 +124,8 @@ namespace RepairsApi.V2.Factories
         {
             TenancyApiTenancyInformation tenancyInformation = apiResponse.Tenancies.FirstOrDefault(t => t.Present);
 
+            if (tenancyInformation is null) return null;
+
             string[] splitTenureType = tenancyInformation.TenureType.Split(": ");
             return new TenureInformation
             {
