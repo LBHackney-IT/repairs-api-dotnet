@@ -15,7 +15,10 @@ namespace RepairsApi.V2.Infrastructure
             modelBuilder.Entity<SORPriority>().HasData(data.Priorities);
             modelBuilder.Entity<ScheduleOfRates>().HasData(data.Codes.Select(c => new ScheduleOfRates
             {
-                CustomCode = c.CustomCode, CustomName = c.CustomName, SORContractorRef = c.SorContractor, PriorityId = c.PriorityCode
+                CustomCode = c.CustomCode,
+                CustomName = c.CustomName,
+                SORContractorRef = c.SorContractor,
+                PriorityId = c.PriorityCode
             }));
         }
     }

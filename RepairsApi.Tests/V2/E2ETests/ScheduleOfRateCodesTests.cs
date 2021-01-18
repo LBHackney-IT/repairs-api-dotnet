@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -11,7 +11,7 @@ using RepairsApi.V2.Boundary.Response;
 
 namespace RepairsApi.Tests.V2.E2ETests
 {
-    public class ScheduleOfRateCodesTests: MockWebApplicationFactory
+    public class ScheduleOfRateCodesTests : MockWebApplicationFactory
     {
         [Test]
         public async Task ListSORCodes()

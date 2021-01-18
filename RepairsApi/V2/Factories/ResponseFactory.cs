@@ -26,7 +26,10 @@ namespace RepairsApi.V2.Factories
         {
             return new CautionaryAlertViewModel
             {
-                Type = domain.AlertCode, Comments = domain.Description, EndDate = domain.EndDate, StartDate = domain.StartDate
+                Type = domain.AlertCode,
+                Comments = domain.Description,
+                EndDate = domain.EndDate,
+                StartDate = domain.StartDate
             };
         }
 
@@ -34,7 +37,9 @@ namespace RepairsApi.V2.Factories
         {
             return new PropertyViewModel
             {
-                PropertyReference = domain.PropertyReference, Address = domain.Address.ToResponse(), HierarchyType = domain.HierarchyType.ToResponse()
+                PropertyReference = domain.PropertyReference,
+                Address = domain.Address.ToResponse(),
+                HierarchyType = domain.HierarchyType.ToResponse()
             };
         }
 
@@ -42,7 +47,10 @@ namespace RepairsApi.V2.Factories
         {
             return new AddressViewModel
             {
-                AddressLine = domain.AddressLine, PostalCode = domain.PostalCode, ShortAddress = domain.ShortAddress, StreetSuffix = domain.StreetSuffix
+                AddressLine = domain.AddressLine,
+                PostalCode = domain.PostalCode,
+                ShortAddress = domain.ShortAddress,
+                StreetSuffix = domain.StreetSuffix
             };
         }
 
@@ -50,7 +58,9 @@ namespace RepairsApi.V2.Factories
         {
             return new HierarchyTypeViewModel
             {
-                LevelCode = domain.LevelCode, SubTypeCode = domain.SubTypeCode, SubTypeDescription = domain.SubTypeDescription
+                LevelCode = domain.LevelCode,
+                SubTypeCode = domain.SubTypeCode,
+                SubTypeDescription = domain.SubTypeDescription
             };
         }
 
@@ -75,7 +85,9 @@ namespace RepairsApi.V2.Factories
 
             return new TenureViewModel
             {
-                CanRaiseRepair = domain.CanRaiseRepair, TypeCode = domain.TypeCode, TypeDescription = domain.TypeDescription
+                CanRaiseRepair = domain.CanRaiseRepair,
+                TypeCode = domain.TypeCode,
+                TypeDescription = domain.TypeDescription
             };
         }
 
@@ -129,7 +141,8 @@ namespace RepairsApi.V2.Factories
                 },
                 Priority = new SORPriority
                 {
-                    Description = sorCode.Priority.Description, PriorityCode = sorCode.Priority.PriorityCode
+                    Description = sorCode.Priority.Description,
+                    PriorityCode = sorCode.Priority.PriorityCode
                 }
             };
         }
