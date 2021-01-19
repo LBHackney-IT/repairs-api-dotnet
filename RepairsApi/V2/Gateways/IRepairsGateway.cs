@@ -10,8 +10,7 @@ namespace RepairsApi.V2.Gateways
     public interface IRepairsGateway
     {
         Task<int> CreateWorkOrder(WorkOrder raiseRepair);
-        Task<IEnumerable<WorkOrder>> GetWorkOrders();
-        Task<IEnumerable<WorkOrder>> GetWorkOrders(Expression<Func<WorkOrder, bool>> whereExpression);
+        Task<IEnumerable<WorkOrder>> GetWorkOrders(params Expression<Func<WorkOrder, bool>>[] whereExpressions);
         Task<WorkOrder?> GetWorkOrder(int id);
     }
 }

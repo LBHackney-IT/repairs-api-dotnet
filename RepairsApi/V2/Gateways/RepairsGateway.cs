@@ -25,14 +25,16 @@ namespace RepairsApi.V2.Gateways
             return entry.Entity.Id;
         }
 
-        public async Task<IEnumerable<WorkOrder>> GetWorkOrders()
+        public async Task<IEnumerable<WorkOrder>> GetWorkOrders(params Expression<Func<WorkOrder, bool>>[] whereExpressions)
         {
-            return await _repairsContext.WorkOrders.ToListAsync();
-        }
+            IQueryable<WorkOrder> workOrders = _repairsContext.WorkOrders;
 
-        public async Task<IEnumerable<WorkOrder>> GetWorkOrders(Expression<Func<WorkOrder, bool>> whereExpression)
-        {
-            return await _repairsContext.WorkOrders.Where(whereExpression).ToListAsync();
+            foreach (var whereExpression in whereExpressions)
+            {
+                workOrders = workOrders.Where(whereExpression);
+            }
+
+            return await workOrders.ToListAsync();
         }
 
         public async Task<WorkOrder> GetWorkOrder(int id)

@@ -13,13 +13,15 @@ namespace RepairsApi.Tests.V2.UseCase
     public class RaiseRepairUseCaseTests
     {
         private Mock<IRepairsGateway> _repairsGatewayMock;
+        private Mock<IScheduleOfRatesGateway> _sorGatewayMock;
         private RaiseRepairUseCase _classUnderTest;
 
         [SetUp]
         public void Setup()
         {
             _repairsGatewayMock = new Mock<IRepairsGateway>();
-            _classUnderTest = new RaiseRepairUseCase(_repairsGatewayMock.Object, new NullLogger<RaiseRepairUseCase>());
+            _sorGatewayMock = new Mock<IScheduleOfRatesGateway>();
+            _classUnderTest = new RaiseRepairUseCase(_repairsGatewayMock.Object, new NullLogger<RaiseRepairUseCase>(), _sorGatewayMock.Object);
         }
 
         [Test]

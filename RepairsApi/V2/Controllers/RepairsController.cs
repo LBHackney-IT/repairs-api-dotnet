@@ -89,5 +89,6 @@ namespace RepairsApi.V2.Controllers
     public class WorkOrderSearchParamters
     {
         public string PropertyReference { get; set; }
+        public string ContractorReference { get; set; }
     }
 }
