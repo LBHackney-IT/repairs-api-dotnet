@@ -106,7 +106,8 @@ namespace RepairsApi.Tests.V2.UseCase
                 SORContractorRef = "contractor",
                 Priority = new SORPriority
                 {
-                    Description = "priorityDescription", PriorityCode = 1
+                    Description = "priorityDescription",
+                    PriorityCode = 1
                 }
             };
             var expectedCodes = new List<ScheduleOfRates>

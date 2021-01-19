@@ -48,7 +48,7 @@ namespace RepairsApi.V2.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetList([FromQuery]WorkOrderSearchParameters parameters)
+        public async Task<IActionResult> GetList([FromQuery] WorkOrderSearchParameters parameters)
         {
             return Ok(await _listWorkOrdersUseCase.Execute(parameters));
         }
