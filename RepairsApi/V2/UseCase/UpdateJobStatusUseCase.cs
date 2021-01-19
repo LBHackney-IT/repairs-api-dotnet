@@ -22,32 +22,16 @@ namespace RepairsApi.V2.UseCase
             _jobStatusUpdateGateway = jobStatusUpdateGateway;
         }
 
-        public async Task<bool> Execute(JobStatusUpdate request)
+        public async Task<bool> Execute(JobStatusUpdate jobStatusUpdate)
         {
-            var workOrderId = int.Parse(request.RelatedWorkOrderReference.ID);
+            var workOrderId = int.Parse(jobStatusUpdate.RelatedWorkOrderReference.ID);
 
             var workOrder = _repairsGateway.GetWorkOrder(workOrderId);
             if (workOrder is null) return false;
 
             var workElements = _repairsGateway.GetWorkElementsForWorkOrder(workOrder);
 
-            await _jobStatusUpdateGateway.CreateJobStatusUpdate(
-                new Infrastructure.JobStatusUpdate
-                {
-                    RelatedWorkElement = workElements.ToList(),
-                    EventTime = DateTime.Now,
-                    TypeCode = request.TypeCode,
-                    AdditionalWork = request.AdditionalWork?.ToDb(),
-                    Comments = request.Comments,
-                    CustomerCommunicationChannelAttempted = request.CustomerCommunicationChannelAttempted?.ToDb(),
-                    CustomerFeedback = request.CustomerFeedback?.ToDb(),
-                    MoreSpecificSORCode = request.MoreSpecificSORCode?.ToDb(),
-                    OperativesAssigned = request.OperativesAssigned?.Select(oa => oa.ToDb()).ToList(),
-                    OtherType = request.OtherType,
-                    RefinedAppointmentWindow = request.RefinedAppointmentWindow?.ToDb(),
-                    RelatedWorkOrder = workOrder
-                }
-            );
+            await _jobStatusUpdateGateway.CreateJobStatusUpdate(jobStatusUpdate.ToDb(workElements, workOrder));
 
             return true;
         }

@@ -74,7 +74,7 @@ namespace RepairsApi.V2.Controllers
             try
             {
                 var result = await _updateJobStatusUseCase.Execute(request);
-                return result ? (IActionResult) Ok() : BadRequest();
+                return result ? (IActionResult) Ok() : BadRequest("No WorkOrder was found with the provided ID.");
             }
             catch (NotSupportedException e)
             {

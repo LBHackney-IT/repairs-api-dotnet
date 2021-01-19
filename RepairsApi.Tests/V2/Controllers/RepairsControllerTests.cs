@@ -110,19 +110,30 @@ namespace RepairsApi.Tests.V2.Controllers
             response.Should().BeOfType<BadRequestResult>();
         }
 
-        [TestCase(true)]
-        [TestCase(false)]
-        public async Task ReturnsAppropriatelyForJobStatusUpdateRequest(bool useCaseSucceeds)
+        [Test]
+        public async Task ReturnsOkWhenCanUpdateJobStatus()
         {
             _updateJobStatusUseCase
                 .Setup(uc => uc.Execute(It.IsAny<JobStatusUpdate>()))
-                .ReturnsAsync(useCaseSucceeds);
+                .ReturnsAsync(true);
 
             var response = await _classUnderTest.JobStatusUpdate(
                 new JobStatusUpdate { RelatedWorkOrderReference = new Reference { ID = "42" } });
 
-            if (useCaseSucceeds) response.Should().BeOfType<OkResult>();
-            else response.Should().BeOfType<BadRequestResult>();
+            response.Should().BeOfType<OkResult>();
+        }
+
+        [Test]
+        public async Task ReturnsBadRequestWhenCannotUpdateJobStatus()
+        {
+            _updateJobStatusUseCase
+                .Setup(uc => uc.Execute(It.IsAny<JobStatusUpdate>()))
+                .ReturnsAsync(false);
+
+            var response = await _classUnderTest.JobStatusUpdate(
+                new JobStatusUpdate { RelatedWorkOrderReference = new Reference { ID = "41" } });
+
+            response.Should().BeOfType<BadRequestObjectResult>();
         }
 
         private void UseCaseReturns(bool result)

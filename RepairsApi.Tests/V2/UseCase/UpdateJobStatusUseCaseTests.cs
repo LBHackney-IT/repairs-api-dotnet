@@ -34,16 +34,17 @@ namespace RepairsApi.Tests.V2.UseCase
         [Test]
         public async Task CanUpdateJobStatus()
         {
-            _jobStatusUpdateGateway.Setup(gateway => gateway.CreateJobStatusUpdate(It.Is<JobStatusUpdate>(jsu => jsu.RelatedWorkOrder.Id == 42)))
+            const int desiredWorkOrderId = 42;
+            _jobStatusUpdateGateway.Setup(gateway => gateway.CreateJobStatusUpdate(It.Is<JobStatusUpdate>(jsu => jsu.RelatedWorkOrder.Id == desiredWorkOrderId)))
                 .ReturnsAsync(1);
 
             var workOrder = _fixture.Create<WorkOrder>();
-            workOrder.Id = 42;
+            workOrder.Id = desiredWorkOrderId;
 
-            _repairsGatewayMock.Setup(gateway => gateway.GetWorkOrder(It.Is<int>(i => i == 42)))
+            _repairsGatewayMock.Setup(gateway => gateway.GetWorkOrder(It.Is<int>(i => i == desiredWorkOrderId)))
                 .Returns(workOrder);
 
-            _repairsGatewayMock.Setup(gateway => gateway.GetWorkElementsForWorkOrder(It.Is<WorkOrder>(wo => wo.Id == 42)))
+            _repairsGatewayMock.Setup(gateway => gateway.GetWorkElementsForWorkOrder(It.Is<WorkOrder>(wo => wo.Id == desiredWorkOrderId)))
                 .Returns(_fixture.Create<List<WorkElement>>);
 
             var result = await _classUnderTest.Execute(

@@ -325,5 +325,26 @@ namespace RepairsApi.V2.Factories
         {
             return new Communication { Channel = ccca.Channel.ToDb(), Value = ccca.Value };
         }
+
+        public static JobStatusUpdate ToDb(this Generated.JobStatusUpdate jobStatusUpdate,
+            IEnumerable<WorkElement> workElements,
+            WorkOrder workOrder)
+        {
+            return new JobStatusUpdate
+            {
+                RelatedWorkElement = workElements.ToList(),
+                EventTime = DateTime.Now,
+                TypeCode = jobStatusUpdate.TypeCode,
+                AdditionalWork = jobStatusUpdate.AdditionalWork?.ToDb(),
+                Comments = jobStatusUpdate.Comments,
+                CustomerCommunicationChannelAttempted = jobStatusUpdate.CustomerCommunicationChannelAttempted?.ToDb(),
+                CustomerFeedback = jobStatusUpdate.CustomerFeedback?.ToDb(),
+                MoreSpecificSORCode = jobStatusUpdate.MoreSpecificSORCode?.ToDb(),
+                OperativesAssigned = jobStatusUpdate.OperativesAssigned?.Select(oa => oa.ToDb()).ToList(),
+                OtherType = jobStatusUpdate.OtherType,
+                RefinedAppointmentWindow = jobStatusUpdate.RefinedAppointmentWindow?.ToDb(),
+                RelatedWorkOrder = workOrder
+            };
+        }
     }
 }
