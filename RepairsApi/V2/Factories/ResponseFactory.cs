@@ -95,7 +95,8 @@ namespace RepairsApi.V2.Factories
             return new TenureViewModel
             {
                 TypeCode = domain.TypeCode,
-                TypeDescription = domain.TypeDescription
+                TypeDescription = domain.TypeDescription,
+                CanRaiseRepair = domain.CanRaiseRepair
             };
         }
 

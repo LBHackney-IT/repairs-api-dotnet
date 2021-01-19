@@ -11,5 +11,10 @@ namespace RepairsApi.V2.Boundary.Response
         /// Gets or Sets TypeDescription
         /// </summary>
         public string TypeDescription { get; set; }
+
+        /// <summary>
+        /// Gets or Sets CanRaiseRepair
+        /// </summary>
+        public object CanRaiseRepair { get; set; }
     }
 }
