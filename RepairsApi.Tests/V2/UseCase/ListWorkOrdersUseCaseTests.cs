@@ -18,6 +18,7 @@ namespace RepairsApi.Tests.V2.UseCase
     {
         private ListWorkOrdersUseCase _classUnderTest;
         private Mock<IRepairsGateway> _repairsMock;
+        private Mock<IScheduleOfRatesGateway> _sorGatewayMock;
         private Generator<WorkOrder> _generator;
 
         [SetUp]
@@ -25,7 +26,8 @@ namespace RepairsApi.Tests.V2.UseCase
         {
             configureGenerator();
             _repairsMock = new Mock<IRepairsGateway>();
-            _classUnderTest = new ListWorkOrdersUseCase(_repairsMock.Object);
+            _sorGatewayMock = new Mock<IScheduleOfRatesGateway>();
+            _classUnderTest = new ListWorkOrdersUseCase(_repairsMock.Object, _sorGatewayMock.Object);
         }
 
         private void configureGenerator()
