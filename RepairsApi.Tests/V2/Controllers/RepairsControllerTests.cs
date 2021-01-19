@@ -119,9 +119,9 @@ namespace RepairsApi.Tests.V2.Controllers
                 .ReturnsAsync(useCaseSucceeds);
 
             var response = await _classUnderTest.JobStatusUpdate(
-                new JobStatusUpdate {RelatedWorkOrderReference = new Reference {ID = "42"}});
+                new JobStatusUpdate { RelatedWorkOrderReference = new Reference { ID = "42" } });
 
-            if(useCaseSucceeds) response.Should().BeOfType<OkResult>();
+            if (useCaseSucceeds) response.Should().BeOfType<OkResult>();
             else response.Should().BeOfType<BadRequestResult>();
         }
 
@@ -143,7 +143,7 @@ namespace RepairsApi.Tests.V2.Controllers
         {
             var request = new WorkOrderComplete
             {
-                WorkOrderReference = new Reference {ID = expectedWorkOrderId.ToString()}
+                WorkOrderReference = new Reference { ID = expectedWorkOrderId.ToString() }
             };
             return request;
         }

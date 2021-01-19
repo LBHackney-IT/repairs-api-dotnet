@@ -47,7 +47,7 @@ namespace RepairsApi.Tests.V2.UseCase
                 .Returns(_fixture.Create<List<WorkElement>>);
 
             var result = await _classUnderTest.Execute(
-                new Generated.JobStatusUpdate {RelatedWorkOrderReference = new Generated.Reference {ID = "42"}});
+                new Generated.JobStatusUpdate { RelatedWorkOrderReference = new Generated.Reference { ID = "42" } });
 
             result.Should().BeTrue();
         }
@@ -56,7 +56,7 @@ namespace RepairsApi.Tests.V2.UseCase
         public async Task ReturnFalseWhenWorkOrderDoesntExist()
         {
             var result = await _classUnderTest.Execute(
-                new Generated.JobStatusUpdate {RelatedWorkOrderReference = new Generated.Reference {ID = "41"}});
+                new Generated.JobStatusUpdate { RelatedWorkOrderReference = new Generated.Reference { ID = "41" } });
 
             // assert
             result.Should().BeFalse();

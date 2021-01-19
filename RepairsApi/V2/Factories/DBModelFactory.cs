@@ -318,12 +318,12 @@ namespace RepairsApi.V2.Factories
 
         public static CommunicationChannel ToDb(this Generated.Channel channel)
         {
-            return new CommunicationChannel {Code = channel.Code, Medium = channel.Medium};
+            return new CommunicationChannel { Code = channel.Code, Medium = channel.Medium };
         }
 
         public static Communication ToDb(this Generated.CustomerCommunicationChannelAttempted ccca)
         {
-            return new Communication {Channel = ccca.Channel.ToDb(), Value = ccca.Value};
+            return new Communication { Channel = ccca.Channel.ToDb(), Value = ccca.Value };
         }
     }
 }

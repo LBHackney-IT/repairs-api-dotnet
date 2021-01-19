@@ -47,7 +47,7 @@ namespace RepairsApi.Tests.V2.Controllers
 
             // Act
             var result = await _classUnderTest.ListProperties(null, null, null);
-            var propertyResults = GetResultData<List<PropertyViewModel>>(result);
+            var propertyResults = GetResultData<List<PropertyListItem>>(result);
             var statusCode = GetStatusCode(result);
 
             // Assert
