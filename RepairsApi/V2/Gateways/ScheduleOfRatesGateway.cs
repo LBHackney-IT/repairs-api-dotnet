@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Castle.Core.Internal;
 using Microsoft.EntityFrameworkCore;
 using RepairsApi.V2.Infrastructure;
 
@@ -23,9 +24,13 @@ namespace RepairsApi.V2.Gateways
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<ScheduleOfRates>> GetSorCodes()
+        public async Task<IEnumerable<ScheduleOfRates>> GetSorCodes(string contractorRef = null)
         {
-            return await SORCodes.ToListAsync();
+            if (contractorRef.IsNullOrEmpty())
+            {
+                return await SORCodes.ToListAsync();
+            }
+            return await SORCodes.Where(sor => sor.SORContractorRef == contractorRef).ToListAsync();
         }
     }
 }

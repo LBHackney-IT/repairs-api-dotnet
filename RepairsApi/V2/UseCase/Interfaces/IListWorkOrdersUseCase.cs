@@ -7,7 +7,7 @@ namespace RepairsApi.V2.UseCase.Interfaces
 {
     public interface IListWorkOrdersUseCase
     {
-        Task<IEnumerable<WorkOrderListItem>> Execute(WorkOrderSearchParamters parameters);
+        Task<IEnumerable<WorkOrderListItem>> Execute(WorkOrderSearchParameters parameters);
     }
 
 }

@@ -23,27 +23,35 @@ namespace RepairsApi.V2.UseCase
             _scheduleOfRatesGateway = scheduleOfRatesGateway;
         }
 
-        public async Task<IEnumerable<WorkOrderListItem>> Execute(WorkOrderSearchParamters searchParamters)
+        public async Task<IEnumerable<WorkOrderListItem>> Execute(WorkOrderSearchParameters searchParameters)
         {
-            IEnumerable<WorkOrder> workOrders = await _repairsGateway.GetWorkOrders(GetConstraints(searchParamters));
+            IEnumerable<WorkOrder> workOrders = await _repairsGateway.GetWorkOrders(await GetConstraints(searchParameters));
 
             return workOrders.Select(wo => wo.ToListItem())
                 .OrderByDescending(wo => wo.DateRaised)
                 .ToList();
         }
 
-        private Expression<Func<WorkOrder, bool>>[] GetConstraints(WorkOrderSearchParamters searchParamters)
+        private async Task<Expression<Func<WorkOrder, bool>>[]> GetConstraints(WorkOrderSearchParameters searchParameters)
         {
-            List<Expression<Func<WorkOrder, bool>>> result = new List<Expression<Func<WorkOrder, bool>>>();
+            var result = new List<Expression<Func<WorkOrder, bool>>>();
 
-            if (!string.IsNullOrWhiteSpace(searchParamters.PropertyReference))
+            if (!string.IsNullOrWhiteSpace(searchParameters.PropertyReference))
             {
-                result.Add(wo => wo.Site.PropertyClass.Any(pc => pc.PropertyReference == searchParamters.PropertyReference));
+                result.Add(wo => wo.Site.PropertyClass.Any(pc => pc.PropertyReference == searchParameters.PropertyReference));
             }
 
-            if (!string.IsNullOrWhiteSpace(searchParamters.ContractorReference))
+            if (!string.IsNullOrWhiteSpace(searchParameters.ContractorReference))
             {
-                result.Add(wo => wo.WorkElements.Any(we => we.RateScheduleItem.Any(rsi => _scheduleOfRatesGateway.GetContractorReference(rsi.CustomCode).Result == searchParamters.ContractorReference)));
+                var scheduleOfRatesEnumerable = await _scheduleOfRatesGateway.GetSorCodes(searchParameters.ContractorReference);
+                var relatedSorCodes = scheduleOfRatesEnumerable.Select(c => c.CustomCode);
+                result.Add(wo =>
+                    wo.WorkElements.Any(we =>
+                        we.RateScheduleItem.Any(rsi =>
+                            relatedSorCodes.Contains(rsi.CustomCode)
+                        )
+                    )
+                );
             }
 
             return result.ToArray();
