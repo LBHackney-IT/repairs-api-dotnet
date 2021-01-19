@@ -1,6 +1,6 @@
 namespace RepairsApi.V2.Boundary.Response
 {
-    public class PropertyViewModel
+    public class PropertyListItem
     {
         /// <summary>
         /// Gets or Sets PropertyReference
