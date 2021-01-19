@@ -15,6 +15,6 @@ namespace RepairsApi.V2.Boundary.Response
         /// <summary>
         /// Gets or Sets CanRaiseRepair
         /// </summary>
-        public object CanRaiseRepair { get; set; }
+        public bool CanRaiseRepair { get; set; }
     }
 }
