@@ -12,5 +12,6 @@ namespace RepairsApi.V2.Infrastructure
         public string CustomCode { get; set; }
         public string CustomName { get; set; }
         public virtual Quantity Quantity { get; set; }
+        public string ContractorReference { get; internal set; }
     }
 }
