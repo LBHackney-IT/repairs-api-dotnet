@@ -58,17 +58,13 @@ namespace RepairsApi.Tests.V2.UseCase
         public async Task CanFilterByContractorRef()
         {
             // Arrange
-            var expectedCode = AddSorCode();
-            expectedCode.SORContractorRef = Guid.NewGuid().ToString();
+            var expectedCode = AddSorCode(Guid.NewGuid().ToString());
 
-            var otherWorkOrders = _generator.GenerateList(5);
-            SetSorCodes("not" + expectedCode.CustomCode, otherWorkOrders.ToArray());
+            var allWorkOrders = GenerateWorkOrders(5, "not" + expectedCode.CustomCode);
+            var expectedWorkOrders = GenerateWorkOrders(3, expectedCode.CustomCode);
+            allWorkOrders.AddRange(expectedWorkOrders);
 
-            var expectedWorkOrders = _generator.GenerateList(3);
-            SetSorCodes(expectedCode.CustomCode, expectedWorkOrders.ToArray());
-            otherWorkOrders.AddRange(expectedWorkOrders);
-
-            _repairsMock.ReturnsWorkOrders(otherWorkOrders);
+            _repairsMock.ReturnsWorkOrders(allWorkOrders);
 
             var workOrderSearchParameters = new WorkOrderSearchParameters
             {
@@ -81,6 +77,14 @@ namespace RepairsApi.Tests.V2.UseCase
             // Assert
             var expectedResponses = expectedWorkOrders.Select(ewo => ewo.ToResponse());
             workOrders.Should().BeEquivalentTo(expectedResponses);
+        }
+
+        private List<WorkOrder> GenerateWorkOrders(int number, string expectedCode)
+        {
+
+            var otherWorkOrders = _generator.GenerateList(number);
+            SetSorCodes(expectedCode, otherWorkOrders.ToArray());
+            return otherWorkOrders;
         }
 
         private static void SetSorCodes(string expectedCode, params WorkOrder[] expectedWorkOrders)
@@ -97,13 +101,13 @@ namespace RepairsApi.Tests.V2.UseCase
             }
         }
 
-        private ScheduleOfRates AddSorCode()
+        private ScheduleOfRates AddSorCode(string contractorRef = "contractor")
         {
             var expectedCode = new ScheduleOfRates
             {
                 CustomCode = "1",
                 CustomName = "name",
-                SORContractorRef = "contractor",
+                SORContractorRef = contractorRef,
                 Priority = new SORPriority
                 {
                     Description = "priorityDescription",
