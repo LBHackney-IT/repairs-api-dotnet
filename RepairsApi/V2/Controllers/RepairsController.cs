@@ -16,16 +16,19 @@ namespace RepairsApi.V2.Controllers
         private readonly IRaiseRepairUseCase _raiseRepairUseCase;
         private readonly IListWorkOrdersUseCase _listWorkOrdersUseCase;
         private readonly ICompleteWorkOrderUseCase _completeWorkOrderUseCase;
+        private readonly IUpdateJobStatusUseCase _updateJobStatusUseCase;
 
         public RepairsController(
             IRaiseRepairUseCase raiseRepairUseCase,
             IListWorkOrdersUseCase listWorkOrdersUseCase,
-            ICompleteWorkOrderUseCase completeWorkOrderUseCase
+            ICompleteWorkOrderUseCase completeWorkOrderUseCase,
+            IUpdateJobStatusUseCase updateJobStatusUseCase
         )
         {
             _raiseRepairUseCase = raiseRepairUseCase;
             _listWorkOrdersUseCase = listWorkOrdersUseCase;
             _completeWorkOrderUseCase = completeWorkOrderUseCase;
+            _updateJobStatusUseCase = updateJobStatusUseCase;
         }
 
         [HttpPost]
@@ -63,6 +66,22 @@ namespace RepairsApi.V2.Controllers
             }
 
         }
+
+        [HttpPost]
+        [Route("/api/v2/jobStatusUpdate")]
+        public async Task<IActionResult> JobStatusUpdate([FromBody] JobStatusUpdate request)
+        {
+            try
+            {
+                var result = await _updateJobStatusUseCase.Execute(request);
+                return result ? (IActionResult) Ok() : BadRequest();
+            }
+            catch (NotSupportedException e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
     }
 
 }
