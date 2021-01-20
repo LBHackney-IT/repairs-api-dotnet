@@ -27,7 +27,7 @@ namespace RepairsApi.V2.Controllers
         /// </summary>
         /// <response code="200">Success. Returns a list of SOR codes</response>
         /// <response code="400">Invalid Query Parameter.</response>
-        [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<ScheduleOfRatesModel>), StatusCodes.Status200OK)]
         [Route("codes")]
         [HttpGet]
         public async Task<IActionResult> ListRecords()
