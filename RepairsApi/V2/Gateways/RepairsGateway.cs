@@ -42,14 +42,14 @@ namespace RepairsApi.V2.Gateways
             return await _repairsContext.WorkOrders.FindAsync(id);
         }
 
-        public IEnumerable<WorkElement> GetWorkElementsForWorkOrder(WorkOrder workOrder)
+        public async Task<IEnumerable<WorkElement>> GetWorkElementsForWorkOrder(WorkOrder workOrder)
         {
             var elements =
                 from wo in _repairsContext.WorkOrders
                 where wo.Id == workOrder.Id
                 select wo.WorkElements;
 
-            return elements.SingleOrDefault();
+            return await elements.SingleOrDefaultAsync();
         }
     }
 }

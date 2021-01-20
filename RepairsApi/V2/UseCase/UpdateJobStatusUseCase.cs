@@ -26,10 +26,10 @@ namespace RepairsApi.V2.UseCase
         {
             var workOrderId = int.Parse(jobStatusUpdate.RelatedWorkOrderReference.ID);
 
-            var workOrder = _repairsGateway.GetWorkOrder(workOrderId);
+            var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
             if (workOrder is null) return false;
 
-            var workElements = _repairsGateway.GetWorkElementsForWorkOrder(workOrder);
+            var workElements = await _repairsGateway.GetWorkElementsForWorkOrder(workOrder);
 
             await _jobStatusUpdateGateway.CreateJobStatusUpdate(jobStatusUpdate.ToDb(workElements, workOrder));
 

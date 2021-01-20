@@ -1,24 +1,21 @@
-using System;
-using System.CodeDom.Compiler;
-using System.Collections.Generic;
-using System.Linq;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
-using RepairsApi.V2.Controllers;
-using RepairsApi.V2.UseCase.Interfaces;
-using System.Threading.Tasks;
-using RepairsApi.V2.Factories;
-using RepairsApi.V2.Boundary.Response;
-using RepairsApi.V2.Generated;
-using RepairsApi.V2.Infrastructure;
-using RepairsApi.Tests.Helpers.StubGeneration;
-using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 using RepairsApi.Tests.Helpers.StubGeneration;
 using RepairsApi.V2.Boundary;
+using RepairsApi.V2.Boundary.Response;
+using RepairsApi.V2.Controllers;
 using RepairsApi.V2.Exceptions;
+using RepairsApi.V2.Factories;
+using RepairsApi.V2.Generated;
+using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.UseCase.Interfaces;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
+using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 
 namespace RepairsApi.Tests.V2.Controllers
 {
