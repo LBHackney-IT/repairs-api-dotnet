@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Controllers;
+using RepairsApi.V2.Controllers.Parameters;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;

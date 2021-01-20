@@ -1,6 +1,6 @@
 using FluentAssertions;
 using NUnit.Framework;
-using RepairsApi.V2.Controllers;
+using RepairsApi.V2.Controllers.Parameters;
 
 namespace RepairsApi.Tests.V2.Controllers.Parameters
 {

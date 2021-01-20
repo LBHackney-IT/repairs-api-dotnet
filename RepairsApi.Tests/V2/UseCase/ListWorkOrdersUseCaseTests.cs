@@ -9,6 +9,7 @@ using NUnit.Framework;
 using RepairsApi.Tests.Helpers;
 using RepairsApi.Tests.Helpers.StubGeneration;
 using RepairsApi.V2.Controllers;
+using RepairsApi.V2.Controllers.Parameters;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;

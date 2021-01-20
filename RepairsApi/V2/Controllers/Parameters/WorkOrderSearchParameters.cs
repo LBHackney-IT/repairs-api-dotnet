@@ -1,6 +1,6 @@
 using System;
 
-namespace RepairsApi.V2.Controllers
+namespace RepairsApi.V2.Controllers.Parameters
 {
     public class WorkOrderSearchParameters
     {
