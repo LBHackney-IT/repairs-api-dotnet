@@ -119,7 +119,8 @@ namespace RepairsApi.V2.Factories
                 Priority = workOrder.WorkPriority.PriorityDescription,
                 Property = addressLine,
                 DateRaised = workOrder.DateRaised,
-                LastUpdated = null
+                LastUpdated = null,
+                PropertyReference = workOrder.Site?.PropertyClass.Take(1).SingleOrDefault().Id.ToString()
             };
         }
 
@@ -135,7 +136,8 @@ namespace RepairsApi.V2.Factories
                 Priority = workOrder.WorkPriority.PriorityDescription,
                 Property = addressLine,
                 DateRaised = workOrder.DateRaised,
-                LastUpdated = null
+                LastUpdated = null,
+                PropertyReference = workOrder.Site?.PropertyClass.Take(1).SingleOrDefault().Id.ToString()
             };
         }
 

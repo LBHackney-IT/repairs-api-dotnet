@@ -11,5 +11,6 @@ namespace RepairsApi.V2.Boundary.Response
         public string Property { get; set; }
         public string Owner { get; set; }
         public string Description { get; set; }
+        public string PropertyReference { get; set; }
     }
 }
