@@ -14,6 +14,7 @@ using RepairsApi.V2.UseCase.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using RepairsApi.V2.Controllers.Parameters;
 using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 

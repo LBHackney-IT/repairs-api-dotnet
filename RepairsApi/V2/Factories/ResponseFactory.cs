@@ -109,29 +109,35 @@ namespace RepairsApi.V2.Factories
 
         public static WorkOrderResponse ToResponse(this WorkOrder workOrder)
         {
+            PropertyClass propertyClass = workOrder.Site?.PropertyClass.FirstOrDefault();
+            string addressLine = propertyClass?.Address?.Address?.Address?.AddressLine;
             return new WorkOrderResponse
             {
                 Reference = workOrder.Id,
                 Description = workOrder.DescriptionOfWork,
                 Owner = "", // TODO: populate owner
                 Priority = workOrder.WorkPriority.PriorityDescription,
-                Property = "", // TODO: populate address
+                Property = addressLine,
                 DateRaised = workOrder.DateRaised,
-                LastUpdated = null
+                LastUpdated = null,
+                PropertyReference = workOrder.Site?.PropertyClass.Take(1).SingleOrDefault().Id.ToString()
             };
         }
 
         public static WorkOrderListItem ToListItem(this WorkOrder workOrder)
         {
+            PropertyClass propertyClass = workOrder.Site?.PropertyClass.FirstOrDefault();
+            string addressLine = propertyClass?.Address?.Address?.Address?.AddressLine;
             return new WorkOrderListItem
             {
                 Reference = workOrder.Id,
                 Description = workOrder.DescriptionOfWork,
                 Owner = "", // TODO: populate owner
                 Priority = workOrder.WorkPriority.PriorityDescription,
-                Property = "", // TODO: populate address
+                Property = addressLine,
                 DateRaised = workOrder.DateRaised,
-                LastUpdated = null
+                LastUpdated = null,
+                PropertyReference = workOrder.Site?.PropertyClass.Take(1).SingleOrDefault().Id.ToString()
             };
         }
 
