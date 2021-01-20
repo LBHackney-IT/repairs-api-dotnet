@@ -115,7 +115,7 @@ namespace RepairsApi.V2.Factories
                 Description = workOrder.DescriptionOfWork,
                 Owner = "", // TODO: populate owner
                 Priority = workOrder.WorkPriority.PriorityDescription,
-                Property = "", // TODO: populate address
+                Property = workOrder.Site.PropertyClass.FirstOrDefault()?.Address.Address.Address.AddressLine,
                 DateRaised = workOrder.DateRaised,
                 LastUpdated = null
             };
@@ -129,7 +129,7 @@ namespace RepairsApi.V2.Factories
                 Description = workOrder.DescriptionOfWork,
                 Owner = "", // TODO: populate owner
                 Priority = workOrder.WorkPriority.PriorityDescription,
-                Property = "", // TODO: populate address
+                Property = workOrder.Site.PropertyClass.FirstOrDefault()?.Address.Address.Address.AddressLine,
                 DateRaised = workOrder.DateRaised,
                 LastUpdated = null
             };
