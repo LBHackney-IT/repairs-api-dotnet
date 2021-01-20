@@ -92,7 +92,7 @@ namespace RepairsApi.V2.Factories
             {
                 ShortAddress = apiResponse.Address1,
                 PostalCode = apiResponse.PostCode,
-                AddressLine = apiResponse.Address1.Split(" ").First(),
+                AddressLine = splitAddress.First(),
                 StreetSuffix = splitAddress.Length > 1 ? splitAddress.Last() : string.Empty
             };
         }
@@ -123,6 +123,8 @@ namespace RepairsApi.V2.Factories
         public static TenureInformation ToDomain(this ListTenanciesApiResponse apiResponse)
         {
             TenancyApiTenancyInformation tenancyInformation = apiResponse.Tenancies.FirstOrDefault(t => t.Present);
+
+            if (tenancyInformation is null) return null;
 
             string[] splitTenureType = tenancyInformation.TenureType.Split(": ");
             return new TenureInformation

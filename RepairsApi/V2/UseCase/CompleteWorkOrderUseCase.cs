@@ -30,7 +30,7 @@ namespace RepairsApi.V2.UseCase
         public async Task<bool> Execute(WorkOrderComplete request)
         {
             var workOrderId = int.Parse(request.WorkOrderReference.ID);
-            var workOrder = _repairsGateway.GetWorkOrder(workOrderId);
+            var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
 
             if (workOrder is null)
             {

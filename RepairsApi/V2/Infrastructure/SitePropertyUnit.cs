@@ -17,6 +17,7 @@ namespace RepairsApi.V2.Infrastructure
         public virtual PropertyAddress Address { get; set; }
         public string MasterKeySystem { get; set; }
         public virtual GeographicalLocation GeographicalLocation { get; set; }
+        public string PropertyReference { get; set; }
     }
 
     public class Site

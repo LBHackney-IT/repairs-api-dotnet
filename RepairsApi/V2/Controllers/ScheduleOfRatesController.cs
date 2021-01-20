@@ -30,9 +30,9 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
         [Route("codes")]
         [HttpGet]
-        public IActionResult ListRecords()
+        public async Task<IActionResult> ListRecords()
         {
-            return Ok(_listScheduleOfRates.Execute());
+            return Ok(await _listScheduleOfRates.Execute());
             //var sorPattern = "^[A-Za-z0-9]{7,8}$";
         }
 

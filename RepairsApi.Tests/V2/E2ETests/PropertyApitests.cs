@@ -3,6 +3,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers;
 using RepairsApi.V2.Boundary.Response;
+using RepairsApi.V2.Domain;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Gateways;
 using System;
@@ -33,7 +34,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             MockApiGateway.AddTenantInformation(tenantReference, expectedProperty.PropRef, canRaiseRepair);
             MockApiGateway.AddPersonAlerts(personAlertCount, tenantReference);
 
-            PropertyViewModel expectedResponse = expectedProperty.ToDomain().ToResponse();
+            PropertyViewModel expectedResponse = expectedProperty.ToDomain().ToResponse(new TenureInformation { CanRaiseRepair = canRaiseRepair });
 
             ApiGateway client = new ApiGateway(new HttpClientFactoryWrapper(Client));
 
@@ -47,7 +48,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             response.Content.Property.Should().BeEquivalentTo(expectedResponse);
             response.Content.Alerts.LocationAlert.Should().HaveCount(propertyAlertCount);
             response.Content.Alerts.PersonAlert.Should().HaveCount(personAlertCount);
-            response.Content.Tenure.CanRaiseRepair.Should().Be(canRaiseRepair);
+            response.Content.Property.CanRaiseRepair.Should().Be(canRaiseRepair);
         }
 
         [Test]

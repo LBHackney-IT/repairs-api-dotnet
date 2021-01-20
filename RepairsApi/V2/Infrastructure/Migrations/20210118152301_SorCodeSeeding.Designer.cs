@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RepairsApi.V2.Infrastructure;
@@ -9,9 +10,10 @@ using RepairsApi.V2.Infrastructure;
 namespace RepairsApi.V2.Infrastructure.Migrations
 {
     [DbContext(typeof(RepairsContext))]
-    partial class RepairsContextModelSnapshot : ModelSnapshot
+    [Migration("20210118152301_SorCodeSeeding")]
+    partial class SorCodeSeeding
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -584,12 +586,12 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         new
                         {
                             PriorityCode = 3,
-                            Description = "U - Urgent 7 days (5 Working days)"
+                            Description = "U - Urgent (5 Working days)"
                         },
                         new
                         {
                             PriorityCode = 4,
-                            Description = "N - Normal 28 days (21 working days)"
+                            Description = "N - Normal (21 working days)"
                         },
                         new
                         {

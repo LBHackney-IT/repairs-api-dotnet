@@ -157,7 +157,7 @@ namespace RepairsApi.Tests.V2.UseCase
 
             var expectedWorkOrder = _generator.Generate();
             _repairsGatewayMock.Setup(r => r.GetWorkOrder(expectedWorkOrder.Id))
-                .Returns(expectedWorkOrder);
+                .ReturnsAsync(expectedWorkOrder);
             return expectedWorkOrder;
         }
     }

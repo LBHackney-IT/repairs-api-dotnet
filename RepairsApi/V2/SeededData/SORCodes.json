@@ -1,0 +1,56 @@
+﻿{
+  "priorities": [
+    {
+      "priorityCode": 1,
+      "description": "I - Immediate (2 hours)"
+    },
+    {
+      "priorityCode": 2,
+      "description": "E - Emergency (24 hours)"
+    },
+    {
+      "priorityCode": 3,
+      "description": "U - Urgent 7 days (5 Working days)"
+    },
+    {
+      "priorityCode": 4,
+      "description": "N - Normal 28 days (21 working days)"
+    },
+    {
+      "priorityCode": 5,
+      "description": "Inspection"
+    }
+  ],
+  "codes": [
+    {
+      "customCode": "DES5R003",
+      "customName": "Immediate call outs",
+      "priorityCode": 1,
+      "sorContractor": "H01"
+    },
+    {
+      "customCode": "DES5R004",
+      "customName": "Emergency call out",
+      "priorityCode": 2,
+      "sorContractor": "H01"
+    },
+    {
+      "customCode": "DES5R006",
+      "customName": "Urgent call outs",
+      "priorityCode": 3,
+      "sorContractor": "H01"
+    },
+    {
+      "customCode": "DES5R005",
+      "customName": "Normal call outs",
+      "priorityCode": 4,
+      "sorContractor": "H01"
+    },
+    {
+      "customCode": "DES5R013",
+      "customName": "Inspect additional sec entrance",
+      "priorityCode": 5,
+      "sorContractor": "H01"
+    }
+  ]
+}

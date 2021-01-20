@@ -1,4 +1,3 @@
-
 using RepairsApi.V2.Generated;
 using System;
 using System.Collections.Generic;
@@ -23,4 +22,3 @@ namespace RepairsApi.V2.Infrastructure
         public virtual WorkOrder RelatedWorkOrder { get; set; }
     }
 }
-
