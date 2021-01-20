@@ -42,10 +42,10 @@ namespace RepairsApi.Tests.V2.UseCase
             workOrder.Id = desiredWorkOrderId;
 
             _repairsGatewayMock.Setup(gateway => gateway.GetWorkOrder(It.Is<int>(i => i == desiredWorkOrderId)))
-                .Returns(workOrder);
+                .ReturnsAsync(workOrder);
 
             _repairsGatewayMock.Setup(gateway => gateway.GetWorkElementsForWorkOrder(It.Is<WorkOrder>(wo => wo.Id == desiredWorkOrderId)))
-                .Returns(_fixture.Create<List<WorkElement>>);
+                .ReturnsAsync(_fixture.Create<List<WorkElement>>);
 
             var result = await _classUnderTest.Execute(
                 new Generated.JobStatusUpdate { RelatedWorkOrderReference = new Generated.Reference { ID = "42" } });

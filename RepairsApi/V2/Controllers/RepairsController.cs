@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using RepairsApi.V2.Boundary;
+using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.UseCase.Interfaces;
@@ -17,18 +19,21 @@ namespace RepairsApi.V2.Controllers
         private readonly IListWorkOrdersUseCase _listWorkOrdersUseCase;
         private readonly ICompleteWorkOrderUseCase _completeWorkOrderUseCase;
         private readonly IUpdateJobStatusUseCase _updateJobStatusUseCase;
+        private readonly IGetWorkOrderUseCase _getWorkOrderUseCase;
 
         public RepairsController(
             IRaiseRepairUseCase raiseRepairUseCase,
             IListWorkOrdersUseCase listWorkOrdersUseCase,
             ICompleteWorkOrderUseCase completeWorkOrderUseCase,
-            IUpdateJobStatusUseCase updateJobStatusUseCase
+            IUpdateJobStatusUseCase updateJobStatusUseCase,
+            IGetWorkOrderUseCase getWorkOrderUseCase
         )
         {
             _raiseRepairUseCase = raiseRepairUseCase;
             _listWorkOrdersUseCase = listWorkOrdersUseCase;
             _completeWorkOrderUseCase = completeWorkOrderUseCase;
             _updateJobStatusUseCase = updateJobStatusUseCase;
+            _getWorkOrderUseCase = getWorkOrderUseCase;
         }
 
         [HttpPost]
@@ -46,9 +51,26 @@ namespace RepairsApi.V2.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetList()
+        public async Task<IActionResult> GetList([FromQuery] WorkOrderSearchParameters parameters)
         {
-            return Ok(_listWorkOrdersUseCase.Execute());
+            return Ok(await _listWorkOrdersUseCase.Execute(parameters));
+        }
+
+        [Route("{id}")]
+        [HttpGet]
+        public async Task<IActionResult> Get(int id)
+        {
+            WorkOrderResponse workOrderResponse;
+
+            try
+            {
+                workOrderResponse = await _getWorkOrderUseCase.Execute(id);
+                return Ok(workOrderResponse);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpPost]
@@ -64,7 +86,6 @@ namespace RepairsApi.V2.Controllers
             {
                 return BadRequest(e.Message);
             }
-
         }
 
         [HttpPost]
@@ -84,4 +105,9 @@ namespace RepairsApi.V2.Controllers
 
     }
 
+    public class WorkOrderSearchParameters
+    {
+        public string PropertyReference { get; set; }
+        public string ContractorReference { get; set; }
+    }
 }

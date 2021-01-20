@@ -45,7 +45,7 @@ namespace RepairsApi.Tests.V2.UseCase
             {
                 expectedCode
             };
-            _mockScheduleOfRatesGateway.Setup(g => g.GetSorCodes())
+            _mockScheduleOfRatesGateway.Setup(g => g.GetSorCodes(null))
                 .ReturnsAsync(expectedCodes);
 
             // act

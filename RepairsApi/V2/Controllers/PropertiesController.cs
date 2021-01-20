@@ -64,7 +64,7 @@ namespace RepairsApi.V2.Controllers
             }
             catch (ApiException ex)
             {
-                return StatusCode(ex.StatusCode);
+                return StatusCode(ex.StatusCode, ex.Message);
             }
 
             List<PropertyListItem> response = properties.ToResponse();
@@ -93,7 +93,7 @@ namespace RepairsApi.V2.Controllers
             }
             catch (ApiException ex)
             {
-                return StatusCode(ex.StatusCode);
+                return StatusCode(ex.StatusCode, ex.Message);
             }
 
             return Ok(property.ToResponse());
@@ -118,7 +118,7 @@ namespace RepairsApi.V2.Controllers
             }
             catch (ApiException ex)
             {
-                return StatusCode(ex.StatusCode);
+                return StatusCode(ex.StatusCode, ex.Message);
             }
 
             return Ok(alerts.ToResponse());

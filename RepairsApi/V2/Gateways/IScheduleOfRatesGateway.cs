@@ -6,7 +6,8 @@ namespace RepairsApi.V2.Gateways
 {
     public interface IScheduleOfRatesGateway
     {
-        public Task<IEnumerable<ScheduleOfRates>> GetSorCodes();
+        Task<IEnumerable<ScheduleOfRates>> GetSorCodes(string contractorRef = null);
+        Task<string> GetContractorReference(string customCode);
     }
 
 }

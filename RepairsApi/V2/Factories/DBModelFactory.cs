@@ -41,6 +41,7 @@ namespace RepairsApi.V2.Factories
                     new PropertyClass
                     {
                         Address = raiseRepairProp.Address?.ToDb(),
+                        PropertyReference = raiseRepairProp.Reference.FirstOrDefault()?.ID
                     }
                 }
             };

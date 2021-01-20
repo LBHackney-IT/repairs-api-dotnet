@@ -2,6 +2,9 @@ using System.Collections.Generic;
 using System.Linq;
 using RepairsApi.V2.Infrastructure;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq.Expressions;
 
 namespace RepairsApi.V2.Gateways
 {
@@ -22,24 +25,31 @@ namespace RepairsApi.V2.Gateways
             return entry.Entity.Id;
         }
 
-        public IEnumerable<WorkOrder> GetWorkOrders()
+        public async Task<IEnumerable<WorkOrder>> GetWorkOrders(params Expression<Func<WorkOrder, bool>>[] whereExpressions)
         {
-            return _repairsContext.WorkOrders.ToList();
+            IQueryable<WorkOrder> workOrders = _repairsContext.WorkOrders;
+
+            foreach (var whereExpression in whereExpressions)
+            {
+                workOrders = workOrders.Where(whereExpression);
+            }
+
+            return await workOrders.ToListAsync();
         }
 
-        public WorkOrder GetWorkOrder(int id)
+        public async Task<WorkOrder> GetWorkOrder(int id)
         {
-            return _repairsContext.WorkOrders.Find(id);
+            return await _repairsContext.WorkOrders.FindAsync(id);
         }
 
-        public IEnumerable<WorkElement> GetWorkElementsForWorkOrder(WorkOrder workOrder)
+        public async Task<IEnumerable<WorkElement>> GetWorkElementsForWorkOrder(WorkOrder workOrder)
         {
             var elements =
                 from wo in _repairsContext.WorkOrders
                 where wo.Id == workOrder.Id
                 select wo.WorkElements;
 
-            return elements.SingleOrDefault();
+            return await elements.SingleOrDefaultAsync();
         }
     }
 }

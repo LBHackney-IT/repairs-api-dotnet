@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using FluentAssertions;
 using NUnit.Framework;
@@ -24,6 +25,25 @@ namespace RepairsApi.Tests.V2.Gateways
 
             // assert
             codes.Should().NotBeNullOrEmpty();
+        }
+
+        [Test]
+        public async Task CanFilterCodesByContractor()
+        {
+            // arrange
+            string expectedContractorRef = Guid.NewGuid().ToString();
+            InMemoryDb.Instance.SORCodes.Add(new ScheduleOfRates
+            {
+                CustomCode = Guid.NewGuid().ToString(),
+                SORContractorRef = expectedContractorRef
+            });
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            // act
+            var codes = await _classUnderTest.GetSorCodes(expectedContractorRef);
+
+            // assert
+            codes.Should().ContainSingle().Which.SORContractorRef.Should().Be(expectedContractorRef);
         }
     }
 }

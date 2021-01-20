@@ -48,7 +48,7 @@ namespace RepairsApi.Tests.V2.Gateways
             await InMemoryDb.Instance.SaveChangesAsync();
 
             // act
-            var workOrders = _classUnderTest.GetWorkOrders();
+            var workOrders = await _classUnderTest.GetWorkOrders();
 
             // assert
             workOrders.Should().ContainSingle().Which.Should().BeEquivalentTo(expectedWorkOrders);
@@ -63,7 +63,7 @@ namespace RepairsApi.Tests.V2.Gateways
             await InMemoryDb.Instance.SaveChangesAsync();
 
             // act
-            var workOrders = _classUnderTest.GetWorkOrder(expectedWorkOrder.Id);
+            var workOrders = await _classUnderTest.GetWorkOrder(expectedWorkOrder.Id);
 
             // assert
             workOrders.Should().BeEquivalentTo(expectedWorkOrder);

@@ -12,7 +12,9 @@ namespace RepairsApi.V2.UseCase
         private readonly IRepairsGateway _repairsGateway;
         private readonly ILogger<RaiseRepairUseCase> _logger;
 
-        public RaiseRepairUseCase(IRepairsGateway repairsGateway, ILogger<RaiseRepairUseCase> logger)
+        public RaiseRepairUseCase(
+            IRepairsGateway repairsGateway,
+            ILogger<RaiseRepairUseCase> logger)
         {
             _repairsGateway = repairsGateway;
             _logger = logger;
