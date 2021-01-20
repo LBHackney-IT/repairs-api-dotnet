@@ -44,8 +44,7 @@ namespace RepairsApi.Tests.V2.UseCase
         {
             //Arrange
             const int expectedWorkOrderCount = 5;
-            _repairsMock.Setup(r => r.GetWorkOrders())
-                .ReturnsAsync(_generator.GenerateList(expectedWorkOrderCount));
+            GenerateAndReturnWorkOrders(expectedWorkOrderCount);
 
             //Act
             var workOrders = await _classUnderTest.Execute(new WorkOrderSearchParameters());
@@ -79,12 +78,44 @@ namespace RepairsApi.Tests.V2.UseCase
             workOrders.Should().BeEquivalentTo(expectedResponses);
         }
 
+        [Test]
+        public async Task ReturnsCorrectPageOfWorkOrders()
+        {
+            //Arrange
+            const int workOrderCount = 50;
+            const int expectedPageSize = 10;
+            var generatedWorkOrders = GenerateAndReturnWorkOrders(workOrderCount);
+            var workOrderSearchParameters = new WorkOrderSearchParameters
+            {
+                PageNumber = 2, PageSize = expectedPageSize
+            };
+
+            //Act
+            var workOrders = await _classUnderTest.Execute(workOrderSearchParameters);
+
+            //Assert
+            var expectedResult = generatedWorkOrders.OrderByDescending(wo => wo.DateRaised)
+                .Skip((workOrderSearchParameters.PageNumber - 1) * workOrderSearchParameters.PageSize)
+                .Take(workOrderSearchParameters.PageSize)
+                .Select(wo => wo.ToResponse());
+            workOrders.Should().BeEquivalentTo(expectedResult);
+        }
+
         private List<WorkOrder> GenerateWorkOrders(int number, string expectedCode)
         {
 
             var otherWorkOrders = _generator.GenerateList(number);
             SetSorCodes(expectedCode, otherWorkOrders.ToArray());
             return otherWorkOrders;
+        }
+
+        private List<WorkOrder> GenerateAndReturnWorkOrders(int workOrderCount)
+        {
+
+            var generatedWorkOrders = _generator.GenerateList(workOrderCount);
+            _repairsMock.Setup(r => r.GetWorkOrders())
+                .ReturnsAsync(generatedWorkOrders);
+            return generatedWorkOrders;
         }
 
         private static void SetSorCodes(string expectedCode, params WorkOrder[] expectedWorkOrders)
@@ -110,8 +141,7 @@ namespace RepairsApi.Tests.V2.UseCase
                 SORContractorRef = contractorRef,
                 Priority = new SORPriority
                 {
-                    Description = "priorityDescription",
-                    PriorityCode = 1
+                    Description = "priorityDescription", PriorityCode = 1
                 }
             };
             var expectedCodes = new List<ScheduleOfRates>

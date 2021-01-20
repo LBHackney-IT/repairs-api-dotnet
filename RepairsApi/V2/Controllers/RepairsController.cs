@@ -5,7 +5,9 @@ using RepairsApi.V2.Factories;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.UseCase.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using RepairsApi.V2.Boundary.Response;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -36,6 +38,11 @@ namespace RepairsApi.V2.Controllers
             _getWorkOrderUseCase = getWorkOrderUseCase;
         }
 
+        /// <summary>
+        /// Raise a repair (creates a work order)
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> RaiseRepair([FromBody] RaiseRepair request)
         {
@@ -50,14 +57,26 @@ namespace RepairsApi.V2.Controllers
             }
         }
 
+        /// <summary>
+        /// Returns a paginated list of work orders
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<WorkOrderListItem>), 200)]
         public async Task<IActionResult> GetList([FromQuery] WorkOrderSearchParameters parameters)
         {
             return Ok(await _listWorkOrdersUseCase.Execute(parameters));
         }
 
+        /// <summary>
+        /// Returns a work order by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [Route("{id}")]
         [HttpGet]
+        [ProducesResponseType(typeof(WorkOrderResponse), 200)]
         public async Task<IActionResult> Get(int id)
         {
             WorkOrderResponse workOrderResponse;
@@ -73,6 +92,11 @@ namespace RepairsApi.V2.Controllers
             }
         }
 
+        /// <summary>
+        /// Complete a work order
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("/api/v2/workOrderComplete")]
         public async Task<IActionResult> WorkOrderComplete([FromBody] WorkOrderComplete request)
@@ -88,6 +112,11 @@ namespace RepairsApi.V2.Controllers
             }
         }
 
+        /// <summary>
+        /// Post a job status update
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("/api/v2/jobStatusUpdate")]
         public async Task<IActionResult> JobStatusUpdate([FromBody] JobStatusUpdate request)
@@ -107,7 +136,17 @@ namespace RepairsApi.V2.Controllers
 
     public class WorkOrderSearchParameters
     {
+        private const int _maxPageSize = 50;
         public string PropertyReference { get; set; }
         public string ContractorReference { get; set; }
+
+        public int PageNumber { get; set; } = 1;
+
+        private int _pageSize = 10;
+        public int PageSize
+        {
+            get => _pageSize;
+            set => _pageSize = value > _maxPageSize ? _maxPageSize : value;
+        }
     }
 }

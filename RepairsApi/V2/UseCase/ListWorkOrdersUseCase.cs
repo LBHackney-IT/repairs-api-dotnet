@@ -29,6 +29,8 @@ namespace RepairsApi.V2.UseCase
 
             return workOrders.Select(wo => wo.ToListItem())
                 .OrderByDescending(wo => wo.DateRaised)
+                .Skip((searchParameters.PageNumber - 1) * searchParameters.PageSize)
+                .Take(searchParameters.PageSize)
                 .ToList();
         }
 
