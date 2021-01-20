@@ -45,7 +45,7 @@ namespace RepairsApi.V2.Controllers
         /// <response code="200">Properties found</response>
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType(typeof(List<PropertyViewModel>), 200)]
+        [ProducesResponseType(typeof(List<PropertyListItem>), 200)]
         public async Task<IActionResult> ListProperties([FromQuery] string address, [FromQuery] string postcode, [FromQuery] string q)
         {
             IEnumerable<PropertyModel> properties;
@@ -67,7 +67,7 @@ namespace RepairsApi.V2.Controllers
                 return StatusCode(ex.StatusCode, ex.Message);
             }
 
-            List<PropertyViewModel> response = properties.ToResponse();
+            List<PropertyListItem> response = properties.ToResponse();
             _logger.LogInformation($"Found {response.Count} properties");
             return Ok(response);
         }

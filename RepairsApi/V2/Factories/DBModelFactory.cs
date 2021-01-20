@@ -2,7 +2,6 @@ using RepairsApi.V2.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using RepairsApi.V2;
 using RepairsApi.V2.Boundary.Response;
 
 namespace RepairsApi.V2.Factories
@@ -296,6 +295,56 @@ namespace RepairsApi.V2.Factories
                 CustomName = sorCode.CustomName,
                 SORContractorRef = sorCode.SORContractor.Reference,
                 PriorityId = sorCode.Priority.PriorityCode
+            };
+        }
+
+        public static WorkOrder ToDb(this Generated.AdditionalWorkOrder additionalWorkOrder)
+        {
+            return new WorkOrder
+            {
+                DescriptionOfWork = additionalWorkOrder.DescriptionOfWork,
+                EstimatedLaborHours = additionalWorkOrder.EstimatedLaborHours,
+                WorkElements = additionalWorkOrder.WorkElement.MapList(we => we.ToDb())
+            };
+        }
+
+        public static AdditionalWork ToDb(this Generated.AdditionalWork additionalWork)
+        {
+            return new AdditionalWork
+            {
+                AdditionalWorkOrder = additionalWork.AdditionalWorkOrder.ToDb(),
+                ReasonRequired = additionalWork.ReasonRequired
+            };
+        }
+
+        public static CommunicationChannel ToDb(this Generated.Channel channel)
+        {
+            return new CommunicationChannel { Code = channel.Code, Medium = channel.Medium };
+        }
+
+        public static Communication ToDb(this Generated.CustomerCommunicationChannelAttempted ccca)
+        {
+            return new Communication { Channel = ccca.Channel.ToDb(), Value = ccca.Value };
+        }
+
+        public static JobStatusUpdate ToDb(this Generated.JobStatusUpdate jobStatusUpdate,
+            IEnumerable<WorkElement> workElements,
+            WorkOrder workOrder)
+        {
+            return new JobStatusUpdate
+            {
+                RelatedWorkElement = workElements.ToList(),
+                EventTime = DateTime.Now,
+                TypeCode = jobStatusUpdate.TypeCode,
+                AdditionalWork = jobStatusUpdate.AdditionalWork?.ToDb(),
+                Comments = jobStatusUpdate.Comments,
+                CustomerCommunicationChannelAttempted = jobStatusUpdate.CustomerCommunicationChannelAttempted?.ToDb(),
+                CustomerFeedback = jobStatusUpdate.CustomerFeedback?.ToDb(),
+                MoreSpecificSORCode = jobStatusUpdate.MoreSpecificSORCode?.ToDb(),
+                OperativesAssigned = jobStatusUpdate.OperativesAssigned?.Select(oa => oa.ToDb()).ToList(),
+                OtherType = jobStatusUpdate.OtherType,
+                RefinedAppointmentWindow = jobStatusUpdate.RefinedAppointmentWindow?.ToDb(),
+                RelatedWorkOrder = workOrder
             };
         }
     }

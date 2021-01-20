@@ -128,6 +128,7 @@ namespace RepairsApi
             services.AddTransient<IRepairsGateway, RepairsGateway>();
             services.AddTransient<IWorkOrderCompletionGateway, WorkOrderCompletionGateway>();
             services.AddTransient<IScheduleOfRatesGateway, ScheduleOfRatesGateway>();
+            services.AddTransient<IJobStatusUpdateGateway, JobStatusUpdateGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
@@ -139,6 +140,7 @@ namespace RepairsApi
             services.AddScoped<IListScheduleOfRatesUseCase, ListScheduleOfRatesUseCase>();
             services.AddTransient<IListWorkOrdersUseCase, ListWorkOrdersUseCase>();
             services.AddTransient<ICompleteWorkOrderUseCase, CompleteWorkOrderUseCase>();
+            services.AddTransient<IUpdateJobStatusUseCase, UpdateJobStatusUseCase>();
             services.AddTransient<IGetWorkOrderUseCase, GetWorkOrderUseCase>();
         }
 

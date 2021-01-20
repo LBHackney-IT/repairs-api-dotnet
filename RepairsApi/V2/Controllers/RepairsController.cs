@@ -18,18 +18,21 @@ namespace RepairsApi.V2.Controllers
         private readonly IRaiseRepairUseCase _raiseRepairUseCase;
         private readonly IListWorkOrdersUseCase _listWorkOrdersUseCase;
         private readonly ICompleteWorkOrderUseCase _completeWorkOrderUseCase;
+        private readonly IUpdateJobStatusUseCase _updateJobStatusUseCase;
         private readonly IGetWorkOrderUseCase _getWorkOrderUseCase;
 
         public RepairsController(
             IRaiseRepairUseCase raiseRepairUseCase,
             IListWorkOrdersUseCase listWorkOrdersUseCase,
             ICompleteWorkOrderUseCase completeWorkOrderUseCase,
+            IUpdateJobStatusUseCase updateJobStatusUseCase,
             IGetWorkOrderUseCase getWorkOrderUseCase
         )
         {
             _raiseRepairUseCase = raiseRepairUseCase;
             _listWorkOrdersUseCase = listWorkOrdersUseCase;
             _completeWorkOrderUseCase = completeWorkOrderUseCase;
+            _updateJobStatusUseCase = updateJobStatusUseCase;
             _getWorkOrderUseCase = getWorkOrderUseCase;
         }
 
@@ -84,6 +87,22 @@ namespace RepairsApi.V2.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpPost]
+        [Route("/api/v2/jobStatusUpdate")]
+        public async Task<IActionResult> JobStatusUpdate([FromBody] JobStatusUpdate request)
+        {
+            try
+            {
+                var result = await _updateJobStatusUseCase.Execute(request);
+                return result ? (IActionResult) Ok() : BadRequest("No WorkOrder was found with the provided ID.");
+            }
+            catch (NotSupportedException e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
     }
 
     public class WorkOrderSearchParameters
