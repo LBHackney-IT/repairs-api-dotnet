@@ -87,7 +87,8 @@ namespace RepairsApi.Tests.V2.UseCase
             var generatedWorkOrders = GenerateAndReturnWorkOrders(workOrderCount);
             var workOrderSearchParameters = new WorkOrderSearchParameters
             {
-                PageNumber = 2, PageSize = expectedPageSize
+                PageNumber = 2,
+                PageSize = expectedPageSize
             };
 
             //Act
@@ -141,7 +142,8 @@ namespace RepairsApi.Tests.V2.UseCase
                 SORContractorRef = contractorRef,
                 Priority = new SORPriority
                 {
-                    Description = "priorityDescription", PriorityCode = 1
+                    Description = "priorityDescription",
+                    PriorityCode = 1
                 }
             };
             var expectedCodes = new List<ScheduleOfRates>
