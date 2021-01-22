@@ -120,7 +120,7 @@ namespace RepairsApi.V2.Factories
                 Property = addressLine,
                 DateRaised = workOrder.DateRaised,
                 LastUpdated = null,
-                PropertyReference = workOrder.Site?.PropertyClass.Take(1).SingleOrDefault().Id.ToString()
+                PropertyReference = workOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference
             };
         }
 
