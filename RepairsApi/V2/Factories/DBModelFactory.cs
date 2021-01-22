@@ -77,7 +77,6 @@ namespace RepairsApi.V2.Factories
             {
                 AliasNames = request.Alias.MapList(pn => pn.ToDb()),
                 Communication = request.Communication.MapList(c => c.ToDb()),
-                Identification = null, //  TODO check this,
                 Name = request.Name.ToDb()
             };
         }
@@ -397,7 +396,6 @@ namespace RepairsApi.V2.Factories
         {
             return new Person
             {
-                Identification = operativesAssigned.Identification.ToDb(),
                 Name = new PersonName
                 {
                     Full = operativesAssigned.NameFull

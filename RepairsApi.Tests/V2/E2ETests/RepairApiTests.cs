@@ -132,8 +132,8 @@ namespace RepairsApi.Tests.V2.E2ETests
         {
             var response = await client.PostAsync(new Uri("/api/v2/repairs", UriKind.Relative), content);
 
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
             string responseContent = await response.Content.ReadAsStringAsync();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
             var id = JsonSerializer.Deserialize<int>(responseContent);
 
             WithContext(repairsContext =>

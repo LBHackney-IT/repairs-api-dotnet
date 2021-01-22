@@ -45,7 +45,6 @@ namespace RepairsApi.V2.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("schedule")]
         public async Task<IActionResult> RaiseRepair([FromBody] RaiseRepair request)
         {
             try
@@ -66,6 +65,7 @@ namespace RepairsApi.V2.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
+        [Route("schedule")]
         public async Task<IActionResult> ScheduleRepair([FromBody] ScheduleRepair request)
         {
             try
