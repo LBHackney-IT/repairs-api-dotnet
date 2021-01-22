@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RepairsApi.V2.Infrastructure
 {
-    public class Address
+    public class PropertyAddress
     {
         [Key] public int Id { get; set; }
         public string Postbox { get; set; }
@@ -21,17 +21,5 @@ namespace RepairsApi.V2.Infrastructure
         public string AddressLine { get; set; }
         public string Type { get; set; }
         public string PostalCode { get; set; }
-    }
-
-    public class PostalAddress
-    {
-        [Key] public int Id { get; set; }
-        public virtual Address Address { get; set; }
-    }
-
-    public class PropertyAddress
-    {
-        [Key] public int Id { get; set; }
-        public virtual PostalAddress Address { get; set; }
     }
 }

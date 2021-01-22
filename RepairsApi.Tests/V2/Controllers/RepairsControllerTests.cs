@@ -23,7 +23,7 @@ namespace RepairsApi.Tests.V2.Controllers
     public class RepairsControllerTests : ControllerTests
     {
         private RepairsController _classUnderTest;
-        private Mock<IRaiseRepairUseCase> _raiseRepairUseCaseMock;
+        private Mock<ICreateWorkOrderUseCase> _raiseRepairUseCaseMock;
         private Mock<IListWorkOrdersUseCase> _listWorkOrdersUseCase;
         private Generator<WorkOrder> _generator;
         private Mock<ICompleteWorkOrderUseCase> _completeWorkOrderUseCase;
@@ -34,7 +34,7 @@ namespace RepairsApi.Tests.V2.Controllers
         public void SetUp()
         {
             ConfigureGenerator();
-            _raiseRepairUseCaseMock = new Mock<IRaiseRepairUseCase>();
+            _raiseRepairUseCaseMock = new Mock<ICreateWorkOrderUseCase>();
             _listWorkOrdersUseCase = new Mock<IListWorkOrdersUseCase>();
             _completeWorkOrderUseCase = new Mock<ICompleteWorkOrderUseCase>();
             _updateJobStatusUseCase = new Mock<IUpdateJobStatusUseCase>();

@@ -13,13 +13,13 @@ namespace RepairsApi.Tests.V2.UseCase
     public class RaiseRepairUseCaseTests
     {
         private Mock<IRepairsGateway> _repairsGatewayMock;
-        private RaiseRepairUseCase _classUnderTest;
+        private CreateWorkOrderUseCase _classUnderTest;
 
         [SetUp]
         public void Setup()
         {
             _repairsGatewayMock = new Mock<IRepairsGateway>();
-            _classUnderTest = new RaiseRepairUseCase(_repairsGatewayMock.Object, new NullLogger<RaiseRepairUseCase>());
+            _classUnderTest = new CreateWorkOrderUseCase(_repairsGatewayMock.Object, new NullLogger<CreateWorkOrderUseCase>());
         }
 
         [Test]
