@@ -75,7 +75,7 @@ namespace RepairsApi.Tests.V2.UseCase
             var workOrders = await _classUnderTest.Execute(workOrderSearchParameters);
 
             // Assert
-            var expectedResponses = expectedWorkOrders.Select(ewo => ewo.ToResponse());
+            var expectedResponses = expectedWorkOrders.Select(ewo => ewo.ToListItem());
             workOrders.Should().BeEquivalentTo(expectedResponses);
         }
 
@@ -99,7 +99,7 @@ namespace RepairsApi.Tests.V2.UseCase
             var expectedResult = generatedWorkOrders.OrderByDescending(wo => wo.DateRaised)
                 .Skip((workOrderSearchParameters.PageNumber - 1) * workOrderSearchParameters.PageSize)
                 .Take(workOrderSearchParameters.PageSize)
-                .Select(wo => wo.ToResponse());
+                .Select(wo => wo.ToListItem());
             workOrders.Should().BeEquivalentTo(expectedResult);
         }
 
@@ -115,6 +115,7 @@ namespace RepairsApi.Tests.V2.UseCase
         {
 
             var generatedWorkOrders = _generator.GenerateList(workOrderCount);
+
             _repairsMock.Setup(r => r.GetWorkOrders())
                 .ReturnsAsync(generatedWorkOrders);
             return generatedWorkOrders;
