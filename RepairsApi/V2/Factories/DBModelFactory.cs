@@ -3,6 +3,29 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using RepairsApi.V2.Boundary.Response;
+using RepairsApi.V2.Generated;
+using AdditionalWork = RepairsApi.V2.Infrastructure.AdditionalWork;
+using Categorization = RepairsApi.V2.Infrastructure.Categorization;
+using Communication = RepairsApi.V2.Infrastructure.Communication;
+using Contact = RepairsApi.V2.Infrastructure.Contact;
+using GeographicalLocation = RepairsApi.V2.Infrastructure.GeographicalLocation;
+using Identification = RepairsApi.V2.Infrastructure.Identification;
+using JobStatusUpdate = RepairsApi.V2.Infrastructure.JobStatusUpdate;
+using Organization = RepairsApi.V2.Infrastructure.Organization;
+using Party = RepairsApi.V2.Infrastructure.Party;
+using Person = RepairsApi.V2.Infrastructure.Person;
+using PersonName = RepairsApi.V2.Infrastructure.PersonName;
+using PropertyAddress = RepairsApi.V2.Infrastructure.PropertyAddress;
+using Quantity = RepairsApi.V2.Infrastructure.Quantity;
+using RateScheduleItem = RepairsApi.V2.Infrastructure.RateScheduleItem;
+using Score = RepairsApi.V2.Infrastructure.Score;
+using Site = RepairsApi.V2.Infrastructure.Site;
+using Trade = RepairsApi.V2.Infrastructure.Trade;
+using Unit = RepairsApi.V2.Infrastructure.Unit;
+using WorkClass = RepairsApi.V2.Infrastructure.WorkClass;
+using WorkClassSubType = RepairsApi.V2.Infrastructure.WorkClassSubType;
+using WorkElement = RepairsApi.V2.Infrastructure.WorkElement;
+using WorkOrderComplete = RepairsApi.V2.Infrastructure.WorkOrderComplete;
 
 namespace RepairsApi.V2.Factories
 {
@@ -56,9 +79,7 @@ namespace RepairsApi.V2.Factories
         {
             return new Organization
             {
-                Contact = org.Contact.MapList(c => c.ToDb()),
-                Name = org.Name,
-                DoingBusinessAsName = string.Join(';', org.DoingBusinessAsName)
+                Contact = org.Contact.MapList(c => c.ToDb()), Name = org.Name, DoingBusinessAsName = string.Join(';', org.DoingBusinessAsName)
             };
         }
 
@@ -66,8 +87,7 @@ namespace RepairsApi.V2.Factories
         {
             return new Contact
             {
-                Address = request.Address.MapList(addr => addr.ToDb()),
-                Person = request.ToDbPerson(),
+                Address = request.Address.MapList(addr => addr.ToDb()), Person = request.ToDbPerson(),
             };
         }
 
@@ -75,9 +95,7 @@ namespace RepairsApi.V2.Factories
         {
             return new Person
             {
-                AliasNames = request.Alias.MapList(pn => pn.ToDb()),
-                Communication = request.Communication.MapList(c => c.ToDb()),
-                Name = request.Name.ToDb()
+                AliasNames = request.Alias.MapList(pn => pn.ToDb()), Communication = request.Communication.MapList(c => c.ToDb()), Name = request.Name.ToDb()
             };
         }
 
@@ -85,9 +103,7 @@ namespace RepairsApi.V2.Factories
         {
             return new Person
             {
-                AliasNames = request.Alias.MapList(pn => pn.ToDb()),
-                Communication = request.Communication.MapList(c => c.ToDb()),
-                Name = request.Name.ToDb()
+                AliasNames = request.Alias.MapList(pn => pn.ToDb()), Communication = request.Communication.MapList(c => c.ToDb()), Name = request.Name.ToDb()
             };
         }
 
@@ -96,10 +112,7 @@ namespace RepairsApi.V2.Factories
         {
             return new Communication
             {
-                Channel = request.Channel.ToDb(),
-                Description = request.Description,
-                NotAvailable = request.NotAvailable,
-                Value = request.Value
+                Channel = request.Channel.ToDb(), Description = request.Description, NotAvailable = request.NotAvailable, Value = request.Value
             };
         }
 
@@ -142,9 +155,7 @@ namespace RepairsApi.V2.Factories
         {
             return new Site
             {
-                GeographicalLocation = site.GeographicalLocation.ToDb(),
-                Name = site.Name,
-                PropertyClass = site.Property.MapList(prop => prop.ToDb()),
+                GeographicalLocation = site.GeographicalLocation.ToDb(), Name = site.Name, PropertyClass = site.Property.MapList(prop => prop.ToDb()),
             };
         }
 
@@ -189,8 +200,7 @@ namespace RepairsApi.V2.Factories
         {
             return new Unit
             {
-                Address = request.Address.ToDb(),
-                KeySafe = request.Keysafe.ToDb()
+                Address = request.Address.ToDb(), KeySafe = request.Keysafe.ToDb()
             };
         }
 
@@ -206,8 +216,7 @@ namespace RepairsApi.V2.Factories
                 {
                     new PropertyClass
                     {
-                        Address = raiseRepairProp.Address?.ToDb(),
-                        PropertyReference = raiseRepairProp.Reference.FirstOrDefault()?.ID
+                        Address = raiseRepairProp.Address?.ToDb(), PropertyReference = raiseRepairProp.Reference.FirstOrDefault()?.ID
                     }
                 }
             };
@@ -249,9 +258,7 @@ namespace RepairsApi.V2.Factories
         {
             return new RateScheduleItem
             {
-                CustomCode = raiseRepair.CustomCode,
-                CustomName = raiseRepair.CustomName,
-                Quantity = raiseRepair.Quantity?.ToDb()
+                CustomCode = raiseRepair.CustomCode, CustomName = raiseRepair.CustomName, Quantity = raiseRepair.Quantity?.ToDb()
             };
         }
 
@@ -261,8 +268,7 @@ namespace RepairsApi.V2.Factories
 
             return new Quantity
             {
-                Amount = raiseRepair.Amount.Single(),
-                UnitOfMeasurementCode = raiseRepair.UnitOfMeasurementCode
+                Amount = raiseRepair.Amount.Single(), UnitOfMeasurementCode = raiseRepair.UnitOfMeasurementCode
             };
         }
 
@@ -270,9 +276,7 @@ namespace RepairsApi.V2.Factories
         {
             return new Trade
             {
-                Code = raiseRepair.Code,
-                CustomCode = raiseRepair.CustomCode,
-                CustomName = raiseRepair.CustomName
+                Code = raiseRepair.Code, CustomCode = raiseRepair.CustomCode, CustomName = raiseRepair.CustomName
             };
         }
 
@@ -280,8 +284,7 @@ namespace RepairsApi.V2.Factories
         {
             return new AlertRegardingPerson
             {
-                Comments = raiseRepair.Comments,
-                Type = raiseRepair.Type
+                Comments = raiseRepair.Comments, Type = raiseRepair.Type
             };
         }
 
@@ -289,8 +292,7 @@ namespace RepairsApi.V2.Factories
         {
             return new AlertRegardingLocation
             {
-                Comments = raiseRepair.Comments,
-                Type = raiseRepair.Type,
+                Comments = raiseRepair.Comments, Type = raiseRepair.Type,
                 // NOTE: Attachment Not handled
             };
         }
@@ -299,9 +301,7 @@ namespace RepairsApi.V2.Factories
         {
             return new WorkClass
             {
-                WorkClassCode = raiseRepair.WorkClassCode,
-                WorkClassDescription = raiseRepair.WorkClassDescription,
-                WorkClassSubType = raiseRepair.WorkClassSubType?.ToDb()
+                WorkClassCode = raiseRepair.WorkClassCode, WorkClassDescription = raiseRepair.WorkClassDescription, WorkClassSubType = raiseRepair.WorkClassSubType?.ToDb()
             };
         }
 
@@ -309,8 +309,7 @@ namespace RepairsApi.V2.Factories
         {
             return new WorkClassSubType
             {
-                WorkClassSubTypeDescription = raiseRepair.WorkClassSubTypeDescription,
-                WorkClassSubTypeName = string.Join(',', raiseRepair.WorkClassSubType1)
+                WorkClassSubTypeDescription = raiseRepair.WorkClassSubTypeDescription, WorkClassSubTypeName = string.Join(',', raiseRepair.WorkClassSubType1)
             };
         }
 
@@ -318,8 +317,7 @@ namespace RepairsApi.V2.Factories
         {
             return new WorkOrderAccessInformation
             {
-                Description = raiseRepair.Description,
-                Keysafe = raiseRepair.Keysafe?.ToDb()
+                Description = raiseRepair.Description, Keysafe = raiseRepair.Keysafe?.ToDb()
             };
         }
 
@@ -327,8 +325,7 @@ namespace RepairsApi.V2.Factories
         {
             return new KeySafe
             {
-                Code = raiseRepair.Code,
-                Location = raiseRepair.Location
+                Code = raiseRepair.Code, Location = raiseRepair.Location
             };
         }
 
@@ -377,10 +374,7 @@ namespace RepairsApi.V2.Factories
         {
             return new Categorization
             {
-                Category = categorization.Category,
-                Type = categorization.Type,
-                SubCategory = categorization.SubCategory,
-                VersionUsed = categorization.VersionUsed
+                Category = categorization.Category, Type = categorization.Type, SubCategory = categorization.SubCategory, VersionUsed = categorization.VersionUsed
             };
         }
 
@@ -401,10 +395,7 @@ namespace RepairsApi.V2.Factories
         {
             return new Party
             {
-                Name = party.Name,
-                Role = party.Role,
-                Organization = party.Organization.ToDb(),
-                Person = party.Person.ToDb()
+                Name = party.Name, Role = party.Role, Organization = party.Organization.ToDb(), Person = party.Person.ToDb()
             };
         }
 
@@ -424,8 +415,7 @@ namespace RepairsApi.V2.Factories
         {
             return new Identification
             {
-                Number = identification.Number,
-                Type = identification.Type
+                Number = identification.Number, Type = identification.Type
             };
         }
 
@@ -433,8 +423,7 @@ namespace RepairsApi.V2.Factories
         {
             return new Appointment
             {
-                Date = refinedAppointmentWindow.Date,
-                TimeOfDay = refinedAppointmentWindow.TimeOfDay.ToDb()
+                Date = refinedAppointmentWindow.Date, TimeOfDay = refinedAppointmentWindow.TimeOfDay.ToDb()
             };
         }
 
@@ -453,10 +442,7 @@ namespace RepairsApi.V2.Factories
         {
             return new ScheduleOfRates
             {
-                CustomCode = sorCode.CustomCode,
-                CustomName = sorCode.CustomName,
-                SORContractorRef = sorCode.SORContractor.Reference,
-                PriorityId = sorCode.Priority.PriorityCode
+                CustomCode = sorCode.CustomCode, CustomName = sorCode.CustomName, SORContractorRef = sorCode.SORContractor.Reference, PriorityId = sorCode.Priority.PriorityCode
             };
         }
 
@@ -474,22 +460,28 @@ namespace RepairsApi.V2.Factories
         {
             return new AdditionalWork
             {
-                AdditionalWorkOrder = additionalWork.AdditionalWorkOrder.ToDb(),
-                ReasonRequired = additionalWork.ReasonRequired
+                AdditionalWorkOrder = additionalWork.AdditionalWorkOrder.ToDb(), ReasonRequired = additionalWork.ReasonRequired
             };
         }
 
         public static CommunicationChannel ToDb(this Generated.Channel channel)
         {
-            return new CommunicationChannel { Code = channel.Code, Medium = channel.Medium };
+            return new CommunicationChannel
+            {
+                Code = channel.Code, Medium = channel.Medium
+            };
         }
 
         public static Communication ToDb(this Generated.CustomerCommunicationChannelAttempted ccca)
         {
-            return new Communication { Channel = ccca.Channel.ToDb(), Value = ccca.Value };
+            return new Communication
+            {
+                Channel = ccca.Channel.ToDb(), Value = ccca.Value
+            };
         }
 
-        public static JobStatusUpdate ToDb(this Generated.JobStatusUpdate jobStatusUpdate,
+        public static JobStatusUpdate ToDb(
+            this Generated.JobStatusUpdate jobStatusUpdate,
             IEnumerable<WorkElement> workElements,
             WorkOrder workOrder)
         {
@@ -507,6 +499,50 @@ namespace RepairsApi.V2.Factories
                 OtherType = jobStatusUpdate.OtherType,
                 RefinedAppointmentWindow = jobStatusUpdate.RefinedAppointmentWindow?.ToDb(),
                 RelatedWorkOrder = workOrder
+            };
+        }
+
+        public static JobStatusUpdate ToDb(this Generated.JobStatusUpdates update, WorkOrder workOrder)
+        {
+            return new JobStatusUpdate
+            {
+                Comments = update.Comments,
+                CustomerFeedback = update.CustomerFeedback?.ToDb(),
+                EventTime = update.EventTime,
+                OperativesAssigned = update.OperativesAssigned?.Select(oa => oa.ToDb()).ToList(),
+                OtherType = update.OtherType,
+                TypeCode = update.TypeCode,
+                RefinedAppointmentWindow = update.RefinedAppointmentWindow?.ToDb(),
+                RelatedWorkOrder = workOrder
+            };
+        }
+
+        public static WorkOrderComplete ToDb(this Generated.WorkOrderComplete request, WorkOrder workOrder, List<WorkOrder> followOnWorkOrders)
+        {
+            return new WorkOrderComplete
+            {
+                WorkOrder = workOrder,
+                OperativesUsed = request.OperativesUsed?.Select(ou => ou.ToDb(null)).ToList(),
+                CompletedWorkElements = request.CompletedWorkElements?.Select(cwe => cwe.ToDb()).ToList(),
+                JobStatusUpdates = request.JobStatusUpdates?.Select(jsu => jsu.ToDb(workOrder)).ToList(),
+                BillOfMaterialItem = request.BillOfMaterialItem?.Select(bom => bom.ToDb()).ToList(),
+                FollowOnWorkOrder = followOnWorkOrders
+            };
+        }
+
+        public static Operative ToDb(this OperativesUsed operative, List<WorkElement> workElements)
+        {
+            return new Operative
+            {
+                Person = new Person
+                {
+                    Name = new PersonName
+                    {
+                        Full = operative.NameFull
+                    }
+                },
+                Trade = operative.Trade.Select(t => t.ToDb()).ToList(),
+                WorkElement = workElements
             };
         }
     }

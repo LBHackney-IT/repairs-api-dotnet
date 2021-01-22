@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Castle.Core.Internal;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using RepairsApi.V2.Enums;
 using RepairsApi.V2.Factories;
@@ -39,12 +40,16 @@ namespace RepairsApi.V2.UseCase
 
             ValidateRequest(request);
 
-            var workOrderComplete = new Infrastructure.WorkOrderComplete
+            if (request.FollowOnWorkOrderReference.IsNullOrEmpty())
             {
-                WorkOrder = workOrder,
-                JobStatusUpdates = request.JobStatusUpdates?.Select(jsu => ToDb(jsu, workOrder)).ToList(),
-            };
-            await _workOrderCompletionGateway.CreateWorkOrderCompletion(workOrderComplete);
+                await _workOrderCompletionGateway.CreateWorkOrderCompletion(request.ToDb(workOrder, null));
+            }
+            else
+            {
+                var followOnWorkOrderIds = request.FollowOnWorkOrderReference.Select(fwo => int.Parse(fwo.ID));
+                var followOnWorkOrders = await _repairsGateway.GetWorkOrders(wo => followOnWorkOrderIds.Contains(wo.Id));
+                await _workOrderCompletionGateway.CreateWorkOrderCompletion(request.ToDb(workOrder, followOnWorkOrders.ToList()));
+            }
 
             return true;
         }
@@ -61,23 +66,5 @@ namespace RepairsApi.V2.UseCase
             if (request.FollowOnWorkOrderReference != null && request.FollowOnWorkOrderReference.Count > 0)
                 throw new NotSupportedException("Follow on work order reference not supported during job completion.");
         }
-
-
-        public static JobStatusUpdate ToDb(Generated.JobStatusUpdates update, WorkOrder workOrder)
-        {
-            return new JobStatusUpdate
-            {
-                Comments = update.Comments,
-                CustomerFeedback = update.CustomerFeedback?.ToDb(),
-                EventTime = update.EventTime,
-                OperativesAssigned = update.OperativesAssigned?.Select(oa => oa.ToDb()).ToList(),
-                OtherType = update.OtherType,
-                TypeCode = update.TypeCode,
-                RefinedAppointmentWindow = update.RefinedAppointmentWindow?.ToDb(),
-                RelatedWorkOrder = workOrder
-            };
-        }
-
     }
-
 }
