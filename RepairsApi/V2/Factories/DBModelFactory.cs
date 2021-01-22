@@ -153,7 +153,23 @@ namespace RepairsApi.V2.Factories
         {
             return new GeographicalLocation
             {
-                //TODO what is this map :/
+                Elevation = double.Parse(request.Elevation.First()),
+                ElevationReferenceSystem = request.ElevationReferenceSystem.First(),
+                Latitude = double.Parse(request.Latitude.First()),
+                Longitude = double.Parse(request.Longitude.First()),
+                PositionalAccuracy = request.PositionalAccuracy,
+                Polyline = request.Polyline.MapList(p => p.ToDb())
+            };
+        }
+
+
+        public static Point ToDb(this Generated.Polyline request)
+        {
+            return new Point
+            {
+                Easting = request.Easting,
+                Northing = request.Northing,
+                Sequence = request.Sequence
             };
         }
 
@@ -165,7 +181,7 @@ namespace RepairsApi.V2.Factories
                 MasterKeySystem = request.MasterKeySystem,
                 Address = request.Address.ToDb(),
                 Unit = request.Unit.MapList(u => u.ToDb()),
-                //TODO PropertyReference 
+                PropertyReference = request.PropertyReference
             };
         }
 

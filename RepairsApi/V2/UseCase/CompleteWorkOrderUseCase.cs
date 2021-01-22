@@ -42,7 +42,7 @@ namespace RepairsApi.V2.UseCase
             var workOrderComplete = new Infrastructure.WorkOrderComplete
             {
                 WorkOrder = workOrder,
-                JobStatusUpdates = request.JobStatusUpdates?.Select(jsu => ToDb(jsu, workOrder)).ToList()
+                JobStatusUpdates = request.JobStatusUpdates?.Select(jsu => ToDb(jsu, workOrder)).ToList(),
             };
             await _workOrderCompletionGateway.CreateWorkOrderCompletion(workOrderComplete);
 

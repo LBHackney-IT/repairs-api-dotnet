@@ -23,7 +23,7 @@ namespace RepairsApi.Tests.V2.Gateways
         private void SetupGenerator()
         {
             _generator = new Generator<JobStatusUpdate>()
-                .AddDefaultValueGenerators();
+                .AddWorkOrderGenerators();
         }
 
         [TearDown]

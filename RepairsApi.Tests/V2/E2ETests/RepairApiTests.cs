@@ -15,6 +15,7 @@ using RepairsApi.V2.Generated;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using RepairsApi.V2.Infrastructure;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
+using RepairsApi.Tests.Helpers.StubGeneration;
 
 namespace RepairsApi.Tests.V2.E2ETests
 {
@@ -44,6 +45,24 @@ namespace RepairsApi.Tests.V2.E2ETests
             StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
 
             await RaiseRepairAndValidate(client, content, repair =>
+            {
+                repair.WorkPriority.NumberOfDays.Should().Be(request.Priority.NumberOfDays);
+            });
+        }
+
+        [Test]
+        public async Task ScheduleRepair()
+        {
+            var client = CreateClient();
+
+            Generator<ScheduleRepair> generator = new Generator<ScheduleRepair>()
+                .AddWorkOrderGenerators();
+
+            var request = generator.Generate();
+            var serializedContent = JsonConvert.SerializeObject(request);
+            StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
+
+            await ScheduleRepairAndValidate(client, content, repair =>
             {
                 repair.WorkPriority.NumberOfDays.Should().Be(request.Priority.NumberOfDays);
             });
@@ -130,7 +149,19 @@ namespace RepairsApi.Tests.V2.E2ETests
 
         private async Task RaiseRepairAndValidate(HttpClient client, StringContent content, Action<WorkOrder> assertions = null)
         {
-            var response = await client.PostAsync(new Uri("/api/v2/repairs", UriKind.Relative), content);
+            const string UriString = "/api/v2/repairs";
+            await ValidateWorkOrderCreation(client, content, assertions, UriString);
+        }
+
+        private async Task ScheduleRepairAndValidate(HttpClient client, StringContent content, Action<WorkOrder> assertions = null)
+        {
+            const string UriString = "/api/v2/repairs/schedule";
+            await ValidateWorkOrderCreation(client, content, assertions, UriString);
+        }
+
+        private async Task ValidateWorkOrderCreation(HttpClient client, StringContent content, Action<WorkOrder> assertions, string uriString)
+        {
+            var response = await client.PostAsync(new Uri(uriString, UriKind.Relative), content);
 
             string responseContent = await response.Content.ReadAsStringAsync();
             response.StatusCode.Should().Be(HttpStatusCode.OK);

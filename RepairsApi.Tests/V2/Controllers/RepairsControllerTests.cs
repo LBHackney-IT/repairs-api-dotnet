@@ -51,7 +51,7 @@ namespace RepairsApi.Tests.V2.Controllers
         private void ConfigureGenerator()
         {
             _generator = new Generator<WorkOrder>()
-                .AddDefaultValueGenerators();
+                .AddWorkOrderGenerators();
         }
 
         [Test]
@@ -143,7 +143,7 @@ namespace RepairsApi.Tests.V2.Controllers
         [Test]
         public async Task ReturnsObjectFromUseCase()
         {
-            var expectedWorkOrderResponse = new Generator<WorkOrderResponse>().AddDefaultValueGenerators().Generate();
+            var expectedWorkOrderResponse = new Generator<WorkOrderResponse>().AddWorkOrderGenerators().Generate();
             _getWorkOrderUseCase.Setup(uc => uc.Execute(It.IsAny<int>())).ReturnsAsync(expectedWorkOrderResponse);
 
             var result = await _classUnderTest.Get(1);
