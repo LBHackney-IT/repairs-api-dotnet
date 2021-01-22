@@ -7,7 +7,6 @@ namespace RepairsApi.V2.Infrastructure
     {
         [Key] public int Id { get; set; }
         public virtual PersonName Name { get; set; }
-        public virtual Identification Identification { get; set; }
         public virtual List<PersonName> AliasNames { get; set; }
         public virtual List<Communication> Communication { get; set; }
     }
