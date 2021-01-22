@@ -396,6 +396,7 @@ namespace RepairsApi.V2.Factories
         {
             return new Person
             {
+                Identification = operativesAssigned.Identification.ToDb(),
                 Name = new PersonName
                 {
                     Full = operativesAssigned.NameFull
