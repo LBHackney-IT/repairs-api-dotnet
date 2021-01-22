@@ -17,7 +17,10 @@ namespace RepairsApi.V2.Infrastructure
         public DateTime? DateRaised { get; set; }
         public DateTime? DateReported { get; set; }
         public virtual WorkClass WorkClass { get; set; }
+        public virtual Organization InstructedBy { get; set; }
+        public virtual Party AssignedToPrimary { get; set; }
 
+        public virtual Party Customer { get; set; }
         public virtual WorkPriority WorkPriority { get; set; }
         public virtual Site Site { get; set; }
         public virtual WorkOrderAccessInformation AccessInformation { get; set; }
