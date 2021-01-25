@@ -155,10 +155,10 @@ namespace RepairsApi.V2.Factories
             {
                 return new GeographicalLocation
                 {
-                    Elevation = double.Parse(request.Elevation.First()),
-                    ElevationReferenceSystem = request.ElevationReferenceSystem.First(),
-                    Latitude = double.Parse(request.Latitude.First()),
-                    Longitude = double.Parse(request.Longitude.First()),
+                    Elevation = ParseNullableDouble(request.Elevation),
+                    ElevationReferenceSystem = request.ElevationReferenceSystem.FirstOrDefault(),
+                    Latitude = ParseNullableDouble(request.Latitude),
+                    Longitude = ParseNullableDouble(request.Longitude),
                     PositionalAccuracy = request.PositionalAccuracy,
                     Polyline = request.Polyline.MapList(p => p.ToDb())
                 };
@@ -167,6 +167,14 @@ namespace RepairsApi.V2.Factories
             {
                 throw new NotSupportedException(Resources.InvalidGeographicalLocation, e);
             }
+        }
+
+        private static double? ParseNullableDouble(ICollection<string> strings)
+        {
+            string s = strings?.FirstOrDefault();
+            if (string.IsNullOrWhiteSpace(s)) return null;
+
+            return double.Parse(s);
         }
 
         public static Point ToDb(this Generated.Polyline request)
