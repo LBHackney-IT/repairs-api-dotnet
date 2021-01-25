@@ -34,7 +34,7 @@ namespace RepairsApi.Tests.V2.UseCase
         private void ConfigureGenerator()
         {
             _generator = new Generator<WorkOrder>()
-                .AddDefaultValueGenerators();
+                .AddWorkOrderGenerators();
         }
 
         [Test]

@@ -1,6 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace RepairsApi.Tests.Helpers.StubGeneration
 {
@@ -8,6 +12,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
     public class Generator<T>
     {
         private readonly Dictionary<Type, IValueGenerator> _generators;
+        private readonly Dictionary<MemberInfo, IValueGenerator> _propertyGenerators;
         private readonly Stack<Type> _typeStack;
 
         public Generator()
@@ -17,6 +22,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
 
         public Generator(Dictionary<Type, IValueGenerator> generators)
         {
+            _propertyGenerators = new Dictionary<MemberInfo, IValueGenerator>();
             _typeStack = new Stack<Type>();
             _generators = generators;
 
@@ -29,6 +35,19 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
             if (_generators.ContainsKey(valueType)) _generators.Remove(valueType);
 
             _generators.Add(valueType, generator);
+            return this;
+        }
+
+        public Generator<T> AddGenerator<TModel, TProp>(AbstractValueGenerator<TProp> generator, params Expression<Func<TModel, TProp>>[] accessors)
+        {
+            foreach (var accessor in accessors)
+            {
+                if (accessor.Body.NodeType != ExpressionType.MemberAccess) throw new Exception("accessor must be simple property accessor eg obj.prop");
+                MemberExpression casted = accessor.Body as MemberExpression;
+
+                _propertyGenerators.TryAdd(casted.Member, generator);
+            }
+
             return this;
         }
 
@@ -85,7 +104,17 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
 
             foreach (var item in actualType.GetProperties())
             {
-                item.SetValue(result, Run(item.PropertyType));
+                var key = _propertyGenerators.Keys.SingleOrDefault(k => item.DeclaringType.FullName == k.DeclaringType.FullName && item.Name == k.Name);
+
+                if (key != null)
+                {
+                    item.SetValue(result, _propertyGenerators[key].Create());
+                }
+                else
+                {
+                    item.SetValue(result, Run(item.PropertyType));
+                }
+
             }
 
             _typeStack.Pop();

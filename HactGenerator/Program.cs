@@ -12,9 +12,10 @@ namespace SchemaGeneration
     {
         static void Main(string[] args)
         {
-            Run("RaiseRepair-M3SoR-v7").Wait();
-            Run("WorkOrderComplete-M3SoR-v7").Wait();
-            Run("JobStatusUpdate-M3SoR-v7").Wait();
+            //Run("RaiseRepair-M3SoR-v7").Wait();
+            //Run("WorkOrderComplete-M3SoR-v7").Wait();
+            //Run("JobStatusUpdate-M3SoR-v7").Wait();
+            Run("ScheduleRepair-M3SoR-v7").Wait();
         }
 
         public static async Task Run(string file)

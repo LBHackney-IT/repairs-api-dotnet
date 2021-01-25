@@ -110,7 +110,7 @@ namespace RepairsApi.V2.Factories
         public static WorkOrderResponse ToResponse(this WorkOrder workOrder)
         {
             PropertyClass propertyClass = workOrder.Site?.PropertyClass.FirstOrDefault();
-            string addressLine = propertyClass?.Address?.Address?.Address?.AddressLine;
+            string addressLine = propertyClass?.Address?.AddressLine;
             return new WorkOrderResponse
             {
                 Reference = workOrder.Id,
@@ -127,7 +127,7 @@ namespace RepairsApi.V2.Factories
         public static WorkOrderListItem ToListItem(this WorkOrder workOrder)
         {
             PropertyClass propertyClass = workOrder.Site?.PropertyClass.FirstOrDefault();
-            string addressLine = propertyClass?.Address?.Address?.Address?.AddressLine;
+            string addressLine = propertyClass?.Address?.AddressLine;
             return new WorkOrderListItem
             {
                 Reference = workOrder.Id,

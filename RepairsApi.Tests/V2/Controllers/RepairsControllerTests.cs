@@ -1,3 +1,4 @@
+using System;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -23,7 +24,7 @@ namespace RepairsApi.Tests.V2.Controllers
     public class RepairsControllerTests : ControllerTests
     {
         private RepairsController _classUnderTest;
-        private Mock<IRaiseRepairUseCase> _raiseRepairUseCaseMock;
+        private Mock<ICreateWorkOrderUseCase> _createWorkOrderUseCaseMock;
         private Mock<IListWorkOrdersUseCase> _listWorkOrdersUseCase;
         private Generator<WorkOrder> _generator;
         private Mock<ICompleteWorkOrderUseCase> _completeWorkOrderUseCase;
@@ -34,13 +35,13 @@ namespace RepairsApi.Tests.V2.Controllers
         public void SetUp()
         {
             ConfigureGenerator();
-            _raiseRepairUseCaseMock = new Mock<IRaiseRepairUseCase>();
+            _createWorkOrderUseCaseMock = new Mock<ICreateWorkOrderUseCase>();
             _listWorkOrdersUseCase = new Mock<IListWorkOrdersUseCase>();
             _completeWorkOrderUseCase = new Mock<ICompleteWorkOrderUseCase>();
             _updateJobStatusUseCase = new Mock<IUpdateJobStatusUseCase>();
             _getWorkOrderUseCase = new Mock<IGetWorkOrderUseCase>();
             _classUnderTest = new RepairsController(
-                _raiseRepairUseCaseMock.Object,
+                _createWorkOrderUseCaseMock.Object,
                 _listWorkOrdersUseCase.Object,
                 _completeWorkOrderUseCase.Object,
                 _updateJobStatusUseCase.Object,
@@ -51,15 +52,15 @@ namespace RepairsApi.Tests.V2.Controllers
         private void ConfigureGenerator()
         {
             _generator = new Generator<WorkOrder>()
-                .AddDefaultValueGenerators();
+                .AddWorkOrderGenerators();
         }
 
         [Test]
-        public async Task CreateReturnsOkWithInt()
+        public async Task RaiseRepairReturnsOkWithInt()
         {
             // arrange
             const int newId = 2;
-            _raiseRepairUseCaseMock.Setup(m => m.Execute(It.IsAny<WorkOrder>())).ReturnsAsync(newId);
+            _createWorkOrderUseCaseMock.Setup(m => m.Execute(It.IsAny<WorkOrder>())).ReturnsAsync(newId);
 
             // act
             var result = await _classUnderTest.RaiseRepair(new RaiseRepair());
@@ -67,6 +68,53 @@ namespace RepairsApi.Tests.V2.Controllers
             // assert
             result.Should().BeOfType<OkObjectResult>();
             GetResultData<int>(result).Should().Be(newId);
+        }
+
+        [Test]
+        public async Task RaiseRepairReturnsBadRequestWhenNotSupportedThrown()
+        {
+            // arrange
+            string expectedMessage = "message";
+            _createWorkOrderUseCaseMock.Setup(m => m.Execute(It.IsAny<WorkOrder>()))
+                .ThrowsAsync(new NotSupportedException(expectedMessage));
+
+            // act
+            var result = await _classUnderTest.RaiseRepair(new RaiseRepair());
+
+            // assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            GetResultData<string>(result).Should().Be(expectedMessage);
+        }
+
+        [Test]
+        public async Task ScheduleRepairReturnsOkWithInt()
+        {
+            // arrange
+            const int newId = 2;
+            _createWorkOrderUseCaseMock.Setup(m => m.Execute(It.IsAny<WorkOrder>())).ReturnsAsync(newId);
+
+            // act
+            var result = await _classUnderTest.ScheduleRepair(new ScheduleRepair());
+
+            // assert
+            result.Should().BeOfType<OkObjectResult>();
+            GetResultData<int>(result).Should().Be(newId);
+        }
+
+        [Test]
+        public async Task ScheduleRepairReturnsBadRequestWhenNotSupportedThrown()
+        {
+            // arrange
+            string expectedMessage = "message";
+            _createWorkOrderUseCaseMock.Setup(m => m.Execute(It.IsAny<WorkOrder>()))
+                .ThrowsAsync(new NotSupportedException(expectedMessage));
+
+            // act
+            var result = await _classUnderTest.ScheduleRepair(new ScheduleRepair());
+
+            // assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            GetResultData<string>(result).Should().Be(expectedMessage);
         }
 
         [Test]
@@ -143,7 +191,7 @@ namespace RepairsApi.Tests.V2.Controllers
         [Test]
         public async Task ReturnsObjectFromUseCase()
         {
-            var expectedWorkOrderResponse = new Generator<WorkOrderResponse>().AddDefaultValueGenerators().Generate();
+            var expectedWorkOrderResponse = new Generator<WorkOrderResponse>().AddWorkOrderGenerators().Generate();
             _getWorkOrderUseCase.Setup(uc => uc.Execute(It.IsAny<int>())).ReturnsAsync(expectedWorkOrderResponse);
 
             var result = await _classUnderTest.Get(1);
