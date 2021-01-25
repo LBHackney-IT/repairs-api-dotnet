@@ -132,7 +132,7 @@ namespace RepairsApi.V2.Factories
             {
                 Reference = workOrder.Id,
                 Description = workOrder.DescriptionOfWork,
-                Owner = "", // TODO: populate owner
+                Owner = workOrder.AssignedToPrimary.Name,
                 Priority = workOrder.WorkPriority.PriorityDescription,
                 Property = addressLine,
                 DateRaised = workOrder.DateRaised,

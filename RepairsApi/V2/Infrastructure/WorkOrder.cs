@@ -27,6 +27,7 @@ namespace RepairsApi.V2.Infrastructure
         public virtual List<WorkElement> WorkElements { get; set; }
         public virtual List<AlertRegardingPerson> PersonAlert { get; set; }
         public virtual List<AlertRegardingLocation> LocationAlert { get; set; }
+        public virtual WorkOrderComplete WorkOrderComplete { get; set; }
     }
 
     [Owned]
