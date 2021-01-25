@@ -70,6 +70,15 @@ namespace RepairsApi.V2 {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to GeographicalLocation.Elevation, GeographicalLocation.Latitude and GeographicalLocation.Longitude must contain a single string that is a valid decimal number.
+        /// </summary>
+        internal static string InvalidGeographicalLocation {
+            get {
+                return ResourceManager.GetString("InvalidGeographicalLocation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to fetch location alerts.
         /// </summary>
         internal static string LocationAlertsFailure {

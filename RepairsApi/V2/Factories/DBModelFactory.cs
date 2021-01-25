@@ -162,17 +162,23 @@ namespace RepairsApi.V2.Factories
 
         public static GeographicalLocation ToDb(this Generated.GeographicalLocation request)
         {
-            return new GeographicalLocation
+            try
             {
-                Elevation = double.Parse(request.Elevation.First()),
-                ElevationReferenceSystem = request.ElevationReferenceSystem.First(),
-                Latitude = double.Parse(request.Latitude.First()),
-                Longitude = double.Parse(request.Longitude.First()),
-                PositionalAccuracy = request.PositionalAccuracy,
-                Polyline = request.Polyline.MapList(p => p.ToDb())
-            };
+                return new GeographicalLocation
+                {
+                    Elevation = double.Parse(request.Elevation.First()),
+                    ElevationReferenceSystem = request.ElevationReferenceSystem.First(),
+                    Latitude = double.Parse(request.Latitude.First()),
+                    Longitude = double.Parse(request.Longitude.First()),
+                    PositionalAccuracy = request.PositionalAccuracy,
+                    Polyline = request.Polyline.MapList(p => p.ToDb())
+                };
+            }
+            catch (FormatException e)
+            {
+                throw new NotSupportedException(Resources.InvalidGeographicalLocation, e);
+            }
         }
-
 
         public static Point ToDb(this Generated.Polyline request)
         {
