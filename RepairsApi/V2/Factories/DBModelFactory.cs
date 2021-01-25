@@ -79,7 +79,9 @@ namespace RepairsApi.V2.Factories
         {
             return new Organization
             {
-                Contact = org.Contact.MapList(c => c.ToDb()), Name = org.Name, DoingBusinessAsName = string.Join(';', org.DoingBusinessAsName)
+                Contact = org.Contact.MapList(c => c.ToDb()),
+                Name = org.Name,
+                DoingBusinessAsName = string.Join(';', org.DoingBusinessAsName)
             };
         }
 
@@ -87,7 +89,8 @@ namespace RepairsApi.V2.Factories
         {
             return new Contact
             {
-                Address = request.Address.MapList(addr => addr.ToDb()), Person = request.ToDbPerson(),
+                Address = request.Address.MapList(addr => addr.ToDb()),
+                Person = request.ToDbPerson(),
             };
         }
 
@@ -95,7 +98,9 @@ namespace RepairsApi.V2.Factories
         {
             return new Person
             {
-                AliasNames = request.Alias.MapList(pn => pn.ToDb()), Communication = request.Communication.MapList(c => c.ToDb()), Name = request.Name.ToDb()
+                AliasNames = request.Alias.MapList(pn => pn.ToDb()),
+                Communication = request.Communication.MapList(c => c.ToDb()),
+                Name = request.Name.ToDb()
             };
         }
 
@@ -103,7 +108,9 @@ namespace RepairsApi.V2.Factories
         {
             return new Person
             {
-                AliasNames = request.Alias.MapList(pn => pn.ToDb()), Communication = request.Communication.MapList(c => c.ToDb()), Name = request.Name.ToDb()
+                AliasNames = request.Alias.MapList(pn => pn.ToDb()),
+                Communication = request.Communication.MapList(c => c.ToDb()),
+                Name = request.Name.ToDb()
             };
         }
 
@@ -112,7 +119,10 @@ namespace RepairsApi.V2.Factories
         {
             return new Communication
             {
-                Channel = request.Channel.ToDb(), Description = request.Description, NotAvailable = request.NotAvailable, Value = request.Value
+                Channel = request.Channel.ToDb(),
+                Description = request.Description,
+                NotAvailable = request.NotAvailable,
+                Value = request.Value
             };
         }
 
@@ -155,7 +165,9 @@ namespace RepairsApi.V2.Factories
         {
             return new Site
             {
-                GeographicalLocation = site.GeographicalLocation.ToDb(), Name = site.Name, PropertyClass = site.Property.MapList(prop => prop.ToDb()),
+                GeographicalLocation = site.GeographicalLocation.ToDb(),
+                Name = site.Name,
+                PropertyClass = site.Property.MapList(prop => prop.ToDb()),
             };
         }
 
@@ -206,7 +218,8 @@ namespace RepairsApi.V2.Factories
         {
             return new Unit
             {
-                Address = request.Address.ToDb(), KeySafe = request.Keysafe.ToDb()
+                Address = request.Address.ToDb(),
+                KeySafe = request.Keysafe.ToDb()
             };
         }
 
@@ -264,7 +277,9 @@ namespace RepairsApi.V2.Factories
         {
             return new RateScheduleItem
             {
-                CustomCode = raiseRepair.CustomCode, CustomName = raiseRepair.CustomName, Quantity = raiseRepair.Quantity?.ToDb()
+                CustomCode = raiseRepair.CustomCode,
+                CustomName = raiseRepair.CustomName,
+                Quantity = raiseRepair.Quantity?.ToDb()
             };
         }
 
@@ -274,7 +289,8 @@ namespace RepairsApi.V2.Factories
 
             return new Quantity
             {
-                Amount = raiseRepair.Amount.Single(), UnitOfMeasurementCode = raiseRepair.UnitOfMeasurementCode
+                Amount = raiseRepair.Amount.Single(),
+                UnitOfMeasurementCode = raiseRepair.UnitOfMeasurementCode
             };
         }
 
@@ -282,7 +298,9 @@ namespace RepairsApi.V2.Factories
         {
             return new Trade
             {
-                Code = raiseRepair.Code, CustomCode = raiseRepair.CustomCode, CustomName = raiseRepair.CustomName
+                Code = raiseRepair.Code,
+                CustomCode = raiseRepair.CustomCode,
+                CustomName = raiseRepair.CustomName
             };
         }
 
@@ -290,7 +308,8 @@ namespace RepairsApi.V2.Factories
         {
             return new AlertRegardingPerson
             {
-                Comments = raiseRepair.Comments, Type = raiseRepair.Type
+                Comments = raiseRepair.Comments,
+                Type = raiseRepair.Type
             };
         }
 
@@ -298,7 +317,8 @@ namespace RepairsApi.V2.Factories
         {
             return new AlertRegardingLocation
             {
-                Comments = raiseRepair.Comments, Type = raiseRepair.Type,
+                Comments = raiseRepair.Comments,
+                Type = raiseRepair.Type,
                 // NOTE: Attachment Not handled
             };
         }
@@ -307,7 +327,9 @@ namespace RepairsApi.V2.Factories
         {
             return new WorkClass
             {
-                WorkClassCode = raiseRepair.WorkClassCode, WorkClassDescription = raiseRepair.WorkClassDescription, WorkClassSubType = raiseRepair.WorkClassSubType?.ToDb()
+                WorkClassCode = raiseRepair.WorkClassCode,
+                WorkClassDescription = raiseRepair.WorkClassDescription,
+                WorkClassSubType = raiseRepair.WorkClassSubType?.ToDb()
             };
         }
 
@@ -315,7 +337,8 @@ namespace RepairsApi.V2.Factories
         {
             return new WorkClassSubType
             {
-                WorkClassSubTypeDescription = raiseRepair.WorkClassSubTypeDescription, WorkClassSubTypeName = string.Join(',', raiseRepair.WorkClassSubType1)
+                WorkClassSubTypeDescription = raiseRepair.WorkClassSubTypeDescription,
+                WorkClassSubTypeName = string.Join(',', raiseRepair.WorkClassSubType1)
             };
         }
 
@@ -323,7 +346,8 @@ namespace RepairsApi.V2.Factories
         {
             return new WorkOrderAccessInformation
             {
-                Description = raiseRepair.Description, Keysafe = raiseRepair.Keysafe?.ToDb()
+                Description = raiseRepair.Description,
+                Keysafe = raiseRepair.Keysafe?.ToDb()
             };
         }
 
@@ -331,7 +355,8 @@ namespace RepairsApi.V2.Factories
         {
             return new KeySafe
             {
-                Code = raiseRepair.Code, Location = raiseRepair.Location
+                Code = raiseRepair.Code,
+                Location = raiseRepair.Location
             };
         }
 
@@ -380,7 +405,10 @@ namespace RepairsApi.V2.Factories
         {
             return new Categorization
             {
-                Category = categorization.Category, Type = categorization.Type, SubCategory = categorization.SubCategory, VersionUsed = categorization.VersionUsed
+                Category = categorization.Category,
+                Type = categorization.Type,
+                SubCategory = categorization.SubCategory,
+                VersionUsed = categorization.VersionUsed
             };
         }
 
@@ -401,7 +429,10 @@ namespace RepairsApi.V2.Factories
         {
             return new Party
             {
-                Name = party.Name, Role = party.Role, Organization = party.Organization.ToDb(), Person = party.Person.ToDb()
+                Name = party.Name,
+                Role = party.Role,
+                Organization = party.Organization.ToDb(),
+                Person = party.Person.ToDb()
             };
         }
 
@@ -421,7 +452,8 @@ namespace RepairsApi.V2.Factories
         {
             return new Identification
             {
-                Number = identification.Number, Type = identification.Type
+                Number = identification.Number,
+                Type = identification.Type
             };
         }
 
@@ -429,7 +461,8 @@ namespace RepairsApi.V2.Factories
         {
             return new Appointment
             {
-                Date = refinedAppointmentWindow.Date, TimeOfDay = refinedAppointmentWindow.TimeOfDay.ToDb()
+                Date = refinedAppointmentWindow.Date,
+                TimeOfDay = refinedAppointmentWindow.TimeOfDay.ToDb()
             };
         }
 
@@ -448,7 +481,10 @@ namespace RepairsApi.V2.Factories
         {
             return new ScheduleOfRates
             {
-                CustomCode = sorCode.CustomCode, CustomName = sorCode.CustomName, SORContractorRef = sorCode.SORContractor.Reference, PriorityId = sorCode.Priority.PriorityCode
+                CustomCode = sorCode.CustomCode,
+                CustomName = sorCode.CustomName,
+                SORContractorRef = sorCode.SORContractor.Reference,
+                PriorityId = sorCode.Priority.PriorityCode
             };
         }
 
@@ -466,7 +502,8 @@ namespace RepairsApi.V2.Factories
         {
             return new AdditionalWork
             {
-                AdditionalWorkOrder = additionalWork.AdditionalWorkOrder.ToDb(), ReasonRequired = additionalWork.ReasonRequired
+                AdditionalWorkOrder = additionalWork.AdditionalWorkOrder.ToDb(),
+                ReasonRequired = additionalWork.ReasonRequired
             };
         }
 
@@ -474,7 +511,8 @@ namespace RepairsApi.V2.Factories
         {
             return new CommunicationChannel
             {
-                Code = channel.Code, Medium = channel.Medium
+                Code = channel.Code,
+                Medium = channel.Medium
             };
         }
 
@@ -482,7 +520,8 @@ namespace RepairsApi.V2.Factories
         {
             return new Communication
             {
-                Channel = ccca.Channel.ToDb(), Value = ccca.Value
+                Channel = ccca.Channel.ToDb(),
+                Value = ccca.Value
             };
         }
 
