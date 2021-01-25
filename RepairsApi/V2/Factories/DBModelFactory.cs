@@ -58,7 +58,7 @@ namespace RepairsApi.V2.Factories
             {
                 Contact = org.Contact.MapList(c => c.ToDb()),
                 Name = org.Name,
-                DoingBusinessAsName = string.Join(';', org.DoingBusinessAsName)
+                DoingBusinessAsName = org.DoingBusinessAsName is null ? null : string.Join(';', org.DoingBusinessAsName)
             };
         }
 
