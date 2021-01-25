@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
+using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Generated;
 
 namespace RepairsApi.V2.Infrastructure

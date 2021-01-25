@@ -43,6 +43,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
         {
             return generator
                 .AddDefaultGenerators()
+                .AddValue(null, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.WorkOrderComplete)
                 .AddValue(new string[] { "address", "line" }, (RepairsApi.V2.Generated.PropertyAddress addr) => addr.AddressLine)
                 .AddValue(new string[] { "address", "line" }, (RepairsApi.V2.Generated.Address addr) => addr.AddressLine)
                 .AddValue(GetSitePropertyUnitGenerator(), (RepairsApi.V2.Generated.RaiseRepair rr) => rr.SitePropertyUnit)
@@ -52,6 +53,21 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                     (RepairsApi.V2.Generated.GeographicalLocation q) => q.Longitude,
                     (RepairsApi.V2.Generated.GeographicalLocation q) => q.Elevation,
                     (RepairsApi.V2.Generated.GeographicalLocation q) => q.ElevationReferenceSystem);
+        }
+
+
+        public static Generator<T> AddInfrastructureWorkOrderGenerators<T>(this Generator<T> generator)
+        {
+            return generator
+                .AddDefaultGenerators()
+                .AddValue(null, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.WorkOrderComplete)
+                .AddValue("address,line", (RepairsApi.V2.Infrastructure.PropertyAddress addr) => addr.AddressLine)
+                .AddValue(2.0, (RepairsApi.V2.Infrastructure.Quantity q) => q.Amount)
+                .AddValue(2.0,
+                    (RepairsApi.V2.Infrastructure.GeographicalLocation q) => q.Latitude,
+                    (RepairsApi.V2.Infrastructure.GeographicalLocation q) => q.Longitude,
+                    (RepairsApi.V2.Infrastructure.GeographicalLocation q) => q.Elevation)
+                .AddValue("0", (RepairsApi.V2.Infrastructure.GeographicalLocation q) => q.ElevationReferenceSystem);
         }
 
         private static ICollection<SitePropertyUnit> GetSitePropertyUnitGenerator()
