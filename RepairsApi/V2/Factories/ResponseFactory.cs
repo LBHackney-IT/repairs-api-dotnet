@@ -1,9 +1,10 @@
+using RepairsApi.V2.Boundary;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Domain;
+using RepairsApi.V2.Enums;
+using RepairsApi.V2.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
-using RepairsApi.V2.Infrastructure;
-using RepairsApi.V2.Enums;
 using Address = RepairsApi.V2.Domain.Address;
 using RepairsApi.V2.Boundary;
 using RepairsApi.V2.Infrastructure.Extensions;
@@ -116,12 +117,17 @@ namespace RepairsApi.V2.Factories
             {
                 Reference = workOrder.Id,
                 Description = workOrder.DescriptionOfWork,
-                Owner = "", // TODO: populate owner
                 Priority = workOrder.WorkPriority.PriorityDescription,
                 Property = addressLine,
                 DateRaised = workOrder.DateRaised,
+                PropertyReference = workOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference,
+                Target = workOrder.WorkPriority.RequiredCompletionDateTime,
+                PriorityCode = workOrder.WorkPriority.PriorityCode,
                 LastUpdated = null,
-                PropertyReference = workOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference
+                Owner = workOrder.AssignedToPrimary.Name,
+                RaisedBy = "Dummy Agent",
+                CallerName = workOrder.Customer.Person.Name.Full,
+                CallerNumber = workOrder.Customer.Person.Communication.Where(cc => cc.Channel.Medium == Generated.CommunicationMediumCode._20/* Audio */).FirstOrDefault()?.Value
             };
         }
 
