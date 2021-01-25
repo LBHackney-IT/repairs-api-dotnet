@@ -3,29 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using RepairsApi.V2.Boundary.Response;
-using RepairsApi.V2.Generated;
-using AdditionalWork = RepairsApi.V2.Infrastructure.AdditionalWork;
-using Categorization = RepairsApi.V2.Infrastructure.Categorization;
-using Communication = RepairsApi.V2.Infrastructure.Communication;
-using Contact = RepairsApi.V2.Infrastructure.Contact;
-using GeographicalLocation = RepairsApi.V2.Infrastructure.GeographicalLocation;
-using Identification = RepairsApi.V2.Infrastructure.Identification;
-using JobStatusUpdate = RepairsApi.V2.Infrastructure.JobStatusUpdate;
-using Organization = RepairsApi.V2.Infrastructure.Organization;
-using Party = RepairsApi.V2.Infrastructure.Party;
-using Person = RepairsApi.V2.Infrastructure.Person;
-using PersonName = RepairsApi.V2.Infrastructure.PersonName;
-using PropertyAddress = RepairsApi.V2.Infrastructure.PropertyAddress;
-using Quantity = RepairsApi.V2.Infrastructure.Quantity;
-using RateScheduleItem = RepairsApi.V2.Infrastructure.RateScheduleItem;
-using Score = RepairsApi.V2.Infrastructure.Score;
-using Site = RepairsApi.V2.Infrastructure.Site;
-using Trade = RepairsApi.V2.Infrastructure.Trade;
-using Unit = RepairsApi.V2.Infrastructure.Unit;
-using WorkClass = RepairsApi.V2.Infrastructure.WorkClass;
-using WorkClassSubType = RepairsApi.V2.Infrastructure.WorkClassSubType;
-using WorkElement = RepairsApi.V2.Infrastructure.WorkElement;
-using WorkOrderComplete = RepairsApi.V2.Infrastructure.WorkOrderComplete;
 
 namespace RepairsApi.V2.Factories
 {
@@ -575,7 +552,7 @@ namespace RepairsApi.V2.Factories
             };
         }
 
-        public static Operative ToDb(this OperativesUsed operative, List<WorkElement> workElements)
+        public static Operative ToDb(this Generated.OperativesUsed operative, List<WorkElement> workElements)
         {
             return new Operative
             {
