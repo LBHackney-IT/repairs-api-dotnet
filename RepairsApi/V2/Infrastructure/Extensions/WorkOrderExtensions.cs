@@ -1,4 +1,4 @@
-﻿using RepairsApi.V2.Boundary.Response;
+using RepairsApi.V2.Boundary.Response;
 
 namespace RepairsApi.V2.Infrastructure.Extensions
 {
