@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using RepairsApi.V2.Boundary.Response;
+using Newtonsoft.Json;
 
 namespace RepairsApi.V2.Factories
 {
@@ -160,7 +161,7 @@ namespace RepairsApi.V2.Factories
                     Latitude = ParseNullableDouble(request.Latitude),
                     Longitude = ParseNullableDouble(request.Longitude),
                     PositionalAccuracy = request.PositionalAccuracy,
-                    Polyline = request.Polyline.MapList(p => p.ToDb())
+                    Polyline = JsonConvert.SerializeObject(request.Polyline)
                 };
             }
             catch (FormatException e)
@@ -175,16 +176,6 @@ namespace RepairsApi.V2.Factories
             if (string.IsNullOrWhiteSpace(s)) return null;
 
             return double.Parse(s);
-        }
-
-        public static Point ToDb(this Generated.Polyline request)
-        {
-            return new Point
-            {
-                Easting = request.Easting,
-                Northing = request.Northing,
-                Sequence = request.Sequence
-            };
         }
 
         public static PropertyClass ToDb(this Generated.Property request)

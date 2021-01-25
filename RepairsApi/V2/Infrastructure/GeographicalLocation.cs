@@ -11,7 +11,7 @@ namespace RepairsApi.V2.Infrastructure
         public double? Elevation { get; set; }
         public string ElevationReferenceSystem { get; set; }
         public string PositionalAccuracy { get; set; }
-        public virtual List<Point> Polyline { get; set; }
+        public string Polyline { get; set; }
     }
 }
 
