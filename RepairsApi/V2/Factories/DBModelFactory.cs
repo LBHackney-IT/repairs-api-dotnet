@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using RepairsApi.V2.Boundary.Response;
+using Newtonsoft.Json;
 
 namespace RepairsApi.V2.Factories
 {
@@ -58,7 +59,7 @@ namespace RepairsApi.V2.Factories
             {
                 Contact = org.Contact.MapList(c => c.ToDb()),
                 Name = org.Name,
-                DoingBusinessAsName = string.Join(';', org.DoingBusinessAsName)
+                DoingBusinessAsName = org.DoingBusinessAsName is null ? null : string.Join(';', org.DoingBusinessAsName)
             };
         }
 
@@ -155,12 +156,12 @@ namespace RepairsApi.V2.Factories
             {
                 return new GeographicalLocation
                 {
-                    Elevation = double.Parse(request.Elevation.First()),
-                    ElevationReferenceSystem = request.ElevationReferenceSystem.First(),
-                    Latitude = double.Parse(request.Latitude.First()),
-                    Longitude = double.Parse(request.Longitude.First()),
+                    Elevation = ParseNullableDouble(request.Elevation),
+                    ElevationReferenceSystem = request.ElevationReferenceSystem.FirstOrDefault(),
+                    Latitude = ParseNullableDouble(request.Latitude),
+                    Longitude = ParseNullableDouble(request.Longitude),
                     PositionalAccuracy = request.PositionalAccuracy,
-                    Polyline = request.Polyline.MapList(p => p.ToDb())
+                    Polyline = JsonConvert.SerializeObject(request.Polyline)
                 };
             }
             catch (FormatException e)
@@ -169,14 +170,12 @@ namespace RepairsApi.V2.Factories
             }
         }
 
-        public static Point ToDb(this Generated.Polyline request)
+        private static double? ParseNullableDouble(ICollection<string> strings)
         {
-            return new Point
-            {
-                Easting = request.Easting,
-                Northing = request.Northing,
-                Sequence = request.Sequence
-            };
+            string s = strings?.FirstOrDefault();
+            if (string.IsNullOrWhiteSpace(s)) return null;
+
+            return double.Parse(s);
         }
 
         public static PropertyClass ToDb(this Generated.Property request)

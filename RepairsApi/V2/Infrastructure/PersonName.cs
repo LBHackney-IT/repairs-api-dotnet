@@ -14,4 +14,3 @@ namespace RepairsApi.V2.Infrastructure
         public string Middle { get; set; }
     }
 }
-
