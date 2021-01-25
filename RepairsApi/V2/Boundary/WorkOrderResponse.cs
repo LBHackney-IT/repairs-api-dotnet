@@ -12,5 +12,6 @@ namespace RepairsApi.V2.Boundary
         public string Owner { get; set; }
         public string Description { get; set; }
         public string PropertyReference { get; set; }
+        public DateTime? RequiredCompletionDate { get; internal set; }
     }
 }

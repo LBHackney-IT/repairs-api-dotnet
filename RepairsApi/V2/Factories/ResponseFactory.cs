@@ -117,6 +117,7 @@ namespace RepairsApi.V2.Factories
                 Description = workOrder.DescriptionOfWork,
                 Owner = "", // TODO: populate owner
                 Priority = workOrder.WorkPriority.PriorityDescription,
+                RequiredCompletionDate = workOrder.WorkPriority.RequiredCompletionDateTime,
                 Property = addressLine,
                 DateRaised = workOrder.DateRaised,
                 LastUpdated = null,
