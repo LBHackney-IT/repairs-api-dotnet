@@ -115,13 +115,19 @@ namespace RepairsApi.V2.Factories
             {
                 Reference = workOrder.Id,
                 Description = workOrder.DescriptionOfWork,
-                Owner = "", // TODO: populate owner
                 Priority = workOrder.WorkPriority.PriorityDescription,
-                RequiredCompletionDate = workOrder.WorkPriority.RequiredCompletionDateTime,
                 Property = addressLine,
                 DateRaised = workOrder.DateRaised,
+                PropertyReference = workOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference,
+                Target = workOrder.WorkPriority.RequiredCompletionDateTime,
+                PriorityCode = workOrder.WorkPriority.PriorityCode,
+
+                // TODO Source Stub Data
                 LastUpdated = null,
-                PropertyReference = workOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference
+                Owner = "Dummy Owner",
+                RaisedBy = "Dummy Agent",
+                CallerName = "Dummy Caller",
+                CallerNumber = "00000000000"
             };
         }
 
