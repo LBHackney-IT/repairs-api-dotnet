@@ -1,3 +1,4 @@
+using RepairsApi.V2.Generated;
 using System;
 
 namespace RepairsApi.V2.Boundary
@@ -12,5 +13,10 @@ namespace RepairsApi.V2.Boundary
         public string Owner { get; set; }
         public string Description { get; set; }
         public string PropertyReference { get; set; }
+        public DateTime? Target { get; internal set; }
+        public string RaisedBy { get; internal set; }
+        public string CallerNumber { get; internal set; }
+        public string CallerName { get; internal set; }
+        public WorkPriorityCode? PriorityCode { get; internal set; }
     }
 }
