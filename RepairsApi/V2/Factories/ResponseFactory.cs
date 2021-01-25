@@ -121,13 +121,11 @@ namespace RepairsApi.V2.Factories
                 PropertyReference = workOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference,
                 Target = workOrder.WorkPriority.RequiredCompletionDateTime,
                 PriorityCode = workOrder.WorkPriority.PriorityCode,
-
-                // TODO Source Stub Data
                 LastUpdated = null,
-                Owner = "Dummy Owner",
+                Owner = workOrder.AssignedToPrimary.Name,
                 RaisedBy = "Dummy Agent",
-                CallerName = "Dummy Caller",
-                CallerNumber = "00000000000"
+                CallerName = workOrder.Customer.Person.Name.Full,
+                CallerNumber = workOrder.Customer.Person.Communication.Where(cc => cc.Channel.Medium == Generated.CommunicationMediumCode._20/* Audio */).FirstOrDefault()?.Value
             };
         }
 
