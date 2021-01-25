@@ -6,7 +6,6 @@ using RepairsApi.V2.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
 using Address = RepairsApi.V2.Domain.Address;
-using RepairsApi.V2.Boundary;
 using RepairsApi.V2.Infrastructure.Extensions;
 using SORPriority = RepairsApi.V2.Domain.SORPriority;
 
