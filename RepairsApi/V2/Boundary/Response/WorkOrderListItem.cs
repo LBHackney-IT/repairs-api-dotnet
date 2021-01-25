@@ -6,7 +6,6 @@ namespace RepairsApi.V2.Boundary.Response
     {
         public const string InProgress = "In Progress";
         public const string Complete = "Work Compete";
-
     }
 
     public class WorkOrderListItem
