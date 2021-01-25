@@ -1,11 +1,11 @@
+using RepairsApi.V2.Boundary;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Domain;
+using RepairsApi.V2.Enums;
+using RepairsApi.V2.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
-using RepairsApi.V2.Infrastructure;
-using RepairsApi.V2.Enums;
 using Address = RepairsApi.V2.Domain.Address;
-using RepairsApi.V2.Boundary;
 using SORPriority = RepairsApi.V2.Domain.SORPriority;
 
 namespace RepairsApi.V2.Factories
