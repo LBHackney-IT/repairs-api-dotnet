@@ -4,7 +4,9 @@ using FluentAssertions.Common;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers.StubGeneration;
 using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Generated;
 using RepairsApi.V2.Infrastructure;
+using JobStatusUpdate = RepairsApi.V2.Infrastructure.JobStatusUpdate;
 
 namespace RepairsApi.Tests.V2.Gateways
 {
@@ -23,7 +25,7 @@ namespace RepairsApi.Tests.V2.Gateways
         private void SetupGenerator()
         {
             _generator = new Generator<JobStatusUpdate>()
-                .AddWorkOrderGenerators();
+                .AddInfrastructureWorkOrderGenerators();
         }
 
         [TearDown]
@@ -40,7 +42,6 @@ namespace RepairsApi.Tests.V2.Gateways
 
             // act
             await _classUnderTest.CreateJobStatusUpdate(expected);
-            await InMemoryDb.Instance.SaveChangesAsync();
 
             // assert
             InMemoryDb.Instance.JobStatusUpdates

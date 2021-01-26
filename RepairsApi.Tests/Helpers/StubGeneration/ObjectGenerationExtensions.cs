@@ -54,6 +54,14 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                     (RepairsApi.V2.Generated.GeographicalLocation q) => q.ElevationReferenceSystem);
         }
 
+
+        public static Generator<T> AddInfrastructureWorkOrderGenerators<T>(this Generator<T> generator)
+        {
+            return generator
+                .AddDefaultGenerators()
+                .AddValue(null, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.WorkOrderComplete);
+        }
+
         private static ICollection<SitePropertyUnit> GetSitePropertyUnitGenerator()
         {
             var generator = new Generator<SitePropertyUnit>()

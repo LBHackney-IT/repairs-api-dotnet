@@ -6,6 +6,7 @@ using RepairsApi.V2.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
 using Address = RepairsApi.V2.Domain.Address;
+using RepairsApi.V2.Infrastructure.Extensions;
 using SORPriority = RepairsApi.V2.Domain.SORPriority;
 
 namespace RepairsApi.V2.Factories
@@ -137,12 +138,14 @@ namespace RepairsApi.V2.Factories
             {
                 Reference = workOrder.Id,
                 Description = workOrder.DescriptionOfWork,
-                Owner = "", // TODO: populate owner
+                Owner = workOrder.AssignedToPrimary?.Name,
                 Priority = workOrder.WorkPriority.PriorityDescription,
                 Property = addressLine,
                 DateRaised = workOrder.DateRaised,
                 LastUpdated = null,
-                PropertyReference = workOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference
+                PropertyReference = workOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference,
+                TradeCode = workOrder.WorkElements.FirstOrDefault()?.Trade.First().CustomCode,
+                Status = workOrder.GetStatus()
             };
         }
 

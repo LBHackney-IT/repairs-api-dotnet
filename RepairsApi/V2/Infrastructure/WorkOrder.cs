@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
+using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Generated;
 
 namespace RepairsApi.V2.Infrastructure
@@ -27,6 +28,7 @@ namespace RepairsApi.V2.Infrastructure
         public virtual List<WorkElement> WorkElements { get; set; }
         public virtual List<AlertRegardingPerson> PersonAlert { get; set; }
         public virtual List<AlertRegardingLocation> LocationAlert { get; set; }
+        public virtual WorkOrderComplete WorkOrderComplete { get; set; }
     }
 
     [Owned]
