@@ -8,6 +8,7 @@ using Moq;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers;
 using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Controllers;
 using RepairsApi.V2.Controllers.Parameters;
 using RepairsApi.V2.Factories;
@@ -37,7 +38,7 @@ namespace RepairsApi.Tests.V2.UseCase
         private void configureGenerator()
         {
             _generator = new Generator<WorkOrder>()
-                .AddDefaultValueGenerators();
+                .AddWorkOrderGenerators();
         }
 
         [Test]
@@ -52,6 +53,34 @@ namespace RepairsApi.Tests.V2.UseCase
 
             //Assert
             workOrders.Should().HaveCount(expectedWorkOrderCount);
+        }
+
+        [Test]
+        public async Task HasCorrectFieldsSet()
+        {
+            //Arrange
+            var expectedWorkOrder = GenerateAndReturnWorkOrders(1).Single();
+            PropertyClass propertyClass = expectedWorkOrder.Site?.PropertyClass.FirstOrDefault();
+            string addressLine = propertyClass?.Address?.AddressLine;
+            var expectedResult = new WorkOrderListItem
+            {
+                Reference = expectedWorkOrder.Id,
+                Description = expectedWorkOrder.DescriptionOfWork,
+                Owner = expectedWorkOrder.AssignedToPrimary?.Name,
+                Priority = expectedWorkOrder.WorkPriority.PriorityDescription,
+                Property = addressLine,
+                DateRaised = expectedWorkOrder.DateRaised,
+                LastUpdated = null,
+                PropertyReference = expectedWorkOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference,
+                TradeCode = expectedWorkOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomCode,
+                Status = WorkOrderStatus.Complete
+            };
+
+            //Act
+            var workOrders = await _classUnderTest.Execute(new WorkOrderSearchParameters());
+
+            //Assert
+            workOrders.Single().Should().BeEquivalentTo(expectedResult);
         }
 
         [Test]

@@ -1,11 +1,12 @@
+using RepairsApi.V2.Boundary;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Domain;
+using RepairsApi.V2.Enums;
+using RepairsApi.V2.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
-using RepairsApi.V2.Infrastructure;
-using RepairsApi.V2.Enums;
 using Address = RepairsApi.V2.Domain.Address;
-using RepairsApi.V2.Boundary;
+using RepairsApi.V2.Infrastructure.Extensions;
 using SORPriority = RepairsApi.V2.Domain.SORPriority;
 
 namespace RepairsApi.V2.Factories
@@ -110,34 +111,41 @@ namespace RepairsApi.V2.Factories
         public static WorkOrderResponse ToResponse(this WorkOrder workOrder)
         {
             PropertyClass propertyClass = workOrder.Site?.PropertyClass.FirstOrDefault();
-            string addressLine = propertyClass?.Address?.Address?.Address?.AddressLine;
+            string addressLine = propertyClass?.Address?.AddressLine;
             return new WorkOrderResponse
             {
                 Reference = workOrder.Id,
                 Description = workOrder.DescriptionOfWork,
-                Owner = "", // TODO: populate owner
                 Priority = workOrder.WorkPriority.PriorityDescription,
                 Property = addressLine,
                 DateRaised = workOrder.DateRaised,
+                PropertyReference = workOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference,
+                Target = workOrder.WorkPriority.RequiredCompletionDateTime,
+                PriorityCode = workOrder.WorkPriority.PriorityCode,
                 LastUpdated = null,
-                PropertyReference = workOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference
+                Owner = workOrder.AssignedToPrimary.Name,
+                RaisedBy = "Dummy Agent",
+                CallerName = workOrder.Customer.Person.Name.Full,
+                CallerNumber = workOrder.Customer.Person.Communication.Where(cc => cc.Channel.Medium == Generated.CommunicationMediumCode._20/* Audio */).FirstOrDefault()?.Value
             };
         }
 
         public static WorkOrderListItem ToListItem(this WorkOrder workOrder)
         {
             PropertyClass propertyClass = workOrder.Site?.PropertyClass.FirstOrDefault();
-            string addressLine = propertyClass?.Address?.Address?.Address?.AddressLine;
+            string addressLine = propertyClass?.Address?.AddressLine;
             return new WorkOrderListItem
             {
                 Reference = workOrder.Id,
                 Description = workOrder.DescriptionOfWork,
-                Owner = "", // TODO: populate owner
+                Owner = workOrder.AssignedToPrimary?.Name,
                 Priority = workOrder.WorkPriority.PriorityDescription,
                 Property = addressLine,
                 DateRaised = workOrder.DateRaised,
                 LastUpdated = null,
-                PropertyReference = workOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference
+                PropertyReference = workOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference,
+                TradeCode = workOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomCode,
+                Status = workOrder.GetStatus()
             };
         }
 

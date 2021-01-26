@@ -22,7 +22,7 @@ namespace RepairsApi.V2 {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace RepairsApi.V2 {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("RepairsApi.V2.Resources", typeof(Resources).Assembly);
@@ -51,7 +51,7 @@ namespace RepairsApi.V2 {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,16 +63,25 @@ namespace RepairsApi.V2 {
         /// <summary>
         ///   Looks up a localized string similar to Work Order Created.
         /// </summary>
-        internal static string CreatedWorkOrder {
+        public static string CreatedWorkOrder {
             get {
                 return ResourceManager.GetString("CreatedWorkOrder", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to GeographicalLocation.Elevation, GeographicalLocation.Latitude and GeographicalLocation.Longitude must contain a single string that is a valid decimal number.
+        /// </summary>
+        public static string InvalidGeographicalLocation {
+            get {
+                return ResourceManager.GetString("InvalidGeographicalLocation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to fetch location alerts.
         /// </summary>
-        internal static string LocationAlertsFailure {
+        public static string LocationAlertsFailure {
             get {
                 return ResourceManager.GetString("LocationAlertsFailure", resourceCulture);
             }
@@ -81,7 +90,7 @@ namespace RepairsApi.V2 {
         /// <summary>
         ///   Looks up a localized string similar to Unable to fetch person alerts.
         /// </summary>
-        internal static string PersonAlertsFailure {
+        public static string PersonAlertsFailure {
             get {
                 return ResourceManager.GetString("PersonAlertsFailure", resourceCulture);
             }
@@ -90,7 +99,7 @@ namespace RepairsApi.V2 {
         /// <summary>
         ///   Looks up a localized string similar to Unable to fetch properties.
         /// </summary>
-        internal static string PropertiesFailure {
+        public static string PropertiesFailure {
             get {
                 return ResourceManager.GetString("PropertiesFailure", resourceCulture);
             }
@@ -99,7 +108,7 @@ namespace RepairsApi.V2 {
         /// <summary>
         ///   Looks up a localized string similar to Unable to fetch property.
         /// </summary>
-        internal static string PropertyFailure {
+        public static string PropertyFailure {
             get {
                 return ResourceManager.GetString("PropertyFailure", resourceCulture);
             }
@@ -108,7 +117,7 @@ namespace RepairsApi.V2 {
         /// <summary>
         ///   Looks up a localized string similar to Unable to fetch tenancy.
         /// </summary>
-        internal static string TenancyFailure {
+        public static string TenancyFailure {
             get {
                 return ResourceManager.GetString("TenancyFailure", resourceCulture);
             }

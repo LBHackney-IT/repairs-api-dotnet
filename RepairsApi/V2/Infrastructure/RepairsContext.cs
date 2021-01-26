@@ -27,6 +27,11 @@ namespace RepairsApi.V2.Infrastructure
                 .Property(wo => wo.Id)
                 .HasIdentityOptions(startValue: 10000000);
 
+            modelBuilder.Entity<WorkOrder>()
+                .HasOne(a => a.WorkOrderComplete)
+                .WithOne(b => b.WorkOrder)
+                .HasForeignKey<WorkOrderComplete>(b => b.Id);
+
             modelBuilder.Seed(_dataImporter);
         }
     }

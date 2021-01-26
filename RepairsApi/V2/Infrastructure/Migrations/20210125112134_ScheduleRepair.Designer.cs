@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RepairsApi.V2.Infrastructure;
@@ -9,9 +10,10 @@ using RepairsApi.V2.Infrastructure;
 namespace RepairsApi.V2.Infrastructure.Migrations
 {
     [DbContext(typeof(RepairsContext))]
-    partial class RepairsContextModelSnapshot : ModelSnapshot
+    [Migration("20210125112134_ScheduleRepair")]
+    partial class ScheduleRepair
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -936,11 +938,20 @@ namespace RepairsApi.V2.Infrastructure.Migrations
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrderComplete", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<int?>("WorkOrderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("work_order_id");
 
                     b.HasKey("Id")
                         .HasName("pk_work_order_completes");
+
+                    b.HasIndex("WorkOrderId")
+                        .HasDatabaseName("ix_work_order_completes_work_order_id");
 
                     b.ToTable("work_order_completes");
                 });
@@ -1733,7 +1744,7 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.HasOne("RepairsApi.V2.Infrastructure.WorkOrderComplete", null)
                         .WithMany("FollowOnWorkOrder")
                         .HasForeignKey("WorkOrderCompleteId")
-                        .HasConstraintName("fk_work_orders_work_order_completes_work_order_complete_id1");
+                        .HasConstraintName("fk_work_orders_work_order_completes_work_order_complete_id");
 
                     b.OwnsOne("RepairsApi.V2.Infrastructure.WorkClass", "WorkClass", b1 =>
                         {
@@ -1895,11 +1906,9 @@ namespace RepairsApi.V2.Infrastructure.Migrations
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrderComplete", b =>
                 {
                     b.HasOne("RepairsApi.V2.Infrastructure.WorkOrder", "WorkOrder")
-                        .WithOne("WorkOrderComplete")
-                        .HasForeignKey("RepairsApi.V2.Infrastructure.WorkOrderComplete", "Id")
-                        .HasConstraintName("fk_work_order_completes_work_orders_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany()
+                        .HasForeignKey("WorkOrderId")
+                        .HasConstraintName("fk_work_order_completes_work_orders_work_order_id");
 
                     b.Navigation("WorkOrder");
                 });
@@ -1966,8 +1975,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.Navigation("PersonAlert");
 
                     b.Navigation("WorkElements");
-
-                    b.Navigation("WorkOrderComplete");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrderComplete", b =>

@@ -120,6 +120,9 @@
   <data name="CreatedWorkOrder" xml:space="preserve">
     <value>Work Order Created</value>
   </data>
+  <data name="InvalidGeographicalLocation" xml:space="preserve">
+    <value>GeographicalLocation.Elevation, GeographicalLocation.Latitude and GeographicalLocation.Longitude must contain a single string that is a valid decimal number</value>
+  </data>
   <data name="LocationAlertsFailure" xml:space="preserve">
     <value>Unable to fetch location alerts</value>
   </data>

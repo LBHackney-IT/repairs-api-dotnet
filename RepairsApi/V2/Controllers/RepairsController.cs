@@ -18,21 +18,21 @@ namespace RepairsApi.V2.Controllers
     [ApiVersion("2.0")]
     public class RepairsController : Controller
     {
-        private readonly IRaiseRepairUseCase _raiseRepairUseCase;
+        private readonly ICreateWorkOrderUseCase _createWorkOrderUseCase;
         private readonly IListWorkOrdersUseCase _listWorkOrdersUseCase;
         private readonly ICompleteWorkOrderUseCase _completeWorkOrderUseCase;
         private readonly IUpdateJobStatusUseCase _updateJobStatusUseCase;
         private readonly IGetWorkOrderUseCase _getWorkOrderUseCase;
 
         public RepairsController(
-            IRaiseRepairUseCase raiseRepairUseCase,
+            ICreateWorkOrderUseCase createWorkOrderUseCase,
             IListWorkOrdersUseCase listWorkOrdersUseCase,
             ICompleteWorkOrderUseCase completeWorkOrderUseCase,
             IUpdateJobStatusUseCase updateJobStatusUseCase,
             IGetWorkOrderUseCase getWorkOrderUseCase
         )
         {
-            _raiseRepairUseCase = raiseRepairUseCase;
+            _createWorkOrderUseCase = createWorkOrderUseCase;
             _listWorkOrdersUseCase = listWorkOrdersUseCase;
             _completeWorkOrderUseCase = completeWorkOrderUseCase;
             _updateJobStatusUseCase = updateJobStatusUseCase;
@@ -49,7 +49,28 @@ namespace RepairsApi.V2.Controllers
         {
             try
             {
-                var result = await _raiseRepairUseCase.Execute(request.ToDb());
+                var result = await _createWorkOrderUseCase.Execute(request.ToDb());
+                return Ok(result);
+            }
+            catch (NotSupportedException e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+
+        /// <summary>
+        /// Schedule a repair (creates a work order)
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("schedule")]
+        public async Task<IActionResult> ScheduleRepair([FromBody] ScheduleRepair request)
+        {
+            try
+            {
+                var result = await _createWorkOrderUseCase.Execute(request.ToDb());
                 return Ok(result);
             }
             catch (NotSupportedException e)

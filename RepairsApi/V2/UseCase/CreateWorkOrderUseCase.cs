@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace RepairsApi.V2.UseCase
 {
-    public class RaiseRepairUseCase : IRaiseRepairUseCase
+    public class CreateWorkOrderUseCase : ICreateWorkOrderUseCase
     {
         private readonly IRepairsGateway _repairsGateway;
-        private readonly ILogger<RaiseRepairUseCase> _logger;
+        private readonly ILogger<CreateWorkOrderUseCase> _logger;
 
-        public RaiseRepairUseCase(
+        public CreateWorkOrderUseCase(
             IRepairsGateway repairsGateway,
-            ILogger<RaiseRepairUseCase> logger)
+            ILogger<CreateWorkOrderUseCase> logger)
         {
             _repairsGateway = repairsGateway;
             _logger = logger;

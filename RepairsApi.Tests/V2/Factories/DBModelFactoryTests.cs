@@ -1,12 +1,12 @@
+using FluentAssertions;
+using NUnit.Framework;
+using RepairsApi.Tests.V2.E2ETests;
+using RepairsApi.V2;
+using RepairsApi.V2.Factories;
+using RepairsApi.V2.Generated;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using FluentAssertions;
-using FluentAssertions.Collections;
-using NUnit.Framework;
-using RepairsApi.Tests.V2.E2ETests;
-using RepairsApi.V2.Factories;
-using RepairsApi.V2.Generated;
 
 namespace RepairsApi.Tests.V2.Factories
 {
@@ -25,6 +25,70 @@ namespace RepairsApi.Tests.V2.Factories
 
             Assert.Throws<NotSupportedException>(() => quatity.ToDb())
                 .Message.Should().Be("Multiple amounts is not supported");
+        }
+
+        [Test]
+        public void DoesNotThrowWhenValid()
+        {
+            var geo = BuildValidGeographicalLocation();
+
+            var viewModel = geo.ToDb();
+
+            viewModel.Should().NotBeNull();
+        }
+
+        [Test]
+        public void ThrowsWhenInvalidModelBadLatitude()
+        {
+            AssertBadGeographicalLocation(geo => geo.Latitude = List("not an int"));
+        }
+
+        [Test]
+        public void ThrowsWhenInvalidModelBadLongitude()
+        {
+            AssertBadGeographicalLocation(geo => geo.Longitude = List("not an int"));
+        }
+
+        [Test]
+        public void ThrowsWhenInvalidModelBadElevation()
+        {
+            AssertBadGeographicalLocation(geo => geo.Elevation = List("not an int"));
+        }
+
+        private static void AssertBadGeographicalLocation(Action<GeographicalLocation> mutator)
+        {
+            GeographicalLocation geo = BuildValidGeographicalLocation();
+
+            mutator.Invoke(geo);
+
+            Assert.Throws<NotSupportedException>(() => geo.ToDb())
+                .Message.Should().Be(Resources.InvalidGeographicalLocation);
+        }
+
+        private static List<T> List<T>(params T[] data)
+        {
+            return data.ToList();
+        }
+
+        private static GeographicalLocation BuildValidGeographicalLocation()
+        {
+            return new GeographicalLocation
+            {
+                Elevation = new List<string> { "2.0" },
+                ElevationReferenceSystem = new List<string> { "ref system" },
+                Latitude = new List<string> { "5.0" },
+                Longitude = null,
+                Polyline = new List<Polyline>
+                {
+                    new Polyline
+                    {
+                        Easting = 40,
+                        Northing = 40,
+                        Sequence = 2
+                    }
+                },
+                PositionalAccuracy = "meters"
+            };
         }
 
         [Test]
