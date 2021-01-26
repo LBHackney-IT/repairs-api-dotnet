@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace RepairsApi.V2.Infrastructure
 {
-
     public class RepairsContext : DbContext
     {
         private readonly DataImporter _dataImporter;
@@ -19,6 +18,8 @@ namespace RepairsApi.V2.Infrastructure
         public DbSet<WorkOrderComplete> WorkOrderCompletes { get; set; }
         public DbSet<JobStatusUpdate> JobStatusUpdates { get; set; }
         public DbSet<ScheduleOfRates> SORCodes { get; set; }
+        public DbSet<SORTrade> Trades { get; }
+        public DbSet<SORContractor> Contractors { get; }
         public DbSet<SORPriority> SORPriorities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

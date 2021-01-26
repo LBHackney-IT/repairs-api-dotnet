@@ -16,4 +16,10 @@ namespace RepairsApi.V2.Boundary.Response
 
         public Contractor SORContractor { get; set; }
     }
+
+    public class SorTrade
+    {
+        public string Code { get; set; }
+        public string Name { get; set; }
+    }
 }

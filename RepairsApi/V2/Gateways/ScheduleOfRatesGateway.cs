@@ -10,27 +10,29 @@ namespace RepairsApi.V2.Gateways
     public class ScheduleOfRatesGateway : IScheduleOfRatesGateway
     {
         private DbSet<ScheduleOfRates> SORCodes { get; }
+        private DbSet<SORTrade> Trades { get; }
+        private DbSet<SORContractor> Contractors { get; }
 
         public ScheduleOfRatesGateway(RepairsContext context)
         {
             SORCodes = context.SORCodes;
+            Trades = context.Trades;
+            Contractors = context.Contractors;
         }
 
-        public Task<string> GetContractorReference(string customCode)
+        public async Task<IEnumerable<ScheduleOfRates>> GetSorCodes(string contractorRef, string tradeCode)
         {
-            return SORCodes
-                .Where(sor => sor.CustomCode == customCode)
-                .Select(sor => sor.SORContractorRef)
-                .FirstOrDefaultAsync();
+            return await SORCodes.Where(sor => sor.SORContractorRef == contractorRef && sor.TradeCode == tradeCode).ToListAsync();
         }
 
-        public async Task<IEnumerable<ScheduleOfRates>> GetSorCodes(string contractorRef = null)
+        public async Task<IEnumerable<SORTrade>> GetTrades()
         {
-            if (contractorRef.IsNullOrEmpty())
-            {
-                return await SORCodes.ToListAsync();
-            }
-            return await SORCodes.Where(sor => sor.SORContractorRef == contractorRef).ToListAsync();
+            return await Trades.ToListAsync();
+        }
+
+        public async Task<IEnumerable<SORContractor>> GetContractors()
+        {
+            return await Contractors.ToListAsync();
         }
     }
 }
