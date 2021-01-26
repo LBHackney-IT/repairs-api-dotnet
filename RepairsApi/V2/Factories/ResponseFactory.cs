@@ -144,7 +144,7 @@ namespace RepairsApi.V2.Factories
                 DateRaised = workOrder.DateRaised,
                 LastUpdated = null,
                 PropertyReference = workOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference,
-                TradeCode = workOrder.WorkElements.FirstOrDefault()?.Trade.First().CustomCode,
+                TradeCode = workOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomCode,
                 Status = workOrder.GetStatus()
             };
         }
