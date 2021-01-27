@@ -11,8 +11,18 @@ namespace RepairsApi.V2.Infrastructure
     {
         public static void Seed(this ModelBuilder modelBuilder, DataImporter dataImporter)
         {
-            var data = dataImporter.LoadData("SORCodes.json");
+            var sorCodeData = dataImporter.LoadData<SORImportModel>("SORCodes.json");
+            SeedPriorities(modelBuilder, sorCodeData);
+            SeedSORs(modelBuilder, sorCodeData);
+        }
+
+        private static void SeedPriorities(ModelBuilder modelBuilder, SORImportModel data)
+        {
             modelBuilder.Entity<SORPriority>().HasData(data.Priorities);
+        }
+
+        private static void SeedSORs(ModelBuilder modelBuilder, SORImportModel data)
+        {
             modelBuilder.Entity<ScheduleOfRates>().HasData(data.Codes.Select(c => new ScheduleOfRates
             {
                 CustomCode = c.CustomCode,
@@ -37,10 +47,10 @@ namespace RepairsApi.V2.Infrastructure
             };
         }
 
-        public ImportModel LoadData(string fileName)
+        public T LoadData<T>(string fileName)
         {
             var jsonString = GetJson(fileName);
-            return JsonSerializer.Deserialize<ImportModel>(jsonString, _jsonOptions);
+            return JsonSerializer.Deserialize<T>(jsonString, _jsonOptions);
         }
 
         private string GetJson(string fileName)
@@ -50,7 +60,7 @@ namespace RepairsApi.V2.Infrastructure
         }
     }
 
-    public class ImportModel
+    public class SORImportModel
     {
         public IEnumerable<ScheduleOfRatesImportModel> Codes { get; set; } = null!;
         public IEnumerable<SORPriority> Priorities { get; set; } = null!;
@@ -64,5 +74,6 @@ namespace RepairsApi.V2.Infrastructure
         public int PriorityCode { get; set; }
 
         public string SorContractor { get; set; }
+        public string TradeCode { get; set; }
     }
 }
