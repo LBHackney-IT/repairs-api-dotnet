@@ -25,6 +25,12 @@ namespace RepairsApi.V2.Gateways
             return await SORCodes.Where(sor => sor.SORContractorRef == contractorRef && sor.TradeCode == tradeCode).ToListAsync();
         }
 
+        // TODO This can be a slow query. usages should be done in the gateway so a full queryable can be built for performance
+        public async Task<IEnumerable<ScheduleOfRates>> GetSorCodes(string contractorRef)
+        {
+            return await SORCodes.Where(sor => sor.SORContractorRef == contractorRef).ToListAsync(); 
+        }
+
         public async Task<IEnumerable<SORTrade>> GetTrades()
         {
             return await Trades.ToListAsync();

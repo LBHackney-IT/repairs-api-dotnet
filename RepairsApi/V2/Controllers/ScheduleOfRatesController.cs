@@ -50,7 +50,7 @@ namespace RepairsApi.V2.Controllers
         /// </summary>
         /// <response code="200">Success. Returns a list of SOR codes</response>
         /// <response code="400">Invalid Query Parameter.</response>
-        [ProducesResponseType(typeof(IEnumerable<SorTrade>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<SorTradeResponse>), StatusCodes.Status200OK)]
         [Route("trades")]
         [HttpGet]
         public async Task<IActionResult> ListTrades()

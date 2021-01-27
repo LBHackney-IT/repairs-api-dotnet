@@ -21,7 +21,7 @@ namespace RepairsApi.Tests.V2.Gateways
         public async Task CanListSorCodes()
         {
             // act
-            var codes = await _classUnderTest.GetSorCodes();
+            var codes = await _classUnderTest.GetSorCodes("", "");
 
             // assert
             codes.Should().NotBeNullOrEmpty();

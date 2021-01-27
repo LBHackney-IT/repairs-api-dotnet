@@ -1,7 +1,7 @@
-using RepairsApi.V2.Controllers;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Gateways;
+using RepairsApi.V2.UseCase.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;

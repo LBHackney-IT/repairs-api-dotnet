@@ -171,5 +171,23 @@ namespace RepairsApi.V2.Factories
                 }
             };
         }
+
+        public static SorTradeResponse ToResponse(this SORTrade trade)
+        {
+            return new SorTradeResponse
+            {
+                Code = trade.TradeCode,
+                Name = trade.Description
+            };
+        }
+
+        public static Contractor ToResponse(this SORContractor contractor)
+        {
+            return new Contractor
+            {
+                Name = contractor.Name,
+                Reference = contractor.SORContractorRef
+            };
+        }
     }
 }

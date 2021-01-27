@@ -49,7 +49,7 @@ namespace RepairsApi.Tests.V2.UseCase
                 .ReturnsAsync(expectedCodes);
 
             // act
-            var codes = await _classUnderTest.Execute();
+            var codes = await _classUnderTest.Execute("", "");
 
             // assert
             codes.Single().Should().BeEquivalentTo(expectedCode.ToResponse());
