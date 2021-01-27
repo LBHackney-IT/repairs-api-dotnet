@@ -32,5 +32,10 @@ namespace RepairsApi.V2.Gateways
             }
             return await SORCodes.Where(sor => sor.SORContractorRef == contractorRef).ToListAsync();
         }
+
+        public Task<double> GetCost(string customCode)
+        {
+            return SORCodes.Where(sor => sor.CustomCode == customCode).Select(sor => sor.Cost).SingleAsync();
+        }
     }
 }

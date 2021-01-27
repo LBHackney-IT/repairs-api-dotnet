@@ -69,6 +69,24 @@ namespace RepairsApi.Tests.V2.E2ETests
         }
 
         [Test]
+        public async Task ViewElements()
+        {
+            var client = CreateClient();
+
+            Generator<ScheduleRepair> generator = new Generator<ScheduleRepair>()
+                .AddWorkOrderGenerators();
+
+            var request = generator.Generate();
+            var serializedContent = JsonConvert.SerializeObject(request);
+            StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
+
+            var woId = await ScheduleRepairAndValidate(client, content);
+
+            var response = await client.GetAsync(new Uri($"/api/v2/repairs/{woId}/tasks", UriKind.Relative));
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        [Test]
         public async Task BadRequestWhenMultipleAmountsProvided()
         {
             var client = CreateClient();
@@ -175,13 +193,13 @@ namespace RepairsApi.Tests.V2.E2ETests
             await ValidateWorkOrderCreation(client, content, assertions, uriString);
         }
 
-        private async Task ScheduleRepairAndValidate(HttpClient client, StringContent content, Action<WorkOrder> assertions = null)
+        private async Task<int> ScheduleRepairAndValidate(HttpClient client, StringContent content, Action<WorkOrder> assertions = null)
         {
             const string uriString = "/api/v2/repairs/schedule";
-            await ValidateWorkOrderCreation(client, content, assertions, uriString);
+            return await ValidateWorkOrderCreation(client, content, assertions, uriString);
         }
 
-        private async Task ValidateWorkOrderCreation(HttpClient client, StringContent content, Action<WorkOrder> assertions, string uriString)
+        private async Task<int> ValidateWorkOrderCreation(HttpClient client, StringContent content, Action<WorkOrder> assertions, string uriString)
         {
             var response = await client.PostAsync(new Uri(uriString, UriKind.Relative), content);
 
@@ -195,6 +213,8 @@ namespace RepairsApi.Tests.V2.E2ETests
                 repair.Should().NotBeNull();
                 assertions?.Invoke(repair);
             });
+
+            return id;
         }
     }
 }

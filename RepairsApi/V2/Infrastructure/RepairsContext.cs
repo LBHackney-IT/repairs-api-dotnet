@@ -16,6 +16,7 @@ namespace RepairsApi.V2.Infrastructure
         }
 
         public DbSet<WorkOrder> WorkOrders { get; set; }
+        public DbSet<WorkElement> WorkElements { get; set; }
         public DbSet<WorkOrderComplete> WorkOrderCompletes { get; set; }
         public DbSet<JobStatusUpdate> JobStatusUpdates { get; set; }
         public DbSet<ScheduleOfRates> SORCodes { get; set; }
