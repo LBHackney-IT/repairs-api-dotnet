@@ -163,6 +163,23 @@ namespace RepairsApi.Tests.V2.Controllers
         }
 
         [Test]
+        public async Task ReturnsBadRequestWhenNotSupportedThrownInWorkOrderComplete()
+        {
+            // arrange
+            string expectedMessage = "message";
+            _completeWorkOrderUseCase.Setup(uc => uc.Execute(It.IsAny<WorkOrderComplete>()))
+                .ThrowsAsync(new NotSupportedException(expectedMessage));
+            var request = CreateRequest(1);
+
+            // act
+            var response = await _classUnderTest.WorkOrderComplete(request);
+
+            // assert
+            response.Should().BeOfType<BadRequestObjectResult>()
+                .Which.Value.As<string>().Should().Be(expectedMessage);
+        }
+
+        [Test]
         public async Task ReturnsOkWhenCanUpdateJobStatus()
         {
             _updateJobStatusUseCase
@@ -186,6 +203,23 @@ namespace RepairsApi.Tests.V2.Controllers
                 new JobStatusUpdate { RelatedWorkOrderReference = new Reference { ID = "41" } });
 
             response.Should().BeOfType<BadRequestObjectResult>();
+        }
+
+        [Test]
+        public async Task ReturnsBadRequestWhenNotSupportedThrownInJobStatusUpdate()
+        {
+            // arrange
+            string expectedMessage = "message";
+            _updateJobStatusUseCase.Setup(uc => uc.Execute(It.IsAny<JobStatusUpdate>()))
+                .ThrowsAsync(new NotSupportedException(expectedMessage));
+
+            // act
+            var response = await _classUnderTest.JobStatusUpdate(
+                new JobStatusUpdate { RelatedWorkOrderReference = new Reference { ID = "41" } });
+
+            // assert
+            response.Should().BeOfType<BadRequestObjectResult>()
+                .Which.Value.As<string>().Should().Be(expectedMessage);
         }
 
         [Test]

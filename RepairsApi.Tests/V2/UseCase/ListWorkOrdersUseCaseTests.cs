@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers;
 using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.Tests.V2.Gateways;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Controllers;
 using RepairsApi.V2.Controllers.Parameters;
@@ -109,6 +109,46 @@ namespace RepairsApi.Tests.V2.UseCase
         }
 
         [Test]
+        public async Task CanFilterByPropertyRef()
+        {
+            // Arrange
+            var expectedPropertyRef = Guid.NewGuid().ToString();
+
+            var allWorkOrders = _generator.GenerateList(3);
+            SetPropertyRefs(allWorkOrders, "not" + expectedPropertyRef);
+
+            var expectedWorkOrders = _generator.GenerateList(3);
+            SetPropertyRefs(expectedWorkOrders, expectedPropertyRef);
+
+            allWorkOrders.AddRange(expectedWorkOrders);
+
+            _repairsMock.ReturnsWorkOrders(allWorkOrders);
+
+            var workOrderSearchParameters = new WorkOrderSearchParameters
+            {
+                PropertyReference = expectedPropertyRef
+            };
+
+            // Act
+            var workOrders = await _classUnderTest.Execute(workOrderSearchParameters);
+
+            // Assert
+            var expectedResponses = expectedWorkOrders.Select(ewo => ewo.ToListItem());
+            workOrders.Should().BeEquivalentTo(expectedResponses);
+        }
+
+        private static void SetPropertyRefs(List<WorkOrder> expectedWorkOrders, string newRef)
+        {
+            foreach (var expectedWorkOrder in expectedWorkOrders)
+            {
+                foreach (var propertyClass in expectedWorkOrder.Site.PropertyClass)
+                {
+                    propertyClass.PropertyReference = newRef;
+                }
+            }
+        }
+
+        [Test]
         public async Task ReturnsCorrectPageOfWorkOrders()
         {
             //Arrange
@@ -117,8 +157,7 @@ namespace RepairsApi.Tests.V2.UseCase
             var generatedWorkOrders = GenerateAndReturnWorkOrders(workOrderCount);
             var workOrderSearchParameters = new WorkOrderSearchParameters
             {
-                PageNumber = 2,
-                PageSize = expectedPageSize
+                PageNumber = 2, PageSize = expectedPageSize
             };
 
             //Act
@@ -173,8 +212,7 @@ namespace RepairsApi.Tests.V2.UseCase
                 SORContractorRef = contractorRef,
                 Priority = new SORPriority
                 {
-                    Description = "priorityDescription",
-                    PriorityCode = 1
+                    Description = "priorityDescription", PriorityCode = 1
                 }
             };
             var expectedCodes = new List<ScheduleOfRates>
@@ -187,24 +225,4 @@ namespace RepairsApi.Tests.V2.UseCase
         }
     }
 
-    public class MockRepairsGateway : Mock<IRepairsGateway>
-    {
-        private IEnumerable<WorkOrder> _workOrders;
-
-        public void ReturnsWorkOrders(List<WorkOrder> workOrders)
-        {
-            _workOrders = workOrders;
-
-            Setup(g => g.GetWorkOrders(It.IsAny<Expression<Func<WorkOrder, bool>>[]>()))
-                .ReturnsAsync((Expression<Func<WorkOrder, bool>>[] expressions) =>
-                {
-                    var tempWorkOrders = _workOrders;
-                    foreach (var whereExpression in expressions)
-                    {
-                        tempWorkOrders = tempWorkOrders.Where(whereExpression.Compile());
-                    }
-                    return tempWorkOrders;
-                });
-        }
-    }
 }
