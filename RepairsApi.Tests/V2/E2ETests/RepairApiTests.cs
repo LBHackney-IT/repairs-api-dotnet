@@ -82,6 +82,12 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             var response = await client.GetAsync(new Uri($"/api/v2/repairs/{woId}/tasks", UriKind.Relative));
             response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var workOrders = JsonConvert.DeserializeObject<IEnumerable<WorkOrderItemViewModel>>(responseContent);
+
+            int requestItemCount = request.WorkElement.Aggregate(0, (count, we) => count + we.RateScheduleItem.Count);
+            workOrders.Should().HaveCount(requestItemCount);
         }
 
         [Test]
