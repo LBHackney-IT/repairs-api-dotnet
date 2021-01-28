@@ -40,7 +40,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         {
             var client = CreateClient();
 
-            var request = RepairMockBuilder.CreateFullRaiseRepair();
+            var request = GenerateWorkOrder<RaiseRepair>().Generate();
             var serializedContent = JsonConvert.SerializeObject(request);
             StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
 
@@ -55,8 +55,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         {
             var client = CreateClient();
 
-            Generator<ScheduleRepair> generator = new Generator<ScheduleRepair>()
-                .AddWorkOrderGenerators();
+            Generator<ScheduleRepair> generator = GenerateWorkOrder<ScheduleRepair>();
 
             var request = generator.Generate();
             var serializedContent = JsonConvert.SerializeObject(request);
@@ -73,8 +72,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         {
             var client = CreateClient();
 
-            Generator<ScheduleRepair> generator = new Generator<ScheduleRepair>()
-                .AddWorkOrderGenerators();
+            Generator<ScheduleRepair> generator = GenerateWorkOrder<ScheduleRepair>();
 
             var request = generator.Generate();
             var serializedContent = JsonConvert.SerializeObject(request);
@@ -119,7 +117,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         {
             var client = CreateClient();
 
-            var request = RepairMockBuilder.CreateFullRaiseRepair();
+            var request = GenerateWorkOrder<RaiseRepair>().Generate();
             request.DescriptionOfWork = "expectedDescription";
             var serializedContent = JsonConvert.SerializeObject(request);
             StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
@@ -140,8 +138,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         {
             string endpoint = "/api/v2/repairs";
 
-            Generator<RaiseRepair> requestGenerator = new Generator<RaiseRepair>()
-                .AddWorkOrderGenerators();
+            Generator<RaiseRepair> requestGenerator = GenerateWorkOrder<RaiseRepair>();
 
             var request = requestGenerator.Generate();
 
@@ -152,13 +149,25 @@ namespace RepairsApi.Tests.V2.E2ETests
         public async Task CompleteScheduleRepairWorkOrder()
         {
             string endpoint = "/api/v2/repairs/schedule";
-
-            Generator<ScheduleRepair> requestGenerator = new Generator<ScheduleRepair>()
-                .AddWorkOrderGenerators();
+            Generator<ScheduleRepair> requestGenerator = GenerateWorkOrder<ScheduleRepair>();
 
             var request = requestGenerator.Generate();
 
             await ValidateCreationAndCompletion(request, endpoint);
+        }
+
+        private Generator<T> GenerateWorkOrder<T>()
+        {
+            string[] sorCodes = Array.Empty<string>();
+
+            WithContext(ctx =>
+            {
+                sorCodes = ctx.SORCodes.Select(sor => sor.CustomCode).ToArray();
+            });
+
+            return new Generator<T>()
+                .AddWorkOrderGenerators()
+                .WithSorCodes(sorCodes);
         }
 
         private async Task ValidateCreationAndCompletion(object request, string endpoint)

@@ -4,6 +4,7 @@ using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase.Interfaces;
 using System.Threading.Tasks;
+using RepairsApi.V2.Domain;
 
 namespace RepairsApi.V2.UseCase
 {
@@ -34,14 +35,14 @@ namespace RepairsApi.V2.UseCase
 
         private async Task PopulateRateScheduleItems(WorkOrder workOrder)
         {
-            foreach (var element in workOrder.WorkElements)
+            await workOrder.WorkElements.ForEachAsync(async element =>
             {
-                foreach (var item in element.RateScheduleItem)
+                await element.RateScheduleItem.ForEachAsync(async item =>
                 {
                     item.DateCreated = DateTime.UtcNow;
                     item.CodeCost = await GetCost(item.CustomCode);
-                }
-            }
+                });
+            });
         }
 
         private async Task<double?> GetCost(string customCode)

@@ -15,11 +15,10 @@ namespace RepairsApi.Tests.Helpers
             var actualEnumerator = actualList.GetEnumerator();
             var expectedEnumerator = expectedList.GetEnumerator();
 
-            do
+            while (actualEnumerator.MoveNext() && expectedEnumerator.MoveNext())
             {
                 asserter(actualEnumerator.Current, expectedEnumerator.Current);
-            }
-            while (actualEnumerator.MoveNext() && expectedEnumerator.MoveNext());
+            };
         }
     }
 }

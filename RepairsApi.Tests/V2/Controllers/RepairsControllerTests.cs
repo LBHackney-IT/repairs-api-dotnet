@@ -231,7 +231,12 @@ namespace RepairsApi.Tests.V2.Controllers
 
             response.AssertForEach(expected, (vm, domain) =>
             {
-                // TODO test mapping
+                vm.Code.Should().Be(domain.Id);
+                vm.Cost.Should().Be(domain.Cost);
+                vm.DateAdded.Should().Be(domain.DateAdded);
+                vm.Description.Should().Be(domain.Description);
+                vm.Quantity.Should().Be(domain.Quantity);
+                vm.Status.Should().Be(domain.Status);
             });
         }
 
