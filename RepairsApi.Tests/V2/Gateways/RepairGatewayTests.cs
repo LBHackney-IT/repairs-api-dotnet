@@ -92,8 +92,8 @@ namespace RepairsApi.Tests.V2.Gateways
         {
             // arrange
             var expectedWorkOrder = CreateWorkOrder();
-            expectedWorkOrder.WorkElements.Add(new WorkElement{Id = Guid.NewGuid()});
-            expectedWorkOrder.WorkElements.Add(new WorkElement{Id = Guid.NewGuid()});
+            expectedWorkOrder.WorkElements.Add(new WorkElement { Id = Guid.NewGuid() });
+            expectedWorkOrder.WorkElements.Add(new WorkElement { Id = Guid.NewGuid() });
 
             await InMemoryDb.Instance.WorkOrders.AddAsync(expectedWorkOrder);
             await InMemoryDb.Instance.SaveChangesAsync();
@@ -124,7 +124,8 @@ namespace RepairsApi.Tests.V2.Gateways
             {
                 WorkPriority = new WorkPriority
                 {
-                    PriorityCode = RepairsApi.V2.Generated.WorkPriorityCode._1, RequiredCompletionDateTime = DateTime.UtcNow
+                    PriorityCode = RepairsApi.V2.Generated.WorkPriorityCode._1,
+                    RequiredCompletionDateTime = DateTime.UtcNow
                 },
                 WorkClass = new WorkClass
                 {
