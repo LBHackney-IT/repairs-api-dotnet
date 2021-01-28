@@ -38,19 +38,12 @@ namespace RepairsApi.V2.UseCase.Interfaces
                 {
                     Description = rsi.CustomName,
                     Quantity = quantity,
-                    Cost = CalculateCost(rsi.CustomCode, quantity).Result, // TODO join the costs when getting the work elements to handle this performantly
+                    Cost = rsi.CodeCost,
                     Id = rsi.CustomCode,
-                    Status = "Source To Do", // TODO source this correctly
-                    DateAdded = DateTime.UtcNow // TODO source this correctly 
+                    Status = "Unknown",
+                    DateAdded = rsi.DateCreated.GetValueOrDefault()
                 };
             });
-        }
-
-        private async Task<double> CalculateCost(string customCode, double quantity)
-        {
-            var codeCost = await _scheduleOfRatesGateway.GetCost(customCode);
-
-            return quantity * codeCost;
         }
     }
 }

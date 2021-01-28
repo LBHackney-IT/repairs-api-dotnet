@@ -13,13 +13,19 @@ namespace RepairsApi.Tests.V2.UseCase
     public class RaiseRepairUseCaseTests
     {
         private Mock<IRepairsGateway> _repairsGatewayMock;
+        private Mock<IScheduleOfRatesGateway> _scheduleOfRatesGateway;
         private CreateWorkOrderUseCase _classUnderTest;
 
         [SetUp]
         public void Setup()
         {
             _repairsGatewayMock = new Mock<IRepairsGateway>();
-            _classUnderTest = new CreateWorkOrderUseCase(_repairsGatewayMock.Object, new NullLogger<CreateWorkOrderUseCase>());
+            _scheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
+            _classUnderTest = new CreateWorkOrderUseCase(
+                _repairsGatewayMock.Object,
+                _scheduleOfRatesGateway.Object,
+                new NullLogger<CreateWorkOrderUseCase>()
+                );
         }
 
         [Test]

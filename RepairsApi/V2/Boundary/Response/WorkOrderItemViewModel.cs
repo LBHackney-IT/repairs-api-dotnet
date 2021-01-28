@@ -6,9 +6,9 @@ namespace RepairsApi.V2.Boundary.Response
     {
         public string Code { get; set; }
         public string Description { get; set; }
-        public DateTime DateAdded { get; set; }
+        public DateTime? DateAdded { get; set; }
         public double Quantity { get; set; }
-        public double Cost { get; set; }
+        public double? Cost { get; set; }
         public string Status { get; set; }
     }
 }
