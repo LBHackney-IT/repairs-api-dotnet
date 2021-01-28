@@ -51,7 +51,8 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                     (RepairsApi.V2.Generated.GeographicalLocation q) => q.Latitude,
                     (RepairsApi.V2.Generated.GeographicalLocation q) => q.Longitude,
                     (RepairsApi.V2.Generated.GeographicalLocation q) => q.Elevation,
-                    (RepairsApi.V2.Generated.GeographicalLocation q) => q.ElevationReferenceSystem);
+                    (RepairsApi.V2.Generated.GeographicalLocation q) => q.ElevationReferenceSystem)
+                .AddValue("trade", (Trade t) => t.CustomCode);
         }
 
 

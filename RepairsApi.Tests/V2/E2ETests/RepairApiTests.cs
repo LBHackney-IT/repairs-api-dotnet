@@ -16,6 +16,7 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 using RepairsApi.V2.Infrastructure;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 using RepairsApi.Tests.Helpers.StubGeneration;
+using Trade = RepairsApi.V2.Generated.Trade;
 
 namespace RepairsApi.Tests.V2.E2ETests
 {
@@ -186,7 +187,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             var response = await client.PostAsync(new Uri(uriString, UriKind.Relative), content);
 
             string responseContent = await response.Content.ReadAsStringAsync();
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            response.StatusCode.Should().Be(HttpStatusCode.OK, responseContent);
             var id = JsonSerializer.Deserialize<int>(responseContent);
 
             WithContext(repairsContext =>
