@@ -123,10 +123,10 @@ namespace RepairsApi.V2.Factories
                 Target = workOrder.WorkPriority.RequiredCompletionDateTime,
                 PriorityCode = workOrder.WorkPriority.PriorityCode,
                 LastUpdated = null,
-                Owner = workOrder.AssignedToPrimary.Name,
+                Owner = workOrder.AssignedToPrimary?.Name,
                 RaisedBy = "Dummy Agent",
-                CallerName = workOrder.Customer.Person.Name.Full,
-                CallerNumber = workOrder.Customer.Person.Communication.Where(cc => cc.Channel.Medium == Generated.CommunicationMediumCode._20/* Audio */).FirstOrDefault()?.Value,
+                CallerName = workOrder.Customer?.Person?.Name?.Full,
+                CallerNumber = workOrder.Customer?.Person?.Communication?.Where(cc => cc.Channel.Medium == Generated.CommunicationMediumCode._20/* Audio */).FirstOrDefault()?.Value,
                 Status = workOrder.GetStatus()
             };
         }
