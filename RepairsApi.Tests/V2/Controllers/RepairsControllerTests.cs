@@ -68,11 +68,23 @@ namespace RepairsApi.Tests.V2.Controllers
             _createWorkOrderUseCaseMock.Setup(m => m.Execute(It.IsAny<WorkOrder>())).ReturnsAsync(newId);
 
             // act
-            var result = await _classUnderTest.RaiseRepair(new RaiseRepair());
+            var result = await _classUnderTest.RaiseRepair(GenerateRaiseRepairRequest());
 
             // assert
             result.Should().BeOfType<OkObjectResult>();
             GetResultData<int>(result).Should().Be(newId);
+        }
+
+        private static RaiseRepair GenerateRaiseRepairRequest()
+        {
+
+            return new RaiseRepair
+            {
+                SitePropertyUnit = new List<SitePropertyUnit>
+                {
+                    new SitePropertyUnit()
+                }
+            };
         }
 
         [Test]
@@ -84,7 +96,7 @@ namespace RepairsApi.Tests.V2.Controllers
                 .ThrowsAsync(new NotSupportedException(expectedMessage));
 
             // act
-            var result = await _classUnderTest.RaiseRepair(new RaiseRepair());
+            var result = await _classUnderTest.RaiseRepair(GenerateRaiseRepairRequest());
 
             // assert
             result.Should().BeOfType<BadRequestObjectResult>();

@@ -7,5 +7,13 @@
   },
   "workClass": {
     "workClassCode": 0
-  }
+  },
+  "SitePropertyUnit": [
+    {
+      "Address": {
+        "AddressLine": ["line1","line2"],
+        "BuildingName": "building"
+      }
+    }
+  ]
 }

@@ -210,7 +210,7 @@ namespace RepairsApi.V2.Factories
                     new PropertyClass
                     {
                         Address = raiseRepair.Address?.ToDb(),
-                        PropertyReference = raiseRepair.Reference.FirstOrDefault()?.ID
+                        PropertyReference = raiseRepair.Reference?.FirstOrDefault()?.ID
                     }
                 }
             };
