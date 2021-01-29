@@ -13,5 +13,6 @@ namespace RepairsApi.V2.Gateways
         Task<IEnumerable<WorkOrder>> GetWorkOrders(params Expression<Func<WorkOrder, bool>>[] whereExpressions);
         Task<WorkOrder?> GetWorkOrder(int id);
         Task<IEnumerable<WorkElement>> GetWorkElementsForWorkOrder(WorkOrder workOrder);
+        Task AddWorkElement(int id, WorkElement workElement);
     }
 }

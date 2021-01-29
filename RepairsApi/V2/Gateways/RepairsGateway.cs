@@ -51,5 +51,13 @@ namespace RepairsApi.V2.Gateways
 
             return await elements.SingleOrDefaultAsync();
         }
+
+        public async Task AddWorkElement(int id, WorkElement workElement)
+        {
+            var workOrder = await GetWorkOrder(id);
+            workOrder.WorkElements.Add(workElement);
+
+            await _repairsContext.SaveChangesAsync();
+        }
     }
 }

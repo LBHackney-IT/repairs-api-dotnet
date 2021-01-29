@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using RepairsApi.V2.Gateways;
 using System.Threading.Tasks;
@@ -103,6 +104,25 @@ namespace RepairsApi.Tests.V2.Gateways
 
             // assert
             workElements.Should().BeEquivalentTo(expectedWorkOrder.WorkElements);
+        }
+
+        [Test]
+        public async Task CanAddWorkElement()
+        {
+            // arrange
+            var expectedWorkOrder = CreateWorkOrder();
+            expectedWorkOrder.WorkElements.Add(new WorkElement { Id = Guid.NewGuid() });
+            expectedWorkOrder.WorkElements.Add(new WorkElement { Id = Guid.NewGuid() });
+            await InMemoryDb.Instance.WorkOrders.AddAsync(expectedWorkOrder);
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            var newWorkElement = new WorkElement();
+
+            // act
+           await _classUnderTest.AddWorkElement(expectedWorkOrder.Id, newWorkElement);
+
+            // assert
+            expectedWorkOrder.WorkElements.Should().HaveCount(3);
         }
 
         private static ICollection<WorkOrder> CreateWorkOrders(int count)
