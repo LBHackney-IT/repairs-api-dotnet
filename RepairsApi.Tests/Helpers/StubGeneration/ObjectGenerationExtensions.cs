@@ -52,7 +52,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                     (GeographicalLocation q) => q.Latitude,
                     (GeographicalLocation q) => q.Longitude,
                     (GeographicalLocation q) => q.Elevation,
-                    (GeographicalLocation q) => q.ElevationReferenceSystem);
+                    (GeographicalLocation q) => q.ElevationReferenceSystem)
                 .AddValue("trade", (Trade t) => t.CustomCode);
         }
 
