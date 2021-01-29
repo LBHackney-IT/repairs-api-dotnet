@@ -11,7 +11,7 @@ namespace RepairsApi.V2.Factories
     {
         public static WorkOrder ToDb(this Generated.RaiseRepair raiseRepair)
         {
-            if (raiseRepair.SitePropertyUnit?.Count > 1) throw new NotSupportedException("Multiple addresses is not supported");
+            if (raiseRepair.SitePropertyUnit?.Count != 1) throw new NotSupportedException("A single address must be provided");
 
             return new WorkOrder
             {
