@@ -53,6 +53,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                     (GeographicalLocation q) => q.Longitude,
                     (GeographicalLocation q) => q.Elevation,
                     (GeographicalLocation q) => q.ElevationReferenceSystem);
+                .AddValue("trade", (Trade t) => t.CustomCode);
         }
 
         public static Generator<T> WithSorCodes<T>(this Generator<T> generator, params string[] sorCodes)

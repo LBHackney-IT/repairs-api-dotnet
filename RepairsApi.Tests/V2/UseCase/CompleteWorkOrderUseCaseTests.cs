@@ -128,11 +128,24 @@ namespace RepairsApi.Tests.V2.UseCase
             {
                 new Generated.JobStatusUpdates
                 {
-                    TypeCode = Generated.JobStatusUpdateTypeCode._0,
-                    OtherType = "expectedOtherType",
-                    Comments = "expectedComment",
-                    AdditionalWork = new Generated.AdditionalWork()
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = "expectedOtherType", Comments = "expectedComment", AdditionalWork = new Generated.AdditionalWork()
                 }
+            };
+
+            // act
+            // assert
+            Assert.ThrowsAsync<NotSupportedException>(() => _classUnderTest.Execute(workOrderCompleteRequest));
+        }
+
+        [Test]
+        public void ThrowsExceptionWhenFollowOnWorkPresent()
+        {
+            // arrange
+            var expectedWorkOrder = CreateWorkOrder();
+            var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
+            workOrderCompleteRequest.FollowOnWorkOrderReference = new List<Generated.Reference>
+            {
+                new Generated.Reference()
             };
 
             // act

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Microsoft.Extensions.Logging;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
@@ -26,11 +27,21 @@ namespace RepairsApi.V2.UseCase
 
         public async Task<int> Execute(WorkOrder workOrder)
         {
+            ValidateRequest(workOrder);
+
             workOrder.DateRaised = DateTime.UtcNow;
             await PopulateRateScheduleItems(workOrder);
             var id = await _repairsGateway.CreateWorkOrder(workOrder);
             _logger.LogInformation(Resources.CreatedWorkOrder);
             return id;
+        }
+
+        private static void ValidateRequest(WorkOrder workOrder)
+        {
+            if (workOrder.WorkElements?.SelectMany(we => we.Trade).Select(t => t.CustomCode).ToHashSet().Count > 1)
+            {
+                throw new NotSupportedException("All work elements must be of the same trade");
+            }
         }
 
         private async Task PopulateRateScheduleItems(WorkOrder workOrder)

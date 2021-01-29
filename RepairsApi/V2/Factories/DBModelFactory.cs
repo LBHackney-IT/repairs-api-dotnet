@@ -11,6 +11,8 @@ namespace RepairsApi.V2.Factories
     {
         public static WorkOrder ToDb(this Generated.RaiseRepair raiseRepair)
         {
+            if (raiseRepair.SitePropertyUnit?.Count != 1) throw new NotSupportedException("A single address must be provided");
+
             return new WorkOrder
             {
                 DescriptionOfWork = raiseRepair.DescriptionOfWork,
@@ -21,7 +23,7 @@ namespace RepairsApi.V2.Factories
                 WorkType = raiseRepair.WorkType,
                 WorkPriority = raiseRepair.Priority?.ToDb(),
                 WorkClass = raiseRepair.WorkClass?.ToDb(),
-                Site = raiseRepair.SitePropertyUnit?.ToDb(),
+                Site = raiseRepair.SitePropertyUnit?.Single().ToDb(),
                 AccessInformation = raiseRepair.AccessInformation?.ToDb(),
                 LocationAlert = raiseRepair.LocationAlert.MapList(la => la.ToDb()),
                 PersonAlert = raiseRepair.PersonAlert.MapList(pa => pa.ToDb()),
@@ -199,20 +201,16 @@ namespace RepairsApi.V2.Factories
             };
         }
 
-        public static Site ToDb(this ICollection<Generated.SitePropertyUnit> raiseRepair)
+        public static Site ToDb(this Generated.SitePropertyUnit raiseRepair)
         {
-            if (raiseRepair.Count != 1) throw new NotSupportedException("Multiple addresses is not supported");
-
-            var raiseRepairProp = raiseRepair.Single();
-
             return new Site
             {
                 PropertyClass = new List<PropertyClass>
                 {
                     new PropertyClass
                     {
-                        Address = raiseRepairProp.Address?.ToDb(),
-                        PropertyReference = raiseRepairProp.Reference.FirstOrDefault()?.ID
+                        Address = raiseRepair.Address?.ToDb(),
+                        PropertyReference = raiseRepair.Reference.FirstOrDefault()?.ID
                     }
                 }
             };
@@ -451,17 +449,6 @@ namespace RepairsApi.V2.Factories
                 EarliestArrivalTime = timeOfDay.EarliestArrivalTime,
                 LatestArrivalTime = timeOfDay.LatestArrivalTime,
                 LatestCompletionTime = timeOfDay.LatestCompletionTime
-            };
-        }
-
-        public static ScheduleOfRates ToDb(this ScheduleOfRatesModel sorCode)
-        {
-            return new ScheduleOfRates
-            {
-                CustomCode = sorCode.CustomCode,
-                CustomName = sorCode.CustomName,
-                SORContractorRef = sorCode.SORContractor.Reference,
-                PriorityId = sorCode.Priority.PriorityCode
             };
         }
 
