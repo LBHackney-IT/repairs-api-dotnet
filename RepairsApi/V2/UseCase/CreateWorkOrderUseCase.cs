@@ -5,19 +5,23 @@ using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase.Interfaces;
 using System.Threading.Tasks;
+using RepairsApi.V2.Domain;
 
 namespace RepairsApi.V2.UseCase
 {
     public class CreateWorkOrderUseCase : ICreateWorkOrderUseCase
     {
         private readonly IRepairsGateway _repairsGateway;
+        private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
         private readonly ILogger<CreateWorkOrderUseCase> _logger;
 
         public CreateWorkOrderUseCase(
             IRepairsGateway repairsGateway,
+            IScheduleOfRatesGateway scheduleOfRatesGateway,
             ILogger<CreateWorkOrderUseCase> logger)
         {
             _repairsGateway = repairsGateway;
+            _scheduleOfRatesGateway = scheduleOfRatesGateway;
             _logger = logger;
         }
 
@@ -26,6 +30,7 @@ namespace RepairsApi.V2.UseCase
             ValidateRequest(workOrder);
 
             workOrder.DateRaised = DateTime.UtcNow;
+            await PopulateRateScheduleItems(workOrder);
             var id = await _repairsGateway.CreateWorkOrder(workOrder);
             _logger.LogInformation(Resources.CreatedWorkOrder);
             return id;
@@ -37,6 +42,23 @@ namespace RepairsApi.V2.UseCase
             {
                 throw new NotSupportedException("All work elements must be of the same trade");
             }
+        }
+
+        private async Task PopulateRateScheduleItems(WorkOrder workOrder)
+        {
+            await workOrder.WorkElements.ForEachAsync(async element =>
+            {
+                await element.RateScheduleItem.ForEachAsync(async item =>
+                {
+                    item.DateCreated = DateTime.UtcNow;
+                    item.CodeCost = await GetCost(item.CustomCode);
+                });
+            });
+        }
+
+        private async Task<double?> GetCost(string customCode)
+        {
+            return await _scheduleOfRatesGateway.GetCost(customCode);
         }
     }
 }

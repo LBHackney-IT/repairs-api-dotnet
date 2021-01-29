@@ -44,9 +44,14 @@ namespace RepairsApi.V2.Gateways
 
         public async Task<IEnumerable<WorkElement>> GetWorkElementsForWorkOrder(WorkOrder workOrder)
         {
-            var elements =
+            return await GetWorkElementsForWorkOrder(workOrder.Id);
+        }
+
+        public async Task<IEnumerable<WorkElement>> GetWorkElementsForWorkOrder(int id)
+        {
+            IQueryable<List<WorkElement>> elements =
                 from wo in _repairsContext.WorkOrders
-                where wo.Id == workOrder.Id
+                where wo.Id == id
                 select wo.WorkElements;
 
             return await elements.SingleOrDefaultAsync();

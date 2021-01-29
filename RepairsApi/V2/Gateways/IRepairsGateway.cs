@@ -14,5 +14,6 @@ namespace RepairsApi.V2.Gateways
         Task<WorkOrder?> GetWorkOrder(int id);
         Task<IEnumerable<WorkElement>> GetWorkElementsForWorkOrder(WorkOrder workOrder);
         Task AddWorkElement(int id, WorkElement workElement);
+        Task<IEnumerable<WorkElement>> GetWorkElementsForWorkOrder(int id);
     }
 }

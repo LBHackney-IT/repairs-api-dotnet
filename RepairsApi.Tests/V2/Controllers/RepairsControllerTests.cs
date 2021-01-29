@@ -18,6 +18,8 @@ using System.Threading.Tasks;
 using RepairsApi.V2.Controllers.Parameters;
 using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
+using RepairsApi.V2.Domain;
+using RepairsApi.Tests.Helpers;
 
 namespace RepairsApi.Tests.V2.Controllers
 {
@@ -30,6 +32,7 @@ namespace RepairsApi.Tests.V2.Controllers
         private Mock<ICompleteWorkOrderUseCase> _completeWorkOrderUseCase;
         private Mock<IUpdateJobStatusUseCase> _updateJobStatusUseCase;
         private Mock<IGetWorkOrderUseCase> _getWorkOrderUseCase;
+        private Mock<IListWorkOrderTasksUseCase> _listWorkOrderTasksUseCase;
 
         [SetUp]
         public void SetUp()
@@ -40,12 +43,14 @@ namespace RepairsApi.Tests.V2.Controllers
             _completeWorkOrderUseCase = new Mock<ICompleteWorkOrderUseCase>();
             _updateJobStatusUseCase = new Mock<IUpdateJobStatusUseCase>();
             _getWorkOrderUseCase = new Mock<IGetWorkOrderUseCase>();
+            _listWorkOrderTasksUseCase = new Mock<IListWorkOrderTasksUseCase>();
             _classUnderTest = new RepairsController(
                 _createWorkOrderUseCaseMock.Object,
                 _listWorkOrdersUseCase.Object,
                 _completeWorkOrderUseCase.Object,
                 _updateJobStatusUseCase.Object,
-                _getWorkOrderUseCase.Object
+                _getWorkOrderUseCase.Object,
+                _listWorkOrderTasksUseCase.Object
             );
         }
 
@@ -63,11 +68,23 @@ namespace RepairsApi.Tests.V2.Controllers
             _createWorkOrderUseCaseMock.Setup(m => m.Execute(It.IsAny<WorkOrder>())).ReturnsAsync(newId);
 
             // act
-            var result = await _classUnderTest.RaiseRepair(new RaiseRepair());
+            var result = await _classUnderTest.RaiseRepair(GenerateRaiseRepairRequest());
 
             // assert
             result.Should().BeOfType<OkObjectResult>();
             GetResultData<int>(result).Should().Be(newId);
+        }
+
+        private static RaiseRepair GenerateRaiseRepairRequest()
+        {
+
+            return new RaiseRepair
+            {
+                SitePropertyUnit = new List<SitePropertyUnit>
+                {
+                    new SitePropertyUnit()
+                }
+            };
         }
 
         [Test]
@@ -79,7 +96,7 @@ namespace RepairsApi.Tests.V2.Controllers
                 .ThrowsAsync(new NotSupportedException(expectedMessage));
 
             // act
-            var result = await _classUnderTest.RaiseRepair(new RaiseRepair());
+            var result = await _classUnderTest.RaiseRepair(GenerateRaiseRepairRequest());
 
             // assert
             result.Should().BeOfType<BadRequestObjectResult>();
@@ -244,6 +261,50 @@ namespace RepairsApi.Tests.V2.Controllers
 
             GetStatusCode(result).Should().Be(404);
             GetResultData<string>(result).Should().Be(expectedException.Message);
+        }
+
+        [Test]
+        public async Task TaskListReturns()
+        {
+            var expected = new Generator<WorkOrderTask>().AddDefaultGenerators().GenerateList(5);
+            _listWorkOrderTasksUseCase.Setup(uc => uc.Execute(1)).ReturnsAsync(expected);
+
+            var result = await _classUnderTest.ListWorkOrderTasks(1);
+
+            GetStatusCode(result).Should().Be(200);
+
+            var response = GetResultData<IEnumerable<WorkOrderItemViewModel>>(result);
+
+            response.AssertForEach(expected, (vm, domain) =>
+            {
+                vm.Code.Should().Be(domain.Id);
+                vm.Cost.Should().Be(domain.Cost);
+                vm.DateAdded.Should().Be(domain.DateAdded);
+                vm.Description.Should().Be(domain.Description);
+                vm.Quantity.Should().Be(domain.Quantity);
+                vm.Status.Should().Be(domain.Status);
+            });
+        }
+
+        [Test]
+        public async Task Return404ForNotFound()
+        {
+            _listWorkOrderTasksUseCase.Setup(uc => uc.Execute(1)).ThrowsAsync(new ResourceNotFoundException("message"));
+
+            var result = await _classUnderTest.ListWorkOrderTasks(1);
+
+            GetStatusCode(result).Should().Be(404);
+        }
+
+
+        [Test]
+        public async Task Return400ForNotSupported()
+        {
+            _listWorkOrderTasksUseCase.Setup(uc => uc.Execute(1)).ThrowsAsync(new NotSupportedException("message"));
+
+            var result = await _classUnderTest.ListWorkOrderTasks(1);
+
+            GetStatusCode(result).Should().Be(400);
         }
 
         private void UseCaseReturns(bool result)
