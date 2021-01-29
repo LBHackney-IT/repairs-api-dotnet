@@ -166,5 +166,23 @@ namespace RepairsApi.V2.Factories
                 }
             };
         }
+
+        public static IEnumerable<WorkOrderItemViewModel> ToResponse(this IEnumerable<WorkOrderTask> domain)
+        {
+            return domain.Select(wot => wot.ToResponse());
+        }
+
+        public static WorkOrderItemViewModel ToResponse(this WorkOrderTask domain)
+        {
+            return new WorkOrderItemViewModel
+            {
+                Quantity = domain.Quantity,
+                Code = domain.Id,
+                Cost = domain.Cost,
+                DateAdded = domain.DateAdded,
+                Description = domain.Description,
+                Status = domain.Status
+            };
+        }
     }
 }
