@@ -1,7 +1,6 @@
 using RepairsApi.V2.Boundary;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Domain;
-using RepairsApi.V2.Enums;
 using RepairsApi.V2.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
@@ -148,11 +147,6 @@ namespace RepairsApi.V2.Factories
                 TradeCode = workOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomCode,
                 Status = workOrder.GetStatus()
             };
-        }
-
-        public static WorkPriorityCode ToResponse(this Generated.WorkPriorityCode code)
-        {
-            return (WorkPriorityCode) code;
         }
 
         public static ScheduleOfRatesModel ToResponse(this ScheduleOfRates sorCode)

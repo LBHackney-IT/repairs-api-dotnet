@@ -74,17 +74,24 @@ namespace RepairsApi.Tests.V2.Factories
         {
             return new GeographicalLocation
             {
-                Elevation = new List<string> { "2.0" },
-                ElevationReferenceSystem = new List<string> { "ref system" },
-                Latitude = new List<string> { "5.0" },
+                Elevation = new List<string>
+                {
+                    "2.0"
+                },
+                ElevationReferenceSystem = new List<string>
+                {
+                    "ref system"
+                },
+                Latitude = new List<string>
+                {
+                    "5.0"
+                },
                 Longitude = null,
                 Polyline = new List<Polyline>
                 {
                     new Polyline
                     {
-                        Easting = 40,
-                        Northing = 40,
-                        Sequence = 2
+                        Easting = 40, Northing = 40, Sequence = 2
                     }
                 },
                 PositionalAccuracy = "meters"
@@ -116,6 +123,15 @@ namespace RepairsApi.Tests.V2.Factories
             db.WorkClass.WorkClassDescription.Should().Be(request.WorkClass.WorkClassDescription);
             db.WorkClass.WorkClassSubType.WorkClassSubTypeDescription.Should().Be(request.WorkClass.WorkClassSubType.WorkClassSubTypeDescription);
             db.WorkClass.WorkClassSubType.WorkClassSubTypeName.Should().Be(string.Join(',', request.WorkClass.WorkClassSubType.WorkClassSubType1));
+        }
+
+        [Test]
+        public void RaiseRepairThrowsNotSupportedWhenMultipleSitesProvided()
+        {
+            var request = RepairMockBuilder.CreateFullRaiseRepair();
+            request.SitePropertyUnit.Add(new SitePropertyUnit());
+
+            Assert.Throws<NotSupportedException>(() => request.ToDb());
         }
     }
 }
