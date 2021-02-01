@@ -94,6 +94,19 @@ namespace RepairsApi.Tests.V2.UseCase
         }
 
         [Test]
+        public async Task ReturnFalseWhenAlreadyComplete()
+        {
+            // arrange
+            _workOrderCompletionGatewayMock.Setup(m => m.IsWorkOrderCompleted(It.IsAny<int>())).ReturnsAsync(false);
+
+            // act
+            var result = await _classUnderTest.Execute(CreateRequest(1));
+
+            // assert
+            result.Should().BeFalse();
+        }
+
+        [Test]
         public void ThrowsExceptionWhenRelatedWorkElementPresent()
         {
             // arrange

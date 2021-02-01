@@ -1,15 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Castle.Core.Internal;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using RepairsApi.V2.Enums;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Gateways;
-using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase.Interfaces;
-using JobStatusUpdate = RepairsApi.V2.Infrastructure.JobStatusUpdate;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 
 namespace RepairsApi.V2.UseCase
@@ -31,6 +25,12 @@ namespace RepairsApi.V2.UseCase
         public async Task<bool> Execute(WorkOrderComplete request)
         {
             var workOrderId = int.Parse(request.WorkOrderReference.ID);
+
+            if (await _workOrderCompletionGateway.IsWorkOrderCompleted(workOrderId))
+            {
+                return false;
+            }
+
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
 
             if (workOrder is null)

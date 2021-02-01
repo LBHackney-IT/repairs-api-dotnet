@@ -6,6 +6,7 @@ namespace RepairsApi.V2.Gateways
     public interface IWorkOrderCompletionGateway
     {
         Task<int> CreateWorkOrderCompletion(WorkOrderComplete completion);
+        Task<bool> IsWorkOrderCompleted(int id);
     }
 
 }
