@@ -53,7 +53,9 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                     (GeographicalLocation q) => q.Longitude,
                     (GeographicalLocation q) => q.Elevation,
                     (GeographicalLocation q) => q.ElevationReferenceSystem)
-                .AddValue("trade", (Trade t) => t.CustomCode);
+                .AddValue("trade", (Trade t) => t.CustomCode)
+                .SetListLength<WorkElement>(1)
+                .SetListLength<RateScheduleItem>(1);
         }
 
         public static Generator<T> WithSorCodes<T>(this Generator<T> generator, params string[] sorCodes)
@@ -73,6 +75,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
         private static ICollection<SitePropertyUnit> GetSitePropertyUnitGenerator()
         {
             var generator = new Generator<SitePropertyUnit>()
+                .AddDefaultGenerators()
                 .AddValue(new string[] { "address", "line" }, (RepairsApi.V2.Generated.PropertyAddress addr) => addr.AddressLine)
                 .AddValue(new string[] { "address", "line" }, (RepairsApi.V2.Generated.Address addr) => addr.AddressLine);
             return generator.GenerateList(1);
@@ -85,6 +88,13 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                 .AddValue(null, (RepairsApi.V2.Generated.WorkOrderComplete woc) => woc.FollowOnWorkOrderReference)
                 .AddValue(null, (RepairsApi.V2.Generated.JobStatusUpdates jsu) => jsu.RelatedWorkElementReference)
                 .AddValue(null, (RepairsApi.V2.Generated.JobStatusUpdates jsu) => jsu.AdditionalWork);
+        }
+
+        public static Generator<T> AddJobStatusUpdateGenerators<T>(this Generator<T> generator)
+        {
+            return generator
+                .AddWorkOrderGenerators()
+                .AddValue(null, (RepairsApi.V2.Generated.JobStatusUpdate jsu) => jsu.AdditionalWork);
         }
     }
 }

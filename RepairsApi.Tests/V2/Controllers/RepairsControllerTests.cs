@@ -240,6 +240,23 @@ namespace RepairsApi.Tests.V2.Controllers
         }
 
         [Test]
+        public async Task ReturnsNotFoundWhenResourceNotFoundThrownInJobStatusUpdate()
+        {
+            // arrange
+            string expectedMessage = "message";
+            _updateJobStatusUseCase.Setup(uc => uc.Execute(It.IsAny<JobStatusUpdate>()))
+                .ThrowsAsync(new ResourceNotFoundException(expectedMessage));
+
+            // act
+            var response = await _classUnderTest.JobStatusUpdate(
+                new JobStatusUpdate { RelatedWorkOrderReference = new Reference { ID = "41" } });
+
+            // assert
+            response.Should().BeOfType<NotFoundObjectResult>()
+                .Which.Value.As<string>().Should().Be(expectedMessage);
+        }
+
+        [Test]
         public async Task ReturnsObjectFromUseCase()
         {
             var expectedWorkOrderResponse = new Generator<WorkOrderResponse>().AddWorkOrderGenerators().Generate();

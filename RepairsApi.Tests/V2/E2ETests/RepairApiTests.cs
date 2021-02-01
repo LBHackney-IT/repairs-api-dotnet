@@ -16,6 +16,8 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 using RepairsApi.V2.Infrastructure;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 using RepairsApi.Tests.Helpers.StubGeneration;
+using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
+using RateScheduleItem = RepairsApi.V2.Generated.RateScheduleItem;
 using Trade = RepairsApi.V2.Generated.Trade;
 
 namespace RepairsApi.Tests.V2.E2ETests
@@ -182,6 +184,49 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             response.IsSuccessStatusCode.Should().BeTrue();
             secondResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Test]
+        public async Task UpdateScheduleRepairWorkOrder()
+        {
+            string endpoint = "/api/v2/repairs/schedule";
+            Generator<ScheduleRepair> requestGenerator = GenerateWorkOrder<ScheduleRepair>();
+
+            var request = requestGenerator.Generate();
+
+            var client = CreateClient();
+
+            var serializedContent = JsonConvert.SerializeObject(request);
+            StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
+
+            var workOrderId = await ValidateWorkOrderCreation(client, content, null, endpoint);
+
+            var workElement = request.WorkElement.First();
+            var expectedNewCode = new RateScheduleItem
+            {
+                CustomCode = "newCode"
+            };
+            workElement.RateScheduleItem.Add(expectedNewCode);
+
+            Generator<JobStatusUpdate> generator = new Generator<JobStatusUpdate>()
+                .AddJobStatusUpdateGenerators()
+                .AddValue(JobStatusUpdateTypeCode._80, (JobStatusUpdate jsu) => jsu.TypeCode)
+                .AddValue(workOrderId.ToString(), (JobStatusUpdate jsu) => jsu.RelatedWorkOrderReference.ID)
+                .AddValue(workElement, (JobStatusUpdate jsu) => jsu.MoreSpecificSORCode);
+
+            var updateRequest = generator.Generate();
+
+            var serializedUpdateContent = JsonConvert.SerializeObject(updateRequest);
+            StringContent updateContent = new StringContent(serializedUpdateContent, Encoding.UTF8, "application/json");
+            var updateResponse = await client.PostAsync(new Uri("/api/v2/jobStatusUpdate", UriKind.Relative), updateContent);
+
+            updateResponse.StatusCode.Should().Be(HttpStatusCode.OK, updateResponse.Content.ToString());
+
+            // get the work order to validate new code is on there
+            var response = await client.GetAsync(new Uri($"/api/v2/repairs/{workOrderId}/tasks", UriKind.Relative));
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var workOrderItems = JsonConvert.DeserializeObject<IEnumerable<WorkOrderItemViewModel>>(responseContent);
+            workOrderItems.Should().ContainSingle(woi => woi.Code == expectedNewCode.CustomCode);
         }
 
         private Generator<T> GenerateWorkOrder<T>()
