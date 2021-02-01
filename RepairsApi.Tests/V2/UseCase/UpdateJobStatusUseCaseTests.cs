@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -37,7 +38,7 @@ namespace RepairsApi.Tests.V2.UseCase
                 _repairsGatewayMock.Object,
                 _jobStatusUpdateGateway.Object,
                 _moreSpecificSorUseCaseMock.Object
-                );
+            );
         }
 
         [Test]
@@ -62,7 +63,8 @@ namespace RepairsApi.Tests.V2.UseCase
                     RelatedWorkOrderReference = new Generated.Reference
                     {
                         ID = "42"
-                    }
+                    },
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0
                 });
 
             result.Should().BeTrue();
@@ -82,6 +84,58 @@ namespace RepairsApi.Tests.V2.UseCase
 
             // assert
             result.Should().BeFalse();
+        }
+
+        [Test]
+        public void ThrowUnsupportedWhenNonSupportedTypeCodes()
+        {
+            var workOrder = _fixture.Create<WorkOrder>();
+            workOrder.Id = 41;
+            var jobStatusUpdate = new Generated.JobStatusUpdate
+            {
+                RelatedWorkOrderReference = new Generated.Reference
+                {
+                    ID = workOrder.Id.ToString()
+                },
+                TypeCode = Generated.JobStatusUpdateTypeCode._10
+            };
+            _repairsGatewayMock.Setup(gateway => gateway.GetWorkOrder(It.Is<int>(i => i == workOrder.Id)))
+                .ReturnsAsync(workOrder);
+
+            Assert.ThrowsAsync<NotSupportedException>(async () => await _classUnderTest.Execute(jobStatusUpdate));
+        }
+
+        [Test]
+        public void ThrowUnsupportedWhenNoTypeCode()
+        {
+            var workOrder = _fixture.Create<WorkOrder>();
+            workOrder.Id = 41;
+            var jobStatusUpdate = new Generated.JobStatusUpdate
+            {
+                RelatedWorkOrderReference = new Generated.Reference
+                {
+                    ID = workOrder.Id.ToString()
+                }
+            };
+            _repairsGatewayMock.Setup(gateway => gateway.GetWorkOrder(It.Is<int>(i => i == workOrder.Id)))
+                .ReturnsAsync(workOrder);
+
+            Assert.ThrowsAsync<NotSupportedException>(async () => await _classUnderTest.Execute(jobStatusUpdate));
+        }
+
+        [Test]
+        public void DoesNotThrowUnsupportedWhenOtherTypeCode()
+        {
+            Assert.DoesNotThrowAsync(async () => await _classUnderTest.Execute(
+                new Generated.JobStatusUpdate
+                {
+                    RelatedWorkOrderReference = new Generated.Reference
+                    {
+                        ID = "41"
+                    },
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0
+                })
+            );
         }
 
         [Test]

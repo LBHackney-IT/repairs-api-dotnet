@@ -51,6 +51,10 @@ namespace RepairsApi.V2.UseCase
                 case JobStatusUpdateTypeCode._80: // More specific SOR Code
                     await _moreSpecificSorUseCase.Execute(jobStatusUpdate);
                     break;
+                case JobStatusUpdateTypeCode._0:
+                    break;
+                default:
+                    throw new NotSupportedException($"This type code is not supported: {jobStatusUpdate.TypeCode}");
             }
         }
     }

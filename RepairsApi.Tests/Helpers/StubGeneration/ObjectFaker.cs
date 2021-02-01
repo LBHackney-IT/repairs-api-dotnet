@@ -12,6 +12,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
     public class Generator<T>
     {
         private readonly Dictionary<Type, IValueGenerator> _generators;
+        private readonly Dictionary<Type, int> _listLengths;
         private readonly Dictionary<MemberInfo, IValueGenerator> _propertyGenerators;
         private readonly Stack<Type> _typeStack;
 
@@ -25,6 +26,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
             _propertyGenerators = new Dictionary<MemberInfo, IValueGenerator>();
             _typeStack = new Stack<Type>();
             _generators = generators;
+            _listLengths = new Dictionary<Type, int>();
 
             _generators.TryAdd(typeof(string), new SimpleValueGenerator<string>(() => string.Empty));
         }
@@ -48,6 +50,15 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                 _propertyGenerators.TryAdd(casted.Member, generator);
             }
 
+            return this;
+        }
+
+        public Generator<T> SetListLength<TValue>(int length)
+        {
+            Type valueType = typeof(TValue);
+            if (_listLengths.ContainsKey(valueType)) _listLengths.Remove(valueType);
+
+            _listLengths.Add(valueType, length);
             return this;
         }
 
@@ -126,7 +137,13 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
             Type listType = typeof(List<>).MakeGenericType(type);
             var list = (IList) Activator.CreateInstance(listType);
 
-            int limit = new Random().Next(9) + 1;
+            var limit = new Random().Next(9) + 1;
+
+            if (_listLengths.TryGetValue(type, out var listLength))
+            {
+                limit = listLength;
+            }
+
             for (int i = 0; i < limit; i++)
             {
                 list.Add(Run(type));

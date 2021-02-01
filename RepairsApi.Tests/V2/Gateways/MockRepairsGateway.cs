@@ -18,10 +18,6 @@ namespace RepairsApi.Tests.V2.Gateways
         {
             Setup(g => g.GetWorkOrder(It.IsAny<int>()))
                 .ReturnsAsync((int id) => _workOrders.SingleOrDefault(wo => wo.Id == id));
-
-            Setup(g => g.AddWorkElement(It.IsAny<int>(), It.IsAny<WorkElement>()))
-                .Returns(Task.CompletedTask)
-                .Callback<int, WorkElement>((id, workElement) => LastWorkElement = workElement);
         }
 
         public void ReturnsWorkOrders(List<WorkOrder> workOrders)
