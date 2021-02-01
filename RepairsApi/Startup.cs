@@ -19,6 +19,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.UseCase.Interfaces;
 using RepairsApi.V2.UseCase;
+using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
 
 namespace RepairsApi
 {
@@ -143,6 +144,7 @@ namespace RepairsApi
             services.AddTransient<IUpdateJobStatusUseCase, UpdateJobStatusUseCase>();
             services.AddTransient<IGetWorkOrderUseCase, GetWorkOrderUseCase>();
             services.AddTransient<IListWorkOrderTasksUseCase, ListWorkOrderTasksUseCase>();
+            services.AddTransient<IMoreSpecificSorUseCase, MoreSpecificSorUseCase>();
         }
 
         private void AddHttpClients(IServiceCollection services)

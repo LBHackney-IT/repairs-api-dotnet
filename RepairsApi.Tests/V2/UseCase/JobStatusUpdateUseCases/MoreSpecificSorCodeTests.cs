@@ -7,6 +7,7 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using RepairsApi.Tests.V2.Gateways;
+using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
@@ -31,42 +32,104 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _fixture.Behaviors.Remove(new ThrowingRecursionBehavior());
             _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
             _repairsGatewayMock = new MockRepairsGateway();
-            _classUnderTest = new MoreSpecificSorUseCase(_repairsGatewayMock.Object);
+            _classUnderTest = new MoreSpecificSorUseCase(_repairsGatewayMock.Object, InMemoryDb.Instance);
         }
 
         [Test]
         public async Task MoreSpecificSORCodeAddsSORCodeToWorkOrder()
         {
             const int desiredWorkOrderId = 42;
-            var workOrder = CreateWorkOrder(desiredWorkOrderId);
-            var expectedNewCodes = workOrder.WorkElements.First().RateScheduleItem.Select(rsi => rsi.CustomCode).ToList();
-            expectedNewCodes.Add("newCode");
+            var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
+            var expectedNewCodes = workOrder.WorkElements.SelectMany(we => we.RateScheduleItem).ToList();
+            expectedNewCodes.Add(new RateScheduleItem
+            {
+                CustomCode = "code",
+                Quantity = new Quantity
+                {
+                    Amount = 4.5
+                }
+            });
             var request = CreateMoreSpecificSORUpdateRequest(desiredWorkOrderId, workOrder, expectedNewCodes.ToArray());
 
             await _classUnderTest.Execute(request);
 
-            _repairsGatewayMock.Verify(g => g.AddWorkElement(desiredWorkOrderId, It.IsAny<WorkElement>()));
-            _repairsGatewayMock.LastWorkElement.Should().BeEquivalentTo(request.MoreSpecificSORCode.ToDb());
+            workOrder.WorkElements.Single().RateScheduleItem.Should().BeEquivalentTo(expectedNewCodes, options => options.Excluding(rsi => rsi.Id));
         }
 
         [Test]
-        public async Task ThrowUnsupportedWhenOriginalSorCodeNotPResent()
+        public async Task UpdateQuantityOfExistingCodes()
         {
             const int desiredWorkOrderId = 42;
-            var workOrder = CreateWorkOrder(desiredWorkOrderId);
-            const string expectedNewCode = "newCode";
+            var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
+            var codeToModify = workOrder.WorkElements.First().RateScheduleItem.First();
+            var expectedNewCode = CloneRateScheduleItem(codeToModify);
+            expectedNewCode.Quantity.Amount += 4;
             var request = CreateMoreSpecificSORUpdateRequest(desiredWorkOrderId, workOrder, expectedNewCode);
 
             await _classUnderTest.Execute(request);
 
+            codeToModify.Should().BeEquivalentTo(expectedNewCode, option => option.Excluding(x => x.Id));
+        }
+
+        [Test]
+        public void ThrowUnsupportedWhenOriginalSorCodeNotPResent()
+        {
+            const int desiredWorkOrderId = 42;
+            var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
+            var expectedNewCode = new RateScheduleItem
+            {
+                CustomCode = "code",
+                Quantity = new Quantity
+                {
+                    Amount = 4.5
+                }
+            };
+            var request = CreateMoreSpecificSORUpdateRequest(desiredWorkOrderId, workOrder, expectedNewCode);
+
             Assert.ThrowsAsync<NotSupportedException>(() => _classUnderTest.Execute(request));
         }
 
-        private static Generated.JobStatusUpdate CreateMoreSpecificSORUpdateRequest(int desiredWorkOrderId, WorkOrder workOrder, params string[] expectedNewCodes)
+        [Test]
+        public void ThrowWhenWorkOrderNotFound()
         {
-            var newCodes = expectedNewCodes.Select(c => new Generated.RateScheduleItem
+            const int desiredWorkOrderId = 42;
+            var workOrder = BuildWorkOrder(desiredWorkOrderId);
+            var expectedNewCode = new RateScheduleItem
             {
-                CustomCode = c
+                CustomCode = "code",
+                Quantity = new Quantity
+                {
+                    Amount = 4.5
+                }
+            };
+            var request = CreateMoreSpecificSORUpdateRequest(desiredWorkOrderId, workOrder, expectedNewCode);
+
+            Assert.ThrowsAsync<ResourceNotFoundException>(() => _classUnderTest.Execute(request));
+        }
+
+        private static RateScheduleItem CloneRateScheduleItem(RateScheduleItem toModify)
+        {
+
+            var expectedNewCodes = new RateScheduleItem
+            {
+                CustomCode = toModify.CustomCode,
+                CustomName = toModify.CustomName,
+                Quantity = new Quantity
+                {
+                    Amount = toModify.Quantity.Amount, UnitOfMeasurementCode = toModify.Quantity.UnitOfMeasurementCode
+                },
+                CodeCost = toModify.CodeCost,
+                DateCreated = toModify.DateCreated,
+                M3NHFSORCode = toModify.M3NHFSORCode
+            };
+            return expectedNewCodes;
+        }
+
+        private static Generated.JobStatusUpdate CreateMoreSpecificSORUpdateRequest(int desiredWorkOrderId, WorkOrder workOrder, params RateScheduleItem[] expectedNewCodes)
+        {
+            var newCodes = expectedNewCodes.Select(rsi => new Generated.RateScheduleItem
+            {
+                CustomCode = rsi.CustomCode, Quantity = rsi.Quantity.ToResponse(), CustomName = rsi.CustomName, M3NHFSORCode = rsi.M3NHFSORCode
             });
 
             return new Generated.JobStatusUpdate
@@ -87,16 +150,39 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             };
         }
 
-        private WorkOrder CreateWorkOrder(int expectedId)
+        private WorkOrder CreateReturnWorkOrder(int expectedId)
         {
-            var workOrder = _fixture.Create<WorkOrder>();
-            workOrder.Id = expectedId;
+            var workOrder = BuildWorkOrder(expectedId);
 
             _repairsGatewayMock.Setup(gateway => gateway.GetWorkOrder(It.Is<int>(i => i == expectedId)))
                 .ReturnsAsync(workOrder);
             _repairsGatewayMock.Setup(gateway => gateway.GetWorkElementsForWorkOrder(It.Is<WorkOrder>(wo => wo.Id == expectedId)))
                 .ReturnsAsync(_fixture.Create<List<WorkElement>>);
 
+            return workOrder;
+        }
+
+        private WorkOrder BuildWorkOrder(int expectedId)
+        {
+
+            var workOrder = _fixture.Build<WorkOrder>()
+                .With(x => x.WorkElements, new List<WorkElement>
+                {
+                    _fixture.Build<WorkElement>()
+                        .With(x => x.RateScheduleItem,
+                            new List<RateScheduleItem>
+                            {
+                                _fixture.Create<RateScheduleItem>()
+                            }
+                        ).With(x => x.Trade,
+                            new List<Trade>
+                            {
+                                _fixture.Create<Trade>()
+                            })
+                        .Create()
+                })
+                .With(x => x.Id, expectedId)
+                .Create();
             return workOrder;
         }
     }

@@ -212,6 +212,9 @@ namespace RepairsApi.V2.Factories
                     quantity.Amount
                 },
                 UnitOfMeasurementCode = quantity.UnitOfMeasurementCode
+            };
+        }
+
         public static IEnumerable<WorkOrderItemViewModel> ToResponse(this IEnumerable<WorkOrderTask> domain)
         {
             return domain.Select(wot => wot.ToResponse());
