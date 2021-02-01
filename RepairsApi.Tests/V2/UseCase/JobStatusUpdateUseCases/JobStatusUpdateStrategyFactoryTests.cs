@@ -3,6 +3,7 @@ using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using RepairsApi.V2.Generated;
+using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase;
 using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;

@@ -67,9 +67,4 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
         }
     }
 
-    public interface IJobStatusUpdateStrategy
-    {
-        Task Execute(JobStatusUpdate jobStatusUpdate);
-    }
-
 }

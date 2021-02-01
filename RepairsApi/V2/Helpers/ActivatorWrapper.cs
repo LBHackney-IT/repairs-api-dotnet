@@ -1,12 +1,8 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace RepairsApi.V2.UseCase
+namespace RepairsApi.V2.Helpers
 {
-    public interface IActivatorWrapper<T>
-    {
-        T CreateInstance<TConcrete>() where TConcrete : T;
-    }
 
     public class ActivatorWrapper<T> : IActivatorWrapper<T>
     {

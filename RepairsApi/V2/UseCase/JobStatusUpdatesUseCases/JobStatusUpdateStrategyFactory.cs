@@ -1,13 +1,10 @@
 using System;
 using System.Threading.Tasks;
 using RepairsApi.V2.Generated;
+using RepairsApi.V2.Helpers;
 
 namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 {
-    public interface IJobStatusUpdateStrategyFactory
-    {
-        Task ProcessActions(JobStatusUpdate jobStatusUpdate);
-    }
 
     public class JobStatusUpdateStrategyFactory : IJobStatusUpdateStrategyFactory
     {
