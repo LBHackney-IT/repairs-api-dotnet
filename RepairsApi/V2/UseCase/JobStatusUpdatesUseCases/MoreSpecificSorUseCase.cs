@@ -59,7 +59,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
                 var updatedCode = workElement.RateScheduleItem.SingleOrDefault(rsi => rsi.CustomCode == existingCode.CustomCode);
                 if (updatedCode == null)
                 {
-                    throw new NotSupportedException($"Deleting SOR codes not supported, missing {existingCode}");
+                    throw new NotSupportedException($"Deleting SOR codes not supported, missing {existingCode.CustomCode}");
                 }
 
                 existingCode.Quantity.Amount = updatedCode.Quantity.Amount;

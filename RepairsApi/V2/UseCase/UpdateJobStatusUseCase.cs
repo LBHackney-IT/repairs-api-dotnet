@@ -37,19 +37,19 @@ namespace RepairsApi.V2.UseCase
 
             var workElements = await _repairsGateway.GetWorkElementsForWorkOrder(workOrder);
 
-            ProcessActions(jobStatusUpdate);
+            await ProcessActions(jobStatusUpdate);
 
             await _jobStatusUpdateGateway.CreateJobStatusUpdate(jobStatusUpdate.ToDb(workElements, workOrder));
 
             return true;
         }
 
-        private void ProcessActions(JobStatusUpdate jobStatusUpdate)
+        private async Task ProcessActions(JobStatusUpdate jobStatusUpdate)
         {
             switch (jobStatusUpdate.TypeCode)
             {
                 case JobStatusUpdateTypeCode._80: // More specific SOR Code
-                    _moreSpecificSorUseCase.Execute(jobStatusUpdate);
+                    await _moreSpecificSorUseCase.Execute(jobStatusUpdate);
                     break;
             }
         }
