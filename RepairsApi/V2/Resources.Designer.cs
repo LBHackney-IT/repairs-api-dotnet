@@ -106,6 +106,15 @@ namespace RepairsApi.V2 {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not find property.
+        /// </summary>
+        public static string Property_Not_Found {
+            get {
+                return ResourceManager.GetString("Property Not Found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to fetch property.
         /// </summary>
         public static string PropertyFailure {
