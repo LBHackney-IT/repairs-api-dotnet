@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated;
@@ -15,17 +16,17 @@ namespace RepairsApi.V2.UseCase
     {
         private readonly IRepairsGateway _repairsGateway;
         private readonly IJobStatusUpdateGateway _jobStatusUpdateGateway;
-        private readonly IMoreSpecificSorUseCase _moreSpecificSorUseCase;
+        private readonly IJobStatusUpdateStrategyFactory _strategyFactory;
 
         public UpdateJobStatusUseCase(
             IRepairsGateway repairsGateway,
             IJobStatusUpdateGateway jobStatusUpdateGateway,
-            IMoreSpecificSorUseCase moreSpecificSorUseCase
+            IJobStatusUpdateStrategyFactory strategyFactory
         )
         {
             _repairsGateway = repairsGateway;
             _jobStatusUpdateGateway = jobStatusUpdateGateway;
-            _moreSpecificSorUseCase = moreSpecificSorUseCase;
+            _strategyFactory = strategyFactory;
         }
 
         public async Task<bool> Execute(JobStatusUpdate jobStatusUpdate)
@@ -37,25 +38,12 @@ namespace RepairsApi.V2.UseCase
 
             var workElements = await _repairsGateway.GetWorkElementsForWorkOrder(workOrder);
 
-            await ProcessActions(jobStatusUpdate);
+            await _strategyFactory.ProcessActions(jobStatusUpdate);
 
             await _jobStatusUpdateGateway.CreateJobStatusUpdate(jobStatusUpdate.ToDb(workElements, workOrder));
 
             return true;
         }
 
-        private async Task ProcessActions(JobStatusUpdate jobStatusUpdate)
-        {
-            switch (jobStatusUpdate.TypeCode)
-            {
-                case JobStatusUpdateTypeCode._80: // More specific SOR Code
-                    await _moreSpecificSorUseCase.Execute(jobStatusUpdate);
-                    break;
-                case JobStatusUpdateTypeCode._0:
-                    break;
-                default:
-                    throw new NotSupportedException($"This type code is not supported: {jobStatusUpdate.TypeCode}");
-            }
-        }
     }
 }

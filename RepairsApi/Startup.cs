@@ -118,6 +118,8 @@ namespace RepairsApi
 
             RegisterGateways(services);
             RegisterUseCases(services);
+            services.AddTransient<IJobStatusUpdateStrategyFactory, JobStatusUpdateStrategyFactory>();
+            services.AddTransient(typeof(IActivatorWrapper<>), typeof(ActivatorWrapper<>));
         }
 
         private static void RegisterGateways(IServiceCollection services)

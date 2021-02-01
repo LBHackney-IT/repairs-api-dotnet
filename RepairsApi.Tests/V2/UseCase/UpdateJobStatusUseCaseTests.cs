@@ -22,7 +22,7 @@ namespace RepairsApi.Tests.V2.UseCase
         private MockRepairsGateway _repairsGatewayMock;
         private UpdateJobStatusUseCase _classUnderTest;
         private Mock<IJobStatusUpdateGateway> _jobStatusUpdateGateway;
-        private Mock<IMoreSpecificSorUseCase> _moreSpecificSorUseCaseMock;
+        private Mock<IJobStatusUpdateStrategyFactory> _strategyFactory;
 
         [SetUp]
         public void Setup()
@@ -33,11 +33,11 @@ namespace RepairsApi.Tests.V2.UseCase
 
             _repairsGatewayMock = new MockRepairsGateway();
             _jobStatusUpdateGateway = new Mock<IJobStatusUpdateGateway>();
-            _moreSpecificSorUseCaseMock = new Mock<IMoreSpecificSorUseCase>();
+            _strategyFactory = new Mock<IJobStatusUpdateStrategyFactory>();
             _classUnderTest = new UpdateJobStatusUseCase(
                 _repairsGatewayMock.Object,
                 _jobStatusUpdateGateway.Object,
-                _moreSpecificSorUseCaseMock.Object
+                _strategyFactory.Object
             );
         }
 
@@ -87,43 +87,6 @@ namespace RepairsApi.Tests.V2.UseCase
         }
 
         [Test]
-        public void ThrowUnsupportedWhenNonSupportedTypeCodes()
-        {
-            var workOrder = _fixture.Create<WorkOrder>();
-            workOrder.Id = 41;
-            var jobStatusUpdate = new Generated.JobStatusUpdate
-            {
-                RelatedWorkOrderReference = new Generated.Reference
-                {
-                    ID = workOrder.Id.ToString()
-                },
-                TypeCode = Generated.JobStatusUpdateTypeCode._10
-            };
-            _repairsGatewayMock.Setup(gateway => gateway.GetWorkOrder(It.Is<int>(i => i == workOrder.Id)))
-                .ReturnsAsync(workOrder);
-
-            Assert.ThrowsAsync<NotSupportedException>(async () => await _classUnderTest.Execute(jobStatusUpdate));
-        }
-
-        [Test]
-        public void ThrowUnsupportedWhenNoTypeCode()
-        {
-            var workOrder = _fixture.Create<WorkOrder>();
-            workOrder.Id = 41;
-            var jobStatusUpdate = new Generated.JobStatusUpdate
-            {
-                RelatedWorkOrderReference = new Generated.Reference
-                {
-                    ID = workOrder.Id.ToString()
-                }
-            };
-            _repairsGatewayMock.Setup(gateway => gateway.GetWorkOrder(It.Is<int>(i => i == workOrder.Id)))
-                .ReturnsAsync(workOrder);
-
-            Assert.ThrowsAsync<NotSupportedException>(async () => await _classUnderTest.Execute(jobStatusUpdate));
-        }
-
-        [Test]
         public void DoesNotThrowUnsupportedWhenOtherTypeCode()
         {
             Assert.DoesNotThrowAsync(async () => await _classUnderTest.Execute(
@@ -158,7 +121,7 @@ namespace RepairsApi.Tests.V2.UseCase
             var result = await _classUnderTest.Execute(CreateMoreSpecificSORUpdateRequest(desiredWorkOrderId, workOrder, "code"));
 
             result.Should().BeTrue();
-            _moreSpecificSorUseCaseMock.Verify(uc => uc.Execute(It.IsAny<Generated.JobStatusUpdate>()));
+            _strategyFactory.Verify(uc => uc.ProcessActions(It.IsAny<Generated.JobStatusUpdate>()));
         }
 
         private static Generated.JobStatusUpdate CreateMoreSpecificSORUpdateRequest(int desiredWorkOrderId, WorkOrder workOrder, string expectedNewCode)

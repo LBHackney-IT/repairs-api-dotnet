@@ -10,7 +10,7 @@ using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
 
 namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 {
-    public class MoreSpecificSorUseCase : IMoreSpecificSorUseCase
+    public class MoreSpecificSorUseCase : IMoreSpecificSorUseCase, IJobStatusUpdateStrategy
     {
         private readonly IRepairsGateway _repairsGateway;
         private readonly RepairsContext _repairsContext;
@@ -65,6 +65,11 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
                 existingCode.Quantity.Amount = updatedCode.Quantity.Amount;
             }
         }
+    }
+
+    public interface IJobStatusUpdateStrategy
+    {
+        Task Execute(JobStatusUpdate jobStatusUpdate);
     }
 
 }
