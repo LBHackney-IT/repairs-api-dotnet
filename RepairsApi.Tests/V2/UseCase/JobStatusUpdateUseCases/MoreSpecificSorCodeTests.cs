@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -116,7 +116,8 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
                 CustomName = toModify.CustomName,
                 Quantity = new Quantity
                 {
-                    Amount = toModify.Quantity.Amount, UnitOfMeasurementCode = toModify.Quantity.UnitOfMeasurementCode
+                    Amount = toModify.Quantity.Amount,
+                    UnitOfMeasurementCode = toModify.Quantity.UnitOfMeasurementCode
                 },
                 CodeCost = toModify.CodeCost,
                 DateCreated = toModify.DateCreated,
@@ -129,7 +130,10 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         {
             var newCodes = expectedNewCodes.Select(rsi => new Generated.RateScheduleItem
             {
-                CustomCode = rsi.CustomCode, Quantity = rsi.Quantity.ToResponse(), CustomName = rsi.CustomName, M3NHFSORCode = rsi.M3NHFSORCode
+                CustomCode = rsi.CustomCode,
+                Quantity = rsi.Quantity.ToResponse(),
+                CustomName = rsi.CustomName,
+                M3NHFSORCode = rsi.M3NHFSORCode
             });
 
             return new Generated.JobStatusUpdate

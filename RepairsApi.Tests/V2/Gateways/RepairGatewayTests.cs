@@ -119,7 +119,7 @@ namespace RepairsApi.Tests.V2.Gateways
             var newWorkElement = new WorkElement();
 
             // act
-           await _classUnderTest.AddWorkElement(expectedWorkOrder.Id, newWorkElement);
+            await _classUnderTest.AddWorkElement(expectedWorkOrder.Id, newWorkElement);
 
             // assert
             expectedWorkOrder.WorkElements.Should().HaveCount(3);
