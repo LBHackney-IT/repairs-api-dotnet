@@ -23,13 +23,15 @@ namespace RepairsApi.V2.Controllers
         private readonly ICompleteWorkOrderUseCase _completeWorkOrderUseCase;
         private readonly IUpdateJobStatusUseCase _updateJobStatusUseCase;
         private readonly IGetWorkOrderUseCase _getWorkOrderUseCase;
+        private readonly IListWorkOrderTasksUseCase _listWorkOrderTasksUseCase;
 
         public RepairsController(
             ICreateWorkOrderUseCase createWorkOrderUseCase,
             IListWorkOrdersUseCase listWorkOrdersUseCase,
             ICompleteWorkOrderUseCase completeWorkOrderUseCase,
             IUpdateJobStatusUseCase updateJobStatusUseCase,
-            IGetWorkOrderUseCase getWorkOrderUseCase
+            IGetWorkOrderUseCase getWorkOrderUseCase,
+            IListWorkOrderTasksUseCase listWorkOrderTasksUseCase
         )
         {
             _createWorkOrderUseCase = createWorkOrderUseCase;
@@ -37,6 +39,7 @@ namespace RepairsApi.V2.Controllers
             _completeWorkOrderUseCase = completeWorkOrderUseCase;
             _updateJobStatusUseCase = updateJobStatusUseCase;
             _getWorkOrderUseCase = getWorkOrderUseCase;
+            _listWorkOrderTasksUseCase = listWorkOrderTasksUseCase;
         }
 
         /// <summary>
@@ -152,8 +155,38 @@ namespace RepairsApi.V2.Controllers
             {
                 return BadRequest(e.Message);
             }
+            catch (ResourceNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
         }
 
+        /// <summary>
+        /// Gets a list of tasks for a given work order id
+        /// </summary>
+        /// <param name="id">work order id</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("{id}/tasks")]
+        [ProducesResponseType(typeof(IEnumerable<WorkOrderItemViewModel>), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> ListWorkOrderTasks(int id)
+        {
+            try
+            {
+                var result = await _listWorkOrderTasksUseCase.Execute(id);
+                return Ok(result.ToResponse());
+            }
+            catch (NotSupportedException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (ResourceNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+        }
     }
 
 }

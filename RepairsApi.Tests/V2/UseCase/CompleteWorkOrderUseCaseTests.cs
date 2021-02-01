@@ -94,6 +94,19 @@ namespace RepairsApi.Tests.V2.UseCase
         }
 
         [Test]
+        public async Task ReturnFalseWhenAlreadyComplete()
+        {
+            // arrange
+            _workOrderCompletionGatewayMock.Setup(m => m.IsWorkOrderCompleted(It.IsAny<int>())).ReturnsAsync(false);
+
+            // act
+            var result = await _classUnderTest.Execute(CreateRequest(1));
+
+            // assert
+            result.Should().BeFalse();
+        }
+
+        [Test]
         public void ThrowsExceptionWhenRelatedWorkElementPresent()
         {
             // arrange
@@ -128,11 +141,24 @@ namespace RepairsApi.Tests.V2.UseCase
             {
                 new Generated.JobStatusUpdates
                 {
-                    TypeCode = Generated.JobStatusUpdateTypeCode._0,
-                    OtherType = "expectedOtherType",
-                    Comments = "expectedComment",
-                    AdditionalWork = new Generated.AdditionalWork()
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = "expectedOtherType", Comments = "expectedComment", AdditionalWork = new Generated.AdditionalWork()
                 }
+            };
+
+            // act
+            // assert
+            Assert.ThrowsAsync<NotSupportedException>(() => _classUnderTest.Execute(workOrderCompleteRequest));
+        }
+
+        [Test]
+        public void ThrowsExceptionWhenFollowOnWorkPresent()
+        {
+            // arrange
+            var expectedWorkOrder = CreateWorkOrder();
+            var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
+            workOrderCompleteRequest.FollowOnWorkOrderReference = new List<Generated.Reference>
+            {
+                new Generated.Reference()
             };
 
             // act

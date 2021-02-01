@@ -8,7 +8,7 @@ namespace RepairsApi.V2.Infrastructure
     {
         [Key] public string CustomCode { get; set; }
         public string CustomName { get; set; }
-
+        public double Cost { get; set; }
         public virtual SORPriority Priority { get; set; }
         public int PriorityId { get; set; }
 

@@ -8,6 +8,7 @@ using NUnit.Framework;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Controllers;
 using RepairsApi.V2.Domain;
+using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.UseCase;
 using RepairsApi.V2.UseCase.Interfaces;
 using System.Collections.Generic;
@@ -77,6 +78,19 @@ namespace RepairsApi.Tests.V2.Controllers
             // Assert
             statusCode.Should().Be(200);
             propertyResult.Property.PropertyReference.Should().Be(expectedPropertyReference);
+        }
+
+        [Test]
+        public async Task CatchesNotFound()
+        {
+            _getPropertyUseCaseMock.Setup(m => m.ExecuteAsync(It.IsAny<string>())).ThrowsAsync(new ResourceNotFoundException());
+
+            // Act
+            var result = await _classUnderTest.GetProperty("");
+            var statusCode = GetStatusCode(result);
+
+            // Assert
+            statusCode.Should().Be(404);
         }
 
         [TestCase(0, 0)]
