@@ -16,6 +16,7 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 using RepairsApi.V2.Infrastructure;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 using RepairsApi.Tests.Helpers.StubGeneration;
+using Trade = RepairsApi.V2.Generated.Trade;
 
 namespace RepairsApi.Tests.V2.E2ETests
 {
@@ -40,7 +41,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         {
             var client = CreateClient();
 
-            var request = RepairMockBuilder.CreateFullRaiseRepair();
+            var request = GenerateWorkOrder<RaiseRepair>().Generate();
             var serializedContent = JsonConvert.SerializeObject(request);
             StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
 
@@ -55,8 +56,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         {
             var client = CreateClient();
 
-            Generator<ScheduleRepair> generator = new Generator<ScheduleRepair>()
-                .AddWorkOrderGenerators();
+            Generator<ScheduleRepair> generator = GenerateWorkOrder<ScheduleRepair>();
 
             var request = generator.Generate();
             var serializedContent = JsonConvert.SerializeObject(request);
@@ -66,6 +66,29 @@ namespace RepairsApi.Tests.V2.E2ETests
             {
                 repair.WorkPriority.NumberOfDays.Should().Be(request.Priority.NumberOfDays);
             });
+        }
+
+        [Test]
+        public async Task ViewElements()
+        {
+            var client = CreateClient();
+
+            Generator<ScheduleRepair> generator = GenerateWorkOrder<ScheduleRepair>();
+
+            var request = generator.Generate();
+            var serializedContent = JsonConvert.SerializeObject(request);
+            StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
+
+            var woId = await ScheduleRepairAndValidate(client, content);
+
+            var response = await client.GetAsync(new Uri($"/api/v2/repairs/{woId}/tasks", UriKind.Relative));
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var workOrders = JsonConvert.DeserializeObject<IEnumerable<WorkOrderItemViewModel>>(responseContent);
+
+            int requestItemCount = request.WorkElement.Aggregate(0, (count, we) => count + we.RateScheduleItem.Count);
+            workOrders.Should().HaveCount(requestItemCount);
         }
 
         [Test]
@@ -101,7 +124,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         {
             var client = CreateClient();
 
-            var request = RepairMockBuilder.CreateFullRaiseRepair();
+            var request = GenerateWorkOrder<RaiseRepair>().Generate();
             request.DescriptionOfWork = "expectedDescription";
             var serializedContent = JsonConvert.SerializeObject(request);
             StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
@@ -122,8 +145,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         {
             string endpoint = "/api/v2/repairs";
 
-            Generator<RaiseRepair> requestGenerator = new Generator<RaiseRepair>()
-                .AddWorkOrderGenerators();
+            Generator<RaiseRepair> requestGenerator = GenerateWorkOrder<RaiseRepair>();
 
             var request = requestGenerator.Generate();
 
@@ -134,13 +156,25 @@ namespace RepairsApi.Tests.V2.E2ETests
         public async Task CompleteScheduleRepairWorkOrder()
         {
             string endpoint = "/api/v2/repairs/schedule";
-
-            Generator<ScheduleRepair> requestGenerator = new Generator<ScheduleRepair>()
-                .AddWorkOrderGenerators();
+            Generator<ScheduleRepair> requestGenerator = GenerateWorkOrder<ScheduleRepair>();
 
             var request = requestGenerator.Generate();
 
             await ValidateCreationAndCompletion(request, endpoint);
+        }
+
+        private Generator<T> GenerateWorkOrder<T>()
+        {
+            string[] sorCodes = Array.Empty<string>();
+
+            WithContext(ctx =>
+            {
+                sorCodes = ctx.SORCodes.Select(sor => sor.CustomCode).ToArray();
+            });
+
+            return new Generator<T>()
+                .AddWorkOrderGenerators()
+                .WithSorCodes(sorCodes);
         }
 
         private async Task ValidateCreationAndCompletion(object request, string endpoint)
@@ -175,18 +209,18 @@ namespace RepairsApi.Tests.V2.E2ETests
             await ValidateWorkOrderCreation(client, content, assertions, uriString);
         }
 
-        private async Task ScheduleRepairAndValidate(HttpClient client, StringContent content, Action<WorkOrder> assertions = null)
+        private async Task<int> ScheduleRepairAndValidate(HttpClient client, StringContent content, Action<WorkOrder> assertions = null)
         {
             const string uriString = "/api/v2/repairs/schedule";
-            await ValidateWorkOrderCreation(client, content, assertions, uriString);
+            return await ValidateWorkOrderCreation(client, content, assertions, uriString);
         }
 
-        private async Task ValidateWorkOrderCreation(HttpClient client, StringContent content, Action<WorkOrder> assertions, string uriString)
+        private async Task<int> ValidateWorkOrderCreation(HttpClient client, StringContent content, Action<WorkOrder> assertions, string uriString)
         {
             var response = await client.PostAsync(new Uri(uriString, UriKind.Relative), content);
 
             string responseContent = await response.Content.ReadAsStringAsync();
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            response.StatusCode.Should().Be(HttpStatusCode.OK, responseContent);
             var id = JsonSerializer.Deserialize<int>(responseContent);
 
             WithContext(repairsContext =>
@@ -195,6 +229,8 @@ namespace RepairsApi.Tests.V2.E2ETests
                 repair.Should().NotBeNull();
                 assertions?.Invoke(repair);
             });
+
+            return id;
         }
     }
 }

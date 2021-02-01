@@ -142,6 +142,7 @@ namespace RepairsApi
             services.AddTransient<ICompleteWorkOrderUseCase, CompleteWorkOrderUseCase>();
             services.AddTransient<IUpdateJobStatusUseCase, UpdateJobStatusUseCase>();
             services.AddTransient<IGetWorkOrderUseCase, GetWorkOrderUseCase>();
+            services.AddTransient<IListWorkOrderTasksUseCase, ListWorkOrderTasksUseCase>();
             services.AddTransient<IListSorContractorsUseCase, ListSorContractorsUseCase>();
             services.AddTransient<IListSorTradesUseCase, ListSorTradesUseCase>();
         }

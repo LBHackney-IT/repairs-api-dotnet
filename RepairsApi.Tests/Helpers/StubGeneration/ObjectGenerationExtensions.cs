@@ -1,7 +1,8 @@
+using Bogus;
+using RepairsApi.V2.Generated;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using RepairsApi.V2.Generated;
 
 namespace RepairsApi.Tests.Helpers.StubGeneration
 {
@@ -43,17 +44,24 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
         {
             return generator
                 .AddDefaultGenerators()
-                .AddValue(new string[] { "address", "line" }, (RepairsApi.V2.Generated.PropertyAddress addr) => addr.AddressLine)
-                .AddValue(new string[] { "address", "line" }, (RepairsApi.V2.Generated.Address addr) => addr.AddressLine)
-                .AddValue(GetSitePropertyUnitGenerator(), (RepairsApi.V2.Generated.RaiseRepair rr) => rr.SitePropertyUnit)
-                .AddValue(new double[] { 2.0 }, (RepairsApi.V2.Generated.Quantity q) => q.Amount)
+                .AddValue(new string[] { "address", "line" }, (PropertyAddress addr) => addr.AddressLine)
+                .AddValue(new string[] { "address", "line" }, (Address addr) => addr.AddressLine)
+                .AddValue(GetSitePropertyUnitGenerator(), (RaiseRepair rr) => rr.SitePropertyUnit)
+                .AddValue(new double[] { 2.0 }, (Quantity q) => q.Amount)
                 .AddValue(new string[] { "2.0" },
-                    (RepairsApi.V2.Generated.GeographicalLocation q) => q.Latitude,
-                    (RepairsApi.V2.Generated.GeographicalLocation q) => q.Longitude,
-                    (RepairsApi.V2.Generated.GeographicalLocation q) => q.Elevation,
-                    (RepairsApi.V2.Generated.GeographicalLocation q) => q.ElevationReferenceSystem);
+                    (GeographicalLocation q) => q.Latitude,
+                    (GeographicalLocation q) => q.Longitude,
+                    (GeographicalLocation q) => q.Elevation,
+                    (GeographicalLocation q) => q.ElevationReferenceSystem)
+                .AddValue("trade", (Trade t) => t.CustomCode);
         }
 
+        public static Generator<T> WithSorCodes<T>(this Generator<T> generator, params string[] sorCodes)
+        {
+            Random rand = new Random();
+
+            return generator.AddGenerator(() => sorCodes[rand.Next(sorCodes.Length)], (RateScheduleItem rsi) => rsi.CustomCode);
+        }
 
         public static Generator<T> AddInfrastructureWorkOrderGenerators<T>(this Generator<T> generator)
         {

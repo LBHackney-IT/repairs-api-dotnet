@@ -1,7 +1,5 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using RepairsApi.V2.Generated;
 
 namespace RepairsApi.V2.Infrastructure
 {
@@ -12,5 +10,7 @@ namespace RepairsApi.V2.Infrastructure
         public string CustomCode { get; set; }
         public string CustomName { get; set; }
         public virtual Quantity Quantity { get; set; }
+        public DateTime? DateCreated { get; set; }
+        public double? CodeCost { get; set; }
     }
 }

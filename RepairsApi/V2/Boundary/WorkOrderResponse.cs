@@ -18,5 +18,6 @@ namespace RepairsApi.V2.Boundary
         public string CallerNumber { get; internal set; }
         public string CallerName { get; internal set; }
         public WorkPriorityCode? PriorityCode { get; internal set; }
+        public string Status { get; internal set; }
     }
 }

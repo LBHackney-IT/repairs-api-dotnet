@@ -1,7 +1,6 @@
 using RepairsApi.V2.Boundary;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Domain;
-using RepairsApi.V2.Enums;
 using RepairsApi.V2.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
@@ -123,10 +122,11 @@ namespace RepairsApi.V2.Factories
                 Target = workOrder.WorkPriority.RequiredCompletionDateTime,
                 PriorityCode = workOrder.WorkPriority.PriorityCode,
                 LastUpdated = null,
-                Owner = workOrder.AssignedToPrimary.Name,
+                Owner = workOrder.AssignedToPrimary?.Name,
                 RaisedBy = "Dummy Agent",
-                CallerName = workOrder.Customer.Person.Name.Full,
-                CallerNumber = workOrder.Customer.Person.Communication.Where(cc => cc.Channel.Medium == Generated.CommunicationMediumCode._20/* Audio */).FirstOrDefault()?.Value
+                CallerName = workOrder.Customer?.Person?.Name?.Full,
+                CallerNumber = workOrder.Customer?.Person?.Communication?.Where(cc => cc.Channel.Medium == Generated.CommunicationMediumCode._20/* Audio */).FirstOrDefault()?.Value,
+                Status = workOrder.GetStatus()
             };
         }
 
@@ -149,11 +149,6 @@ namespace RepairsApi.V2.Factories
             };
         }
 
-        public static WorkPriorityCode ToResponse(this Generated.WorkPriorityCode code)
-        {
-            return (WorkPriorityCode) code;
-        }
-
         public static ScheduleOfRatesModel ToResponse(this ScheduleOfRates sorCode)
         {
             return new ScheduleOfRatesModel
@@ -169,6 +164,24 @@ namespace RepairsApi.V2.Factories
                     Description = sorCode.Priority.Description,
                     PriorityCode = sorCode.Priority.PriorityCode
                 }
+            };
+        }
+
+        public static IEnumerable<WorkOrderItemViewModel> ToResponse(this IEnumerable<WorkOrderTask> domain)
+        {
+            return domain.Select(wot => wot.ToResponse());
+        }
+
+        public static WorkOrderItemViewModel ToResponse(this WorkOrderTask domain)
+        {
+            return new WorkOrderItemViewModel
+            {
+                Quantity = domain.Quantity,
+                Code = domain.Id,
+                Cost = domain.Cost,
+                DateAdded = domain.DateAdded,
+                Description = domain.Description,
+                Status = domain.Status
             };
         }
 

@@ -40,16 +40,7 @@ namespace RepairsApi.V2.UseCase
 
             ValidateRequest(request);
 
-            if (request.FollowOnWorkOrderReference.IsNullOrEmpty())
-            {
-                await _workOrderCompletionGateway.CreateWorkOrderCompletion(request.ToDb(workOrder, null));
-            }
-            else
-            {
-                var followOnWorkOrderIds = request.FollowOnWorkOrderReference.Select(fwo => int.Parse(fwo.ID));
-                var followOnWorkOrders = await _repairsGateway.GetWorkOrders(wo => followOnWorkOrderIds.Contains(wo.Id));
-                await _workOrderCompletionGateway.CreateWorkOrderCompletion(request.ToDb(workOrder, followOnWorkOrders.ToList()));
-            }
+            await _workOrderCompletionGateway.CreateWorkOrderCompletion(request.ToDb(workOrder, null));
 
             return true;
         }
