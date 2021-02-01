@@ -132,6 +132,9 @@
   <data name="PropertiesFailure" xml:space="preserve">
     <value>Unable to fetch properties</value>
   </data>
+  <data name="Property Not Found" xml:space="preserve">
+    <value>Could not find property</value>
+  </data>
   <data name="PropertyFailure" xml:space="preserve">
     <value>Unable to fetch property</value>
   </data>

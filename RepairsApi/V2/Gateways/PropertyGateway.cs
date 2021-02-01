@@ -7,6 +7,7 @@ using RepairsApi.V2.Gateways.Models;
 using RepairsApi.V2.UseCase;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace RepairsApi.V2.Gateways
@@ -41,6 +42,11 @@ namespace RepairsApi.V2.Gateways
         {
             Uri url = new Uri($"properties/{propertyReference}", UriKind.Relative);
             var response = await _apiGateway.ExecuteRequest<PropertyApiResponse>(HttpClientNames.Properties, url);
+
+            if (response.Status == HttpStatusCode.NotFound)
+            {
+                throw new ResourceNotFoundException(Resources.Property_Not_Found);
+            }
 
             if (!response.IsSuccess)
             {
