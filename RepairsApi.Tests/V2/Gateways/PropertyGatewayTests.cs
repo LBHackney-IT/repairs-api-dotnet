@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
+using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Gateways.Models;
 using RepairsApi.V2.UseCase;
@@ -56,6 +57,20 @@ namespace RepairsApi.Tests.V2.Gateways
 
             // Assert
             result.Should().HaveCount(stubData.Content.Count);
+        }
+
+        [Test]
+        public async Task ThrowsFor404()
+        {
+            // Arrange
+            var stubData = BuildResponse<PropertyApiResponse>(null);
+            _apiGatewayMock.Setup(gw => gw.ExecuteRequest<PropertyApiResponse>(It.IsAny<string>(), It.IsAny<Uri>())).ReturnsAsync(stubData);
+
+            // Act
+            Func<Task> actFunction = async () => await _classUnderTest.GetByReferenceAsync("");
+
+            // Assert
+            await actFunction.Should().ThrowAsync<ResourceNotFoundException>();
         }
 
         private static ApiResponse<T> BuildResponse<T>(T content) where T : class

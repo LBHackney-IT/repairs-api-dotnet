@@ -64,7 +64,7 @@ namespace RepairsApi.V2.Controllers
             }
             catch (ApiException ex)
             {
-                return StatusCode(ex.StatusCode, ex.Message);
+                return StatusCode(502, $"{ex.Message}. Upstream Sent {ex.StatusCode}");
             }
 
             List<PropertyListItem> response = properties.ToResponse();
@@ -91,9 +91,13 @@ namespace RepairsApi.V2.Controllers
             {
                 property = await _getPropertyUseCase.ExecuteAsync(propertyReference);
             }
+            catch (ResourceNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
             catch (ApiException ex)
             {
-                return StatusCode(ex.StatusCode, ex.Message);
+                return StatusCode(502, $"{ex.Message}. Upstream Sent {ex.StatusCode}");
             }
 
             return Ok(property.ToResponse());
@@ -118,7 +122,7 @@ namespace RepairsApi.V2.Controllers
             }
             catch (ApiException ex)
             {
-                return StatusCode(ex.StatusCode, ex.Message);
+                return StatusCode(502, $"{ex.Message}. Upstream Sent {ex.StatusCode}");
             }
 
             return Ok(alerts.ToResponse());
