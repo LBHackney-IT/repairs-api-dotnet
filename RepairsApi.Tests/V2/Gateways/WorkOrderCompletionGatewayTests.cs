@@ -49,6 +49,41 @@ namespace RepairsApi.Tests.V2.Gateways
             InMemoryDb.Instance.WorkOrderCompletes.Should().ContainSingle().Which.IsSameOrEqualTo(expected);
         }
 
+        [Test]
+        public async Task IsCompleteReturnsTrueForCompletedWorkOrder()
+        {
+            var workOrderId = await AddWorkOrderCompletion();
+
+            var isComplete = await _classUnderTest.IsWorkOrderCompleted(workOrderId);
+
+            isComplete.Should().BeTrue();
+        }
+
+
+        [Test]
+        public async Task IsCompleteReturnsFalseForNotCompletedWorkOrder()
+        {
+            var expectedWorkOrder = CreateWorkOrderCompletion().WorkOrder;
+
+            var entry = await InMemoryDb.Instance.WorkOrders.AddAsync(expectedWorkOrder);
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            var isComplete = await _classUnderTest.IsWorkOrderCompleted(entry.Entity.Id);
+
+            isComplete.Should().BeFalse();
+        }
+
+
+        private async Task<int> AddWorkOrderCompletion()
+        {
+            var completion = CreateWorkOrderCompletion();
+
+            var entry = await InMemoryDb.Instance.WorkOrderCompletes.AddAsync(completion);
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            return entry.Entity.WorkOrder.Id;
+        }
+
         private WorkOrderComplete CreateWorkOrderCompletion()
         {
             return _generator.Generate();
