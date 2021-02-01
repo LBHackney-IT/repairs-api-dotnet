@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
@@ -64,5 +64,5 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
 
             Assert.ThrowsAsync<NotSupportedException>(async () => await _classUnderTest.ProcessActions(jobStatusUpdate));
         }
-}
+    }
 }
