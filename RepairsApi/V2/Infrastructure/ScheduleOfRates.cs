@@ -36,4 +36,12 @@ namespace RepairsApi.V2.Infrastructure
         [Key] public string SORContractorRef { get; set; }
         public string Name { get; set; }
     }
+
+    public class SORContract
+    {
+        [Key] public string SORContractRef { get; set; }
+
+        public int PropertyConstraintMethodId { get; set; }
+        public string PropertyConstraintParameters { get; set; }
+    }
 }

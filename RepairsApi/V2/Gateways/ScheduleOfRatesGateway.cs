@@ -36,9 +36,10 @@ namespace RepairsApi.V2.Gateways
             return await Trades.ToListAsync();
         }
 
-        public async Task<IEnumerable<SORContractor>> GetContractors()
+        public async Task<IEnumerable<SORContractor>> GetContractors(string propRef)
         {
-            return await Contractors.ToListAsync();
+            List<SORContractor> contractors = await Contractors.ToListAsync();
+            return contractors;
         }
 
         public Task<double> GetCost(string customCode)

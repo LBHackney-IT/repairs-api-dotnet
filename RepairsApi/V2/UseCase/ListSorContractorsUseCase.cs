@@ -18,7 +18,7 @@ namespace RepairsApi.V2.UseCase
             _scheduleOfRatesGateway = scheduleOfRatesGateway;
         }
 
-        public async Task<IEnumerable<Contractor>> Execute()
+        public async Task<IEnumerable<Contractor>> Execute(string propRef)
         {
             var contractors = await _scheduleOfRatesGateway.GetContractors();
             return contractors.Select(c => c.ToResponse());

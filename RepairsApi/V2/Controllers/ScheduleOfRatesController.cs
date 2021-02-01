@@ -66,7 +66,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(IEnumerable<Contractor>), StatusCodes.Status200OK)]
         [Route("contractors")]
         [HttpGet]
-        public async Task<IActionResult> ListContractors()
+        public async Task<IActionResult> ListContractors(string propRef)
         {
             return Ok(await _listSorContractors.Execute());
         }
