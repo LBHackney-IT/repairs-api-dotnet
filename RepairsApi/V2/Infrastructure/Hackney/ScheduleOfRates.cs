@@ -40,6 +40,7 @@ namespace RepairsApi.V2.Infrastructure.Hackney
 
         [Required]
         public virtual Contractor Contractor { get; set; }
+        public string ContractorReference { get; set; }
 
         public virtual List<PropertyContract> PropertyMap { get; set; }
         public virtual List<SORContract> SorCodeMap { get; set; }
