@@ -158,12 +158,12 @@ namespace RepairsApi.V2.Factories
                 CustomCode = sorCode.Code,
                 CustomName = sorCode.Description,
                 SORContractors = sorCode.Contracts.Select(c => new Contractor
-                    {
-                        Name = c.ContractorName,
-                        Reference = c.ContractorCode,
-                        ContractReference = c.ContractReference,
-                        ContractCost = c.ContractCost
-                    }).ToList(),
+                {
+                    Name = c.ContractorName,
+                    Reference = c.ContractorCode,
+                    ContractReference = c.ContractReference,
+                    ContractCost = c.ContractCost
+                }).ToList(),
                 Priority = new SORPriority
                 {
                     Description = sorCode.PriorityDescription,
