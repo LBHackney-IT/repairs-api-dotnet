@@ -14,6 +14,5 @@ namespace RepairsApi.V2.Infrastructure
         public DateTime? DateCreated { get; set; }
         public double? CodeCost { get; set; }
         public string ContractReference { get; set; }
-        public virtual Contract Contract { get; set; }
     }
 }
