@@ -5,24 +5,25 @@ namespace RepairsApi.V2.Infrastructure
 {
     public class RepairsContext : DbContext
     {
-        private readonly DataImporter _dataImporter;
 
         public RepairsContext(
-            DbContextOptions options,
-            DataImporter dataImporter
+            DbContextOptions options
         ) : base(options)
         {
-            _dataImporter = dataImporter;
         }
 
         public DbSet<WorkOrder> WorkOrders { get; set; }
         public DbSet<WorkElement> WorkElements { get; set; }
         public DbSet<WorkOrderComplete> WorkOrderCompletes { get; set; }
         public DbSet<JobStatusUpdate> JobStatusUpdates { get; set; }
+
         public DbSet<ScheduleOfRates> SORCodes { get; set; }
         public DbSet<SorCodeTrade> Trades { get; }
         public DbSet<Contractor> Contractors { get; }
         public DbSet<SORPriority> SORPriorities { get; set; }
+        public DbSet<Contract> Contracts { get; set; }
+        public DbSet<PropertyContract> PropertyContracts { get; set; }
+        public DbSet<SORContract> SORContracts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -35,7 +36,12 @@ namespace RepairsApi.V2.Infrastructure
                 .WithOne(b => b.WorkOrder)
                 .HasForeignKey<WorkOrderComplete>(b => b.Id);
 
-            modelBuilder.Seed(_dataImporter);
+            modelBuilder.Entity<PropertyContract>()
+                .HasKey(pc => new { pc.ContractReference, pc.PropRef });
+
+            modelBuilder.Entity<SORContract>()
+                .HasKey(pc => new { pc.ContractReference, pc.SorCodeCode });
+
         }
     }
 }

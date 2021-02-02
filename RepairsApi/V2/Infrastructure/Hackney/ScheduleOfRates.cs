@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace RepairsApi.V2.Infrastructure.Hackney
@@ -11,7 +12,11 @@ namespace RepairsApi.V2.Infrastructure.Hackney
         public virtual SORPriority Priority { get; set; }
         public int PriorityId { get; set; }
 
+        [Required]
         public SorCodeTrade Trade { get; set; }
+        public string TradeCode { get; set; }
+
+        public virtual List<SORContract> SorCodeMap { get; set; }
     }
 
     public class SORPriority
@@ -32,7 +37,12 @@ namespace RepairsApi.V2.Infrastructure.Hackney
         [Key] public string ContractReference { get; set; }
         public DateTime TerminationDate { get; set; }
         public DateTime EffectiveDate { get; set; }
+
+        [Required]
         public virtual Contractor Contractor { get; set; }
+
+        public virtual List<PropertyContract> PropertyMap { get; set; }
+        public virtual List<SORContract> SorCodeMap { get; set; }
     }
 
     public class Contractor
@@ -43,14 +53,20 @@ namespace RepairsApi.V2.Infrastructure.Hackney
 
     public class SORContract
     {
+        [Required]
         public virtual ScheduleOfRates SorCode { get; set; }
-        public virtual Contract Contract { get; set; }
+        public virtual string SorCodeCode { get; set; }
         public double Cost { get; set; }
+
+        [Required]
+        public virtual Contract Contract { get; set; }
+        public string ContractReference { get; set; }
     }
 
     public class PropertyContract
     {
         public string PropRef { get; set; }
         public virtual Contract Contract { get; set; }
+        public string ContractReference { get; set; }
     }
 }

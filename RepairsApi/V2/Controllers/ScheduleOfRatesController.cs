@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using RepairsApi.V2.Domain;
+using System.ComponentModel.DataAnnotations;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -40,35 +41,21 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(IEnumerable<ScheduleOfRatesModel>), StatusCodes.Status200OK)]
         [Route("codes")]
         [HttpGet]
-        public async Task<IActionResult> ListRecords([FromQuery] string tradeCode, [FromQuery] string contractorReference)
+        public async Task<IActionResult> ListRecords([FromQuery][Required] string tradeCode, [FromQuery][Required] string propertyReference)
         {
-            return Ok(await _listScheduleOfRates.Execute(tradeCode, contractorReference));
+            return Ok(await _listScheduleOfRates.Execute(tradeCode, propertyReference));
         }
 
         /// <summary>
         /// Returns paged list of trades
         /// </summary>
         /// <response code="200">Success. Returns a list of SOR codes</response>
-        /// <response code="400">Invalid Query Parameter.</response>
         [ProducesResponseType(typeof(IEnumerable<SorTradeResponse>), StatusCodes.Status200OK)]
         [Route("trades")]
         [HttpGet]
         public async Task<IActionResult> ListTrades()
         {
             return Ok(await _listSorTrades.Execute());
-        }
-
-        /// <summary>
-        /// Returns List of contractors
-        /// </summary>
-        /// <response code="200">Success. Returns a list of SOR codes</response>
-        /// <response code="400">Invalid Query Parameter.</response>
-        [ProducesResponseType(typeof(IEnumerable<Contractor>), StatusCodes.Status200OK)]
-        [Route("contractors")]
-        [HttpGet]
-        public async Task<IActionResult> ListContractors(string propRef)
-        {
-            return Ok(await _listSorContractors.Execute());
         }
     }
 }

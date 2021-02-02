@@ -1,51 +1,58 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Castle.Core.Internal;
 using Microsoft.EntityFrameworkCore;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Infrastructure.Hackney;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace RepairsApi.V2.Gateways
 {
     public class ScheduleOfRatesGateway : IScheduleOfRatesGateway
     {
-        private DbSet<ScheduleOfRates> SORCodes { get; }
-        private DbSet<SorCodeTrade> Trades { get; }
-        private DbSet<Contractor> Contractors { get; }
+        private readonly RepairsContext _context;
 
         public ScheduleOfRatesGateway(RepairsContext context)
         {
-            SORCodes = context.SORCodes;
-            Trades = context.Trades;
-            Contractors = context.Contractors;
+            _context = context;
         }
 
-        public async Task<IEnumerable<ScheduleOfRates>> GetSorCodes(string contractorRef, string tradeCode)
+        public async Task<IEnumerable<SorCodeTrade>> GetTrades()
         {
-            return await SORCodes.Where(sor => sor.SORContractorRef == contractorRef && sor.TradeCode == tradeCode).ToListAsync();
+            return await _context.Trades.ToListAsync();
         }
 
-        // TODO This can be a slow query. usages should be done in the gateway so a full queryable can be built for performance
-        public async Task<IEnumerable<ScheduleOfRates>> GetSorCodes(string contractorRef)
+        public async Task<IEnumerable<SorCodeResult>> GetSorCodes(string propertyReference, string tradeCode)
         {
-            return await SORCodes.Where(sor => sor.SORContractorRef == contractorRef).ToListAsync();
+            return await _context.SORCodes
+                .Where(sor => sor.Trade.Code == tradeCode)
+                .Select(sor => new SorCodeResult
+                {
+                    Code = sor.CustomCode,
+                    Description = sor.CustomName,
+                    PriorityCode = sor.Priority.PriorityCode,
+                    PriorityDescription = sor.Priority.Description,
+                    Contracts = sor.SorCodeMap
+                        .Where(c => c.Contract.EffectiveDate < DateTime.UtcNow && DateTime.UtcNow < c.Contract.TerminationDate)
+                        .Where(c => c.Contract.PropertyMap.Any(pm => pm.PropRef == propertyReference))
+                        .Select(c => new SorCodeContractResult
+                        {
+                            ContractorCode = c.Contract.Contractor.Code,
+                            ContractReference = c.Contract.ContractReference,
+                            ContractorName = c.Contract.Contractor.Name,
+                            ContractCost = c.Cost
+                        })
+                }).ToListAsync();
         }
 
-        public async Task<IEnumerable<SORTrade>> GetTrades()
+        public async Task<double?> GetCost(string customCode)
         {
-            return await Trades.ToListAsync();
+            return await Task.FromResult(0.0);
         }
 
-        public async Task<IEnumerable<SORContractor>> GetContractors(string propRef)
+        public Task GetSorCodes(string contractorReference)
         {
-            List<SORContractor> contractors = await Contractors.ToListAsync();
-            return contractors;
-        }
-
-        public Task<double> GetCost(string customCode)
-        {
-            return SORCodes.Where(sor => sor.CustomCode == customCode).Select(sor => sor.Cost).SingleAsync();
+            throw new NotImplementedException();
         }
     }
 }
