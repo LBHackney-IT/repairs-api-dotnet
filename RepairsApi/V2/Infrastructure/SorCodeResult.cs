@@ -5,10 +5,10 @@ namespace RepairsApi.V2.Infrastructure
     public class SorCodeResult
     {
         public IEnumerable<SorCodeContractResult> Contracts { get; internal set; }
-        public string PriorityDescription { get; internal set; }
-        public int PriorityCode { get; internal set; }
-        public string Description { get; internal set; }
-        public string Code { get; internal set; }
+        public string PriorityDescription { get; set; }
+        public int PriorityCode { get; set; }
+        public string Description { get; set; }
+        public string Code { get; set; }
     }
 
     public class SorCodeContractResult

@@ -83,8 +83,6 @@ namespace RepairsApi.Tests.V2.UseCase
             workOrders.Single().Should().BeEquivalentTo(expectedResult);
         }
 
-        // TODO fileter by contract ref
-
         [Test]
         public async Task CanFilterByPropertyRef()
         {
@@ -114,6 +112,41 @@ namespace RepairsApi.Tests.V2.UseCase
             workOrders.Should().BeEquivalentTo(expectedResponses);
         }
 
+        [Test]
+        public async Task CanFilterByContractorRef()
+        {
+            // Arrange
+            var expectedContractRef = Guid.NewGuid().ToString();
+
+            var allWorkOrders = _generator.GenerateList(3);
+            SetContractRef(allWorkOrders, "not" + expectedContractRef);
+
+            var expectedWorkOrders = _generator.GenerateList(3);
+            SetContractRef(expectedWorkOrders, expectedContractRef);
+
+            allWorkOrders.AddRange(expectedWorkOrders);
+
+            _repairsMock.ReturnsWorkOrders(allWorkOrders);
+
+            _sorGatewayMock.Setup(x => x.GetContracts(It.IsAny<string>()))
+                .ReturnsAsync(new List<string>
+                {
+                    expectedContractRef
+                });
+
+            var workOrderSearchParameters = new WorkOrderSearchParameters
+            {
+                ContractorReference = expectedContractRef
+            };
+
+            // Act
+            var workOrders = await _classUnderTest.Execute(workOrderSearchParameters);
+
+            // Assert
+            var expectedResponses = expectedWorkOrders.Select(ewo => ewo.ToListItem());
+            workOrders.Should().BeEquivalentTo(expectedResponses);
+        }
+
         private static void SetPropertyRefs(List<WorkOrder> expectedWorkOrders, string newRef)
         {
             foreach (var expectedWorkOrder in expectedWorkOrders)
@@ -121,6 +154,20 @@ namespace RepairsApi.Tests.V2.UseCase
                 foreach (var propertyClass in expectedWorkOrder.Site.PropertyClass)
                 {
                     propertyClass.PropertyReference = newRef;
+                }
+            }
+        }
+
+        private static void SetContractRef(List<WorkOrder> expectedWorkOrders, string newRef)
+        {
+            foreach (var expectedWorkOrder in expectedWorkOrders)
+            {
+                foreach (var workElement in expectedWorkOrder.WorkElements)
+                {
+                    foreach (var rateScheduleItem in workElement.RateScheduleItem)
+                    {
+                        rateScheduleItem.ContractReference = newRef;
+                    }
                 }
             }
         }
