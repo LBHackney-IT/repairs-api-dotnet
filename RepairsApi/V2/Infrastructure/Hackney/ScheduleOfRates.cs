@@ -13,7 +13,7 @@ namespace RepairsApi.V2.Infrastructure.Hackney
         public int PriorityId { get; set; }
 
         [Required]
-        public SorCodeTrade Trade { get; set; }
+        public virtual SorCodeTrade Trade { get; set; }
         public string TradeCode { get; set; }
 
         public virtual List<SORContract> SorCodeMap { get; set; }

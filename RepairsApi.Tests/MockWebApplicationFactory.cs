@@ -62,6 +62,20 @@ namespace RepairsApi.Tests
                 var dbContext = scope.ServiceProvider.GetRequiredService<RepairsContext>();
 
                 dbContext.Database.EnsureCreated();
+
+                dbContext.SORCodes.Add(new RepairsApi.V2.Infrastructure.Hackney.ScheduleOfRates
+                {
+                    Cost = 0,
+                    CustomCode = Guid.NewGuid().ToString(),
+                    CustomName = "test",
+                    Trade = new RepairsApi.V2.Infrastructure.Hackney.SorCodeTrade
+                    {
+                        Code = Guid.NewGuid().ToString(),
+                        Name = "test"
+                    }
+                });
+
+                dbContext.SaveChanges();
             }
         }
 

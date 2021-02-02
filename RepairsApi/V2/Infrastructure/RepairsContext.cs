@@ -42,6 +42,34 @@ namespace RepairsApi.V2.Infrastructure
             modelBuilder.Entity<SORContract>()
                 .HasKey(pc => new { pc.ContractReference, pc.SorCodeCode });
 
+            modelBuilder.Entity<ScheduleOfRates>()
+                .HasOne<SorCodeTrade>(sor => sor.Trade)
+                .WithMany()
+                .HasForeignKey(sor => sor.TradeCode);
+
+            modelBuilder.Entity<ScheduleOfRates>()
+                .HasOne<SORPriority>(sor => sor.Priority)
+                .WithMany()
+                .HasForeignKey(sor => sor.PriorityId);
+
+            modelBuilder.Entity<Contract>()
+                .HasOne<Contractor>(c => c.Contractor)
+                .WithMany();
+
+            modelBuilder.Entity<SORContract>()
+                .HasOne(s => s.SorCode)
+                .WithMany(sor => sor.SorCodeMap)
+                .HasForeignKey(s => s.SorCodeCode);
+
+            modelBuilder.Entity<SORContract>()
+                .HasOne(s => s.Contract)
+                .WithMany(c => c.SorCodeMap)
+                .HasForeignKey(s => s.ContractReference);
+
+            modelBuilder.Entity<PropertyContract>()
+                .HasOne(p => p.Contract)
+                .WithMany(c => c.PropertyMap)
+                .HasForeignKey(p => p.ContractReference);
         }
     }
 }

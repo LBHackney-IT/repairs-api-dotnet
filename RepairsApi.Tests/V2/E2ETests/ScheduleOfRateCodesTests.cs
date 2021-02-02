@@ -13,18 +13,6 @@ namespace RepairsApi.Tests.V2.E2ETests
 {
     public class ScheduleOfRateCodesTests : MockWebApplicationFactory
     {
-        [Test]
-        public async Task ListSORCodes()
-        {
-            var client = CreateClient();
-
-            var response = await client.GetAsync(new Uri("api/v2/schedule-of-rates/codes", UriKind.Relative));
-
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            string responseContent = await response.Content.ReadAsStringAsync();
-            var codes = JsonConvert.DeserializeObject<List<ScheduleOfRatesModel>>(responseContent);
-            codes.Should().NotBeNullOrEmpty();
-        }
+        // TODO
     }
 }
