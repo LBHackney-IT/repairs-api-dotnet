@@ -83,30 +83,7 @@ namespace RepairsApi.Tests.V2.UseCase
             workOrders.Single().Should().BeEquivalentTo(expectedResult);
         }
 
-        [Test]
-        public async Task CanFilterByContractorRef()
-        {
-            // Arrange
-            var expectedCode = AddSorCode(Guid.NewGuid().ToString());
-
-            var allWorkOrders = GenerateWorkOrders(5, "not" + expectedCode.CustomCode);
-            var expectedWorkOrders = GenerateWorkOrders(3, expectedCode.CustomCode);
-            allWorkOrders.AddRange(expectedWorkOrders);
-
-            _repairsMock.ReturnsWorkOrders(allWorkOrders);
-
-            var workOrderSearchParameters = new WorkOrderSearchParameters
-            {
-                ContractorReference = expectedCode.SORContractorRef
-            };
-
-            // Act
-            var workOrders = await _classUnderTest.Execute(workOrderSearchParameters);
-
-            // Assert
-            var expectedResponses = expectedWorkOrders.Select(ewo => ewo.ToListItem());
-            workOrders.Should().BeEquivalentTo(expectedResponses);
-        }
+        // TODO fileter by contract ref
 
         [Test]
         public async Task CanFilterByPropertyRef()
@@ -203,28 +180,5 @@ namespace RepairsApi.Tests.V2.UseCase
                 }
             }
         }
-
-        private ScheduleOfRates AddSorCode(string contractorRef = "contractor")
-        {
-            var expectedCode = new ScheduleOfRates
-            {
-                CustomCode = "1",
-                CustomName = "name",
-                SORContractorRef = contractorRef,
-                Priority = new SORPriority
-                {
-                    Description = "priorityDescription",
-                    PriorityCode = 1
-                }
-            };
-            var expectedCodes = new List<ScheduleOfRates>
-            {
-                expectedCode
-            };
-            _sorGatewayMock.Setup(g => g.GetSorCodes(It.IsAny<string>()))
-                .ReturnsAsync(expectedCodes);
-            return expectedCode;
-        }
     }
-
 }

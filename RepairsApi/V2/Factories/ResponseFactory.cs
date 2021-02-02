@@ -149,20 +149,23 @@ namespace RepairsApi.V2.Factories
             };
         }
 
-        public static ScheduleOfRatesModel ToResponse(this ScheduleOfRates sorCode)
+        public static ScheduleOfRatesModel ToResponse(this SorCodeResult sorCode)
         {
             return new ScheduleOfRatesModel
             {
-                CustomCode = sorCode.CustomCode,
-                CustomName = sorCode.CustomName,
-                SORContractor = new Contractor
-                {
-                    Reference = sorCode.SORContractorRef
-                },
+                CustomCode = sorCode.Code,
+                CustomName = sorCode.Description,
+                SORContractors = sorCode.Contracts.Select(c => new Contractor
+                    {
+                        Name = c.ContractorName,
+                        Reference = c.ContractorCode,
+                        ContractReference = c.ContractReference,
+                        ContractCost = c.ContractCost
+                    }).ToList(),
                 Priority = new SORPriority
                 {
-                    Description = sorCode.Priority.Description,
-                    PriorityCode = sorCode.Priority.PriorityCode
+                    Description = sorCode.PriorityDescription,
+                    PriorityCode = sorCode.PriorityCode
                 }
             };
         }
@@ -185,21 +188,21 @@ namespace RepairsApi.V2.Factories
             };
         }
 
-        public static SorTradeResponse ToResponse(this SORTrade trade)
+        public static SorTradeResponse ToResponse(this Infrastructure.Hackney.SorCodeTrade trade)
         {
             return new SorTradeResponse
             {
-                Code = trade.TradeCode,
-                Name = trade.Description
+                Code = trade.Code,
+                Name = trade.Name
             };
         }
 
-        public static Contractor ToResponse(this SORContractor contractor)
+        public static Contractor ToResponse(this Infrastructure.Hackney.Contractor contractor)
         {
             return new Contractor
             {
                 Name = contractor.Name,
-                Reference = contractor.SORContractorRef
+                Reference = contractor.Reference
             };
         }
     }

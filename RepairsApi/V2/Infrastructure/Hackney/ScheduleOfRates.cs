@@ -47,7 +47,7 @@ namespace RepairsApi.V2.Infrastructure.Hackney
 
     public class Contractor
     {
-        [Key] public string Code { get; set; }
+        [Key] public string Reference { get; set; }
         public string Name { get; set; }
     }
 

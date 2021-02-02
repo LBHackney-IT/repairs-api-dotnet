@@ -11,4 +11,11 @@ namespace RepairsApi.V2.Generated
         [Newtonsoft.Json.JsonProperty("NumberOfDays", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double? NumberOfDays { get; set; }
     }
+
+    public partial class RateScheduleItem
+    {
+        [Newtonsoft.Json.JsonProperty("ContractReference", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string ContractReference { get; set; }
+    }
 }

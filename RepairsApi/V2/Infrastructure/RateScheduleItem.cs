@@ -1,3 +1,4 @@
+using RepairsApi.V2.Infrastructure.Hackney;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -12,5 +13,7 @@ namespace RepairsApi.V2.Infrastructure
         public virtual Quantity Quantity { get; set; }
         public DateTime? DateCreated { get; set; }
         public double? CodeCost { get; set; }
+        public string ContractReference { get; set; }
+        public virtual Contract Contract { get; set; }
     }
 }

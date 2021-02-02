@@ -46,7 +46,7 @@ namespace RepairsApi.Tests
         {
             _factory = new MockWebApplicationFactory(_connection);
             Client = _factory.CreateClient();
-            RepairsContext = new RepairsContext(_builder.Options, new DataImporter("../../../../RepairsApi/V2/SeededData"));
+            RepairsContext = new RepairsContext(_builder.Options);
             RepairsContext.Database.EnsureCreated();
         }
 

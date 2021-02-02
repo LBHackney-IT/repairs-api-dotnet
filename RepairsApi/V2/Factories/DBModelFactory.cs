@@ -254,7 +254,8 @@ namespace RepairsApi.V2.Factories
             {
                 CustomCode = raiseRepair.CustomCode,
                 CustomName = raiseRepair.CustomName,
-                Quantity = raiseRepair.Quantity?.ToDb()
+                Quantity = raiseRepair.Quantity?.ToDb(),
+                ContractReference = raiseRepair.ContractReference
             };
         }
 

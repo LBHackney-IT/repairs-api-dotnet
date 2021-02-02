@@ -37,7 +37,7 @@ namespace RepairsApi.V2.Gateways
                         .Where(c => c.Contract.PropertyMap.Any(pm => pm.PropRef == propertyReference))
                         .Select(c => new SorCodeContractResult
                         {
-                            ContractorCode = c.Contract.Contractor.Code,
+                            ContractorCode = c.Contract.Contractor.Reference,
                             ContractReference = c.Contract.ContractReference,
                             ContractorName = c.Contract.Contractor.Name,
                             ContractCost = c.Cost
@@ -45,14 +45,18 @@ namespace RepairsApi.V2.Gateways
                 }).ToListAsync();
         }
 
-        public async Task<double?> GetCost(string customCode)
+        public async Task<double?> GetCost(string contractReference, string sorCode)
         {
-            return await Task.FromResult(0.0);
+            return await _context.SORContracts
+                .Where(c => c.ContractReference == contractReference && c.SorCodeCode == sorCode)
+                .Select(c => c.Cost).SingleOrDefaultAsync();
         }
 
-        public Task GetSorCodes(string contractorReference)
+        public async Task<IEnumerable<string>> GetContracts(string contractorReference)
         {
-            throw new NotImplementedException();
+            return await _context.Contracts
+                .Where(c => c.Contractor.Reference == contractorReference)
+                .Select(c => c.ContractReference).ToListAsync();
         }
     }
 }

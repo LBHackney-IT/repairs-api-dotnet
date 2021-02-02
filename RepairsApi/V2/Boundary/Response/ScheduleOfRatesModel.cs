@@ -1,4 +1,5 @@
 using RepairsApi.V2.Domain;
+using System.Collections.Generic;
 
 namespace RepairsApi.V2.Boundary.Response
 {
@@ -9,7 +10,7 @@ namespace RepairsApi.V2.Boundary.Response
 
         public SORPriority Priority { get; set; }
 
-        public Contractor SORContractor { get; set; }
+        public List<Contractor> SORContractors { get; set; }
     }
 
     public class SorTradeResponse

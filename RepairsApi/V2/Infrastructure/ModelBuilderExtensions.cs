@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using RepairsApi.V2.Infrastructure.Hackney;
 
 namespace RepairsApi.V2.Infrastructure
 {
@@ -27,7 +28,6 @@ namespace RepairsApi.V2.Infrastructure
             {
                 CustomCode = c.CustomCode,
                 CustomName = c.CustomName,
-                SORContractorRef = c.SorContractor,
                 PriorityId = c.PriorityCode
             }));
         }
