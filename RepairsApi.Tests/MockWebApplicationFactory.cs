@@ -72,6 +72,10 @@ namespace RepairsApi.Tests
                     {
                         Code = Guid.NewGuid().ToString(),
                         Name = "test"
+                    },
+                    Priority = new RepairsApi.V2.Infrastructure.Hackney.SORPriority
+                    {
+                        Description = "description"
                     }
                 });
 
