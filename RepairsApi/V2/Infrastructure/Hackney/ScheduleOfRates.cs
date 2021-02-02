@@ -23,13 +23,13 @@ namespace RepairsApi.V2.Infrastructure.Hackney
 
     public class SorCodeTrade
     {
-        [Key]public string Code { get; set; }
+        [Key] public string Code { get; set; }
         public string Name { get; set; }
     }
 
     public class Contract
     {
-        [Key]public string ContractReference { get; set; }
+        [Key] public string ContractReference { get; set; }
         public DateTime TerminationDate { get; set; }
         public DateTime EffectiveDate { get; set; }
         public virtual Contractor Contractor { get; set; }
@@ -37,7 +37,7 @@ namespace RepairsApi.V2.Infrastructure.Hackney
 
     public class Contractor
     {
-        [Key]public string Code { get; set; }
+        [Key] public string Code { get; set; }
         public string Name { get; set; }
     }
 
