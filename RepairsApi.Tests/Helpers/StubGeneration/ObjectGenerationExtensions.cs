@@ -93,6 +93,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
         public static Generator<T> AddJobStatusUpdateGenerators<T>(this Generator<T> generator)
         {
             return generator
+                .AddDefaultGenerators()
                 .AddWorkOrderGenerators()
                 .AddValue(null, (RepairsApi.V2.Generated.JobStatusUpdate jsu) => jsu.AdditionalWork);
         }

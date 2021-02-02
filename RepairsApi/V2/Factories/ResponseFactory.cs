@@ -151,7 +151,7 @@ namespace RepairsApi.V2.Factories
             };
         }
 
-        public static ScheduleOfRatesModel ToResponse(this SorCodeResult sorCode)
+        public static ScheduleOfRatesModel ToResponse(this Infrastructure.SorCodeResult sorCode)
         {
             return new ScheduleOfRatesModel
             {

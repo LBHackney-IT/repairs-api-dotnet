@@ -204,7 +204,8 @@ namespace RepairsApi.Tests.V2.E2ETests
             var workElement = request.WorkElement.First();
             var expectedNewCode = new RateScheduleItem
             {
-                CustomCode = "newCode"
+                CustomCode = "newCode",
+                ContractReference = "contractReference"
             };
             workElement.RateScheduleItem.Add(expectedNewCode);
 
