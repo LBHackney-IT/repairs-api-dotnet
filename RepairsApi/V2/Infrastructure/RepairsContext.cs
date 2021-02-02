@@ -18,8 +18,8 @@ namespace RepairsApi.V2.Infrastructure
         public DbSet<JobStatusUpdate> JobStatusUpdates { get; set; }
 
         public DbSet<ScheduleOfRates> SORCodes { get; set; }
-        public DbSet<SorCodeTrade> Trades { get; }
-        public DbSet<Contractor> Contractors { get; }
+        public DbSet<SorCodeTrade> Trades { get; set; }
+        public DbSet<Contractor> Contractors { get; set; }
         public DbSet<SORPriority> SORPriorities { get; set; }
         public DbSet<Contract> Contracts { get; set; }
         public DbSet<PropertyContract> PropertyContracts { get; set; }

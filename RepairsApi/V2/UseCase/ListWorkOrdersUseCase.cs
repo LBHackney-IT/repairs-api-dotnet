@@ -46,11 +46,11 @@ namespace RepairsApi.V2.UseCase
 
             if (!string.IsNullOrWhiteSpace(searchParameters.ContractorReference))
             {
-                var relatedSorCodes = await _scheduleOfRatesGateway.GetContracts(searchParameters.ContractorReference);
+                var relatedContracts = await _scheduleOfRatesGateway.GetContracts(searchParameters.ContractorReference);
                 result.Add(wo =>
                     wo.WorkElements.Any(we =>
                         we.RateScheduleItem.Any(rsi =>
-                            relatedSorCodes.Contains(rsi.ContractReference)
+                            relatedContracts.Contains(rsi.ContractReference)
                         )
                     )
                 );

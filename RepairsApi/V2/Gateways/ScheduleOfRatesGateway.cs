@@ -24,9 +24,10 @@ namespace RepairsApi.V2.Gateways
 
         public async Task<IEnumerable<SorCodeResult>> GetSorCodes(string propertyReference, string tradeCode)
         {
-            return await _context.SORCodes
-                .Where(sor => sor.Trade.Code == tradeCode)
-                .Select(sor => new SorCodeResult
+            var temp = _context.SORCodes
+                .Where(sor => sor.Trade.Code == tradeCode);
+
+            return await temp.Select(sor => new SorCodeResult
                 {
                     Code = sor.CustomCode,
                     Description = sor.CustomName,
@@ -42,7 +43,8 @@ namespace RepairsApi.V2.Gateways
                             ContractorName = c.Contract.Contractor.Name,
                             ContractCost = c.Cost
                         })
-                }).ToListAsync();
+                })
+                .ToListAsync();
         }
 
         public async Task<double?> GetCost(string contractReference, string sorCode)

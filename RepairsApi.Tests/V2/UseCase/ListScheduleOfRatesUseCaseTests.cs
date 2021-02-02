@@ -5,6 +5,7 @@ using FluentAssertions;
 using FluentAssertions.Common;
 using Moq;
 using NUnit.Framework;
+using RepairsApi.Tests.Helpers.StubGeneration;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Gateways;
@@ -18,15 +19,31 @@ namespace RepairsApi.Tests.V2.UseCase
     {
         private ListScheduleOfRatesUseCase _classUnderTest;
         private Mock<IScheduleOfRatesGateway> _mockScheduleOfRatesGateway;
+        private Generator<SorCodeResult> _generator;
 
         [SetUp]
         public void Setup()
         {
+            _generator = new Generator<SorCodeResult>();
+            _generator.AddDefaultGenerators();
             _mockScheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
             _classUnderTest = new ListScheduleOfRatesUseCase(_mockScheduleOfRatesGateway.Object);
         }
 
-        // TODO
+        [Test]
+        public async Task CanExecute()
+        {
+            // arrange
+            var expectedCodes = _generator.GenerateList(10);
+            _mockScheduleOfRatesGateway.Setup(x => x.GetSorCodes(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(expectedCodes);
+
+            // act
+            var result = await _classUnderTest.Execute("trade", "property");
+
+            // assert
+            result.Should().BeEquivalentTo(expectedCodes.Select(c => c.ToResponse()));
+        }
     }
 
 }
