@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace RepairsApi.V2.Infrastructure.ScheduleOfRates
+namespace RepairsApi.V2.Infrastructure.Hackney
 {
     public class ScheduleOfRates
     {
@@ -11,7 +11,7 @@ namespace RepairsApi.V2.Infrastructure.ScheduleOfRates
         public virtual SORPriority Priority { get; set; }
         public int PriorityId { get; set; }
 
-        public Trade Trade { get; set; }
+        public SorCodeTrade Trade { get; set; }
     }
 
     public class SORPriority
@@ -21,7 +21,7 @@ namespace RepairsApi.V2.Infrastructure.ScheduleOfRates
         public string Description { get; set; }
     }
 
-    public class Trade
+    public class SorCodeTrade
     {
         [Key]public string Code { get; set; }
         public string Name { get; set; }

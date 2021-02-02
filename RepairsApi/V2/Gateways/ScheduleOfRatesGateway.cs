@@ -4,14 +4,15 @@ using System.Threading.Tasks;
 using Castle.Core.Internal;
 using Microsoft.EntityFrameworkCore;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Infrastructure.Hackney;
 
 namespace RepairsApi.V2.Gateways
 {
     public class ScheduleOfRatesGateway : IScheduleOfRatesGateway
     {
         private DbSet<ScheduleOfRates> SORCodes { get; }
-        private DbSet<SORTrade> Trades { get; }
-        private DbSet<SORContractor> Contractors { get; }
+        private DbSet<SorCodeTrade> Trades { get; }
+        private DbSet<Contractor> Contractors { get; }
 
         public ScheduleOfRatesGateway(RepairsContext context)
         {

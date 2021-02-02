@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Infrastructure.Hackney;
 
 namespace RepairsApi.V2.Gateways
 {
@@ -9,8 +9,8 @@ namespace RepairsApi.V2.Gateways
         Task<string> GetContractorReference(string customCode);
         Task<double> GetCost(string customCode);
         Task<IEnumerable<ScheduleOfRates>> GetSorCodes(string contractorRef, string tradeCode);
-        Task<IEnumerable<SORTrade>> GetTrades();
-        Task<IEnumerable<SORContractor>> GetContractors(string propRef);
+        Task<IEnumerable<SorCodeTrade>> GetTrades();
+        Task<IEnumerable<Contractor>> GetContractors(string propRef);
         Task<IEnumerable<ScheduleOfRates>> GetSorCodes(string contractorRef);
     }
 
