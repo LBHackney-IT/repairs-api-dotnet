@@ -1,4 +1,6 @@
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using RepairsApi.V2.Infrastructure;
 
 namespace RepairsApi.V2.Gateways
@@ -11,6 +13,12 @@ namespace RepairsApi.V2.Gateways
         {
             _repairsContext = repairsContext;
         }
+
+        public async Task<bool> IsWorkOrderCompleted(int id)
+        {
+            return await _repairsContext.WorkOrderCompletes.AnyAsync(woc => woc.WorkOrder.Id == id);
+        }
+
         public async Task<int> CreateWorkOrderCompletion(WorkOrderComplete completion)
         {
             _repairsContext.WorkOrderCompletes.Add(completion);

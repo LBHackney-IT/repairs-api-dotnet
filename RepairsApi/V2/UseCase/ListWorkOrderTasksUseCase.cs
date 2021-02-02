@@ -25,7 +25,7 @@ namespace RepairsApi.V2.UseCase
 
             return elements.SelectMany(we => we.RateScheduleItem, (we, rsi) =>
             {
-                double quantity = rsi.Quantity.Amount;
+                double quantity = rsi.Quantity?.Amount ?? 0;
 
                 return new WorkOrderTask
                 {

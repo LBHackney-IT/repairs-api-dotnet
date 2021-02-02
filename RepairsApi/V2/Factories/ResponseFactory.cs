@@ -1,12 +1,13 @@
 using RepairsApi.V2.Boundary;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Domain;
-using RepairsApi.V2.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
-using Address = RepairsApi.V2.Domain.Address;
+using RepairsApi.V2.Generated;
 using RepairsApi.V2.Infrastructure.Extensions;
+using Address = RepairsApi.V2.Domain.Address;
 using SORPriority = RepairsApi.V2.Domain.SORPriority;
+using WorkElement = RepairsApi.V2.Generated.WorkElement;
 
 namespace RepairsApi.V2.Factories
 {
@@ -107,9 +108,9 @@ namespace RepairsApi.V2.Factories
             return domainList.Select(domain => domain.ToResponseListItem()).ToList();
         }
 
-        public static WorkOrderResponse ToResponse(this WorkOrder workOrder)
+        public static WorkOrderResponse ToResponse(this Infrastructure.WorkOrder workOrder)
         {
-            PropertyClass propertyClass = workOrder.Site?.PropertyClass.FirstOrDefault();
+            Infrastructure.PropertyClass propertyClass = workOrder.Site?.PropertyClass.FirstOrDefault();
             string addressLine = propertyClass?.Address?.AddressLine;
             return new WorkOrderResponse
             {
@@ -125,14 +126,15 @@ namespace RepairsApi.V2.Factories
                 Owner = workOrder.AssignedToPrimary?.Name,
                 RaisedBy = "Dummy Agent",
                 CallerName = workOrder.Customer?.Person?.Name?.Full,
-                CallerNumber = workOrder.Customer?.Person?.Communication?.Where(cc => cc.Channel.Medium == Generated.CommunicationMediumCode._20/* Audio */).FirstOrDefault()?.Value,
+                CallerNumber = workOrder.Customer?.Person?.Communication?.Where(cc => cc.Channel?.Medium == Generated.CommunicationMediumCode._20 /* Audio */).FirstOrDefault()
+                    ?.Value,
                 Status = workOrder.GetStatus()
             };
         }
 
-        public static WorkOrderListItem ToListItem(this WorkOrder workOrder)
+        public static WorkOrderListItem ToListItem(this Infrastructure.WorkOrder workOrder)
         {
-            PropertyClass propertyClass = workOrder.Site?.PropertyClass.FirstOrDefault();
+            Infrastructure.PropertyClass propertyClass = workOrder.Site?.PropertyClass.FirstOrDefault();
             string addressLine = propertyClass?.Address?.AddressLine;
             return new WorkOrderListItem
             {
@@ -167,6 +169,67 @@ namespace RepairsApi.V2.Factories
                     Description = sorCode.PriorityDescription,
                     PriorityCode = sorCode.PriorityCode
                 }
+            };
+        }
+
+        public static WorkElement ToResponse(this Infrastructure.WorkElement workElement)
+        {
+            return new WorkElement
+            {
+                Trade = workElement.Trade.Select(t => t.ToResponse()).ToList(),
+                DependsOn = workElement.DependsOn.Select(d => d.ToResponse()).ToList(),
+                ContainsCapitalWork = workElement.ContainsCapitalWork,
+                RateScheduleItem = workElement.RateScheduleItem.Select(rsi => rsi.ToResponse()).ToList(),
+                ServiceChargeSubject = workElement.ServiceChargeSubject
+            };
+        }
+
+        public static Trade ToResponse(this Infrastructure.Trade trade)
+        {
+            return new Trade
+            {
+                Code = trade.Code.Value,
+                CustomCode = trade.CustomCode,
+                CustomName = trade.CustomName
+            };
+        }
+
+        public static DependsOn ToResponse(this Infrastructure.WorkElementDependency dependency)
+        {
+            return new DependsOn
+            {
+                Timing = new Timing
+                {
+                    Days = dependency.Dependency.Duration.Value.Offset.Days
+                },
+                Type = dependency.Dependency.Type,
+                DependsOnWorkElementReference = new Reference
+                {
+                    ID = dependency.DependsOnWorkElement.Id.ToString()
+                }
+            };
+        }
+
+        public static RateScheduleItem ToResponse(this Infrastructure.RateScheduleItem rateScheduleItem)
+        {
+            return new RateScheduleItem
+            {
+                Quantity = rateScheduleItem.Quantity.ToResponse(),
+                CustomCode = rateScheduleItem.CustomCode,
+                CustomName = rateScheduleItem.CustomName,
+                M3NHFSORCode = rateScheduleItem.M3NHFSORCode
+            };
+        }
+
+        public static Quantity ToResponse(this Infrastructure.Quantity quantity)
+        {
+            return new Quantity
+            {
+                Amount = new List<double>
+                {
+                    quantity.Amount
+                },
+                UnitOfMeasurementCode = quantity.UnitOfMeasurementCode
             };
         }
 

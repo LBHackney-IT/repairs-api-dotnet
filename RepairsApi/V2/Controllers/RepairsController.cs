@@ -155,6 +155,10 @@ namespace RepairsApi.V2.Controllers
             {
                 return BadRequest(e.Message);
             }
+            catch (ResourceNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
         }
 
         /// <summary>

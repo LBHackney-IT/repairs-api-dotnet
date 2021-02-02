@@ -17,8 +17,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Helpers;
 using RepairsApi.V2.UseCase.Interfaces;
 using RepairsApi.V2.UseCase;
+using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
 
 namespace RepairsApi
 {
@@ -117,6 +119,8 @@ namespace RepairsApi
 
             RegisterGateways(services);
             RegisterUseCases(services);
+            services.AddTransient<IJobStatusUpdateStrategyFactory, JobStatusUpdateStrategyFactory>();
+            services.AddTransient(typeof(IActivatorWrapper<>), typeof(ActivatorWrapper<>));
         }
 
         private static void RegisterGateways(IServiceCollection services)
@@ -144,6 +148,7 @@ namespace RepairsApi
             services.AddTransient<IGetWorkOrderUseCase, GetWorkOrderUseCase>();
             services.AddTransient<IListWorkOrderTasksUseCase, ListWorkOrderTasksUseCase>();
             services.AddTransient<IListSorTradesUseCase, ListSorTradesUseCase>();
+            services.AddTransient<IMoreSpecificSorUseCase, MoreSpecificSorUseCase>();
         }
 
         private void AddHttpClients(IServiceCollection services)
