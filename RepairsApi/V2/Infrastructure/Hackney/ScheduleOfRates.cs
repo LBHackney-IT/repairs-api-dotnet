@@ -65,6 +65,18 @@ namespace RepairsApi.V2.Infrastructure.Hackney
         [Required]
         public virtual Contract Contract { get; set; }
         public string ContractReference { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return obj is SORContract contract &&
+                   SorCodeCode == contract.SorCodeCode &&
+                   ContractReference == contract.ContractReference;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(SorCodeCode, ContractReference);
+        }
     }
 
     public class PropertyContract
@@ -75,5 +87,17 @@ namespace RepairsApi.V2.Infrastructure.Hackney
         [Required]
         public virtual Contract Contract { get; set; }
         public string ContractReference { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return obj is PropertyContract contract &&
+                   PropRef == contract.PropRef &&
+                   ContractReference == contract.ContractReference;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(PropRef, ContractReference);
+        }
     }
 }

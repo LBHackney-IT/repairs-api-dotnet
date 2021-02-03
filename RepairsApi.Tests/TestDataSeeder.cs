@@ -16,8 +16,6 @@ namespace RepairsApi.Tests
 
         private static int _intSeeder = 1;
 
-        private static bool _seeded = false;
-
         private static Random _rand = new Random();
 
         private static List<string> _contractReferences = new List<string>();
@@ -34,9 +32,12 @@ namespace RepairsApi.Tests
 
         public static void SeedData(this RepairsContext ctx)
         {
+
             lock (_lockObj)
             {
-                if (!_seeded)
+                var hasSeedData = ctx.Trades.Any();
+
+                if (!hasSeedData)
                 {
                     SeedTrades(ctx);
 
@@ -53,8 +54,6 @@ namespace RepairsApi.Tests
                     SeedPropertyMap(ctx);
 
                     SeedSorMap(ctx);
-
-                    _seeded = true;
                 }
             }
         }
@@ -68,8 +67,7 @@ namespace RepairsApi.Tests
                 .Ignore((SORContract c) => c.Contract)
                 .Ignore((SORContract c) => c.SorCode);
 
-            IEnumerable<SORContract> entities = generator.GenerateList(100)
-                .Distinct(new DelegatedComparator<SORContract>((sc1, sc2) => sc1.SorCodeCode == sc1.SorCodeCode && sc1.ContractReference == sc2.ContractReference));
+            IEnumerable<SORContract> entities = generator.GenerateList(100).Distinct();
 
             ctx.Set<SORContract>().AddRange(entities);
         }
@@ -82,8 +80,7 @@ namespace RepairsApi.Tests
                 .AddGenerator(() => PickCode(_propertyReferences), (PropertyContract c) => c.PropRef)
                 .Ignore((PropertyContract c) => c.Contract);
 
-            IEnumerable<PropertyContract> entities = generator.GenerateList(100)
-                .Distinct(new DelegatedComparator<PropertyContract>((pc1, pc2) => pc1.PropRef == pc2.PropRef && pc1.ContractReference == pc2.ContractReference));
+            IEnumerable<PropertyContract> entities = generator.GenerateList(100).Distinct();
 
             ctx.Set<PropertyContract>().AddRange(entities);
         }
