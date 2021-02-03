@@ -94,32 +94,7 @@ namespace RepairsApi.Tests.V2.Gateways
         }
 
         [Test]
-        public async Task CanGetSorCodes()
-        {
-            // arrange
-            var expectedPriority = await SeedPriority();
-            var expectedTrade = await SeedTrade(Guid.NewGuid().ToString());
-            var notExpectedTrade = await SeedTrade(Guid.NewGuid().ToString());
-
-            const string expectedProperty = "property";
-            await SeedSorCodes(expectedPriority, "not" + expectedProperty, notExpectedTrade);
-            var expectedCodes = await SeedSorCodes(expectedPriority, expectedProperty, expectedTrade);
-
-            await InMemoryDb.Instance.SaveChangesAsync();
-
-            // act
-            var result = await _classUnderTest.GetSorCodes(expectedProperty, expectedTrade.Code);
-
-            // assert
-            var expectedResult = expectedCodes.Select(sor => new SorCodeResult
-            {
-                Code = sor.CustomCode, Description = sor.CustomName, PriorityCode = sor.Priority.PriorityCode, PriorityDescription = sor.Priority.Description
-            });
-            result.Should().BeEquivalentTo(expectedResult, options => options.Excluding(x => x.Contracts));
-        }
-
-        [Test]
-        public async Task IncludesValidContracts()
+        public async Task ValidatesContractDates()
         {
             // arrange
             const string expectedProperty = "property";
@@ -133,13 +108,58 @@ namespace RepairsApi.Tests.V2.Gateways
 
             await InMemoryDb.Instance.SaveChangesAsync();
 
+            await GetAndValidateCodes(expectedProperty, expectedTrade, expectedCodes);
+        }
+
+        [Test]
+        public async Task ValidatesPropertyRef()
+        {
+            // arrange
+            const string expectedProperty = "property";
+            var expectedPriority = await SeedPriority();
+            var expectedTrade = await SeedTrade(Guid.NewGuid().ToString());
+            var invalidContracts = await SeedContracts("not"+expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(7));
+            var validContracts = await SeedContracts(expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(7));
+
+            await SeedSorCodes(expectedPriority, expectedProperty, expectedTrade, invalidContracts.First());
+            var expectedCodes = await SeedSorCodes(expectedPriority, expectedProperty, expectedTrade, validContracts.First());
+
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            await GetAndValidateCodes(expectedProperty, expectedTrade, expectedCodes);
+        }
+
+        [Test]
+        public async Task ValidatesTradeCode()
+        {
+            // arrange
+            const string expectedProperty = "property";
+            var expectedPriority = await SeedPriority();
+            var expectedTrade = await SeedTrade(Guid.NewGuid().ToString());
+            var notExpectedTrade = await SeedTrade(Guid.NewGuid().ToString());
+            var validContracts = await SeedContracts(expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(7));
+
+            await SeedSorCodes(expectedPriority, expectedProperty, notExpectedTrade, validContracts.First());
+            var expectedCodes = await SeedSorCodes(expectedPriority, expectedProperty, expectedTrade, validContracts.First());
+
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            await GetAndValidateCodes(expectedProperty, expectedTrade, expectedCodes);
+        }
+
+        private async Task GetAndValidateCodes(string expectedProperty, SorCodeTrade expectedTrade, List<ScheduleOfRates> expectedCodes)
+        {
+
             // act
             var result = await _classUnderTest.GetSorCodes(expectedProperty, expectedTrade.Code);
 
             // assert
             var expectedResult = expectedCodes.Select(sor => new SorCodeResult
             {
-                Code = sor.CustomCode, Description = sor.CustomName, PriorityCode = sor.Priority.PriorityCode, PriorityDescription = sor.Priority.Description,
+                Code = sor.CustomCode,
+                Description = sor.CustomName,
+                PriorityCode = sor.Priority.PriorityCode,
+                PriorityDescription = sor.Priority.Description,
                 Contracts = sor.SorCodeMap
                     .Select(c => new SorCodeContractResult
                     {
@@ -185,22 +205,27 @@ namespace RepairsApi.Tests.V2.Gateways
             var contractorGenerator = new Generator<Contractor>()
                 .AddDefaultGenerators();
 
-            var propertyGenerator = new Generator<PropertyContract>()
-                .AddDefaultGenerators()
-                .AddValue(null, (PropertyContract pc) => pc.Contract)
-                .AddValue(expectedProperty, (PropertyContract pc) => pc.PropRef);
+            var contractor = contractorGenerator.Generate();
 
             var contractGenerator = new Generator<Contract>()
                 .AddDefaultGenerators()
-                .AddValue(contractorGenerator.Generate(), (Contract c) => c.Contractor)
-                .AddValue(propertyGenerator.GenerateList(1), (Contract c) => c.PropertyMap)
+                .AddValue(contractor.Reference, (Contract c) => c.ContractorReference)
+                .Ignore((Contract c) => c.Contractor)
+                .Ignore((Contract c) => c.PropertyMap)
                 .AddValue(null, (Contract c) => c.SorCodeMap)
                 .AddValue(effectiveDate, (Contract c) => c.EffectiveDate)
                 .AddValue(termDate, (Contract c) => c.TerminationDate);
 
             var contracts = contractGenerator.GenerateList(10);
 
+            var propMaps = contracts.Select(c => new PropertyContract
+            {
+                PropRef = expectedProperty, ContractReference = c.ContractReference
+            });
+
+            await InMemoryDb.Instance.Contractors.AddAsync(contractor);
             await InMemoryDb.Instance.Contracts.AddRangeAsync(contracts);
+            await InMemoryDb.Instance.PropertyContracts.AddRangeAsync(propMaps);
 
             return contracts;
         }

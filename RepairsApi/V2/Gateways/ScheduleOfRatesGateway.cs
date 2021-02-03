@@ -30,10 +30,10 @@ namespace RepairsApi.V2.Gateways
                 from sor in _context.SORCodes
                 join sorContract in _context.SORContracts on sor.CustomCode equals sorContract.SorCodeCode
                 join contract in _context.Contracts on sorContract.ContractReference equals contract.ContractReference
-                // where
-                //     sor.Trade.Code == tradeCode &&
-                //     contract.PropertyMap.Any(pm => pm.PropRef == propertyReference) &&
-                //     contract.EffectiveDate < DateTime.UtcNow && DateTime.UtcNow < contract.TerminationDate
+                where
+                sor.Trade.Code == tradeCode &&
+                contract.PropertyMap.Any(pm => pm.PropRef == propertyReference) &&
+                contract.EffectiveDate < DateTime.UtcNow && DateTime.UtcNow < contract.TerminationDate
                 select new
                 {
                     sor, sorContract, contract
