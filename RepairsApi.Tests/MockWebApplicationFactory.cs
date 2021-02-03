@@ -63,21 +63,7 @@ namespace RepairsApi.Tests
 
                 dbContext.Database.EnsureCreated();
 
-                dbContext.SORCodes.Add(new RepairsApi.V2.Infrastructure.Hackney.ScheduleOfRates
-                {
-                    Cost = 0,
-                    CustomCode = Guid.NewGuid().ToString(),
-                    CustomName = "test",
-                    Trade = new RepairsApi.V2.Infrastructure.Hackney.SorCodeTrade
-                    {
-                        Code = Guid.NewGuid().ToString(),
-                        Name = "test"
-                    },
-                    Priority = new RepairsApi.V2.Infrastructure.Hackney.SORPriority
-                    {
-                        Description = "description"
-                    }
-                });
+                dbContext.SeedData(); // TODO seeding duplicates keys somehow
 
                 dbContext.SaveChanges();
             }

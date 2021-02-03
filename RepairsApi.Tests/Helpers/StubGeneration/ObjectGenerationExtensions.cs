@@ -34,6 +34,12 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                 .AddGenerator(new SimpleValueGenerator<TProp>(value), accessors);
         }
 
+        public static Generator<T> Ignore<T, TModel, TProp>(this Generator<T> generator, params Expression<Func<TModel, TProp>>[] accessors)
+            where TProp : class
+        {
+            return generator.AddValue(null, accessors);
+        }
+
         public static Generator<T> AddGenerator<T, TModel, TProp>(this Generator<T> generator, Func<TProp> valueGenerator, params Expression<Func<TModel, TProp>>[] accessors)
         {
             return generator
