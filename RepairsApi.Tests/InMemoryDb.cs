@@ -14,7 +14,8 @@ namespace RepairsApi.Tests
             {
                 if (_context == null)
                 {
-                    DbContextOptionsBuilder builder = new DbContextOptionsBuilder();
+                    var builder = new DbContextOptionsBuilder<RepairsContext>();
+                    builder.EnableSensitiveDataLogging();
                     builder.UseInMemoryDatabase(Guid.NewGuid().ToString());
 
                     _context = new RepairsContext(builder.Options);

@@ -15,12 +15,12 @@ namespace RepairsApi.Tests
 
         private MockWebApplicationFactory _factory;
         private NpgsqlConnection _connection = null;
-        private DbContextOptionsBuilder _builder;
+        private DbContextOptionsBuilder<RepairsContext> _builder;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            _builder = new DbContextOptionsBuilder();
+            _builder = new DbContextOptionsBuilder<RepairsContext>();
 
             try
             {

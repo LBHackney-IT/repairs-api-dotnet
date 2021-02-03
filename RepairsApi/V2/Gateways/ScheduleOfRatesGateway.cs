@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace RepairsApi.V2.Gateways
 {
@@ -24,27 +25,42 @@ namespace RepairsApi.V2.Gateways
 
         public async Task<IEnumerable<SorCodeResult>> GetSorCodes(string propertyReference, string tradeCode)
         {
-            var temp = _context.SORCodes
-                .Where(sor => sor.Trade.Code == tradeCode);
-
-            return await temp.Select(sor => new SorCodeResult
+            var result = await
+            (
+                from sor in _context.SORCodes
+                join sorContract in _context.SORContracts on sor.CustomCode equals sorContract.SorCodeCode
+                join contract in _context.Contracts on sorContract.ContractReference equals contract.ContractReference
+                // where
+                //     sor.Trade.Code == tradeCode &&
+                //     contract.PropertyMap.Any(pm => pm.PropRef == propertyReference) &&
+                //     contract.EffectiveDate < DateTime.UtcNow && DateTime.UtcNow < contract.TerminationDate
+                select new
                 {
-                    Code = sor.CustomCode,
-                    Description = sor.CustomName,
-                    PriorityCode = sor.Priority.PriorityCode,
-                    PriorityDescription = sor.Priority.Description,
-                    Contracts = sor.SorCodeMap
-                        .Where(c => c.Contract.EffectiveDate < DateTime.UtcNow && DateTime.UtcNow < c.Contract.TerminationDate)
-                        .Where(c => c.Contract.PropertyMap.Any(pm => pm.PropRef == propertyReference))
+                    sor, sorContract, contract
+                }
+            ).ToListAsync();
+
+            return from r in result
+                group new
+                {
+                    r.contract, r.sorContract
+                } by r.sor
+                into contractGroup
+                select new SorCodeResult
+                {
+                    Code = contractGroup.Key.CustomCode,
+                    Description = contractGroup.Key.CustomName,
+                    PriorityCode = contractGroup.Key.Priority.PriorityCode,
+                    PriorityDescription = contractGroup.Key.Priority.Description,
+                    Contracts = contractGroup
                         .Select(c => new SorCodeContractResult
                         {
-                            ContractorCode = c.Contract.Contractor.Reference,
-                            ContractReference = c.Contract.ContractReference,
-                            ContractorName = c.Contract.Contractor.Name,
-                            ContractCost = c.Cost
+                            ContractorCode = c.contract.Contractor.Reference,
+                            ContractReference = c.contract.ContractReference,
+                            ContractorName = c.contract.Contractor.Name,
+                            ContractCost = c.sorContract.Cost
                         })
-                })
-                .ToListAsync();
+                };
         }
 
         public async Task<double?> GetCost(string contractReference, string sorCode)

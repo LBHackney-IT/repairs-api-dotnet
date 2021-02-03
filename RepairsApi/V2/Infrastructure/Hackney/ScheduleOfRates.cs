@@ -9,6 +9,8 @@ namespace RepairsApi.V2.Infrastructure.Hackney
         [Key] public string CustomCode { get; set; }
         public string CustomName { get; set; }
         public double Cost { get; set; }
+
+        [Required]
         public virtual SORPriority Priority { get; set; }
         public int PriorityId { get; set; }
 
@@ -16,6 +18,7 @@ namespace RepairsApi.V2.Infrastructure.Hackney
         public virtual SorCodeTrade Trade { get; set; }
         public string TradeCode { get; set; }
 
+        [Required]
         public virtual List<SORContract> SorCodeMap { get; set; }
     }
 
@@ -65,7 +68,10 @@ namespace RepairsApi.V2.Infrastructure.Hackney
 
     public class PropertyContract
     {
+        [Required]
         public string PropRef { get; set; }
+
+        [Required]
         public virtual Contract Contract { get; set; }
         public string ContractReference { get; set; }
     }

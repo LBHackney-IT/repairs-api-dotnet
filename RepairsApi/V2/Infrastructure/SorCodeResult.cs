@@ -4,7 +4,7 @@ namespace RepairsApi.V2.Infrastructure
 {
     public class SorCodeResult
     {
-        public IEnumerable<SorCodeContractResult> Contracts { get; internal set; }
+        public IEnumerable<SorCodeContractResult> Contracts { get; set; }
         public string PriorityDescription { get; set; }
         public int PriorityCode { get; set; }
         public string Description { get; set; }
@@ -13,9 +13,9 @@ namespace RepairsApi.V2.Infrastructure
 
     public class SorCodeContractResult
     {
-        public double ContractCost { get; internal set; }
-        public string ContractorName { get; internal set; }
-        public string ContractReference { get; internal set; }
-        public string ContractorCode { get; internal set; }
+        public double ContractCost { get; set; }
+        public string ContractorName { get; set; }
+        public string ContractReference { get; set; }
+        public string ContractorCode { get; set; }
     }
 }
