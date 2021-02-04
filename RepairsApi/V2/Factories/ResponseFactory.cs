@@ -159,8 +159,8 @@ namespace RepairsApi.V2.Factories
                 CustomName = sorCode.Description,
                 SORContractors = sorCode.Contracts.Select(c => new Contractor
                 {
-                    Name = c.ContractorName,
-                    Reference = c.ContractorCode,
+                    ContractorName = c.ContractorName,
+                    ContractorReference = c.ContractorCode,
                     ContractReference = c.ContractReference,
                     ContractCost = c.ContractCost
                 }).ToList(),
@@ -264,8 +264,8 @@ namespace RepairsApi.V2.Factories
         {
             return new Contractor
             {
-                Name = contractor.Name,
-                Reference = contractor.Reference
+                ContractorName = contractor.Name,
+                ContractorReference = contractor.Reference
             };
         }
     }

@@ -63,7 +63,7 @@ namespace RepairsApi.Tests
 
                 dbContext.Database.EnsureCreated();
 
-                dbContext.SeedData(); // TODO seeding duplicates keys somehow
+                dbContext.SeedData();
 
                 dbContext.SaveChanges();
             }

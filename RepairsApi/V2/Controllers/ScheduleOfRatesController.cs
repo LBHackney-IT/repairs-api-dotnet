@@ -20,17 +20,14 @@ namespace RepairsApi.V2.Controllers
 
         private readonly IListScheduleOfRatesUseCase _listScheduleOfRates;
         private readonly IListSorTradesUseCase _listSorTrades;
-        private readonly IListSorContractorsUseCase _listSorContractors;
 
         public ScheduleOfRatesController(
             IListScheduleOfRatesUseCase listScheduleOfRates,
-            IListSorTradesUseCase listSorTrades,
-            IListSorContractorsUseCase listSorContractors
+            IListSorTradesUseCase listSorTrades
             )
         {
             _listScheduleOfRates = listScheduleOfRates;
             _listSorTrades = listSorTrades;
-            _listSorContractors = listSorContractors;
         }
 
         /// <summary>
