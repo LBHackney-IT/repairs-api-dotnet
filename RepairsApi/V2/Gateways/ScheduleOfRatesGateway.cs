@@ -36,31 +36,34 @@ namespace RepairsApi.V2.Gateways
                 contract.EffectiveDate < DateTime.UtcNow && DateTime.UtcNow < contract.TerminationDate
                 select new
                 {
-                    sor, sorContract, contract
+                    sor,
+                    sorContract,
+                    contract
                 }
             ).ToListAsync();
 
             return from r in result
-                group new
-                {
-                    r.contract, r.sorContract
-                } by r.sor
+                   group new
+                   {
+                       r.contract,
+                       r.sorContract
+                   } by r.sor
                 into contractGroup
-                select new SorCodeResult
-                {
-                    Code = contractGroup.Key.CustomCode,
-                    Description = contractGroup.Key.CustomName,
-                    PriorityCode = contractGroup.Key.Priority.PriorityCode,
-                    PriorityDescription = contractGroup.Key.Priority.Description,
-                    Contracts = contractGroup
-                        .Select(c => new SorCodeContractResult
-                        {
-                            ContractorCode = c.contract.Contractor.Reference,
-                            ContractReference = c.contract.ContractReference,
-                            ContractorName = c.contract.Contractor.Name,
-                            ContractCost = c.sorContract.Cost
-                        })
-                };
+                   select new SorCodeResult
+                   {
+                       Code = contractGroup.Key.CustomCode,
+                       Description = contractGroup.Key.CustomName,
+                       PriorityCode = contractGroup.Key.Priority.PriorityCode,
+                       PriorityDescription = contractGroup.Key.Priority.Description,
+                       Contracts = contractGroup
+                           .Select(c => new SorCodeContractResult
+                           {
+                               ContractorCode = c.contract.Contractor.Reference,
+                               ContractReference = c.contract.ContractReference,
+                               ContractorName = c.contract.Contractor.Name,
+                               ContractCost = c.sorContract.Cost
+                           })
+                   };
         }
 
         public async Task<double?> GetCost(string contractReference, string sorCode)

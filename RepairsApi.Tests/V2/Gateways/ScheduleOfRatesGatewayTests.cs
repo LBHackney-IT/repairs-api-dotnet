@@ -50,7 +50,8 @@ namespace RepairsApi.Tests.V2.Gateways
             // arrange
             var expectedContractor = new Contractor
             {
-                Name = "name", Reference = "reference"
+                Name = "name",
+                Reference = "reference"
             };
             var generator = new Generator<Contract>();
             generator
@@ -118,7 +119,7 @@ namespace RepairsApi.Tests.V2.Gateways
             const string expectedProperty = "property";
             var expectedPriority = await SeedPriority();
             var expectedTrade = await SeedTrade(Guid.NewGuid().ToString());
-            var invalidContracts = await SeedContracts("not"+expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(7));
+            var invalidContracts = await SeedContracts("not" + expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(7));
             var validContracts = await SeedContracts(expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(7));
 
             await SeedSorCodes(expectedPriority, expectedProperty, expectedTrade, invalidContracts.First());
@@ -220,7 +221,8 @@ namespace RepairsApi.Tests.V2.Gateways
 
             var propMaps = contracts.Select(c => new PropertyContract
             {
-                PropRef = expectedProperty, ContractReference = c.ContractReference
+                PropRef = expectedProperty,
+                ContractReference = c.ContractReference
             });
 
             await InMemoryDb.Instance.Contractors.AddAsync(contractor);
