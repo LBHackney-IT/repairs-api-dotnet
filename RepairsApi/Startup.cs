@@ -112,8 +112,6 @@ namespace RepairsApi
             });
             ConfigureDbContext(services);
 
-            services.AddTransient(provider => new DataImporter(Path.Combine(_env.ContentRootPath, "V2/SeededData")));
-
             AddHttpClients(services);
             services.Configure<GatewayOptions>(Configuration.GetSection(nameof(GatewayOptions)));
 
