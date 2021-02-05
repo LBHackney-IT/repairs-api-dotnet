@@ -29,13 +29,13 @@ namespace RepairsApi.V2.Infrastructure
                 .HasIdentityOptions(startValue: 10000000);
 
             modelBuilder.Entity<WorkOrder>()
-                .HasOne(a => a.WorkOrderComplete)
-                .WithOne(b => b.WorkOrder)
+                .HasOne(workOrder => workOrder.WorkOrderComplete)
+                .WithOne(workOrderComplete => workOrderComplete.WorkOrder)
                 .HasForeignKey<WorkOrderComplete>(b => b.Id);
 
             modelBuilder.Entity<JobStatusUpdate>()
-                .HasOne(a => a.RelatedWorkOrder)
-                .WithMany(b => b.JobStatusUpdates);
+                .HasOne(jobStatusUpdate => jobStatusUpdate.RelatedWorkOrder)
+                .WithMany(workOrder => workOrder.JobStatusUpdates);
 
             modelBuilder.Seed(_dataImporter);
         }

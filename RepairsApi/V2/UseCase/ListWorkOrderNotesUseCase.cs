@@ -31,13 +31,13 @@ namespace RepairsApi.V2.UseCase
             return workOrder.JobStatusUpdates?
                 .Where(jsu => !jsu.Comments.IsNullOrEmpty())
                 .Where(jsu => jsu.EventTime.HasValue)
-                .OrderBy(jsu => jsu.EventTime)
                 .Select(jsu => new NoteListItem
                 {
                     Note = jsu.Comments,
                     Time = jsu.EventTime.Value,
                     User = jsu.Author
-                }).ToList();
+                })
+                .OrderBy(note => note.Time);
         }
     }
 }
