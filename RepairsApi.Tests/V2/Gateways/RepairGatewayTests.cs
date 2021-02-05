@@ -100,7 +100,7 @@ namespace RepairsApi.Tests.V2.Gateways
             await _classUnderTest.UpdateWorkOrderStatus(expectedWorkOrder.Id, WorkStatusCode.Complete);
             var workOrder = await _classUnderTest.GetWorkOrder(expectedWorkOrder.Id);
 
-
+            // assert
             workOrder.StatusCode.Should().Be(WorkStatusCode.Complete);
         }
 
