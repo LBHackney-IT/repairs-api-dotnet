@@ -38,7 +38,7 @@ namespace RepairsApi.Tests.V2.UseCase
         private void configureGenerator()
         {
             _generator = new Generator<WorkOrder>()
-                .AddWorkOrderGenerators();
+                .AddInfrastructureWorkOrderGenerators();
         }
 
         [Test]
@@ -73,7 +73,7 @@ namespace RepairsApi.Tests.V2.UseCase
                 LastUpdated = null,
                 PropertyReference = expectedWorkOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference,
                 TradeCode = expectedWorkOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomCode,
-                Status = WorkOrderStatus.Complete
+                Status = WorkOrderStatus.InProgress
             };
 
             //Act

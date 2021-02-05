@@ -56,5 +56,12 @@ namespace RepairsApi.V2.Gateways
 
             return await elements.SingleOrDefaultAsync();
         }
+
+        public async Task UpdateWorkOrderStatus(int workOrderId, WorkStatusCode newCode)
+        {
+            var order = await GetWorkOrder(workOrderId);
+            order.StatusCode = newCode;
+            await _repairsContext.SaveChangesAsync();
+        }
     }
 }

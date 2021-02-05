@@ -12,6 +12,7 @@ using RepairsApi.V2.Infrastructure;
 using Generated = RepairsApi.V2.Generated;
 using RepairsApi.V2.UseCase;
 using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.V2.Generated.CustomTypes;
 
 namespace RepairsApi.Tests.V2.UseCase
 {
@@ -28,7 +29,7 @@ namespace RepairsApi.Tests.V2.UseCase
             ConfigureGenerator();
             _repairsGatewayMock = new Mock<IRepairsGateway>();
             _workOrderCompletionGatewayMock = new MockWorkOrderCompletionGateway();
-            _classUnderTest = new CompleteWorkOrderUseCase(_repairsGatewayMock.Object, _workOrderCompletionGatewayMock.Object);
+            _classUnderTest = new CompleteWorkOrderUseCase(_repairsGatewayMock.Object, _workOrderCompletionGatewayMock.Object, InMemoryDb.TransactionManager);
         }
 
         private void ConfigureGenerator()
@@ -65,7 +66,7 @@ namespace RepairsApi.Tests.V2.UseCase
             {
                 new Generated.JobStatusUpdates
                 {
-                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = "expectedOtherType", Comments = "expectedComment"
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = CustomJobStatusUpdates.COMPLETED, Comments = "expectedComment"
                 }
             };
 
@@ -141,7 +142,27 @@ namespace RepairsApi.Tests.V2.UseCase
             {
                 new Generated.JobStatusUpdates
                 {
-                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = "expectedOtherType", Comments = "expectedComment", AdditionalWork = new Generated.AdditionalWork()
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = CustomJobStatusUpdates.COMPLETED, Comments = "expectedComment", AdditionalWork = new Generated.AdditionalWork()
+                }
+            };
+
+            // act
+            // assert
+            Assert.ThrowsAsync<NotSupportedException>(() => _classUnderTest.Execute(workOrderCompleteRequest));
+        }
+
+
+        [Test]
+        public void ThrowsExceptionWhenNotValidUpdateType()
+        {
+            // arrange
+            var expectedWorkOrder = CreateWorkOrder();
+            var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
+            workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
+            {
+                new Generated.JobStatusUpdates
+                {
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = "expectedOtherType", Comments = "expectedComment"
                 }
             };
 
@@ -164,6 +185,29 @@ namespace RepairsApi.Tests.V2.UseCase
             // act
             // assert
             Assert.ThrowsAsync<NotSupportedException>(() => _classUnderTest.Execute(workOrderCompleteRequest));
+        }
+
+        [TestCase(CustomJobStatusUpdates.COMPLETED, WorkStatusCode.Complete)]
+        [TestCase(CustomJobStatusUpdates.CANCELLED, WorkStatusCode.Canceled)]
+        public async Task UpdatesWorkOrderStatus(string customUpdateType, WorkStatusCode expectedNewStatus)
+        {
+            // arrange
+            var expectedWorkOrder = CreateWorkOrder();
+            var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
+            workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
+            {
+                new Generated.JobStatusUpdates
+                {
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = customUpdateType, Comments = "expectedComment"
+                }
+            };
+
+            // act
+            var result = await _classUnderTest.Execute(workOrderCompleteRequest);
+
+            // assert
+            result.Should().BeTrue();
+            _repairsGatewayMock.Verify(rgm => rgm.UpdateWorkOrderStatus(expectedWorkOrder.Id, expectedNewStatus));
         }
 
         private static Generated.WorkOrderComplete CreateRequest(int expectedWorkOrderId)
