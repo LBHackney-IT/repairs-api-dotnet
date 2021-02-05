@@ -51,8 +51,4 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="V2\Authorisation\" />
-  </ItemGroup>
-
 </Project>
