@@ -12,6 +12,7 @@ using RepairsApi.V2.Infrastructure;
 using Generated = RepairsApi.V2.Generated;
 using RepairsApi.V2.UseCase;
 using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.V2.Generated.CustomTypes;
 
 namespace RepairsApi.Tests.V2.UseCase
 {
@@ -164,6 +165,29 @@ namespace RepairsApi.Tests.V2.UseCase
             // act
             // assert
             Assert.ThrowsAsync<NotSupportedException>(() => _classUnderTest.Execute(workOrderCompleteRequest));
+        }
+
+        [TestCase(CustomJobStatusUpdates.COMPLETED, WorkStatusCode.Complete)]
+        [TestCase(CustomJobStatusUpdates.CANCELLED, WorkStatusCode.Canceled)]
+        public async Task UpdatesWorkOrderStatus(string customUpdateType, WorkStatusCode expectedNewStatus)
+        {
+            // arrange
+            var expectedWorkOrder = CreateWorkOrder();
+            var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
+            workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
+            {
+                new Generated.JobStatusUpdates
+                {
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = customUpdateType, Comments = "expectedComment"
+                }
+            };
+
+            // act
+            var result = await _classUnderTest.Execute(workOrderCompleteRequest);
+
+            // assert
+            result.Should().BeTrue();
+            _repairsGatewayMock.Verify(rgm => rgm.UpdateWorkOrderStatus(expectedWorkOrder.Id, expectedNewStatus));
         }
 
         private static Generated.WorkOrderComplete CreateRequest(int expectedWorkOrderId)
