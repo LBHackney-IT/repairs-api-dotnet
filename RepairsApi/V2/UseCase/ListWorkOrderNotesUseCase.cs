@@ -5,6 +5,7 @@ using Castle.Core.Internal;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Services;
 using RepairsApi.V2.UseCase.Interfaces;
 
 namespace RepairsApi.V2.UseCase
@@ -33,7 +34,7 @@ namespace RepairsApi.V2.UseCase
                 .OrderBy(jsu => jsu.EventTime)
                 .Select(jsu => new NoteListItem
                 {
-                    Note = jsu.Comments, Time = jsu.EventTime.Value, User = "dummy"
+                    Note = jsu.Comments, Time = jsu.EventTime.Value, User = jsu.Author
                 });
         }
     }

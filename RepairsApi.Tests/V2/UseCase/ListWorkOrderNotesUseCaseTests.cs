@@ -41,7 +41,12 @@ namespace RepairsApi.Tests.V2.UseCase
 
             result.Should().HaveCount(expected.JobStatusUpdates.Count(jsu => !jsu.Comments.IsNullOrEmpty()));
             result.AssertForEach(expected.JobStatusUpdates.OrderBy(jsu => jsu.EventTime),
-                (nli, jsu) => nli.Time.Should().Be(jsu.EventTime.Value));
+                (nli, jsu) =>
+                {
+                    nli.Time.Should().Be(jsu.EventTime.Value);
+                    nli.Note.Should().Be(jsu.Comments);
+                    nli.User.Should().Be(jsu.Author);
+                });
         }
 
         [Test]
