@@ -32,7 +32,8 @@ namespace RepairsApi.V2.Services
                 _user = new User();
                 _user.Email = values[EmailClaim].ToString();
                 _user.Name = values[NameClaim].ToString();
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 _logger.LogError(e.Message);
             }
