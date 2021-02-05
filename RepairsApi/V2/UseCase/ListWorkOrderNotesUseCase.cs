@@ -35,7 +35,7 @@ namespace RepairsApi.V2.UseCase
                 .Select(jsu => new NoteListItem
                 {
                     Note = jsu.Comments, Time = jsu.EventTime.Value, User = jsu.Author
-                });
+                }).ToList();
         }
     }
 }
