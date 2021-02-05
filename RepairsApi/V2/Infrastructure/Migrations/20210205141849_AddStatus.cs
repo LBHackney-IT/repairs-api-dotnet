@@ -13,7 +13,12 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                 nullable: false,
                 defaultValue: 80);
 
-            migrationBuilder.Sql("UPDATE public.work_orders SET status_code=50 WHERE work_order_complete_id IS NOT NULL");
+            migrationBuilder.Sql(
+                @"UPDATE public.work_orders SET status_code=50 WHERE 
+                    EXISTS 
+                    (
+	                    SELECT 1 FROM public.work_order_completes WHERE id = public.work_orders.id
+                    )");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

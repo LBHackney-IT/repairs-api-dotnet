@@ -69,6 +69,7 @@ namespace RepairsApi.V2.UseCase
                         case CustomJobStatusUpdates.CANCELLED:
                             await _repairsGateway.UpdateWorkOrderStatus(workOrderId, WorkStatusCode.Canceled);
                             return;
+                        default: throw new NotSupportedException("Work Order complete have a completed or cancelled update");
                     }
                 }
             });
