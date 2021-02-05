@@ -1,5 +1,10 @@
 using FluentAssertions;
+using Newtonsoft.Json;
 using NUnit.Framework;
+using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.V2.Boundary.Response;
+using RepairsApi.V2.Generated;
+using RepairsApi.V2.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -8,17 +13,10 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using RepairsApi.V2.Boundary.Response;
-using RepairsApi.V2.Generated;
-using JsonSerializer = System.Text.Json.JsonSerializer;
-using RepairsApi.V2.Infrastructure;
-using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
-using RepairsApi.Tests.Helpers.StubGeneration;
 using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 using RateScheduleItem = RepairsApi.V2.Generated.RateScheduleItem;
-using Trade = RepairsApi.V2.Generated.Trade;
+using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 
 namespace RepairsApi.Tests.V2.E2ETests
 {
@@ -50,6 +48,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             await RaiseRepairAndValidate(client, content, repair =>
             {
                 repair.WorkPriority.NumberOfDays.Should().Be(request.Priority.NumberOfDays);
+                repair.AgentName.Should().Be(TestUserInformation.NAME);
             });
         }
 
