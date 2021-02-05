@@ -2,7 +2,7 @@ using System;
 
 namespace RepairsApi.V2.Boundary.Response
 {
-    public static class WorkOrderStatusResp
+    public static class WorkOrderStatus
     {
         public const string InProgress = "In Progress";
         public const string Complete = "Work Complete";

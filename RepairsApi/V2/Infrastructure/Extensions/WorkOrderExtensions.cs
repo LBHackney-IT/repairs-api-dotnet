@@ -8,10 +8,10 @@ namespace RepairsApi.V2.Infrastructure.Extensions
         {
             switch (workOrder.StatusCode)
             {
-                case WorkStatusCode.Open: return WorkOrderStatusResp.InProgress;
-                case WorkStatusCode.Complete: return WorkOrderStatusResp.Complete;
-                case WorkStatusCode.Canceled: return WorkOrderStatusResp.Cancelled;
-                default: return WorkOrderStatusResp.Unknown;
+                case WorkStatusCode.Open: return WorkOrderStatus.InProgress;
+                case WorkStatusCode.Complete: return WorkOrderStatus.Complete;
+                case WorkStatusCode.Canceled: return WorkOrderStatus.Cancelled;
+                default: return WorkOrderStatus.Unknown;
             }
         }
     }
