@@ -66,7 +66,7 @@ namespace RepairsApi.Tests.V2.UseCase
             {
                 new Generated.JobStatusUpdates
                 {
-                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = "expectedOtherType", Comments = "expectedComment"
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = CustomJobStatusUpdates.COMPLETED, Comments = "expectedComment"
                 }
             };
 
@@ -142,7 +142,27 @@ namespace RepairsApi.Tests.V2.UseCase
             {
                 new Generated.JobStatusUpdates
                 {
-                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = "expectedOtherType", Comments = "expectedComment", AdditionalWork = new Generated.AdditionalWork()
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = CustomJobStatusUpdates.COMPLETED, Comments = "expectedComment", AdditionalWork = new Generated.AdditionalWork()
+                }
+            };
+
+            // act
+            // assert
+            Assert.ThrowsAsync<NotSupportedException>(() => _classUnderTest.Execute(workOrderCompleteRequest));
+        }
+
+
+        [Test]
+        public void ThrowsExceptionWhenNotValidUpdateType()
+        {
+            // arrange
+            var expectedWorkOrder = CreateWorkOrder();
+            var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
+            workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
+            {
+                new Generated.JobStatusUpdates
+                {
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = "expectedOtherType", Comments = "expectedComment"
                 }
             };
 
