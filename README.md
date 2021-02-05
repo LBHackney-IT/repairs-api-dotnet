@@ -1,3 +1,8 @@
+# Repairs API Notes
+A JWT can be passed in the header X-Hackney-User. This is used to gain information about the current user without causing deviations from HACT use case endpoints. 
+> The API is NOT validating this JWT and expects validation to be done before passing it. Security is still managed via an x-api-key header handled by AWS
+
+
 # LBH Base API
 
 Base API is a boilerplate code for being reused for new APIs for LBH
