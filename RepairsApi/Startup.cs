@@ -154,6 +154,7 @@ namespace RepairsApi
             services.AddTransient<IGetWorkOrderUseCase, GetWorkOrderUseCase>();
             services.AddTransient<IListWorkOrderTasksUseCase, ListWorkOrderTasksUseCase>();
             services.AddTransient<IMoreSpecificSorUseCase, MoreSpecificSorUseCase>();
+            services.AddTransient<IListWorkOrderNotesUseCase, ListWorkOrderNotesUseCase>();
         }
 
         private void AddHttpClients(IServiceCollection services)
