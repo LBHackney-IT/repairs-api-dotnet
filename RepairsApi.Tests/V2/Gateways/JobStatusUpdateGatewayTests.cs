@@ -47,7 +47,8 @@ namespace RepairsApi.Tests.V2.Gateways
             var expected = CreateJobStatusUpdate();
             var expectedUser = new User
             {
-                Name = "name", Email = "email"
+                Name = "name",
+                Email = "email"
             };
             _currentUserServiceMock.Setup(x => x.GetUser())
                 .Returns(expectedUser);
