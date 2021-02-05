@@ -4,6 +4,7 @@ using Moq;
 using NUnit.Framework;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.MiddleWare;
 using RepairsApi.V2.UseCase;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace RepairsApi.Tests.V2.UseCase
     {
         private Mock<IRepairsGateway> _repairsGatewayMock;
         private Mock<IScheduleOfRatesGateway> _scheduleOfRatesGateway;
+        private Mock<ICurrentUserService> _currentUserServiceMock;
         private CreateWorkOrderUseCase _classUnderTest;
 
         [SetUp]
@@ -22,10 +24,12 @@ namespace RepairsApi.Tests.V2.UseCase
         {
             _repairsGatewayMock = new Mock<IRepairsGateway>();
             _scheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
+            _currentUserServiceMock = new Mock<ICurrentUserService>();
             _classUnderTest = new CreateWorkOrderUseCase(
                 _repairsGatewayMock.Object,
                 _scheduleOfRatesGateway.Object,
-                new NullLogger<CreateWorkOrderUseCase>()
+                new NullLogger<CreateWorkOrderUseCase>(),
+                _currentUserServiceMock.Object
                 );
         }
 

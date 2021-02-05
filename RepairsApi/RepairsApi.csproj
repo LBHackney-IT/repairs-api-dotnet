@@ -16,6 +16,7 @@
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="5.1.1" />
     <PackageReference Include="EFCore.NamingConventions" Version="5.0.1" />
+    <PackageReference Include="JWT" Version="8.0.0" />
     <PackageReference Include="Mapster" Version="7.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.HealthChecks" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.10" />
@@ -48,6 +49,10 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="V2\Authorisation\" />
   </ItemGroup>
 
 </Project>
