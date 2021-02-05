@@ -33,6 +33,10 @@ namespace RepairsApi.V2.Infrastructure
                 .WithOne(b => b.WorkOrder)
                 .HasForeignKey<WorkOrderComplete>(b => b.Id);
 
+            modelBuilder.Entity<JobStatusUpdate>()
+                .HasOne(a => a.RelatedWorkOrder)
+                .WithMany(b => b.JobStatusUpdates);
+
             modelBuilder.Seed(_dataImporter);
         }
     }
