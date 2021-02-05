@@ -21,6 +21,8 @@ using RepairsApi.V2.Helpers;
 using RepairsApi.V2.UseCase.Interfaces;
 using RepairsApi.V2.UseCase;
 using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
+using RepairsApi.V2.MiddleWare;
+using RepairsApi.V2.Services;
 
 namespace RepairsApi
 {
@@ -121,6 +123,9 @@ namespace RepairsApi
             RegisterUseCases(services);
             services.AddTransient<IJobStatusUpdateStrategyFactory, JobStatusUpdateStrategyFactory>();
             services.AddTransient(typeof(IActivatorWrapper<>), typeof(ActivatorWrapper<>));
+            services.AddScoped<CurrentUserService>();
+            services.AddScoped<ICurrentUserService>(sp => sp.GetService<CurrentUserService>());
+            services.AddScoped<ICurrentUserLoader>(sp => sp.GetService<CurrentUserService>());
         }
 
         private static void RegisterGateways(IServiceCollection services)
@@ -209,6 +214,7 @@ namespace RepairsApi
                 }
             });
             app.UseSwagger();
+            app.UseMiddleware<InitialiseUserMiddleware>();
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {

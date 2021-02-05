@@ -30,6 +30,8 @@ namespace RepairsApi.V2.Infrastructure
         public virtual List<AlertRegardingLocation> LocationAlert { get; set; }
         public virtual WorkOrderComplete WorkOrderComplete { get; set; }
 
+        // Extensions
+        public string AgentName { get; set; }
         public WorkStatusCode StatusCode { get; set; } = WorkStatusCode.Open;
     }
 
