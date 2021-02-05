@@ -29,7 +29,10 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
                     throw new NotSupportedException($"This type code is not supported: {jobStatusUpdate.TypeCode}");
             }
 
-            await strategy?.Execute(jobStatusUpdate);
+            if (strategy != null)
+            {
+                await strategy.Execute(jobStatusUpdate);
+            }
         }
 
     }
