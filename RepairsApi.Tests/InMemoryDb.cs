@@ -25,6 +25,8 @@ namespace RepairsApi.Tests
             }
         }
 
+        public static ITransactionManager TransactionManager => new TransactionManager(Instance);
+
         public static void Teardown()
         {
             _context = null;

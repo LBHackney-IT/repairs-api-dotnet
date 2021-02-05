@@ -126,6 +126,7 @@ namespace RepairsApi
             services.AddScoped<CurrentUserService>();
             services.AddScoped<ICurrentUserService>(sp => sp.GetService<CurrentUserService>());
             services.AddScoped<ICurrentUserLoader>(sp => sp.GetService<CurrentUserService>());
+            services.AddTransient<ITransactionManager, TransactionManager>();
         }
 
         private static void RegisterGateways(IServiceCollection services)

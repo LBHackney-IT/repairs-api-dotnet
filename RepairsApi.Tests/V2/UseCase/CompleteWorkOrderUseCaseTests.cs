@@ -28,7 +28,7 @@ namespace RepairsApi.Tests.V2.UseCase
             ConfigureGenerator();
             _repairsGatewayMock = new Mock<IRepairsGateway>();
             _workOrderCompletionGatewayMock = new MockWorkOrderCompletionGateway();
-            _classUnderTest = new CompleteWorkOrderUseCase(_repairsGatewayMock.Object, _workOrderCompletionGatewayMock.Object);
+            _classUnderTest = new CompleteWorkOrderUseCase(_repairsGatewayMock.Object, _workOrderCompletionGatewayMock.Object, InMemoryDb.TransactionManager);
         }
 
         private void ConfigureGenerator()

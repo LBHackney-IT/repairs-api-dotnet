@@ -6,6 +6,8 @@ namespace RepairsApi.V2.Boundary.Response
     {
         public const string InProgress = "In Progress";
         public const string Complete = "Work Complete";
+        public const string Cancelled = "Work Cancelled";
+        public const string Unknown = "Unknown";
     }
 
     public class WorkOrderListItem
