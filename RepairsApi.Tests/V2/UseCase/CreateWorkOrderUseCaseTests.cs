@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace RepairsApi.Tests.V2.UseCase
 {
-    public class RaiseRepairUseCaseTests
+    public class CreateWorkOrderUseCaseTests
     {
         private Mock<IRepairsGateway> _repairsGatewayMock;
         private Mock<IScheduleOfRatesGateway> _scheduleOfRatesGateway;
