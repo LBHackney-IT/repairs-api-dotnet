@@ -69,6 +69,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
         {
             return generator
                 .AddDefaultGenerators()
+                .AddValue(RepairsApi.V2.Infrastructure.WorkStatusCode.Open, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.StatusCode)
                 .AddValue(null, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.WorkOrderComplete);
         }
 

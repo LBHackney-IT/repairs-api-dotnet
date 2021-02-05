@@ -1,3 +1,4 @@
+using RepairsApi.V2.Domain;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated.CustomTypes;
@@ -56,7 +57,7 @@ namespace RepairsApi.V2.UseCase
 
         private async Task UpdateWorkOrderStatus(int workOrderId, WorkOrderComplete workOrderComplete)
         {
-            foreach (var update in workOrderComplete.JobStatusUpdates)
+            await workOrderComplete.JobStatusUpdates.ForEachAsync(async update =>
             {
                 if (update.TypeCode == Generated.JobStatusUpdateTypeCode._0)
                 {
@@ -70,7 +71,7 @@ namespace RepairsApi.V2.UseCase
                             return;
                     }
                 }
-            }
+            });
         }
 
         private static void ValidateRequest(WorkOrderComplete request)
