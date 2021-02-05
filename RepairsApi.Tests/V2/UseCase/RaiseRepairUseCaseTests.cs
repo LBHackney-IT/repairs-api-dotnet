@@ -5,6 +5,7 @@ using NUnit.Framework;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.MiddleWare;
+using RepairsApi.V2.Services;
 using RepairsApi.V2.UseCase;
 using System;
 using System.Collections.Generic;

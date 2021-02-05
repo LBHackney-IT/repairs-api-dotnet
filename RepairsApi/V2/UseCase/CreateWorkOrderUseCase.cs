@@ -7,6 +7,7 @@ using RepairsApi.V2.UseCase.Interfaces;
 using System.Threading.Tasks;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.MiddleWare;
+using RepairsApi.V2.Services;
 
 namespace RepairsApi.V2.UseCase
 {

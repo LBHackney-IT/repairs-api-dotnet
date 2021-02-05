@@ -22,6 +22,7 @@ using RepairsApi.V2.UseCase.Interfaces;
 using RepairsApi.V2.UseCase;
 using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
 using RepairsApi.V2.MiddleWare;
+using RepairsApi.V2.Services;
 
 namespace RepairsApi
 {

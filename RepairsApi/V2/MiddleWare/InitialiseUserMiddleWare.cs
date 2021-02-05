@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using RepairsApi.V2.Services;
 using System.Threading.Tasks;
 
 namespace RepairsApi.V2.MiddleWare

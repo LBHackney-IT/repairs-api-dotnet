@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 
-namespace RepairsApi.V2.MiddleWare
+namespace RepairsApi.V2.Services
 {
 #nullable enable
     public class CurrentUserService : ICurrentUserLoader, ICurrentUserService

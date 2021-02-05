@@ -1,6 +1,6 @@
 using RepairsApi.V2.Domain;
 
-namespace RepairsApi.V2.MiddleWare
+namespace RepairsApi.V2.Services
 {
     public interface ICurrentUserService
     {
