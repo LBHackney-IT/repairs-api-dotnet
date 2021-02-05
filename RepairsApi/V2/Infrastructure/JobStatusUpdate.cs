@@ -20,5 +20,8 @@ namespace RepairsApi.V2.Infrastructure
         public virtual WorkElement MoreSpecificSORCode { get; set; }
         public virtual AdditionalWork AdditionalWork { get; set; }
         public virtual WorkOrder RelatedWorkOrder { get; set; }
+
+        // extensions
+        public string Author { get; set; }
     }
 }
