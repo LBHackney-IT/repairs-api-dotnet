@@ -1,4 +1,4 @@
-﻿namespace RepairsApi.V2.Generated.CustomTypes
+namespace RepairsApi.V2.Generated.CustomTypes
 {
     public static class CustomJobStatusUpdates
     {

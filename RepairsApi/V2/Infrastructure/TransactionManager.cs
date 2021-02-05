@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,12 +21,12 @@ namespace RepairsApi.V2.Infrastructure
         }
 
         public async Task<ITransaction> Start()
-        {   
+        {
             return new Transaction(await _repairsContext.Database.BeginTransactionAsync());
         }
     }
 
-    public interface ITransaction: IAsyncDisposable
+    public interface ITransaction : IAsyncDisposable
     {
         Task Commit();
     }
