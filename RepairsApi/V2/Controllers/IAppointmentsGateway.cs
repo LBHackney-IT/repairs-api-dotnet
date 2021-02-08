@@ -1,3 +1,4 @@
+using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Infrastructure.Hackney;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,6 @@ namespace RepairsApi.V2.Controllers
     public interface IAppointmentsGateway
     {
         Task Create(int appointmentId, int workOrderId);
-        Task<IEnumerable<AvailableAppointmentDay>> ListAppointments(string contractorReference, DateTime fromDate, DateTime toDate);
+        Task<IEnumerable<AppointmentListResult>> ListAppointments(string contractorReference, DateTime fromDate, DateTime toDate);
     }
 }
