@@ -140,3 +140,6 @@ dotnet_diagnostic.CA2227.severity = none
 
 #Prefer jagged arrays (ef core migrations with seeded data generate [,] rather than [][])
 dotnet_diagnostic.CA1814.severity = none
+
+# CA1031: Do not catch general exception types (in web we usually want to forward exception as responses or logs)
+dotnet_diagnostic.CA1031.severity = none

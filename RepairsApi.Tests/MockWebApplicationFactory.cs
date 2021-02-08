@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
 using System;
 using System.Data.Common;
+using System.Net.Http;
 
 namespace RepairsApi.Tests
 {
@@ -43,6 +45,10 @@ namespace RepairsApi.Tests
                     {
                         options.UseInMemoryDatabase("integration")
                             .UseLazyLoadingProxies();
+                        options.ConfigureWarnings(warningOptions =>
+                        {
+                            warningOptions.Ignore(InMemoryEventId.TransactionIgnoredWarning);
+                        });
                     }
                 });
 
@@ -53,6 +59,13 @@ namespace RepairsApi.Tests
                 services.AddTransient<IApiGateway, MockApiGateway>();
             })
             .UseEnvironment("IntegrationTests");
+        }
+
+        protected override void ConfigureClient(HttpClient client)
+        {
+            base.ConfigureClient(client);
+
+            client.DefaultRequestHeaders.Add("X-Hackney-User", TestUserInformation.JWT);
         }
 
         private static void InitialiseDB(ServiceProvider serviceProvider)

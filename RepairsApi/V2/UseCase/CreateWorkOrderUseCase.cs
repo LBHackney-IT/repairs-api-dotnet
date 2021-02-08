@@ -6,6 +6,8 @@ using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase.Interfaces;
 using System.Threading.Tasks;
 using RepairsApi.V2.Domain;
+using RepairsApi.V2.MiddleWare;
+using RepairsApi.V2.Services;
 
 namespace RepairsApi.V2.UseCase
 {
@@ -14,26 +16,39 @@ namespace RepairsApi.V2.UseCase
         private readonly IRepairsGateway _repairsGateway;
         private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
         private readonly ILogger<CreateWorkOrderUseCase> _logger;
+        private readonly ICurrentUserService _currentUserService;
 
         public CreateWorkOrderUseCase(
             IRepairsGateway repairsGateway,
             IScheduleOfRatesGateway scheduleOfRatesGateway,
-            ILogger<CreateWorkOrderUseCase> logger)
+            ILogger<CreateWorkOrderUseCase> logger,
+            ICurrentUserService currentUserService)
         {
             _repairsGateway = repairsGateway;
             _scheduleOfRatesGateway = scheduleOfRatesGateway;
             _logger = logger;
+            _currentUserService = currentUserService;
         }
 
         public async Task<int> Execute(WorkOrder workOrder)
         {
             ValidateRequest(workOrder);
-
+            AttachUserInformation(workOrder);
             workOrder.DateRaised = DateTime.UtcNow;
+            workOrder.StatusCode = WorkStatusCode.Open;
             await PopulateRateScheduleItems(workOrder);
             var id = await _repairsGateway.CreateWorkOrder(workOrder);
             _logger.LogInformation(Resources.CreatedWorkOrder);
             return id;
+        }
+
+        private void AttachUserInformation(WorkOrder workOrder)
+        {
+            if (_currentUserService.IsUserPresent())
+            {
+                User user = _currentUserService.GetUser();
+                workOrder.AgentName = user.Name;
+            }
         }
 
         private static void ValidateRequest(WorkOrder workOrder)

@@ -89,6 +89,22 @@ namespace RepairsApi.Tests.V2.Gateways
         }
 
         [Test]
+        public async Task CanUpdateWorkStatus()
+        {
+            // arrange
+            var expectedWorkOrder = CreateWorkOrder();
+            await InMemoryDb.Instance.WorkOrders.AddAsync(expectedWorkOrder);
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            // act
+            await _classUnderTest.UpdateWorkOrderStatus(expectedWorkOrder.Id, WorkStatusCode.Complete);
+            var workOrder = await _classUnderTest.GetWorkOrder(expectedWorkOrder.Id);
+
+            // assert
+            workOrder.StatusCode.Should().Be(WorkStatusCode.Complete);
+        }
+
+        [Test]
         public async Task CanGetWorkElements()
         {
             // arrange

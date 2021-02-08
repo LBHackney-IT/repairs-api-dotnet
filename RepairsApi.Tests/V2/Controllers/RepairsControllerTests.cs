@@ -33,6 +33,7 @@ namespace RepairsApi.Tests.V2.Controllers
         private Mock<IUpdateJobStatusUseCase> _updateJobStatusUseCase;
         private Mock<IGetWorkOrderUseCase> _getWorkOrderUseCase;
         private Mock<IListWorkOrderTasksUseCase> _listWorkOrderTasksUseCase;
+        private Mock<IListWorkOrderNotesUseCase> _listWorkOrderNotesUseCase;
 
         [SetUp]
         public void SetUp()
@@ -44,13 +45,15 @@ namespace RepairsApi.Tests.V2.Controllers
             _updateJobStatusUseCase = new Mock<IUpdateJobStatusUseCase>();
             _getWorkOrderUseCase = new Mock<IGetWorkOrderUseCase>();
             _listWorkOrderTasksUseCase = new Mock<IListWorkOrderTasksUseCase>();
+            _listWorkOrderNotesUseCase = new Mock<IListWorkOrderNotesUseCase>();
             _classUnderTest = new RepairsController(
                 _createWorkOrderUseCaseMock.Object,
                 _listWorkOrdersUseCase.Object,
                 _completeWorkOrderUseCase.Object,
                 _updateJobStatusUseCase.Object,
                 _getWorkOrderUseCase.Object,
-                _listWorkOrderTasksUseCase.Object
+                _listWorkOrderTasksUseCase.Object,
+                _listWorkOrderNotesUseCase.Object
             );
         }
 
@@ -344,6 +347,31 @@ namespace RepairsApi.Tests.V2.Controllers
                 WorkOrderReference = new Reference { ID = expectedWorkOrderId.ToString() }
             };
             return request;
+        }
+
+        [Test]
+        public async Task NoteListReturns()
+        {
+            var expected = new Generator<NoteListItem>().AddDefaultGenerators().GenerateList(5);
+            _listWorkOrderNotesUseCase.Setup(uc => uc.Execute(1)).ReturnsAsync(expected);
+
+            var result = await _classUnderTest.ListWorkOrderNotes(1);
+
+            GetStatusCode(result).Should().Be(200);
+
+            var response = GetResultData<IEnumerable<NoteListItem>>(result);
+
+            response.Should().BeEquivalentTo(expected);
+        }
+
+        [Test]
+        public async Task NoteListReturn404ForNotFound()
+        {
+            _listWorkOrderNotesUseCase.Setup(uc => uc.Execute(1)).ThrowsAsync(new ResourceNotFoundException("message"));
+
+            var result = await _classUnderTest.ListWorkOrderNotes(1);
+
+            GetStatusCode(result).Should().Be(404);
         }
     }
 }

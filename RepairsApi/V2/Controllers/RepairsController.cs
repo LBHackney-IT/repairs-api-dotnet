@@ -24,6 +24,7 @@ namespace RepairsApi.V2.Controllers
         private readonly IUpdateJobStatusUseCase _updateJobStatusUseCase;
         private readonly IGetWorkOrderUseCase _getWorkOrderUseCase;
         private readonly IListWorkOrderTasksUseCase _listWorkOrderTasksUseCase;
+        private readonly IListWorkOrderNotesUseCase _listWorkOrderNotesUseCase;
 
         public RepairsController(
             ICreateWorkOrderUseCase createWorkOrderUseCase,
@@ -31,8 +32,8 @@ namespace RepairsApi.V2.Controllers
             ICompleteWorkOrderUseCase completeWorkOrderUseCase,
             IUpdateJobStatusUseCase updateJobStatusUseCase,
             IGetWorkOrderUseCase getWorkOrderUseCase,
-            IListWorkOrderTasksUseCase listWorkOrderTasksUseCase
-        )
+            IListWorkOrderTasksUseCase listWorkOrderTasksUseCase,
+            IListWorkOrderNotesUseCase listWorkOrderNotesUseCase)
         {
             _createWorkOrderUseCase = createWorkOrderUseCase;
             _listWorkOrdersUseCase = listWorkOrdersUseCase;
@@ -40,6 +41,7 @@ namespace RepairsApi.V2.Controllers
             _updateJobStatusUseCase = updateJobStatusUseCase;
             _getWorkOrderUseCase = getWorkOrderUseCase;
             _listWorkOrderTasksUseCase = listWorkOrderTasksUseCase;
+            _listWorkOrderNotesUseCase = listWorkOrderNotesUseCase;
         }
 
         /// <summary>
@@ -181,6 +183,28 @@ namespace RepairsApi.V2.Controllers
             catch (NotSupportedException e)
             {
                 return BadRequest(e.Message);
+            }
+            catch (ResourceNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+        }
+
+        /// <summary>
+        /// Gets a list of notes for a given work order id
+        /// </summary>
+        /// <param name="id">work order id</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("{id}/notes")]
+        [ProducesResponseType(typeof(IEnumerable<NoteListItem>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> ListWorkOrderNotes(int id)
+        {
+            try
+            {
+                var result = await _listWorkOrderNotesUseCase.Execute(id);
+                return Ok(result);
             }
             catch (ResourceNotFoundException e)
             {

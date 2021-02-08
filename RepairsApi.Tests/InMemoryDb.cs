@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using RepairsApi.V2.Infrastructure;
 using System;
 
@@ -14,8 +15,12 @@ namespace RepairsApi.Tests
             {
                 if (_context == null)
                 {
-                    var builder = new DbContextOptionsBuilder<RepairsContext>();
+                    DbContextOptionsBuilder builder = new DbContextOptionsBuilder();
                     builder.EnableSensitiveDataLogging();
+                    builder.ConfigureWarnings(options =>
+                    {
+                        options.Ignore(InMemoryEventId.TransactionIgnoredWarning);
+                    });
                     builder.UseInMemoryDatabase(Guid.NewGuid().ToString());
 
                     _context = new RepairsContext(builder.Options);
@@ -25,6 +30,8 @@ namespace RepairsApi.Tests
                 return _context;
             }
         }
+
+        public static ITransactionManager TransactionManager => new TransactionManager(Instance);
 
         public static void Teardown()
         {

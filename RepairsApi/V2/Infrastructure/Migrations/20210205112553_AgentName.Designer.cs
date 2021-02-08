@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RepairsApi.V2.Infrastructure;
@@ -9,9 +10,10 @@ using RepairsApi.V2.Infrastructure;
 namespace RepairsApi.V2.Infrastructure.Migrations
 {
     [DbContext(typeof(RepairsContext))]
-    partial class RepairsContextModelSnapshot : ModelSnapshot
+    [Migration("20210205112553_AgentName")]
+    partial class AgentName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -195,10 +197,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("id")
                         .UseIdentityByDefaultColumn();
-
-                    b.Property<string>("Author")
-                        .HasColumnType("text")
-                        .HasColumnName("author");
 
                     b.Property<string>("Comments")
                         .HasColumnType("text")
@@ -929,10 +927,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("site_id");
 
-                    b.Property<int>("StatusCode")
-                        .HasColumnType("integer")
-                        .HasColumnName("status_code");
-
                     b.Property<int?>("WorkOrderCompleteId")
                         .HasColumnType("integer")
                         .HasColumnName("work_order_complete_id");
@@ -1087,7 +1081,7 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasConstraintName("fk_job_status_updates_appointment_refined_appointment_window_id");
 
                     b.HasOne("RepairsApi.V2.Infrastructure.WorkOrder", "RelatedWorkOrder")
-                        .WithMany("JobStatusUpdates")
+                        .WithMany()
                         .HasForeignKey("RelatedWorkOrderId")
                         .HasConstraintName("fk_job_status_updates_work_orders_related_work_order_id");
 
@@ -1990,8 +1984,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrder", b =>
                 {
-                    b.Navigation("JobStatusUpdates");
-
                     b.Navigation("LocationAlert");
 
                     b.Navigation("PersonAlert");

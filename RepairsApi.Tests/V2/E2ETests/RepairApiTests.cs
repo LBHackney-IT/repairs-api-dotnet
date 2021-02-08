@@ -1,5 +1,10 @@
 using FluentAssertions;
+using Newtonsoft.Json;
 using NUnit.Framework;
+using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.V2.Boundary.Response;
+using RepairsApi.V2.Generated;
+using RepairsApi.V2.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -8,17 +13,10 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using RepairsApi.V2.Boundary.Response;
-using RepairsApi.V2.Generated;
-using JsonSerializer = System.Text.Json.JsonSerializer;
-using RepairsApi.V2.Infrastructure;
-using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
-using RepairsApi.Tests.Helpers.StubGeneration;
 using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 using RateScheduleItem = RepairsApi.V2.Generated.RateScheduleItem;
-using Trade = RepairsApi.V2.Generated.Trade;
+using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 
 namespace RepairsApi.Tests.V2.E2ETests
 {
@@ -50,6 +48,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             await RaiseRepairAndValidate(client, content, repair =>
             {
                 repair.WorkPriority.NumberOfDays.Should().Be(request.Priority.NumberOfDays);
+                repair.AgentName.Should().Be(TestUserInformation.NAME);
             });
         }
 
@@ -189,6 +188,27 @@ namespace RepairsApi.Tests.V2.E2ETests
         [Test]
         public async Task UpdateScheduleRepairWorkOrder()
         {
+            await ScheduleAndUpdateWorkOrder();
+        }
+
+        [Test]
+        public async Task CanViewNotes()
+        {
+            string expectedNote = "expectedNote";
+            var workOrderId = await ScheduleAndUpdateWorkOrder(expectedNote);
+
+            var client = CreateClient();
+            var response = await client.GetAsync(new Uri($"/api/v2/repairs/{workOrderId}/notes", UriKind.Relative));
+
+            response.StatusCode.Should().Be(HttpStatusCode.OK, response.Content.ToString());
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var notes = JsonConvert.DeserializeObject<IList<NoteListItem>>(responseContent);
+            notes.Should().ContainSingle(n => n.Note == expectedNote);
+        }
+
+        private async Task<int> ScheduleAndUpdateWorkOrder(string updateComments = "comments")
+        {
+
             string endpoint = "/api/v2/repairs/schedule";
             Generator<ScheduleRepair> requestGenerator = GenerateWorkOrder<ScheduleRepair>();
 
@@ -213,7 +233,8 @@ namespace RepairsApi.Tests.V2.E2ETests
                 .AddJobStatusUpdateGenerators()
                 .AddValue(JobStatusUpdateTypeCode._80, (JobStatusUpdate jsu) => jsu.TypeCode)
                 .AddValue(workOrderId.ToString(), (JobStatusUpdate jsu) => jsu.RelatedWorkOrderReference.ID)
-                .AddValue(workElement, (JobStatusUpdate jsu) => jsu.MoreSpecificSORCode);
+                .AddValue(workElement, (JobStatusUpdate jsu) => jsu.MoreSpecificSORCode)
+                .AddValue(updateComments, (JobStatusUpdate jsu) => jsu.Comments);
 
             var updateRequest = generator.Generate();
 
@@ -228,6 +249,8 @@ namespace RepairsApi.Tests.V2.E2ETests
             string responseContent = await response.Content.ReadAsStringAsync();
             var workOrderItems = JsonConvert.DeserializeObject<IEnumerable<WorkOrderItemViewModel>>(responseContent);
             workOrderItems.Should().ContainSingle(woi => woi.Code == expectedNewCode.CustomCode);
+
+            return workOrderId;
         }
 
         private Generator<T> GenerateWorkOrder<T>()
