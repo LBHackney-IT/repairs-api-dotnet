@@ -51,6 +51,31 @@
       "customName": "Inspect additional sec entrance",
       "priorityCode": 5,
       "sorContractor": "H01"
+    },
+    {
+      "customCode": "INP5R001",
+      "customName": "Pre insp of wrks by Constructr",
+      "sorContractor": "G16-PCL-PGBR"
+    },
+    {
+      "customCode": "CPP5R056",
+      "customName": "EASE  ADJUST DOORWINDOW",
+      "sorContractor": "G16-PCL-PGBR"
+    },
+    {
+      "customCode": "PLP5R054",
+      "customName": "RENEW MIXER TAP",
+      "sorContractor": "G16-PCL-PGBR"
+    },
+    {
+      "customCode": "SCP5V055",
+      "customName": "ROPE ACCESS FOR 6 STOREY",
+      "sorContractor": "G16-PCL-PGBR"
+    },
+    {
+      "customCode": "ELP5R002",
+      "customName": "CASH ITEM VOID - MATS EXT OVER",
+      "sorContractor": "G16-PCL-PGBR"
     }
   ]
 }

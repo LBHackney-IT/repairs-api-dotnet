@@ -10,7 +10,7 @@ namespace RepairsApi.V2.Infrastructure
         public string CustomName { get; set; }
         public double Cost { get; set; }
         public virtual SORPriority Priority { get; set; }
-        public int PriorityId { get; set; }
+        public int? PriorityId { get; set; }
 
         public string SORContractorRef { get; set; }
     }
