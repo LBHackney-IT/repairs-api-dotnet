@@ -161,11 +161,21 @@ namespace RepairsApi.V2.Factories
                 {
                     Reference = sorCode.SORContractorRef
                 },
-                Priority = !(sorCode.Priority is null) ? new SORPriority
-                {
-                    Description = sorCode.Priority.Description,
-                    PriorityCode = sorCode.Priority.PriorityCode
-                } : null
+                Priority = sorCode.Priority.ToResponse()
+            };
+        }
+
+        public static SORPriority ToResponse(this Infrastructure.SORPriority priority)
+        {
+            if (priority is null)
+            {
+                return null;
+            }
+
+            return new SORPriority
+            {
+                Description = priority.Description,
+                PriorityCode = priority.PriorityCode
             };
         }
 
