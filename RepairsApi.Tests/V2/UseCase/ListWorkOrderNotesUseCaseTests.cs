@@ -45,7 +45,8 @@ namespace RepairsApi.Tests.V2.UseCase
                 {
                     nli.Time.Should().Be(jsu.EventTime.Value);
                     nli.Note.Should().Be(jsu.Comments);
-                    nli.User.Should().Be(jsu.Author);
+                    nli.User.Should().Be(jsu.AuthorName);
+                    nli.UserEmail.Should().Be(jsu.AuthorEmail);
                 });
         }
 

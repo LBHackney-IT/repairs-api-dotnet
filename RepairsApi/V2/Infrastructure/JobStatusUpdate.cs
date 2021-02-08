@@ -22,6 +22,7 @@ namespace RepairsApi.V2.Infrastructure
         public virtual WorkOrder RelatedWorkOrder { get; set; }
 
         // extensions
-        public string Author { get; set; }
+        public string AuthorName { get; set; }
+        public string AuthorEmail { get; set; }
     }
 }
