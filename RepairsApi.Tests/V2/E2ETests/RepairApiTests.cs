@@ -188,6 +188,27 @@ namespace RepairsApi.Tests.V2.E2ETests
         [Test]
         public async Task UpdateScheduleRepairWorkOrder()
         {
+            await ScheduleAndUpdateWorkOrder();
+        }
+
+        [Test]
+        public async Task CanViewNotes()
+        {
+            string expectedNote = "expectedNote";
+            var workOrderId = await ScheduleAndUpdateWorkOrder(expectedNote);
+
+            var client = CreateClient();
+            var response = await client.GetAsync(new Uri($"/api/v2/repairs/{workOrderId}/notes", UriKind.Relative));
+
+            response.StatusCode.Should().Be(HttpStatusCode.OK, response.Content.ToString());
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var notes = JsonConvert.DeserializeObject<IList<NoteListItem>>(responseContent);
+            notes.Should().ContainSingle(n => n.Note == expectedNote);
+        }
+
+        private async Task<int> ScheduleAndUpdateWorkOrder(string updateComments = "comments")
+        {
+
             string endpoint = "/api/v2/repairs/schedule";
             Generator<ScheduleRepair> requestGenerator = GenerateWorkOrder<ScheduleRepair>();
 
@@ -211,7 +232,8 @@ namespace RepairsApi.Tests.V2.E2ETests
                 .AddJobStatusUpdateGenerators()
                 .AddValue(JobStatusUpdateTypeCode._80, (JobStatusUpdate jsu) => jsu.TypeCode)
                 .AddValue(workOrderId.ToString(), (JobStatusUpdate jsu) => jsu.RelatedWorkOrderReference.ID)
-                .AddValue(workElement, (JobStatusUpdate jsu) => jsu.MoreSpecificSORCode);
+                .AddValue(workElement, (JobStatusUpdate jsu) => jsu.MoreSpecificSORCode)
+                .AddValue(updateComments, (JobStatusUpdate jsu) => jsu.Comments);
 
             var updateRequest = generator.Generate();
 
@@ -226,6 +248,8 @@ namespace RepairsApi.Tests.V2.E2ETests
             string responseContent = await response.Content.ReadAsStringAsync();
             var workOrderItems = JsonConvert.DeserializeObject<IEnumerable<WorkOrderItemViewModel>>(responseContent);
             workOrderItems.Should().ContainSingle(woi => woi.Code == expectedNewCode.CustomCode);
+
+            return workOrderId;
         }
 
         private Generator<T> GenerateWorkOrder<T>()

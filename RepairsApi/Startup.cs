@@ -126,6 +126,7 @@ namespace RepairsApi
             services.AddScoped<CurrentUserService>();
             services.AddScoped<ICurrentUserService>(sp => sp.GetService<CurrentUserService>());
             services.AddScoped<ICurrentUserLoader>(sp => sp.GetService<CurrentUserService>());
+            services.AddTransient<ITransactionManager, TransactionManager>();
         }
 
         private static void RegisterGateways(IServiceCollection services)
@@ -153,6 +154,7 @@ namespace RepairsApi
             services.AddTransient<IGetWorkOrderUseCase, GetWorkOrderUseCase>();
             services.AddTransient<IListWorkOrderTasksUseCase, ListWorkOrderTasksUseCase>();
             services.AddTransient<IMoreSpecificSorUseCase, MoreSpecificSorUseCase>();
+            services.AddTransient<IListWorkOrderNotesUseCase, ListWorkOrderNotesUseCase>();
         }
 
         private void AddHttpClients(IServiceCollection services)

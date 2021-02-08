@@ -8,7 +8,7 @@ namespace RepairsApi.V2.Gateways
     {
         Task<IEnumerable<ScheduleOfRates>> GetSorCodes(string contractorRef = null);
         Task<string> GetContractorReference(string customCode);
-        Task<double> GetCost(string customCode);
+        Task<double?> GetCost(string customCode);
     }
 
 }

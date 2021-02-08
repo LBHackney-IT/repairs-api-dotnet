@@ -35,6 +35,7 @@ namespace RepairsApi.V2.UseCase
             ValidateRequest(workOrder);
             AttachUserInformation(workOrder);
             workOrder.DateRaised = DateTime.UtcNow;
+            workOrder.StatusCode = WorkStatusCode.Open;
             await PopulateRateScheduleItems(workOrder);
             var id = await _repairsGateway.CreateWorkOrder(workOrder);
             _logger.LogInformation(Resources.CreatedWorkOrder);

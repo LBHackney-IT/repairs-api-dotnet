@@ -26,7 +26,7 @@ namespace RepairsApi.Tests.V2.Gateways
         private void SetupGenerator()
         {
             _generator = new Generator<WorkOrderComplete>()
-                .AddWorkOrderGenerators();
+                .AddInfrastructureWorkOrderGenerators();
         }
 
         [TearDown]

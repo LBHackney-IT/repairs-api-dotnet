@@ -3,6 +3,7 @@ using RepairsApi.V2.Generated;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using JobStatusUpdate = RepairsApi.V2.Infrastructure.JobStatusUpdate;
 
 namespace RepairsApi.Tests.Helpers.StubGeneration
 {
@@ -69,7 +70,9 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
         {
             return generator
                 .AddDefaultGenerators()
-                .AddValue(null, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.WorkOrderComplete);
+                .AddValue(RepairsApi.V2.Infrastructure.WorkStatusCode.Open, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.StatusCode)
+                .AddValue(null, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.WorkOrderComplete)
+                .AddValue(null, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.JobStatusUpdates);
         }
 
         private static ICollection<SitePropertyUnit> GetSitePropertyUnitGenerator()
