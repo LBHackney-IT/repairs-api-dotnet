@@ -15,7 +15,7 @@ namespace RepairsApi.Tests
             {
                 if (_context == null)
                 {
-                    DbContextOptionsBuilder builder = new DbContextOptionsBuilder();
+                    DbContextOptionsBuilder<RepairsContext> builder = new DbContextOptionsBuilder<RepairsContext>();
                     builder.EnableSensitiveDataLogging();
                     builder.ConfigureWarnings(options =>
                     {
