@@ -32,12 +32,12 @@ namespace RepairsApi.V2.Controllers
         [Produces("application/json")]
         [ProducesResponseType(typeof(List<AppointmentDayViewModel>), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> ListAppointments([FromQuery]string workOrderReference)
+        public async Task<IActionResult> ListAppointments([FromQuery]int workOrderReference)
         {
             try
             {
-                var result = await _listAppointmentsUseCase.Execute(workOrderReference);
-                return Ok(result); // TODO to response
+                await _listAppointmentsUseCase.Execute(workOrderReference, DateTime.UtcNow, DateTime.UtcNow);
+                return Ok(); // TODO to response
             } catch (ResourceNotFoundException ex)
             {
                 return NotFound(ex.Message);
@@ -58,7 +58,9 @@ namespace RepairsApi.V2.Controllers
         {
             try
             {
-                await _createAppointmentUseCase.Execute(appointmentRequest.AppointmentReference.ID, appointmentRequest.WorkOrderReference.ID);
+                var appointmentId = int.Parse(appointmentRequest.AppointmentReference.ID);
+                var workOrderId = int.Parse(appointmentRequest.WorkOrderReference.ID);
+                await _createAppointmentUseCase.Execute(appointmentId, workOrderId);
                 return Ok();
             }
             catch (ResourceNotFoundException ex)
@@ -68,6 +70,10 @@ namespace RepairsApi.V2.Controllers
             catch (NotSupportedException ex)
             {
                 return BadRequest(ex.Message);
+            }
+            catch (FormatException)
+            {
+                return BadRequest("Invalid Id formats. they must be integers");
             }
         }
     }
