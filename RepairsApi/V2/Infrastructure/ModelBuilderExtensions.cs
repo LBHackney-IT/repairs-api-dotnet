@@ -61,7 +61,7 @@ namespace RepairsApi.V2.Infrastructure
 
         public string CustomCode { get; set; }
         public string CustomName { get; set; }
-        public int PriorityCode { get; set; }
+        public int? PriorityCode { get; set; }
 
         public string SorContractor { get; set; }
     }
