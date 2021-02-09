@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace RepairsApi.V2.Gateways
 {
-    public class AppointmentGateway
+    public class AppointmentGateway : IAppointmentsGateway
     {
         private readonly RepairsContext _repairsContext;
 

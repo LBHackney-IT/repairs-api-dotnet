@@ -17,8 +17,6 @@ namespace RepairsApi.Tests.V2.Gateways
         public void Setup()
         {
             _classUnderTest = new AppointmentGateway(InMemoryDb.Instance);
-
-
         }
 
         [Test]

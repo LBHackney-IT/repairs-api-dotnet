@@ -8,7 +8,7 @@ namespace RepairsApi.V2.Controllers
 {
     public interface IAppointmentsGateway
     {
-        Task Create(int appointmentId, int workOrderId);
-        Task<IEnumerable<AppointmentListResult>> ListAppointments(string contractorReference, DateTime fromDate, DateTime toDate);
+        Task Create(int appointmentId, int workOrderId, DateTime appointmentDate);
+        Task<IEnumerable<AppointmentListResult>> ListAppointments(string contractorReference, DateTime from, DateTime toDate);
     }
 }

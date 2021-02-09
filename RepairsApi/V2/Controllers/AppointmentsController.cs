@@ -27,17 +27,18 @@ namespace RepairsApi.V2.Controllers
         /// Returns A List of available appointments for an existing work order
         /// </summary>
         /// <param name="workOrderReference"></param>
+        /// <param name="fromDate"></param>
+        /// <param name="toDate"></param>
         /// <returns></returns>
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType(typeof(List<AppointmentDayViewModel>), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> ListAppointments([FromQuery]int workOrderReference)
+        public async Task<IActionResult> ListAppointments([FromQuery]int workOrderReference, DateTime fromDate, DateTime toDate)
         {
             try
             {
-                await _listAppointmentsUseCase.Execute(workOrderReference, DateTime.UtcNow, DateTime.UtcNow);
-                return Ok(); // TODO to response
+                return Ok(await _listAppointmentsUseCase.Execute(workOrderReference, fromDate, toDate));
             } catch (ResourceNotFoundException ex)
             {
                 return NotFound(ex.Message);
@@ -60,7 +61,7 @@ namespace RepairsApi.V2.Controllers
             {
                 var appointmentId = int.Parse(appointmentRequest.AppointmentReference.ID);
                 var workOrderId = int.Parse(appointmentRequest.WorkOrderReference.ID);
-                await _createAppointmentUseCase.Execute(appointmentId, workOrderId);
+                await _createAppointmentUseCase.Execute(appointmentId, workOrderId, appointmentRequest.AppointmentDate);
                 return Ok();
             }
             catch (ResourceNotFoundException ex)

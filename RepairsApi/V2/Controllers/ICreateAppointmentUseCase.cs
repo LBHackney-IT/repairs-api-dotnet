@@ -1,12 +1,13 @@
 using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Gateways;
+using System;
 using System.Threading.Tasks;
 
 namespace RepairsApi.V2.Controllers
 {
     public interface ICreateAppointmentUseCase
     {
-        Task Execute(int appointmentId, int workOrderId);
+        Task Execute(int appointmentId, int workOrderId, DateTime appointmentDate);
     }
 
     public class CreateAppointmentUseCase : ICreateAppointmentUseCase
@@ -20,7 +21,7 @@ namespace RepairsApi.V2.Controllers
             _repairsGateway = repairsGateway;
         }
 
-        public async Task Execute(int appointmentId, int workOrderId)
+        public async Task Execute(int appointmentId, int workOrderId, DateTime appointmentDate)
         {
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
 
@@ -29,7 +30,7 @@ namespace RepairsApi.V2.Controllers
                 throw new ResourceNotFoundException("work order does not exist");
             }
 
-            await _appointmentsGateway.Create(appointmentId, workOrderId);
+            await _appointmentsGateway.Create(appointmentId, workOrderId, appointmentDate);
         }
     }
 }
