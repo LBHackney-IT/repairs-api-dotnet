@@ -54,7 +54,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         [Test]
         public async Task GetObseleteCodes()
         {
-            var client = CreateClient();;
+            var client = CreateClient();
 
             var response = await client.GetAsync(new Uri($"/api/v2/schedule-of-rates/codes", UriKind.Relative));
 
