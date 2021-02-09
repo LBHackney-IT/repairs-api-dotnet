@@ -62,13 +62,14 @@ namespace RepairsApi.Tests.V2.Gateways
                 .ContainSingle();
             var jsu = InMemoryDb.Instance.JobStatusUpdates.Single();
             jsu.Should().BeEquivalentTo(expected);
-            jsu.Author.Should().Be(expectedUser.Name);
+            jsu.AuthorName.Should().Be(expectedUser.Name);
+            jsu.AuthorEmail.Should().Be(expectedUser.Email);
         }
 
         private JobStatusUpdate CreateJobStatusUpdate()
         {
             return _generator
-                .AddValue(null, (JobStatusUpdate jsu) => jsu.Author)
+                .AddValue(null, (JobStatusUpdate jsu) => jsu.AuthorName)
                 .Generate();
         }
     }

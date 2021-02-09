@@ -17,7 +17,8 @@ namespace RepairsApi.V2.Gateways
 
         public async Task<int> CreateJobStatusUpdate(JobStatusUpdate update)
         {
-            update.Author = _currentUserService.GetUser().Name;
+            update.AuthorName = _currentUserService.GetUser().Name;
+            update.AuthorEmail = _currentUserService.GetUser().Email;
             await _repairsContext.JobStatusUpdates.AddAsync(update);
             await _repairsContext.SaveChangesAsync();
 

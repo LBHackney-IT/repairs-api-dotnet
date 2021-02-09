@@ -7,5 +7,6 @@ namespace RepairsApi.V2.Boundary.Response
         public string Note { get; set; }
         public DateTime Time { get; set; }
         public string User { get; set; }
+        public string UserEmail { get; set; }
     }
 }

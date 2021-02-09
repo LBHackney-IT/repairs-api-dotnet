@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RepairsApi.V2.Infrastructure;
@@ -9,9 +10,10 @@ using RepairsApi.V2.Infrastructure;
 namespace RepairsApi.V2.Infrastructure.Migrations
 {
     [DbContext(typeof(RepairsContext))]
-    partial class RepairsContextModelSnapshot : ModelSnapshot
+    [Migration("20210208121542_AuthorEmail")]
+    partial class AuthorEmail
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -587,7 +589,7 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("custom_name");
 
-                    b.Property<int?>("PriorityId")
+                    b.Property<int>("PriorityId")
                         .HasColumnType("integer")
                         .HasColumnName("priority_id");
 
@@ -643,41 +645,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                             CustomName = "Inspect additional sec entrance",
                             PriorityId = 5,
                             SORContractorRef = "H01"
-                        },
-                        new
-                        {
-                            CustomCode = "INP5R001",
-                            Cost = 0.0,
-                            CustomName = "Pre insp of wrks by Constructr",
-                            SORContractorRef = "G16-PCL-PGBR"
-                        },
-                        new
-                        {
-                            CustomCode = "CPP5R056",
-                            Cost = 0.0,
-                            CustomName = "EASE  ADJUST DOORWINDOW",
-                            SORContractorRef = "G16-PCL-PGBR"
-                        },
-                        new
-                        {
-                            CustomCode = "PLP5R054",
-                            Cost = 0.0,
-                            CustomName = "RENEW MIXER TAP",
-                            SORContractorRef = "G16-PCL-PGBR"
-                        },
-                        new
-                        {
-                            CustomCode = "SCP5V055",
-                            Cost = 0.0,
-                            CustomName = "ROPE ACCESS FOR 6 STOREY",
-                            SORContractorRef = "G16-PCL-PGBR"
-                        },
-                        new
-                        {
-                            CustomCode = "ELP5R002",
-                            Cost = 0.0,
-                            CustomName = "CASH ITEM VOID - MATS EXT OVER",
-                            SORContractorRef = "G16-PCL-PGBR"
                         });
                 });
 
@@ -1589,7 +1556,9 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.HasOne("RepairsApi.V2.Infrastructure.SORPriority", "Priority")
                         .WithMany()
                         .HasForeignKey("PriorityId")
-                        .HasConstraintName("fk_sor_codes_sor_priorities_priority_id");
+                        .HasConstraintName("fk_sor_codes_sor_priorities_priority_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Priority");
                 });
