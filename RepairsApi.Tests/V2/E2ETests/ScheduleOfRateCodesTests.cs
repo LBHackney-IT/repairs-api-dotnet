@@ -51,6 +51,20 @@ namespace RepairsApi.Tests.V2.E2ETests
             result.Count().Should().BeGreaterOrEqualTo(1);
         }
 
+        [Test]
+        public async Task GetObseleteCodes()
+        {
+            var client = CreateClient();;
+
+            var response = await client.GetAsync(new Uri($"/api/v2/schedule-of-rates/codes", UriKind.Relative));
+
+            response.StatusCode.Should().Be(200);
+
+            var result = await GetResult<IEnumerable<LegacyScheduleOfRatesModel>>(response);
+
+            result.Count().Should().BeGreaterOrEqualTo(1);
+        }
+
         private static async Task<T> GetResult<T>(HttpResponseMessage response)
         {
             return JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync());

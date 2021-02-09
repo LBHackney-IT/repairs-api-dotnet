@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Infrastructure.Hackney;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace RepairsApi.V2.Gateways
 {
@@ -78,6 +78,26 @@ namespace RepairsApi.V2.Gateways
             return await _context.Contracts
                 .Where(c => c.Contractor.Reference == contractorReference)
                 .Select(c => c.ContractReference).ToListAsync();
+        }
+
+        [Obsolete("Use property reference to filter list")]
+        public async Task<IEnumerable<LegacyScheduleOfRatesModel>> GetSorCodes()
+        {
+            return await _context.SORCodes
+                .Select(sor => new LegacyScheduleOfRatesModel
+                {
+                    CustomCode = sor.CustomCode,
+                    CustomName = sor.CustomName,
+                    Priority = new LegacySORPriority
+                    {
+                        Description = sor.Priority.Description,
+                        PriorityCode = sor.Priority.PriorityCode
+                    },
+                    SORContractor = new LegacyContractor
+                    {
+                        Reference = sor.SorCodeMap.Select(scm => scm.Contract.ContractReference).FirstOrDefault()
+                    }
+                }).Take(20).ToListAsync();
         }
     }
 }

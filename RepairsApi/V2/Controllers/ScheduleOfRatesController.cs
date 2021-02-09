@@ -38,9 +38,15 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(IEnumerable<ScheduleOfRatesModel>), StatusCodes.Status200OK)]
         [Route("codes")]
         [HttpGet]
-        public async Task<IActionResult> ListRecords([FromQuery][Required] string tradeCode, [FromQuery][Required] string propertyReference)
+        public async Task<IActionResult> ListRecords([FromQuery] string tradeCode, [FromQuery] string propertyReference)
         {
-            return Ok(await _listScheduleOfRates.Execute(tradeCode, propertyReference));
+            if (string.IsNullOrWhiteSpace(tradeCode) && string.IsNullOrWhiteSpace(propertyReference))
+                // TODO REMOVE OBSELETE method
+                return Ok(await _listScheduleOfRates.Execute());
+            else if (!string.IsNullOrWhiteSpace(tradeCode) && !string.IsNullOrWhiteSpace(propertyReference))
+                return Ok(await _listScheduleOfRates.Execute(tradeCode, propertyReference));
+
+            return BadRequest();
         }
 
         /// <summary>

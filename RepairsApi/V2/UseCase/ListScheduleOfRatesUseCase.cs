@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,6 +23,12 @@ namespace RepairsApi.V2.UseCase
         {
             var sorCodes = await _scheduleOfRatesGateway.GetSorCodes(propertyReference, tradeCode);
             return sorCodes.Select(c => c.ToResponse());
+        }
+
+        [Obsolete("Use overload specifying trade and property")]
+        public async Task<IEnumerable<LegacyScheduleOfRatesModel>> Execute()
+        {
+            return await _scheduleOfRatesGateway.GetSorCodes();
         }
     }
 }
