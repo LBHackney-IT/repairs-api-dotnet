@@ -53,8 +53,8 @@ namespace RepairsApi.V2.Gateways
                    {
                        Code = contractGroup.Key.CustomCode,
                        Description = contractGroup.Key.CustomName,
-                       PriorityCode = contractGroup.Key.Priority.PriorityCode,
-                       PriorityDescription = contractGroup.Key.Priority.Description,
+                       PriorityCode = contractGroup.Key.Priority?.PriorityCode,
+                       PriorityDescription = contractGroup.Key.Priority?.Description,
                        Contracts = contractGroup
                            .Select(c => new SorCodeContractResult
                            {

@@ -6,7 +6,7 @@ namespace RepairsApi.V2.Infrastructure
     {
         public IEnumerable<SorCodeContractResult> Contracts { get; set; }
         public string PriorityDescription { get; set; }
-        public int PriorityCode { get; set; }
+        public int? PriorityCode { get; set; }
         public string Description { get; set; }
         public string Code { get; set; }
     }

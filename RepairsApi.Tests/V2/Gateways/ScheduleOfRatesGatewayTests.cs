@@ -159,8 +159,8 @@ namespace RepairsApi.Tests.V2.Gateways
             {
                 Code = sor.CustomCode,
                 Description = sor.CustomName,
-                PriorityCode = sor.Priority.PriorityCode,
-                PriorityDescription = sor.Priority.Description,
+                PriorityCode = sor.Priority?.PriorityCode,
+                PriorityDescription = sor.Priority?.Description,
                 Contracts = sor.SorCodeMap
                     .Select(c => new SorCodeContractResult
                     {

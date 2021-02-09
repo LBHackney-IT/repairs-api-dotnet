@@ -12,7 +12,7 @@ namespace RepairsApi.V2.Infrastructure.Hackney
 
         [Required]
         public virtual SORPriority Priority { get; set; }
-        public int PriorityId { get; set; }
+        public int? PriorityId { get; set; }
 
         [Required]
         public virtual SorCodeTrade Trade { get; set; }
