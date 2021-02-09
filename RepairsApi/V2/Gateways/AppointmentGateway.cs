@@ -38,10 +38,14 @@ namespace RepairsApi.V2.Gateways
                 DayId = appointmentId,
                 Date = date
             });
+
+            await _repairsContext.SaveChangesAsync();
         }
 
         public async Task<IEnumerable<AppointmentListResult>> ListAppointments(string contractorReference, DateTime from, DateTime to)
         {
+            if (to <= from) throw new NotSupportedException("Dates are in the incorrect order");
+
             var availability = await GetAvailability(contractorReference);
             var groupedAppointments = await GetAppointments(contractorReference, from, to);
             var result = BuildResult(from, to, availability, groupedAppointments);
@@ -53,9 +57,9 @@ namespace RepairsApi.V2.Gateways
         {
             var range = to - from;
             List<AppointmentListResult> result = new List<AppointmentListResult>();
-            for (int i = 0; i < range.Days; i++)
+            for (int i = 0; i < range.Days + 1; i++)
             {
-                DateTime date = to.AddDays(i);
+                DateTime date = from.AddDays(i);
                 var newAppointments = availability
                     .Where(aa => aa.Day == date.DayOfWeek)
                     .Where(aa => IsCapacityAvailable(counts, aa, date))
@@ -66,7 +70,7 @@ namespace RepairsApi.V2.Gateways
                         Id = av.Id,
                         Start = av.AvailableAppointment.StartTime,
                         End = av.AvailableAppointment.EndTime
-                    });
+                    }).ToList();
 
                 result.AddRange(newAppointments);
             }
@@ -77,7 +81,7 @@ namespace RepairsApi.V2.Gateways
         private static bool IsCapacityAvailable(Dictionary<AppointmentInformation, int> counts, AvailableAppointmentDay aa, DateTime date)
         {
             int count;
-            if (counts.TryGetValue((date, aa.Id), out count))
+            if (counts.TryGetValue((date.Date, aa.Id), out count))
             {
                 return count < aa.AvailableCount;
             }
@@ -92,7 +96,7 @@ namespace RepairsApi.V2.Gateways
                 .Where(a => a.Day.AvailableAppointment.ContractorReference == contractorReference)
                 .GroupBy(ea => new { ea.Date, ea.Day.Id })
                 .Select(g => new { g.Key.Date, g.Key.Id, Count = g.Count() })
-                .ToDictionaryAsync(g => new AppointmentInformation(g.Date, g.Id), g => g.Count);
+                .ToDictionaryAsync(g => new AppointmentInformation(g.Date.Date, g.Id), g => g.Count);
             return existingAppointments;
         }
 
