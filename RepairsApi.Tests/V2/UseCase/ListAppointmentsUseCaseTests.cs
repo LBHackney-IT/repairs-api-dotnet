@@ -38,34 +38,45 @@ namespace RepairsApi.Tests.V2.UseCase
             await testFn.Should().ThrowAsync<ResourceNotFoundException>();
         }
 
-        //[Test]
-        //public async Task ReturnsList()
-        //{
-        //    DateTime toDate = DateTime.UtcNow;
-        //    DateTime fromDate = DateTime.UtcNow;
-        //    int workOrder = 0;
-        //    _repairGatewayMock.Setup(rgm => rgm.GetWorkOrder(It.IsAny<int>())).ReturnsAsync(new WorkOrder());
-        //    _appointmentsGatewayMock.Setup(rgm => rgm.ListAppointments(It.IsAny<string>(), toDate, fromDate)).ReturnsAsync(new List<AvailableAppointmentDay>()
-        //    {
-        //        new AvailableAppointmentDay
-        //        {
-        //            Day = DayOfWeek.Friday,
-        //            Id = 1,
-        //            AvailableCount = 3,
-        //            AvailableAppointment = new AvailableAppointment
-        //            {
-        //                ContractorReference = "AAA",
-        //                Description = "OOF",
-        //                Id = 1,
-        //                EndTime = DateTime.UtcNow,
-        //                StartTime = DateTime.UtcNow
-        //            }
-        //        }
-        //    });
+        [Test]
+        public async Task GroupList()
+        {
+            DateTime toDate = DateTime.UtcNow;
+            DateTime fromDate = DateTime.UtcNow;
+            int workOrder = 0;
+            _repairGatewayMock.Setup(rgm => rgm.GetWorkOrder(It.IsAny<int>())).ReturnsAsync(new WorkOrder());
+            _appointmentsGatewayMock.Setup(rgm => rgm.ListAppointments(It.IsAny<string>(), toDate, fromDate)).ReturnsAsync(new List<AppointmentListResult>()
+            {
+                new AppointmentListResult
+                {
+                    Date = DateTime.UtcNow.Date,
+                    Description = "description",
+                    Start = new DateTime().AddHours(9),
+                    End = new DateTime().AddHours(12),
+                    Id = 12
+                },
+                new AppointmentListResult
+                {
+                    Date = DateTime.UtcNow.Date,
+                    Description = "other description",
+                    Start = new DateTime().AddHours(13),
+                    End = new DateTime().AddHours(17),
+                    Id = 13
+                },
+                new AppointmentListResult
+                {
+                    Date = DateTime.UtcNow.Date.AddDays(1),
+                    Description = "other description",
+                    Start = new DateTime().AddHours(13),
+                    End = new DateTime().AddHours(17),
+                    Id = 14
+                }
+            });
 
-        //    var result = await _classUnderTest.Execute(workOrder, toDate, fromDate);
+            var result = await _classUnderTest.Execute(workOrder, toDate, fromDate);
 
-        //    result.Should().HaveCount(1);
-        //}
+            result.Should().HaveCount(2);
+            result.First().Slots.Should().HaveCount(2);
+        }
     }
 }

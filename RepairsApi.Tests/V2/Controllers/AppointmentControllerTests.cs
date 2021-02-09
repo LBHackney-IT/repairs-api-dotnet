@@ -47,7 +47,7 @@ namespace RepairsApi.Tests.V2.Controllers
                             Description = "desc",
                             End = new DateTime().AddHours(8),
                             Start = new DateTime().AddHours(12),
-                            Reference = "117"
+                            Reference = 117
                         }
                     }
                 }

@@ -25,10 +25,24 @@ namespace RepairsApi.V2.UseCase
 
             if (workOrder is null) throw new ResourceNotFoundException("Work Order does not exist");
 
-            return (await _appointmentsGateway.ListAppointments(workOrderId.ToString(), fromDate, toDate))
+            return (await _appointmentsGateway.ListAppointments(GetContractor(workOrder), fromDate, toDate))
+                .GroupBy(a => a.Date)
                 .Select(a => new AppointmentDayViewModel
-            {
-            });
+                {
+                    Date = a.Key,
+                    Slots = a.Select(slot => new AppointmentSlot
+                    {
+                        Description = slot.Description,
+                        End = slot.End,
+                        Start = slot.Start,
+                        Reference = slot.Id
+                    }).OrderBy(slot => slot.Start)
+                });
+        }
+
+        private static string GetContractor(Infrastructure.WorkOrder workOrder)
+        {
+            return workOrder.Id.ToString(); //  TODO Calculate contractor
         }
     }
 }

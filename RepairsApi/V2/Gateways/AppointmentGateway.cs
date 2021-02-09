@@ -55,11 +55,13 @@ namespace RepairsApi.V2.Gateways
 
         private static List<AppointmentListResult> BuildResult(DateTime from, DateTime to, List<AvailableAppointmentDay> availability, Dictionary<AppointmentInformation, int> counts)
         {
-            var range = to - from;
+            var fromDate = from.Date;
+            var toDate = to.Date;
+            var range = toDate - fromDate;
             List<AppointmentListResult> result = new List<AppointmentListResult>();
             for (int i = 0; i < range.Days + 1; i++)
             {
-                DateTime date = from.AddDays(i);
+                DateTime date = fromDate.AddDays(i);
                 var newAppointments = availability
                     .Where(aa => aa.Day == date.DayOfWeek)
                     .Where(aa => IsCapacityAvailable(counts, aa, date))
@@ -80,8 +82,7 @@ namespace RepairsApi.V2.Gateways
 
         private static bool IsCapacityAvailable(Dictionary<AppointmentInformation, int> counts, AvailableAppointmentDay aa, DateTime date)
         {
-            int count;
-            if (counts.TryGetValue((date.Date, aa.Id), out count))
+            if (counts.TryGetValue((date.Date, aa.Id), out int count))
             {
                 return count < aa.AvailableCount;
             }
