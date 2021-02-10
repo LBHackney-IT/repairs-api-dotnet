@@ -8,6 +8,7 @@ using FluentAssertions;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using RepairsApi.V2.Boundary.Response;
+using RepairsApi.V2.Infrastructure;
 
 namespace RepairsApi.Tests.V2.E2ETests
 {
@@ -24,6 +25,19 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             string responseContent = await response.Content.ReadAsStringAsync();
             var codes = JsonConvert.DeserializeObject<List<ScheduleOfRatesModel>>(responseContent);
+            codes.Should().NotBeNullOrEmpty();
+        }
+        [Test]
+        public async Task ListSORPriorities()
+        {
+            var client = CreateClient();
+
+            var response = await client.GetAsync(new Uri("api/v2/schedule-of-rates/priorities", UriKind.Relative));
+
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var codes = JsonConvert.DeserializeObject<List<SORPriority>>(responseContent);
             codes.Should().NotBeNullOrEmpty();
         }
     }

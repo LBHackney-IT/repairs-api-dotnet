@@ -139,6 +139,7 @@ namespace RepairsApi
             services.AddTransient<IWorkOrderCompletionGateway, WorkOrderCompletionGateway>();
             services.AddTransient<IScheduleOfRatesGateway, ScheduleOfRatesGateway>();
             services.AddTransient<IJobStatusUpdateGateway, JobStatusUpdateGateway>();
+            services.AddTransient<ISorPriorityGateway, SorPriorityGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)

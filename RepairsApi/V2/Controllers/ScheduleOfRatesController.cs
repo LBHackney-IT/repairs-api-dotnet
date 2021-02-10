@@ -2,10 +2,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RepairsApi.V2.UseCase.Interfaces;
 using RepairsApi.V2.Boundary.Response;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Infrastructure;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -16,10 +16,13 @@ namespace RepairsApi.V2.Controllers
     public class ScheduleOfRatesController : Controller
     {
 
-        private IListScheduleOfRatesUseCase _listScheduleOfRates;
-        public ScheduleOfRatesController(IListScheduleOfRatesUseCase listScheduleOfRates)
+        private readonly IListScheduleOfRatesUseCase _listScheduleOfRates;
+        private readonly ISorPriorityGateway _priorityGateway;
+
+        public ScheduleOfRatesController(IListScheduleOfRatesUseCase listScheduleOfRates, ISorPriorityGateway priorityGateway)
         {
             _listScheduleOfRates = listScheduleOfRates;
+            _priorityGateway = priorityGateway;
         }
 
         /// <summary>
@@ -35,12 +38,23 @@ namespace RepairsApi.V2.Controllers
             return Ok(await _listScheduleOfRates.Execute());
             //var sorPattern = "^[A-Za-z0-9]{7,8}$";
         }
-
         [HttpGet]
         [Route("/codes/{sorCode}")]
         public IActionResult ViewRecord(string sorCode)
         {
             return Ok(new { sor = sorCode });
+        }
+
+
+        /// <summary>
+        /// Returns list of SOR Code Priorities
+        /// </summary>
+        [ProducesResponseType(typeof(IEnumerable<SORPriority>), StatusCodes.Status200OK)]
+        [HttpGet]
+        [Route("priorities")]
+        public async Task<IActionResult> ListPriorities()
+        {
+            return Ok(await _priorityGateway.GetPriorities());
         }
     }
 }
