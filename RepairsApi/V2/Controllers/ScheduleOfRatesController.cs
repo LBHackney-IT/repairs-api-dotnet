@@ -2,10 +2,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RepairsApi.V2.UseCase.Interfaces;
 using RepairsApi.V2.Boundary.Response;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using RepairsApi.V2.Gateways;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -16,10 +15,13 @@ namespace RepairsApi.V2.Controllers
     public class ScheduleOfRatesController : Controller
     {
 
-        private IListScheduleOfRatesUseCase _listScheduleOfRates;
-        public ScheduleOfRatesController(IListScheduleOfRatesUseCase listScheduleOfRates)
+        private readonly IListScheduleOfRatesUseCase _listScheduleOfRates;
+        private readonly ISorPriorityGateway _priorityGateway;
+
+        public ScheduleOfRatesController(IListScheduleOfRatesUseCase listScheduleOfRates, ISorPriorityGateway priorityGateway)
         {
             _listScheduleOfRates = listScheduleOfRates;
+            _priorityGateway = priorityGateway;
         }
 
         /// <summary>
@@ -41,6 +43,13 @@ namespace RepairsApi.V2.Controllers
         public IActionResult ViewRecord(string sorCode)
         {
             return Ok(new { sor = sorCode });
+        }
+
+        [HttpGet]
+        [Route("priorities")]
+        public async Task<IActionResult> ListPriorities()
+        {
+            return Ok(await _priorityGateway.GetPriorities());
         }
     }
 }
