@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using RepairsApi.V2.Infrastructure;
@@ -16,7 +17,7 @@ namespace RepairsApi.V2.Gateways
 
         public async Task<IEnumerable<SORPriority>> GetPriorities()
         {
-            return await _priorities.ToListAsync();
+            return await _priorities.OrderBy(p => p.PriorityCode).ToListAsync();
         }
     }
 }
