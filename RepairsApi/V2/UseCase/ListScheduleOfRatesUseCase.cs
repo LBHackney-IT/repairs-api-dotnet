@@ -19,14 +19,12 @@ namespace RepairsApi.V2.UseCase
             _scheduleOfRatesGateway = scheduleOfRatesGateway;
         }
 
-        public async Task<IEnumerable<ScheduleOfRatesModel>> Execute(string tradeCode, string propertyReference)
+        public async Task<IEnumerable<ScheduleOfRatesModel>> Execute(string tradeCode, string propertyReference, string contractorReference)
         {
-            var sorCodes = await _scheduleOfRatesGateway.GetSorCodes(propertyReference, tradeCode);
-            return sorCodes.Select(c => c.ToResponse());
+            return await _scheduleOfRatesGateway.GetSorCodes(propertyReference, tradeCode, contractorReference);
         }
 
-        [Obsolete("Use overload specifying trade and property")]
-        public async Task<IEnumerable<LegacyScheduleOfRatesModel>> Execute()
+        public async Task<IEnumerable<ScheduleOfRatesModel>> Execute()
         {
             return await _scheduleOfRatesGateway.GetSorCodes();
         }

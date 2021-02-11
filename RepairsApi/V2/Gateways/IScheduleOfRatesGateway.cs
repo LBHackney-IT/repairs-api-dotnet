@@ -10,11 +10,10 @@ namespace RepairsApi.V2.Gateways
     public interface IScheduleOfRatesGateway
     {
         Task<IEnumerable<SorCodeTrade>> GetTrades();
-        Task<IEnumerable<SorCodeResult>> GetSorCodes(string propertyReference, string tradeCode);
+        Task<IEnumerable<ScheduleOfRatesModel>> GetSorCodes(string propertyReference, string tradeCode, string contractorReference);
         Task<double?> GetCost(string contractReference, string sorCode);
         Task<IEnumerable<string>> GetContracts(string contractorReference);
-        [Obsolete("Use property reference to filter list")]
-        Task<IEnumerable<LegacyScheduleOfRatesModel>> GetSorCodes();
+        Task<IEnumerable<ScheduleOfRatesModel>> GetSorCodes();
     }
 
 }

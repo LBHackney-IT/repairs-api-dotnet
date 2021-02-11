@@ -23,7 +23,6 @@ namespace RepairsApi.Tests.V2.UseCase
     {
         private ListWorkOrdersUseCase _classUnderTest;
         private MockRepairsGateway _repairsMock;
-        private Mock<IScheduleOfRatesGateway> _sorGatewayMock;
         private Generator<WorkOrder> _generator;
 
         [SetUp]
@@ -31,8 +30,7 @@ namespace RepairsApi.Tests.V2.UseCase
         {
             configureGenerator();
             _repairsMock = new MockRepairsGateway();
-            _sorGatewayMock = new Mock<IScheduleOfRatesGateway>();
-            _classUnderTest = new ListWorkOrdersUseCase(_repairsMock.Object, _sorGatewayMock.Object);
+            _classUnderTest = new ListWorkOrdersUseCase(_repairsMock.Object);
         }
 
         private void configureGenerator()
@@ -112,41 +110,6 @@ namespace RepairsApi.Tests.V2.UseCase
             workOrders.Should().BeEquivalentTo(expectedResponses);
         }
 
-        [Test]
-        public async Task CanFilterByContractorRef()
-        {
-            // Arrange
-            var expectedContractRef = Guid.NewGuid().ToString();
-
-            var allWorkOrders = _generator.GenerateList(3);
-            SetContractRef(allWorkOrders, "not" + expectedContractRef);
-
-            var expectedWorkOrders = _generator.GenerateList(3);
-            SetContractRef(expectedWorkOrders, expectedContractRef);
-
-            allWorkOrders.AddRange(expectedWorkOrders);
-
-            _repairsMock.ReturnsWorkOrders(allWorkOrders);
-
-            _sorGatewayMock.Setup(x => x.GetContracts(It.IsAny<string>()))
-                .ReturnsAsync(new List<string>
-                {
-                    expectedContractRef
-                });
-
-            var workOrderSearchParameters = new WorkOrderSearchParameters
-            {
-                ContractorReference = expectedContractRef
-            };
-
-            // Act
-            var workOrders = await _classUnderTest.Execute(workOrderSearchParameters);
-
-            // Assert
-            var expectedResponses = expectedWorkOrders.Select(ewo => ewo.ToListItem());
-            workOrders.Should().BeEquivalentTo(expectedResponses);
-        }
-
         private static void SetPropertyRefs(List<WorkOrder> expectedWorkOrders, string newRef)
         {
             foreach (var expectedWorkOrder in expectedWorkOrders)
@@ -154,20 +117,6 @@ namespace RepairsApi.Tests.V2.UseCase
                 foreach (var propertyClass in expectedWorkOrder.Site.PropertyClass)
                 {
                     propertyClass.PropertyReference = newRef;
-                }
-            }
-        }
-
-        private static void SetContractRef(List<WorkOrder> expectedWorkOrders, string newRef)
-        {
-            foreach (var expectedWorkOrder in expectedWorkOrders)
-            {
-                foreach (var workElement in expectedWorkOrder.WorkElements)
-                {
-                    foreach (var rateScheduleItem in workElement.RateScheduleItem)
-                    {
-                        rateScheduleItem.ContractReference = newRef;
-                    }
                 }
             }
         }
@@ -196,14 +145,6 @@ namespace RepairsApi.Tests.V2.UseCase
             workOrders.Should().BeEquivalentTo(expectedResult);
         }
 
-        private List<WorkOrder> GenerateWorkOrders(int number, string expectedCode)
-        {
-
-            var otherWorkOrders = _generator.GenerateList(number);
-            SetSorCodes(expectedCode, otherWorkOrders.ToArray());
-            return otherWorkOrders;
-        }
-
         private List<WorkOrder> GenerateAndReturnWorkOrders(int workOrderCount)
         {
 
@@ -212,20 +153,6 @@ namespace RepairsApi.Tests.V2.UseCase
             _repairsMock.Setup(r => r.GetWorkOrders())
                 .ReturnsAsync(generatedWorkOrders);
             return generatedWorkOrders;
-        }
-
-        private static void SetSorCodes(string expectedCode, params WorkOrder[] expectedWorkOrders)
-        {
-            foreach (var workOrder in expectedWorkOrders)
-            {
-                foreach (var workElement in workOrder.WorkElements)
-                {
-                    foreach (var rateScheduleItem in workElement.RateScheduleItem)
-                    {
-                        rateScheduleItem.CustomCode = expectedCode;
-                    }
-                }
-            }
         }
     }
 }

@@ -151,27 +151,6 @@ namespace RepairsApi.V2.Factories
             };
         }
 
-        public static ScheduleOfRatesModel ToResponse(this Infrastructure.SorCodeResult sorCode)
-        {
-            return new ScheduleOfRatesModel
-            {
-                CustomCode = sorCode.Code,
-                CustomName = sorCode.Description,
-                SORContractors = sorCode.Contracts.Select(c => new Contractor
-                {
-                    ContractorName = c.ContractorName,
-                    ContractorReference = c.ContractorCode,
-                    ContractReference = c.ContractReference,
-                    ContractCost = c.ContractCost
-                }).ToList(),
-                Priority = new SORPriority
-                {
-                    Description = sorCode.PriorityDescription,
-                    PriorityCode = sorCode.PriorityCode
-                }
-            };
-        }
-
         public static WorkElement ToResponse(this Infrastructure.WorkElement workElement)
         {
             return new WorkElement

@@ -12,10 +12,15 @@ namespace RepairsApi.V2.Generated
         public double? NumberOfDays { get; set; }
     }
 
-    public partial class RateScheduleItem
+    public partial class RaiseRepair
     {
-        [Newtonsoft.Json.JsonProperty("ContractReference", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        public string ContractReference { get; set; }
+        [Newtonsoft.Json.JsonProperty("ContractorReference", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string ContractorReference { get; set; }
+    }
+
+    public partial class ScheduleRepair
+    {
+        [Newtonsoft.Json.JsonProperty("ContractorReference", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string ContractorReference { get; set; }
     }
 }
