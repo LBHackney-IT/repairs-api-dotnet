@@ -27,7 +27,8 @@ namespace RepairsApi.V2.Gateways
 
         public async Task<IEnumerable<WorkOrder>> GetWorkOrders(params Expression<Func<WorkOrder, bool>>[] whereExpressions)
         {
-            IQueryable<WorkOrder> workOrders = _repairsContext.WorkOrders;
+            IQueryable<WorkOrder> workOrders = _repairsContext.WorkOrders
+                .Include(wo => wo.AssignedToPrimary);
 
             foreach (var whereExpression in whereExpressions)
             {
@@ -39,7 +40,9 @@ namespace RepairsApi.V2.Gateways
 
         public async Task<WorkOrder> GetWorkOrder(int id)
         {
-            return await _repairsContext.WorkOrders.FindAsync(id);
+            return await _repairsContext.WorkOrders
+                .Include(wo => wo.AssignedToPrimary)
+                .SingleOrDefaultAsync(wo => wo.Id == id);
         }
 
         public async Task<IEnumerable<WorkElement>> GetWorkElementsForWorkOrder(WorkOrder workOrder)

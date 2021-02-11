@@ -44,7 +44,7 @@ namespace RepairsApi.V2.UseCase
 
             if (!string.IsNullOrWhiteSpace(searchParameters.ContractorReference))
             {
-                result.Add(wo => wo.ContractorReference == searchParameters.ContractorReference);
+                result.Add(wo => wo.AssignedToPrimary.ContractorReference == searchParameters.ContractorReference);
             }
 
             return result.ToArray();

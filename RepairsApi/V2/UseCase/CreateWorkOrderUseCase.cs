@@ -66,7 +66,7 @@ namespace RepairsApi.V2.UseCase
                 await element.RateScheduleItem.ForEachAsync(async item =>
                 {
                     item.DateCreated = DateTime.UtcNow;
-                    item.CodeCost = await GetCost(workOrder.ContractorReference, item.CustomCode);
+                    item.CodeCost = await GetCost(workOrder.AssignedToPrimary?.ContractorReference, item.CustomCode);
                 });
             });
         }

@@ -34,7 +34,6 @@ namespace RepairsApi.V2.Infrastructure
         // Extensions
         public string AgentName { get; set; }
         public WorkStatusCode StatusCode { get; set; } = WorkStatusCode.Open;
-        public string ContractorReference { get; internal set; }
     }
 
     public enum WorkStatusCode

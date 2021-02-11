@@ -52,6 +52,8 @@ namespace RepairsApi.V2.Gateways
 
         public async Task<double?> GetCost(string contractorReference, string sorCode)
         {
+            if (contractorReference is null || sorCode is null) return null;
+
             return await _context.SORContracts
                 .Where(c => c.Contract.ContractorReference == contractorReference && c.SorCodeCode == sorCode)
                 .Select(c => c.Cost).SingleOrDefaultAsync();

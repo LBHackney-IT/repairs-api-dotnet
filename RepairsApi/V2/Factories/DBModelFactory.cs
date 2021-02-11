@@ -27,8 +27,7 @@ namespace RepairsApi.V2.Factories
                 AccessInformation = raiseRepair.AccessInformation?.ToDb(),
                 LocationAlert = raiseRepair.LocationAlert.MapList(la => la.ToDb()),
                 PersonAlert = raiseRepair.PersonAlert.MapList(pa => pa.ToDb()),
-                WorkElements = raiseRepair.WorkElement.MapList(we => we.ToDb()),
-                ContractorReference = raiseRepair.ContractorReference
+                WorkElements = raiseRepair.WorkElement.MapList(we => we.ToDb())
             };
         }
 
@@ -52,8 +51,7 @@ namespace RepairsApi.V2.Factories
                 AssignedToPrimary = raiseRepair.AssignedToPrimary?.ToDb(),
                 InstructedBy = raiseRepair.InstructedBy?.ToDb(),
                 Customer = raiseRepair.Customer?.ToDb(),
-                DateRaised = raiseRepair.DateRaised,
-                ContractorReference = raiseRepair.ContractorReference
+                DateRaised = raiseRepair.DateRaised
             };
         }
 
@@ -409,7 +407,8 @@ namespace RepairsApi.V2.Factories
                 Name = party.Name,
                 Role = party.Role,
                 Organization = party.Organization?.ToDb(),
-                Person = party.Person?.ToDb()
+                Person = party.Person?.ToDb(),
+                ContractorReference = party.Reference?.FirstOrDefault()?.ID
             };
         }
 
