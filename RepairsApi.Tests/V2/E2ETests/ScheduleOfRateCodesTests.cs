@@ -9,6 +9,7 @@ using FluentAssertions;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using RepairsApi.V2.Boundary.Response;
+using RepairsApi.V2.Domain;
 
 namespace RepairsApi.Tests.V2.E2ETests
 {
@@ -53,7 +54,24 @@ namespace RepairsApi.Tests.V2.E2ETests
         }
 
         [Test]
-        public async Task GetObseleteCodes()
+        public async Task GetContractors()
+        {
+            var client = CreateClient();
+
+            var propRef = TestDataSeeder.PropRef;
+            var tradeCode = TestDataSeeder.Trade;
+
+            var response = await client.GetAsync(new Uri($"/api/v2/contractors?tradeCode={tradeCode}&propertyReference={propRef}", UriKind.Relative));
+
+            response.StatusCode.Should().Be(200);
+
+            var result = await GetResult<IEnumerable<Contractor>>(response);
+
+            result.Count().Should().BeGreaterOrEqualTo(1);
+        }
+
+        [Test]
+        public async Task GetAllCodes()
         {
             var client = CreateClient();
 
