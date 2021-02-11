@@ -129,7 +129,8 @@ namespace RepairsApi.Tests
         {
             var generator = new Generator<Contractor>()
                 .AddDefaultGenerators()
-                .AddGenerator(() => SeedCode(ContractorReferences), (Contractor c) => c.Reference);
+                .AddGenerator(() => SeedCode(ContractorReferences), (Contractor c) => c.Reference)
+                .AddValue(null, (Contractor c) => c.Contracts);
 
             ctx.Set<Contractor>().AddRange(generator.GenerateList(100));
             ctx.Set<Contractor>().Add(new Contractor

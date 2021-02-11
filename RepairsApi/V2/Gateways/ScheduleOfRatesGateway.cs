@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using RepairsApi.V2.Factories;
+using Contractor = RepairsApi.V2.Domain.Contractor;
 
 namespace RepairsApi.V2.Gateways
 {
@@ -75,6 +77,24 @@ namespace RepairsApi.V2.Gateways
                         PriorityCode = sor.Priority.PriorityCode
                     }
                 }).ToListAsync();
+        }
+
+        public async Task<IEnumerable<Contractor>> GetContractors(string propertyRef, string tradeCode)
+        {
+            var contractors = _context.Contracts.Where(contract =>
+                contract.SorCodeMap.Any(scm =>
+                    scm.SorCode.TradeCode == tradeCode
+                ) &&
+                contract.PropertyMap.Any(pm =>
+                    pm.PropRef == propertyRef
+                )
+            ).Select(c => new Contractor
+            {
+                ContractorName = c.Contractor.Name,
+                ContractorReference = c.Contractor.Reference
+            });
+
+            return await contractors.ToListAsync();
         }
     }
 }

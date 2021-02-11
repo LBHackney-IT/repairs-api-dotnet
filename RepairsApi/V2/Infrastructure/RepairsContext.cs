@@ -58,7 +58,7 @@ namespace RepairsApi.V2.Infrastructure
 
             modelBuilder.Entity<Contract>()
                 .HasOne<Contractor>(c => c.Contractor)
-                .WithMany()
+                .WithMany(c => c.Contracts)
                 .HasForeignKey(c => c.ContractorReference);
 
             modelBuilder.Entity<SORContract>()
