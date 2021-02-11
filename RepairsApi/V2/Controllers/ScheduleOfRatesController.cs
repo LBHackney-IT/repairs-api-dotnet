@@ -4,6 +4,8 @@ using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.UseCase.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Infrastructure.Hackney;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -15,14 +17,17 @@ namespace RepairsApi.V2.Controllers
     {
 
         private readonly IListScheduleOfRatesUseCase _listScheduleOfRates;
+        private readonly ISorPriorityGateway _priorityGateway;
         private readonly IListSorTradesUseCase _listSorTrades;
 
         public ScheduleOfRatesController(
             IListScheduleOfRatesUseCase listScheduleOfRates,
-            IListSorTradesUseCase listSorTrades
+            IListSorTradesUseCase listSorTrades,
+            ISorPriorityGateway priorityGateway
             )
         {
             _listScheduleOfRates = listScheduleOfRates;
+            _priorityGateway = priorityGateway;
             _listSorTrades = listSorTrades;
         }
 
@@ -54,6 +59,18 @@ namespace RepairsApi.V2.Controllers
         public async Task<IActionResult> ListTrades()
         {
             return Ok(await _listSorTrades.Execute());
+        }
+
+
+        /// <summary>
+        /// Returns list of SOR Code Priorities
+        /// </summary>
+        [ProducesResponseType(typeof(IEnumerable<SORPriority>), StatusCodes.Status200OK)]
+        [HttpGet]
+        [Route("priorities")]
+        public async Task<IActionResult> ListPriorities()
+        {
+            return Ok(await _priorityGateway.GetPriorities());
         }
     }
 }
