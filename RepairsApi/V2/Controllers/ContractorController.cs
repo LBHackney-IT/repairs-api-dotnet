@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using RepairsApi.V2.Gateways;
@@ -19,7 +20,7 @@ namespace RepairsApi.V2.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ListContractors([FromQuery] string propertyReference, [FromQuery] string tradeCode)
+        public async Task<IActionResult> ListContractors([FromQuery][Required] string propertyReference, [FromQuery][Required] string tradeCode)
         {
             var contractors = await _sorGateway.GetContractors(propertyReference, tradeCode);
 

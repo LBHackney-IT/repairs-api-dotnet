@@ -81,16 +81,18 @@ namespace RepairsApi.V2.Gateways
 
         public async Task<IEnumerable<Contractor>> GetContractors(string propertyRef, string tradeCode)
         {
-            var contractors = _context.Contractors.Where(c =>
-                c.Contracts.Any(contract =>
-                    contract.SorCodeMap.Any(scm =>
-                        scm.SorCode.TradeCode == tradeCode
-                    ) &&
-                    contract.PropertyMap.Any(pm =>
-                        pm.PropRef == propertyRef
-                    )
+            var contractors = _context.Contracts.Where(contract =>
+                contract.SorCodeMap.Any(scm =>
+                    scm.SorCode.TradeCode == tradeCode
+                ) &&
+                contract.PropertyMap.Any(pm =>
+                    pm.PropRef == propertyRef
                 )
-            ).Select(c => c.ToResponse());
+            ).Select(c => new Contractor
+            {
+                ContractorName = c.Contractor.Name,
+                ContractorReference = c.Contractor.Reference
+            });
 
             return await contractors.ToListAsync();
         }
