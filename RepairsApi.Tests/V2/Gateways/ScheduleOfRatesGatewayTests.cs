@@ -52,7 +52,8 @@ namespace RepairsApi.Tests.V2.Gateways
             // arrange
             var expectedContractor = new Contractor
             {
-                Name = "name", Reference = "reference"
+                Name = "name",
+                Reference = "reference"
             };
             var generator = new Generator<Contract>();
             generator
@@ -251,7 +252,8 @@ namespace RepairsApi.Tests.V2.Gateways
 
             var propMaps = contracts.Select(c => new PropertyContract
             {
-                PropRef = expectedProperty, ContractReference = c.ContractReference
+                PropRef = expectedProperty,
+                ContractReference = c.ContractReference
             });
 
             await InMemoryDb.Instance.Contracts.AddRangeAsync(contracts);
@@ -273,20 +275,27 @@ namespace RepairsApi.Tests.V2.Gateways
             var contractors = contractorGenerator.GenerateList(10);
             var contracts = contractors.Select(c => new Contract
             {
-                ContractReference = stringGenerator.Generate(), ContractorReference = c.Reference, EffectiveDate = effectiveDate, TerminationDate = termDate
+                ContractReference = stringGenerator.Generate(),
+                ContractorReference = c.Reference,
+                EffectiveDate = effectiveDate,
+                TerminationDate = termDate
             }).ToList();
             var sorCode = new ScheduleOfRates
             {
-                CustomCode = stringGenerator.Generate(), TradeCode = tradeCode
+                CustomCode = stringGenerator.Generate(),
+                TradeCode = tradeCode
             };
             var sorContracts = contracts.Select(c => new SORContract
             {
-                ContractReference = c.ContractReference, SorCodeCode = sorCode.CustomCode, Cost = doubleGenerator.Generate()
+                ContractReference = c.ContractReference,
+                SorCodeCode = sorCode.CustomCode,
+                Cost = doubleGenerator.Generate()
             }).ToList();
 
             var propMaps = contracts.Select(c => new PropertyContract
             {
-                PropRef = expectedProperty, ContractReference = c.ContractReference
+                PropRef = expectedProperty,
+                ContractReference = c.ContractReference
             }).ToList();
 
             await InMemoryDb.Instance.Contractors.AddRangeAsync(contractors);
@@ -303,7 +312,8 @@ namespace RepairsApi.Tests.V2.Gateways
         {
             var expectedTrade = new SorCodeTrade
             {
-                Code = expectedTradeCode, Name = "trade"
+                Code = expectedTradeCode,
+                Name = "trade"
             };
             await InMemoryDb.Instance.Trades.AddAsync(expectedTrade);
             return expectedTrade;
@@ -313,7 +323,8 @@ namespace RepairsApi.Tests.V2.Gateways
         {
             var expectedPriority = new SORPriority
             {
-                Description = "priority", PriorityCode = 1
+                Description = "priority",
+                PriorityCode = 1
             };
             await InMemoryDb.Instance.SORPriorities.AddAsync(expectedPriority);
             return expectedPriority;

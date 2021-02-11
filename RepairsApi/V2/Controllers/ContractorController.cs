@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using RepairsApi.V2.Gateways;
@@ -9,7 +9,7 @@ namespace RepairsApi.V2.Controllers
     [Route("/api/v2/contractors")]
     [Produces("application/json")]
     [ApiVersion("2.0")]
-    public class ContractorController: BaseController
+    public class ContractorController : BaseController
     {
         private readonly IScheduleOfRatesGateway _sorGateway;
 
