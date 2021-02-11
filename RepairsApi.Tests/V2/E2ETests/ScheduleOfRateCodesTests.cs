@@ -41,8 +41,9 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             var propRef = TestDataSeeder.PropRef;
             var tradeCode = TestDataSeeder.Trade;
+            var contractorRef = TestDataSeeder.Contractor;
 
-            var response = await client.GetAsync(new Uri($"/api/v2/schedule-of-rates/codes?tradeCode={tradeCode}&propertyReference={propRef}", UriKind.Relative));
+            var response = await client.GetAsync(new Uri($"/api/v2/schedule-of-rates/codes?tradeCode={tradeCode}&propertyReference={propRef}&contractorReference={contractorRef}", UriKind.Relative));
 
             response.StatusCode.Should().Be(200);
 
@@ -60,7 +61,7 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             response.StatusCode.Should().Be(200);
 
-            var result = await GetResult<IEnumerable<LegacyScheduleOfRatesModel>>(response);
+            var result = await GetResult<IEnumerable<ScheduleOfRatesModel>>(response);
 
             result.Count().Should().BeGreaterOrEqualTo(1);
         }

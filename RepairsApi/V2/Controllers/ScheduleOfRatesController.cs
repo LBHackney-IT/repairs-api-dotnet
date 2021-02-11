@@ -1,13 +1,9 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RepairsApi.V2.UseCase.Interfaces;
 using RepairsApi.V2.Boundary.Response;
-using System;
+using RepairsApi.V2.UseCase.Interfaces;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using RepairsApi.V2.Domain;
-using System.ComponentModel.DataAnnotations;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -38,13 +34,12 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(IEnumerable<ScheduleOfRatesModel>), StatusCodes.Status200OK)]
         [Route("codes")]
         [HttpGet]
-        public async Task<IActionResult> ListRecords([FromQuery] string tradeCode, [FromQuery] string propertyReference)
+        public async Task<IActionResult> ListRecords([FromQuery] string tradeCode, [FromQuery] string propertyReference, [FromQuery] string contractorReference)
         {
-            if (string.IsNullOrWhiteSpace(tradeCode) && string.IsNullOrWhiteSpace(propertyReference))
-                // TODO REMOVE OBSELETE method
+            if (string.IsNullOrWhiteSpace(tradeCode) && string.IsNullOrWhiteSpace(propertyReference) && string.IsNullOrWhiteSpace(contractorReference))
                 return Ok(await _listScheduleOfRates.Execute());
-            else if (!string.IsNullOrWhiteSpace(tradeCode) && !string.IsNullOrWhiteSpace(propertyReference))
-                return Ok(await _listScheduleOfRates.Execute(tradeCode, propertyReference));
+            else if (!string.IsNullOrWhiteSpace(tradeCode) && !string.IsNullOrWhiteSpace(propertyReference) && !string.IsNullOrWhiteSpace(contractorReference))
+                return Ok(await _listScheduleOfRates.Execute(tradeCode, propertyReference, contractorReference));
 
             return BadRequest();
         }

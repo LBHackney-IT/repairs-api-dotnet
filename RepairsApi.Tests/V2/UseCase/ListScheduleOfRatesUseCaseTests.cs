@@ -19,12 +19,12 @@ namespace RepairsApi.Tests.V2.UseCase
     {
         private ListScheduleOfRatesUseCase _classUnderTest;
         private Mock<IScheduleOfRatesGateway> _mockScheduleOfRatesGateway;
-        private Generator<SorCodeResult> _generator;
+        private Generator<ScheduleOfRatesModel> _generator;
 
         [SetUp]
         public void Setup()
         {
-            _generator = new Generator<SorCodeResult>();
+            _generator = new Generator<ScheduleOfRatesModel>();
             _generator.AddDefaultGenerators();
             _mockScheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
             _classUnderTest = new ListScheduleOfRatesUseCase(_mockScheduleOfRatesGateway.Object);
@@ -35,14 +35,14 @@ namespace RepairsApi.Tests.V2.UseCase
         {
             // arrange
             var expectedCodes = _generator.GenerateList(10);
-            _mockScheduleOfRatesGateway.Setup(x => x.GetSorCodes(It.IsAny<string>(), It.IsAny<string>()))
+            _mockScheduleOfRatesGateway.Setup(x => x.GetSorCodes(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(expectedCodes);
 
             // act
-            var result = await _classUnderTest.Execute("trade", "property");
+            var result = await _classUnderTest.Execute("trade", "property", "contractor");
 
             // assert
-            result.Should().BeEquivalentTo(expectedCodes.Select(c => c.ToResponse()));
+            result.Should().BeEquivalentTo(expectedCodes);
         }
     }
 

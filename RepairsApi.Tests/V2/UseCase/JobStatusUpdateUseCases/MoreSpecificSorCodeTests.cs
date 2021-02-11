@@ -100,8 +100,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
                 Quantity = new Quantity
                 {
                     Amount = 4.5
-                },
-                ContractReference = "contractReference"
+                }
             };
             var request = CreateMoreSpecificSORUpdateRequest(desiredWorkOrderId, workOrder, expectedNewCode);
 
@@ -122,8 +121,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
                 },
                 CodeCost = toModify.CodeCost,
                 DateCreated = toModify.DateCreated,
-                M3NHFSORCode = toModify.M3NHFSORCode,
-                ContractReference = toModify.ContractReference
+                M3NHFSORCode = toModify.M3NHFSORCode
             };
             return expectedNewCodes;
         }
@@ -135,8 +133,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
                 CustomCode = rsi.CustomCode,
                 Quantity = rsi.Quantity.ToResponse(),
                 CustomName = rsi.CustomName,
-                M3NHFSORCode = rsi.M3NHFSORCode,
-                ContractReference = rsi.ContractReference
+                M3NHFSORCode = rsi.M3NHFSORCode
             });
 
             return new Generated.JobStatusUpdate

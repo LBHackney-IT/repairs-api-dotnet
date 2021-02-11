@@ -25,50 +25,35 @@ namespace RepairsApi.V2.Gateways
             return await _context.Trades.ToListAsync();
         }
 
-        public async Task<IEnumerable<SorCodeResult>> GetSorCodes(string propertyReference, string tradeCode)
+        public async Task<IEnumerable<ScheduleOfRatesModel>> GetSorCodes(string propertyReference, string tradeCode, string contractorReference)
         {
-            var result = await
+            return await
             (
                 from sor in _context.SORCodes
                 join sorContract in _context.SORContracts on sor.CustomCode equals sorContract.SorCodeCode
                 join contract in _context.Contracts on sorContract.ContractReference equals contract.ContractReference
                 where
-                    sor.Trade.Code == tradeCode &&
-                    contract.PropertyMap.Any(pm => pm.PropRef == propertyReference) &&
-                    contract.EffectiveDate < DateTime.UtcNow && DateTime.UtcNow < contract.TerminationDate
-                select new
+                sor.Trade.Code == tradeCode &&
+                contract.PropertyMap.Any(pm => pm.PropRef == propertyReference) &&
+                contract.EffectiveDate < DateTime.UtcNow && DateTime.UtcNow < contract.TerminationDate &&
+                contract.ContractorReference == contractorReference
+                select new ScheduleOfRatesModel
                 {
-                    sor, sorContract, contract
+                    CustomCode = sor.CustomCode,
+                    CustomName = sor.CustomName,
+                    Priority = new Domain.SORPriority
+                    {
+                        Description = sor.Priority.Description,
+                        PriorityCode = sor.Priority.PriorityCode
+                    }
                 }
             ).ToListAsync();
-
-            return from r in result
-                group new
-                {
-                    r.contract, r.sorContract
-                } by r.sor
-                into contractGroup
-                select new SorCodeResult
-                {
-                    Code = contractGroup.Key.CustomCode,
-                    Description = contractGroup.Key.CustomName,
-                    PriorityCode = contractGroup.Key.Priority?.PriorityCode,
-                    PriorityDescription = contractGroup.Key.Priority?.Description,
-                    Contracts = contractGroup
-                        .Select(c => new SorCodeContractResult
-                        {
-                            ContractorCode = c.contract.Contractor.Reference,
-                            ContractReference = c.contract.ContractReference,
-                            ContractorName = c.contract.Contractor.Name,
-                            ContractCost = c.sorContract.Cost
-                        })
-                };
         }
 
-        public async Task<double?> GetCost(string contractReference, string sorCode)
+        public async Task<double?> GetCost(string contractorReference, string sorCode)
         {
             return await _context.SORContracts
-                .Where(c => c.ContractReference == contractReference && c.SorCodeCode == sorCode)
+                .Where(c => c.Contract.ContractorReference == contractorReference && c.SorCodeCode == sorCode)
                 .Select(c => c.Cost).SingleOrDefaultAsync();
         }
 
@@ -79,23 +64,19 @@ namespace RepairsApi.V2.Gateways
                 .Select(c => c.ContractReference).ToListAsync();
         }
 
-        [Obsolete("Use property reference to filter list")]
-        public async Task<IEnumerable<LegacyScheduleOfRatesModel>> GetSorCodes()
+        public async Task<IEnumerable<ScheduleOfRatesModel>> GetSorCodes()
         {
             return await _context.SORCodes
-                .Select(sor => new LegacyScheduleOfRatesModel
+                .Select(sor => new ScheduleOfRatesModel
                 {
                     CustomCode = sor.CustomCode,
                     CustomName = sor.CustomName,
-                    Priority = new LegacySORPriority
+                    Priority = new Domain.SORPriority
                     {
-                        Description = sor.Priority.Description, PriorityCode = sor.Priority.PriorityCode
-                    },
-                    SORContractor = new LegacyContractor
-                    {
-                        Reference = sor.SorCodeMap.Select(scm => scm.Contract.ContractReference).FirstOrDefault()
+                        Description = sor.Priority.Description,
+                        PriorityCode = sor.Priority.PriorityCode
                     }
-                }).Take(20).ToListAsync();
+                }).ToListAsync();
         }
 
         public async Task<IEnumerable<Contractor>> GetContractors(string propertyRef, string tradeCode)
