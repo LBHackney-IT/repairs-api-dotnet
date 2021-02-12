@@ -14,6 +14,7 @@ using RepairsApi.V2.Controllers.Parameters;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Infrastructure.Extensions;
 using RepairsApi.V2.UseCase;
 
 namespace RepairsApi.Tests.V2.UseCase
@@ -127,7 +128,7 @@ namespace RepairsApi.Tests.V2.UseCase
             //Arrange
             const int workOrderCount = 50;
             const int expectedPageSize = 10;
-            var generatedWorkOrders = GenerateAndReturnWorkOrders(workOrderCount);
+            var generatedWorkOrders = GenerateAndReturnWorkOrdersWithRandomStatus(workOrderCount);
             var workOrderSearchParameters = new WorkOrderSearchParameters
             {
                 PageNumber = 2,
@@ -138,7 +139,9 @@ namespace RepairsApi.Tests.V2.UseCase
             var workOrders = await _classUnderTest.Execute(workOrderSearchParameters);
 
             //Assert
-            var expectedResult = generatedWorkOrders.OrderByDescending(wo => wo.DateRaised)
+            var expectedResult = generatedWorkOrders
+                .OrderBy(wo => wo.GetStatus())
+                .ThenByDescending(wo => wo.DateRaised)
                 .Skip((workOrderSearchParameters.PageNumber - 1) * workOrderSearchParameters.PageSize)
                 .Take(workOrderSearchParameters.PageSize)
                 .Select(wo => wo.ToListItem());
@@ -153,6 +156,58 @@ namespace RepairsApi.Tests.V2.UseCase
             _repairsMock.Setup(r => r.GetWorkOrders())
                 .ReturnsAsync(generatedWorkOrders);
             return generatedWorkOrders;
+        }
+
+        private List<WorkOrder> GenerateAndReturnWorkOrdersWithRandomStatus(int workOrderCount)
+        {
+
+            var generator = new Generator<WorkOrder>()
+                .AddDefaultGenerators()
+                .AddValue(null, (WorkOrder wo) => wo.WorkOrderComplete)
+                .AddValue(null, (WorkOrder wo) => wo.JobStatusUpdates)
+                .AddGenerator(new RandomEnumGenerator<WorkStatusCode>());
+
+            var generatedWorkOrders = generator.GenerateList(workOrderCount);
+
+            _repairsMock.Setup(r => r.GetWorkOrders())
+                .ReturnsAsync(generatedWorkOrders);
+            return generatedWorkOrders;
+        }
+
+        private static void SetSorCodes(string expectedCode, params WorkOrder[] expectedWorkOrders)
+        {
+            foreach (var workOrder in expectedWorkOrders)
+            {
+                foreach (var workElement in workOrder.WorkElements)
+                {
+                    foreach (var rateScheduleItem in workElement.RateScheduleItem)
+                    {
+                        rateScheduleItem.CustomCode = expectedCode;
+                    }
+                }
+            }
+        }
+
+        private ScheduleOfRates AddSorCode(string contractorRef = "contractor")
+        {
+            var expectedCode = new ScheduleOfRates
+            {
+                CustomCode = "1",
+                CustomName = "name",
+                SORContractorRef = contractorRef,
+                Priority = new SORPriority
+                {
+                    Description = "priorityDescription",
+                    PriorityCode = 1
+                }
+            };
+            var expectedCodes = new List<ScheduleOfRates>
+            {
+                expectedCode
+            };
+            _sorGatewayMock.Setup(g => g.GetSorCodes(It.IsAny<string>()))
+                .ReturnsAsync(expectedCodes);
+            return expectedCode;
         }
     }
 }
