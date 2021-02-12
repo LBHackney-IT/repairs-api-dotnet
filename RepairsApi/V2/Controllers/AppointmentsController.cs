@@ -34,12 +34,13 @@ namespace RepairsApi.V2.Controllers
         [Produces("application/json")]
         [ProducesResponseType(typeof(List<AppointmentDayViewModel>), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> ListAppointments([FromQuery]int workOrderReference, DateTime fromDate, DateTime toDate)
+        public async Task<IActionResult> ListAppointments([FromQuery] int workOrderReference, DateTime fromDate, DateTime toDate)
         {
             try
             {
                 return Ok(await _listAppointmentsUseCase.Execute(workOrderReference, fromDate, toDate));
-            } catch (ResourceNotFoundException ex)
+            }
+            catch (ResourceNotFoundException ex)
             {
                 return NotFound(ex.Message);
             }

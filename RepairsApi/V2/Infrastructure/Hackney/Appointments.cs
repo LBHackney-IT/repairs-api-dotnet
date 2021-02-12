@@ -15,7 +15,7 @@ namespace RepairsApi.V2.Infrastructure.Hackney
 
     public class AvailableAppointment
     {
-        [Key]public int Id { get; set; }
+        [Key] public int Id { get; set; }
         public virtual Contractor Contractor { get; set; }
         public string ContractorReference { get; set; }
         public string Description { get; set; }
@@ -25,7 +25,7 @@ namespace RepairsApi.V2.Infrastructure.Hackney
 
     public class AvailableAppointmentDay
     {
-        [Key]public int Id { get; set; }
+        [Key] public int Id { get; set; }
         public virtual AvailableAppointment AvailableAppointment { get; set; }
         public int AvailableAppointmentId { get; set; }
         public DayOfWeek Day { get; set; }

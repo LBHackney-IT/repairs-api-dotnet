@@ -115,7 +115,7 @@ namespace RepairsApi.Tests.V2.Gateways
             });
 
             var preBookItems = await _classUnderTest.ListAppointments("contractor", DateTime.UtcNow.AddDays(-1), DateTime.UtcNow.AddDays(1));
-            await _classUnderTest.Create(GenerateAppointmentRef(ids.First(), DateTime.UtcNow ), 100001);
+            await _classUnderTest.Create(GenerateAppointmentRef(ids.First(), DateTime.UtcNow), 100001);
             var postBookItems = await _classUnderTest.ListAppointments("contractor", DateTime.UtcNow.AddDays(-1), DateTime.UtcNow.AddDays(1));
 
             preBookItems.Should().HaveCount(1);

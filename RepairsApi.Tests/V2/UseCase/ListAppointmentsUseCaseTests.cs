@@ -95,13 +95,13 @@ namespace RepairsApi.Tests.V2.UseCase
                 Id = 12
             };
             _appointmentsGatewayMock.Setup(rgm => rgm.ListAppointments(It.IsAny<string>(), toDate, fromDate))
-                .ReturnsAsync(new List<AppointmentListResult>{ expectedAppointment });
+                .ReturnsAsync(new List<AppointmentListResult> { expectedAppointment });
 
             var result = await _classUnderTest.Execute(workOrder, toDate, fromDate);
 
             result.Should().HaveCount(1);
             var appointment = result.First();
-            var refArray = appointment.Slots.First().Reference.Split('/',2);
+            var refArray = appointment.Slots.First().Reference.Split('/', 2);
             var slotId = int.Parse(refArray[0]);
             var slotDate = DateTime.Parse(refArray[1]);
             slotId.Should().Be(expectedAppointment.Id);

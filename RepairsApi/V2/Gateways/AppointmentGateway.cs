@@ -22,14 +22,15 @@ namespace RepairsApi.V2.Gateways
 
         public async Task Create(string appointmentRef, int workOrderId)
         {
-            var refArray = appointmentRef.Split('/',2);
+            var refArray = appointmentRef.Split('/', 2);
             var slotId = int.Parse(refArray[0]);
             var slotDate = DateTime.Parse(refArray[1]);
 
             var appoinment = await _repairsContext.AvailableAppointmentDays
                 .Where(a => a.Id == slotId)
                 .Select(a =>
-                new {
+                new
+                {
                     HasOpenSlots = a.ExistingAppointments.Count < a.AvailableCount
                 }).SingleOrDefaultAsync();
 
