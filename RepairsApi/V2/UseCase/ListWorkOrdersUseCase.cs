@@ -29,7 +29,8 @@ namespace RepairsApi.V2.UseCase
             IEnumerable<WorkOrder> workOrders = await _repairsGateway.GetWorkOrders(await GetConstraints(searchParameters));
 
             return workOrders.Select(wo => wo.ToListItem())
-                .OrderByDescending(wo => wo.DateRaised)
+                .OrderBy(wo => wo.Status)
+                .ThenByDescending(wo => wo.DateRaised)
                 .Skip((searchParameters.PageNumber - 1) * searchParameters.PageSize)
                 .Take(searchParameters.PageSize)
                 .ToList();
