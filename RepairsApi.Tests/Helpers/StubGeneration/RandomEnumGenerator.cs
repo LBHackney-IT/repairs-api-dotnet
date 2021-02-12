@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace RepairsApi.Tests.Helpers.StubGeneration
 {
@@ -9,7 +9,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
         public override T GenerateValue()
         {
             var values = Enum.GetValues(typeof(T));
-            return (T)values.GetValue(_random.Next(values.Length));
+            return (T) values.GetValue(_random.Next(values.Length));
         }
     }
 }
