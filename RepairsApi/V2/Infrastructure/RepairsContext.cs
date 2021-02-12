@@ -25,6 +25,10 @@ namespace RepairsApi.V2.Infrastructure
         public DbSet<PropertyContract> PropertyContracts { get; set; }
         public DbSet<SORContract> SORContracts { get; set; }
 
+        public DbSet<AvailableAppointment> AvailableAppointments { get; set; }
+        public DbSet<AvailableAppointmentDay> AvailableAppointmentDays { get; set; }
+        public DbSet<Hackney.Appointment> Appointments { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<WorkOrder>()
@@ -75,6 +79,9 @@ namespace RepairsApi.V2.Infrastructure
                 .HasOne(p => p.Contract)
                 .WithMany(c => c.PropertyMap)
                 .HasForeignKey(p => p.ContractReference);
+
+            modelBuilder.Entity<Hackney.Appointment>()
+                .HasKey(a => new { a.DayId, a.WorkOrderId });
         }
     }
 }

@@ -1,13 +1,10 @@
-using Bogus;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Gateways.Models;
 using System;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
