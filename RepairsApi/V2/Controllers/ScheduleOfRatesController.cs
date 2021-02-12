@@ -1,13 +1,11 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RepairsApi.V2.UseCase.Interfaces;
 using RepairsApi.V2.Boundary.Response;
-using System;
+using RepairsApi.V2.UseCase.Interfaces;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using RepairsApi.V2.Domain;
-using System.ComponentModel.DataAnnotations;
+using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Infrastructure.Hackney;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -19,14 +17,17 @@ namespace RepairsApi.V2.Controllers
     {
 
         private readonly IListScheduleOfRatesUseCase _listScheduleOfRates;
+        private readonly ISorPriorityGateway _priorityGateway;
         private readonly IListSorTradesUseCase _listSorTrades;
 
         public ScheduleOfRatesController(
             IListScheduleOfRatesUseCase listScheduleOfRates,
-            IListSorTradesUseCase listSorTrades
+            IListSorTradesUseCase listSorTrades,
+            ISorPriorityGateway priorityGateway
             )
         {
             _listScheduleOfRates = listScheduleOfRates;
+            _priorityGateway = priorityGateway;
             _listSorTrades = listSorTrades;
         }
 
@@ -38,9 +39,14 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(IEnumerable<ScheduleOfRatesModel>), StatusCodes.Status200OK)]
         [Route("codes")]
         [HttpGet]
-        public async Task<IActionResult> ListRecords([FromQuery][Required] string tradeCode, [FromQuery][Required] string propertyReference)
+        public async Task<IActionResult> ListRecords([FromQuery] string tradeCode, [FromQuery] string propertyReference, [FromQuery] string contractorReference)
         {
-            return Ok(await _listScheduleOfRates.Execute(tradeCode, propertyReference));
+            if (string.IsNullOrWhiteSpace(tradeCode) && string.IsNullOrWhiteSpace(propertyReference) && string.IsNullOrWhiteSpace(contractorReference))
+                return Ok(await _listScheduleOfRates.Execute());
+            else if (!string.IsNullOrWhiteSpace(tradeCode) && !string.IsNullOrWhiteSpace(propertyReference) && !string.IsNullOrWhiteSpace(contractorReference))
+                return Ok(await _listScheduleOfRates.Execute(tradeCode, propertyReference, contractorReference));
+
+            return BadRequest();
         }
 
         /// <summary>
@@ -53,6 +59,18 @@ namespace RepairsApi.V2.Controllers
         public async Task<IActionResult> ListTrades()
         {
             return Ok(await _listSorTrades.Execute());
+        }
+
+
+        /// <summary>
+        /// Returns list of SOR Code Priorities
+        /// </summary>
+        [ProducesResponseType(typeof(IEnumerable<SORPriority>), StatusCodes.Status200OK)]
+        [HttpGet]
+        [Route("priorities")]
+        public async Task<IActionResult> ListPriorities()
+        {
+            return Ok(await _priorityGateway.GetPriorities());
         }
     }
 }

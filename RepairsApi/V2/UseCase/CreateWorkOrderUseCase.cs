@@ -66,14 +66,14 @@ namespace RepairsApi.V2.UseCase
                 await element.RateScheduleItem.ForEachAsync(async item =>
                 {
                     item.DateCreated = DateTime.UtcNow;
-                    item.CodeCost = await GetCost(item.ContractReference, item.CustomCode);
+                    item.CodeCost = await GetCost(workOrder.AssignedToPrimary?.ContractorReference, item.CustomCode);
                 });
             });
         }
 
-        private async Task<double?> GetCost(string contractReference, string customCode)
+        private async Task<double?> GetCost(string contractorReference, string customCode)
         {
-            return await _scheduleOfRatesGateway.GetCost(contractReference, customCode);
+            return await _scheduleOfRatesGateway.GetCost(contractorReference, customCode);
         }
     }
 }

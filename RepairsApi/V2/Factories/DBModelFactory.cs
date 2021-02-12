@@ -255,7 +255,6 @@ namespace RepairsApi.V2.Factories
                 CustomCode = raiseRepair.CustomCode,
                 CustomName = raiseRepair.CustomName,
                 Quantity = raiseRepair.Quantity?.ToDb(),
-                ContractReference = raiseRepair.ContractReference
             };
         }
 
@@ -408,7 +407,8 @@ namespace RepairsApi.V2.Factories
                 Name = party.Name,
                 Role = party.Role,
                 Organization = party.Organization?.ToDb(),
-                Person = party.Person?.ToDb()
+                Person = party.Person?.ToDb(),
+                ContractorReference = party.Reference?.FirstOrDefault()?.ID
             };
         }
 

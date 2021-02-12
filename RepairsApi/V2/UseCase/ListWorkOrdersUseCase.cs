@@ -16,26 +16,25 @@ namespace RepairsApi.V2.UseCase
     public class ListWorkOrdersUseCase : IListWorkOrdersUseCase
     {
         private readonly IRepairsGateway _repairsGateway;
-        private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
 
-        public ListWorkOrdersUseCase(IRepairsGateway repairsGateway, IScheduleOfRatesGateway scheduleOfRatesGateway)
+        public ListWorkOrdersUseCase(IRepairsGateway repairsGateway)
         {
             _repairsGateway = repairsGateway;
-            _scheduleOfRatesGateway = scheduleOfRatesGateway;
         }
 
         public async Task<IEnumerable<WorkOrderListItem>> Execute(WorkOrderSearchParameters searchParameters)
         {
-            IEnumerable<WorkOrder> workOrders = await _repairsGateway.GetWorkOrders(await GetConstraints(searchParameters));
+            IEnumerable<WorkOrder> workOrders = await _repairsGateway.GetWorkOrders(GetConstraints(searchParameters));
 
             return workOrders.Select(wo => wo.ToListItem())
-                .OrderByDescending(wo => wo.DateRaised)
+                .OrderBy(wo => wo.Status)
+                .ThenByDescending(wo => wo.DateRaised)
                 .Skip((searchParameters.PageNumber - 1) * searchParameters.PageSize)
                 .Take(searchParameters.PageSize)
                 .ToList();
         }
 
-        private async Task<Expression<Func<WorkOrder, bool>>[]> GetConstraints(WorkOrderSearchParameters searchParameters)
+        private static Expression<Func<WorkOrder, bool>>[] GetConstraints(WorkOrderSearchParameters searchParameters)
         {
             var result = new List<Expression<Func<WorkOrder, bool>>>();
 
@@ -46,14 +45,7 @@ namespace RepairsApi.V2.UseCase
 
             if (!string.IsNullOrWhiteSpace(searchParameters.ContractorReference))
             {
-                var relatedContracts = await _scheduleOfRatesGateway.GetContracts(searchParameters.ContractorReference);
-                result.Add(wo =>
-                    wo.WorkElements.Any(we =>
-                        we.RateScheduleItem.Any(rsi =>
-                            relatedContracts.Contains(rsi.ContractReference)
-                        )
-                    )
-                );
+                result.Add(wo => wo.AssignedToPrimary.ContractorReference == searchParameters.ContractorReference);
             }
 
             return result.ToArray();

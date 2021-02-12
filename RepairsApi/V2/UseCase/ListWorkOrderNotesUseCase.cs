@@ -35,7 +35,8 @@ namespace RepairsApi.V2.UseCase
                 {
                     Note = jsu.Comments,
                     Time = jsu.EventTime.Value,
-                    User = jsu.Author
+                    User = jsu.AuthorName,
+                    UserEmail = jsu.AuthorEmail
                 })
                 .OrderBy(note => note.Time);
         }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RepairsApi.V2.Infrastructure;
@@ -9,9 +10,10 @@ using RepairsApi.V2.Infrastructure;
 namespace RepairsApi.V2.Infrastructure.Migrations
 {
     [DbContext(typeof(RepairsContext))]
-    partial class RepairsContextModelSnapshot : ModelSnapshot
+    [Migration("20210208121542_AuthorEmail")]
+    partial class AuthorEmail
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -188,158 +190,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.ToTable("customer_satisfaction");
                 });
 
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Hackney.Contract", b =>
-                {
-                    b.Property<string>("ContractReference")
-                        .HasColumnType("text")
-                        .HasColumnName("contract_reference");
-
-                    b.Property<string>("ContractorReference")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("contractor_reference");
-
-                    b.Property<DateTime>("EffectiveDate")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("effective_date");
-
-                    b.Property<DateTime>("TerminationDate")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("termination_date");
-
-                    b.HasKey("ContractReference")
-                        .HasName("pk_contracts");
-
-                    b.HasIndex("ContractorReference")
-                        .HasDatabaseName("ix_contracts_contractor_reference");
-
-                    b.ToTable("contracts");
-                });
-
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Hackney.Contractor", b =>
-                {
-                    b.Property<string>("Reference")
-                        .HasColumnType("text")
-                        .HasColumnName("reference");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text")
-                        .HasColumnName("name");
-
-                    b.HasKey("Reference")
-                        .HasName("pk_contractors");
-
-                    b.ToTable("contractors");
-                });
-
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Hackney.PropertyContract", b =>
-                {
-                    b.Property<string>("ContractReference")
-                        .HasColumnType("text")
-                        .HasColumnName("contract_reference");
-
-                    b.Property<string>("PropRef")
-                        .HasColumnType("text")
-                        .HasColumnName("prop_ref");
-
-                    b.HasKey("ContractReference", "PropRef")
-                        .HasName("pk_property_contracts");
-
-                    b.ToTable("property_contracts");
-                });
-
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Hackney.SORContract", b =>
-                {
-                    b.Property<string>("ContractReference")
-                        .HasColumnType("text")
-                        .HasColumnName("contract_reference");
-
-                    b.Property<string>("SorCodeCode")
-                        .HasColumnType("text")
-                        .HasColumnName("sor_code_code");
-
-                    b.Property<double>("Cost")
-                        .HasColumnType("double precision")
-                        .HasColumnName("cost");
-
-                    b.HasKey("ContractReference", "SorCodeCode")
-                        .HasName("pk_sor_contracts");
-
-                    b.HasIndex("SorCodeCode")
-                        .HasDatabaseName("ix_sor_contracts_sor_code_code");
-
-                    b.ToTable("sor_contracts");
-                });
-
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Hackney.SORPriority", b =>
-                {
-                    b.Property<int>("PriorityCode")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("priority_code")
-                        .UseIdentityByDefaultColumn();
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text")
-                        .HasColumnName("description");
-
-                    b.HasKey("PriorityCode")
-                        .HasName("pk_sor_priorities");
-
-                    b.ToTable("sor_priorities");
-                });
-
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Hackney.ScheduleOfRates", b =>
-                {
-                    b.Property<string>("CustomCode")
-                        .HasColumnType("text")
-                        .HasColumnName("custom_code");
-
-                    b.Property<double?>("Cost")
-                        .HasColumnType("double precision")
-                        .HasColumnName("cost");
-
-                    b.Property<string>("CustomName")
-                        .HasColumnType("text")
-                        .HasColumnName("custom_name");
-
-                    b.Property<int?>("PriorityId")
-                        .HasColumnType("integer")
-                        .HasColumnName("priority_id");
-
-                    b.Property<string>("TradeCode")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("trade_code");
-
-                    b.HasKey("CustomCode")
-                        .HasName("pk_sor_codes");
-
-                    b.HasIndex("PriorityId")
-                        .HasDatabaseName("ix_sor_codes_priority_id");
-
-                    b.HasIndex("TradeCode")
-                        .HasDatabaseName("ix_sor_codes_trade_code");
-
-                    b.ToTable("sor_codes");
-                });
-
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Hackney.SorCodeTrade", b =>
-                {
-                    b.Property<string>("Code")
-                        .HasColumnType("text")
-                        .HasColumnName("code");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text")
-                        .HasColumnName("name");
-
-                    b.HasKey("Code")
-                        .HasName("pk_trades");
-
-                    b.ToTable("trades");
-                });
-
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.JobStatusUpdate", b =>
                 {
                     b.Property<int>("Id")
@@ -470,10 +320,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("id")
                         .UseIdentityByDefaultColumn();
-
-                    b.Property<string>("ContractorReference")
-                        .HasColumnType("text")
-                        .HasColumnName("contractor_reference");
 
                     b.Property<string>("Name")
                         .HasColumnType("text")
@@ -682,6 +528,124 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasDatabaseName("ix_rate_schedule_item_work_order_complete_id");
 
                     b.ToTable("rate_schedule_item");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.SORPriority", b =>
+                {
+                    b.Property<int>("PriorityCode")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("priority_code")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.HasKey("PriorityCode")
+                        .HasName("pk_sor_priorities");
+
+                    b.ToTable("sor_priorities");
+
+                    b.HasData(
+                        new
+                        {
+                            PriorityCode = 1,
+                            Description = "I - Immediate (2 hours)"
+                        },
+                        new
+                        {
+                            PriorityCode = 2,
+                            Description = "E - Emergency (24 hours)"
+                        },
+                        new
+                        {
+                            PriorityCode = 3,
+                            Description = "U - Urgent 7 days (5 Working days)"
+                        },
+                        new
+                        {
+                            PriorityCode = 4,
+                            Description = "N - Normal 28 days (21 working days)"
+                        },
+                        new
+                        {
+                            PriorityCode = 5,
+                            Description = "Inspection"
+                        });
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.ScheduleOfRates", b =>
+                {
+                    b.Property<string>("CustomCode")
+                        .HasColumnType("text")
+                        .HasColumnName("custom_code");
+
+                    b.Property<double>("Cost")
+                        .HasColumnType("double precision")
+                        .HasColumnName("cost");
+
+                    b.Property<string>("CustomName")
+                        .HasColumnType("text")
+                        .HasColumnName("custom_name");
+
+                    b.Property<int>("PriorityId")
+                        .HasColumnType("integer")
+                        .HasColumnName("priority_id");
+
+                    b.Property<string>("SORContractorRef")
+                        .HasColumnType("text")
+                        .HasColumnName("sor_contractor_ref");
+
+                    b.HasKey("CustomCode")
+                        .HasName("pk_sor_codes");
+
+                    b.HasIndex("PriorityId")
+                        .HasDatabaseName("ix_sor_codes_priority_id");
+
+                    b.ToTable("sor_codes");
+
+                    b.HasData(
+                        new
+                        {
+                            CustomCode = "DES5R003",
+                            Cost = 0.0,
+                            CustomName = "Immediate call outs",
+                            PriorityId = 1,
+                            SORContractorRef = "H01"
+                        },
+                        new
+                        {
+                            CustomCode = "DES5R004",
+                            Cost = 0.0,
+                            CustomName = "Emergency call out",
+                            PriorityId = 2,
+                            SORContractorRef = "H01"
+                        },
+                        new
+                        {
+                            CustomCode = "DES5R006",
+                            Cost = 0.0,
+                            CustomName = "Urgent call outs",
+                            PriorityId = 3,
+                            SORContractorRef = "H01"
+                        },
+                        new
+                        {
+                            CustomCode = "DES5R005",
+                            Cost = 0.0,
+                            CustomName = "Normal call outs",
+                            PriorityId = 4,
+                            SORContractorRef = "H01"
+                        },
+                        new
+                        {
+                            CustomCode = "DES5R013",
+                            Cost = 0.0,
+                            CustomName = "Inspect additional sec entrance",
+                            PriorityId = 5,
+                            SORContractorRef = "H01"
+                        });
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Score", b =>
@@ -1109,72 +1073,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.Navigation("PartyCarryingOutSurvey");
 
                     b.Navigation("PartyProvidingFeedback");
-                });
-
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Hackney.Contract", b =>
-                {
-                    b.HasOne("RepairsApi.V2.Infrastructure.Hackney.Contractor", "Contractor")
-                        .WithMany("Contracts")
-                        .HasForeignKey("ContractorReference")
-                        .HasConstraintName("fk_contracts_contractors_contractor_reference")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Contractor");
-                });
-
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Hackney.PropertyContract", b =>
-                {
-                    b.HasOne("RepairsApi.V2.Infrastructure.Hackney.Contract", "Contract")
-                        .WithMany("PropertyMap")
-                        .HasForeignKey("ContractReference")
-                        .HasConstraintName("fk_property_contracts_contracts_contract_reference1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Contract");
-                });
-
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Hackney.SORContract", b =>
-                {
-                    b.HasOne("RepairsApi.V2.Infrastructure.Hackney.Contract", "Contract")
-                        .WithMany("SorCodeMap")
-                        .HasForeignKey("ContractReference")
-                        .HasConstraintName("fk_sor_contracts_contracts_contract_reference1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("RepairsApi.V2.Infrastructure.Hackney.ScheduleOfRates", "SorCode")
-                        .WithMany("SorCodeMap")
-                        .HasForeignKey("SorCodeCode")
-                        .HasConstraintName("fk_sor_contracts_sor_codes_sor_code_custom_code")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Contract");
-
-                    b.Navigation("SorCode");
-                });
-
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Hackney.ScheduleOfRates", b =>
-                {
-                    b.HasOne("RepairsApi.V2.Infrastructure.Hackney.SORPriority", "Priority")
-                        .WithMany()
-                        .HasForeignKey("PriorityId")
-                        .HasConstraintName("fk_sor_codes_sor_priorities_priority_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("RepairsApi.V2.Infrastructure.Hackney.SorCodeTrade", "Trade")
-                        .WithMany()
-                        .HasForeignKey("TradeCode")
-                        .HasConstraintName("fk_sor_codes_trades_trade_code")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Priority");
-
-                    b.Navigation("Trade");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.JobStatusUpdate", b =>
@@ -1653,6 +1551,18 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.Navigation("Quantity");
                 });
 
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.ScheduleOfRates", b =>
+                {
+                    b.HasOne("RepairsApi.V2.Infrastructure.SORPriority", "Priority")
+                        .WithMany()
+                        .HasForeignKey("PriorityId")
+                        .HasConstraintName("fk_sor_codes_sor_priorities_priority_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Priority");
+                });
+
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Score", b =>
                 {
                     b.HasOne("RepairsApi.V2.Infrastructure.ScoreSet", null)
@@ -2037,23 +1947,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.CustomerSatisfaction", b =>
                 {
                     b.Navigation("FeedbackSet");
-                });
-
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Hackney.Contract", b =>
-                {
-                    b.Navigation("PropertyMap");
-
-                    b.Navigation("SorCodeMap");
-                });
-
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Hackney.Contractor", b =>
-                {
-                    b.Navigation("Contracts");
-                });
-
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Hackney.ScheduleOfRates", b =>
-                {
-                    b.Navigation("SorCodeMap");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.JobStatusUpdate", b =>

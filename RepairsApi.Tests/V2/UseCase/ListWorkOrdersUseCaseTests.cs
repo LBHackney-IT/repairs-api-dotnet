@@ -1,20 +1,18 @@
+using FluentAssertions;
+using Moq;
+using NUnit.Framework;
+using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.Tests.V2.Gateways;
+using RepairsApi.V2.Boundary.Response;
+using RepairsApi.V2.Controllers.Parameters;
+using RepairsApi.V2.Factories;
+using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Infrastructure.Extensions;
+using RepairsApi.V2.UseCase;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
-using Moq;
-using NUnit.Framework;
-using RepairsApi.Tests.Helpers;
-using RepairsApi.Tests.Helpers.StubGeneration;
-using RepairsApi.Tests.V2.Gateways;
-using RepairsApi.V2.Boundary.Response;
-using RepairsApi.V2.Controllers;
-using RepairsApi.V2.Controllers.Parameters;
-using RepairsApi.V2.Factories;
-using RepairsApi.V2.Gateways;
-using RepairsApi.V2.Infrastructure;
-using RepairsApi.V2.UseCase;
 
 namespace RepairsApi.Tests.V2.UseCase
 {
@@ -23,7 +21,6 @@ namespace RepairsApi.Tests.V2.UseCase
     {
         private ListWorkOrdersUseCase _classUnderTest;
         private MockRepairsGateway _repairsMock;
-        private Mock<IScheduleOfRatesGateway> _sorGatewayMock;
         private Generator<WorkOrder> _generator;
 
         [SetUp]
@@ -31,8 +28,7 @@ namespace RepairsApi.Tests.V2.UseCase
         {
             configureGenerator();
             _repairsMock = new MockRepairsGateway();
-            _sorGatewayMock = new Mock<IScheduleOfRatesGateway>();
-            _classUnderTest = new ListWorkOrdersUseCase(_repairsMock.Object, _sorGatewayMock.Object);
+            _classUnderTest = new ListWorkOrdersUseCase(_repairsMock.Object);
         }
 
         private void configureGenerator()
@@ -112,41 +108,6 @@ namespace RepairsApi.Tests.V2.UseCase
             workOrders.Should().BeEquivalentTo(expectedResponses);
         }
 
-        [Test]
-        public async Task CanFilterByContractorRef()
-        {
-            // Arrange
-            var expectedContractRef = Guid.NewGuid().ToString();
-
-            var allWorkOrders = _generator.GenerateList(3);
-            SetContractRef(allWorkOrders, "not" + expectedContractRef);
-
-            var expectedWorkOrders = _generator.GenerateList(3);
-            SetContractRef(expectedWorkOrders, expectedContractRef);
-
-            allWorkOrders.AddRange(expectedWorkOrders);
-
-            _repairsMock.ReturnsWorkOrders(allWorkOrders);
-
-            _sorGatewayMock.Setup(x => x.GetContracts(It.IsAny<string>()))
-                .ReturnsAsync(new List<string>
-                {
-                    expectedContractRef
-                });
-
-            var workOrderSearchParameters = new WorkOrderSearchParameters
-            {
-                ContractorReference = expectedContractRef
-            };
-
-            // Act
-            var workOrders = await _classUnderTest.Execute(workOrderSearchParameters);
-
-            // Assert
-            var expectedResponses = expectedWorkOrders.Select(ewo => ewo.ToListItem());
-            workOrders.Should().BeEquivalentTo(expectedResponses);
-        }
-
         private static void SetPropertyRefs(List<WorkOrder> expectedWorkOrders, string newRef)
         {
             foreach (var expectedWorkOrder in expectedWorkOrders)
@@ -158,27 +119,13 @@ namespace RepairsApi.Tests.V2.UseCase
             }
         }
 
-        private static void SetContractRef(List<WorkOrder> expectedWorkOrders, string newRef)
-        {
-            foreach (var expectedWorkOrder in expectedWorkOrders)
-            {
-                foreach (var workElement in expectedWorkOrder.WorkElements)
-                {
-                    foreach (var rateScheduleItem in workElement.RateScheduleItem)
-                    {
-                        rateScheduleItem.ContractReference = newRef;
-                    }
-                }
-            }
-        }
-
         [Test]
         public async Task ReturnsCorrectPageOfWorkOrders()
         {
             //Arrange
             const int workOrderCount = 50;
             const int expectedPageSize = 10;
-            var generatedWorkOrders = GenerateAndReturnWorkOrders(workOrderCount);
+            var generatedWorkOrders = GenerateAndReturnWorkOrdersWithRandomStatus(workOrderCount);
             var workOrderSearchParameters = new WorkOrderSearchParameters
             {
                 PageNumber = 2,
@@ -189,25 +136,35 @@ namespace RepairsApi.Tests.V2.UseCase
             var workOrders = await _classUnderTest.Execute(workOrderSearchParameters);
 
             //Assert
-            var expectedResult = generatedWorkOrders.OrderByDescending(wo => wo.DateRaised)
+            var expectedResult = generatedWorkOrders
+                .OrderBy(wo => wo.GetStatus())
+                .ThenByDescending(wo => wo.DateRaised)
                 .Skip((workOrderSearchParameters.PageNumber - 1) * workOrderSearchParameters.PageSize)
                 .Take(workOrderSearchParameters.PageSize)
                 .Select(wo => wo.ToListItem());
             workOrders.Should().BeEquivalentTo(expectedResult);
         }
 
-        private List<WorkOrder> GenerateWorkOrders(int number, string expectedCode)
-        {
-
-            var otherWorkOrders = _generator.GenerateList(number);
-            SetSorCodes(expectedCode, otherWorkOrders.ToArray());
-            return otherWorkOrders;
-        }
-
         private List<WorkOrder> GenerateAndReturnWorkOrders(int workOrderCount)
         {
 
             var generatedWorkOrders = _generator.GenerateList(workOrderCount);
+
+            _repairsMock.Setup(r => r.GetWorkOrders())
+                .ReturnsAsync(generatedWorkOrders);
+            return generatedWorkOrders;
+        }
+
+        private List<WorkOrder> GenerateAndReturnWorkOrdersWithRandomStatus(int workOrderCount)
+        {
+
+            var generator = new Generator<WorkOrder>()
+                .AddDefaultGenerators()
+                .AddValue(null, (WorkOrder wo) => wo.WorkOrderComplete)
+                .AddValue(null, (WorkOrder wo) => wo.JobStatusUpdates)
+                .AddGenerator(new RandomEnumGenerator<WorkStatusCode>());
+
+            var generatedWorkOrders = generator.GenerateList(workOrderCount);
 
             _repairsMock.Setup(r => r.GetWorkOrders())
                 .ReturnsAsync(generatedWorkOrders);

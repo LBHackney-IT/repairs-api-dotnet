@@ -8,11 +8,11 @@ namespace RepairsApi.V2.Infrastructure.Hackney
     {
         [Key] public string CustomCode { get; set; }
         public string CustomName { get; set; }
-        public double Cost { get; set; }
+        public double? Cost { get; set; }
 
         [Required]
         public virtual SORPriority Priority { get; set; }
-        public int PriorityId { get; set; }
+        public int? PriorityId { get; set; }
 
         [Required]
         public virtual SorCodeTrade Trade { get; set; }
@@ -53,6 +53,8 @@ namespace RepairsApi.V2.Infrastructure.Hackney
     {
         [Key] public string Reference { get; set; }
         public string Name { get; set; }
+
+        public virtual List<Contract> Contracts { get; set; }
     }
 
     public class SORContract

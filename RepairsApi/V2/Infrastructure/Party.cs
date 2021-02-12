@@ -9,6 +9,7 @@ namespace RepairsApi.V2.Infrastructure
         public string Role { get; set; }
         public virtual Organization Organization { get; set; }
         public virtual Person Person { get; set; }
+        public string ContractorReference { get; set; }
     }
 }
 
