@@ -47,7 +47,7 @@ namespace RepairsApi.Tests.V2.Controllers
                             Description = "desc",
                             End = new DateTime().AddHours(8),
                             Start = new DateTime().AddHours(12),
-                            Reference = 117
+                            Reference = "117"
                         }
                     }
                 }
@@ -62,11 +62,10 @@ namespace RepairsApi.Tests.V2.Controllers
         [Test]
         public async Task Returns404ForNotFound()
         {
-            _createAppointmentMock.Setup(lam => lam.Execute(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>())).ThrowsAsync(new ResourceNotFoundException());
+            _createAppointmentMock.Setup(lam => lam.Execute(It.IsAny<string>(), It.IsAny<int>())).ThrowsAsync(new ResourceNotFoundException());
 
             var result = await _classUnderTest.CreateAppointment(new RepairsApi.V2.Generated.RequestAppointment
             {
-                AppointmentDate = DateTime.UtcNow,
                 AppointmentReference = new RepairsApi.V2.Generated.Reference
                 {
                     ID = "1"
@@ -83,33 +82,13 @@ namespace RepairsApi.Tests.V2.Controllers
         [Test]
         public async Task Returns400ForNotSupported()
         {
-            _createAppointmentMock.Setup(lam => lam.Execute(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>())).ThrowsAsync(new NotSupportedException());
+            _createAppointmentMock.Setup(lam => lam.Execute(It.IsAny<string>(), It.IsAny<int>())).ThrowsAsync(new NotSupportedException());
 
             var result = await _classUnderTest.CreateAppointment(new RepairsApi.V2.Generated.RequestAppointment
             {
-                AppointmentDate = DateTime.UtcNow,
                 AppointmentReference = new RepairsApi.V2.Generated.Reference
                 {
                     ID = "1"
-                },
-                WorkOrderReference = new RepairsApi.V2.Generated.Reference
-                {
-                    ID = "2"
-                }
-            });
-
-            GetStatusCode(result).Should().Be(400);
-        }
-
-        [Test]
-        public async Task Returns400ForNonIntegerIds()
-        {
-            var result = await _classUnderTest.CreateAppointment(new RepairsApi.V2.Generated.RequestAppointment
-            {
-                AppointmentDate = DateTime.UtcNow,
-                AppointmentReference = new RepairsApi.V2.Generated.Reference
-                {
-                    ID = "not an int"
                 },
                 WorkOrderReference = new RepairsApi.V2.Generated.Reference
                 {
@@ -125,10 +104,8 @@ namespace RepairsApi.Tests.V2.Controllers
         {
             const int appointmentId = 1;
             const int workOrderId = 2;
-            DateTime date = DateTime.UtcNow;
             var result = await _classUnderTest.CreateAppointment(new RepairsApi.V2.Generated.RequestAppointment
             {
-                AppointmentDate = date,
                 AppointmentReference = new RepairsApi.V2.Generated.Reference
                 {
                     ID = appointmentId.ToString()
@@ -140,7 +117,7 @@ namespace RepairsApi.Tests.V2.Controllers
             });
 
             GetStatusCode(result).Should().Be(200);
-            _createAppointmentMock.Verify(cam => cam.Execute(appointmentId, workOrderId, date));
+            _createAppointmentMock.Verify(cam => cam.Execute(appointmentId.ToString(), workOrderId));
         }
     }
 }

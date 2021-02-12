@@ -7,7 +7,7 @@ namespace RepairsApi.V2.Controllers
 {
     public interface ICreateAppointmentUseCase
     {
-        Task Execute(int appointmentId, int workOrderId, DateTime appointmentDate);
+        Task Execute(string appointmentRef, int workOrderId);
     }
 
     public class CreateAppointmentUseCase : ICreateAppointmentUseCase
@@ -21,7 +21,7 @@ namespace RepairsApi.V2.Controllers
             _repairsGateway = repairsGateway;
         }
 
-        public async Task Execute(int appointmentId, int workOrderId, DateTime appointmentDate)
+        public async Task Execute(string appointmentRef, int workOrderId)
         {
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
 
@@ -30,7 +30,7 @@ namespace RepairsApi.V2.Controllers
                 throw new ResourceNotFoundException("work order does not exist");
             }
 
-            await _appointmentsGateway.Create(appointmentId, workOrderId, appointmentDate);
+            await _appointmentsGateway.Create(appointmentRef, workOrderId);
         }
     }
 }

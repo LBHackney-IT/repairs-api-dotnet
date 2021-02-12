@@ -59,9 +59,9 @@ namespace RepairsApi.V2.Controllers
         {
             try
             {
-                var appointmentId = int.Parse(appointmentRequest.AppointmentReference.ID);
+                var appointmentId = appointmentRequest.AppointmentReference.ID;
                 var workOrderId = int.Parse(appointmentRequest.WorkOrderReference.ID);
-                await _createAppointmentUseCase.Execute(appointmentId, workOrderId, appointmentRequest.AppointmentDate);
+                await _createAppointmentUseCase.Execute(appointmentId, workOrderId);
                 return Ok();
             }
             catch (ResourceNotFoundException ex)

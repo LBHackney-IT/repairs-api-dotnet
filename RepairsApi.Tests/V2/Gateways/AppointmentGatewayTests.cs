@@ -115,11 +115,16 @@ namespace RepairsApi.Tests.V2.Gateways
             });
 
             var preBookItems = await _classUnderTest.ListAppointments("contractor", DateTime.UtcNow.AddDays(-1), DateTime.UtcNow.AddDays(1));
-            await _classUnderTest.Create(ids.First(), 100001, DateTime.UtcNow);
+            await _classUnderTest.Create(GenerateAppointmentRef(ids.First(), DateTime.UtcNow ), 100001);
             var postBookItems = await _classUnderTest.ListAppointments("contractor", DateTime.UtcNow.AddDays(-1), DateTime.UtcNow.AddDays(1));
 
             preBookItems.Should().HaveCount(1);
             postBookItems.Should().HaveCount(0);
+        }
+
+        private static string GenerateAppointmentRef(int id, DateTime date)
+        {
+            return $"{id.ToString()}/{date:dd-MM-yyyy}";
         }
 
         [Test]
@@ -132,9 +137,9 @@ namespace RepairsApi.Tests.V2.Gateways
             {
                     new AppointmentSeedModel("AM", new DateTime().AddHours(8), new DateTime().AddHours(12))
             });
-            await _classUnderTest.Create(ids.First(), 100001, DateTime.UtcNow);
+            await _classUnderTest.Create(GenerateAppointmentRef(ids.First(), DateTime.UtcNow), 100001);
 
-            Func<Task> testFunc = async () => await _classUnderTest.Create(ids.First(), 100001, DateTime.UtcNow);
+            Func<Task> testFunc = async () => await _classUnderTest.Create(GenerateAppointmentRef(ids.First(), DateTime.UtcNow), 100001);
 
             await testFunc.Should().ThrowAsync<NotSupportedException>();
         }
@@ -143,7 +148,7 @@ namespace RepairsApi.Tests.V2.Gateways
         [Test]
         public async Task ThrowsWhenNoMatchingAppointment()
         {
-            Func<Task> testFunc = async () => await _classUnderTest.Create(1, 100001, DateTime.UtcNow);
+            Func<Task> testFunc = async () => await _classUnderTest.Create("1/01-01-2020", 100001);
 
             await testFunc.Should().ThrowAsync<ResourceNotFoundException>();
         }
