@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using RepairsApi.V2.Boundary.Response;
 
-namespace RepairsApi.V2.Controllers
+namespace RepairsApi.V2.UseCase.Interfaces
 {
     public interface IListAppointmentsUseCase
     {

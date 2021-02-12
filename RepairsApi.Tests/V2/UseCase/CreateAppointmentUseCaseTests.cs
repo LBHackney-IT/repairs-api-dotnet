@@ -7,6 +7,7 @@ using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
 using System;
 using System.Threading.Tasks;
+using RepairsApi.V2.UseCase.Interfaces;
 
 namespace RepairsApi.Tests.V2.UseCase
 {

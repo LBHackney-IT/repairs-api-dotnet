@@ -4,6 +4,8 @@ using RepairsApi.V2.Generated;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using RepairsApi.V2.Boundary.Response;
+using RepairsApi.V2.UseCase.Interfaces;
 
 namespace RepairsApi.V2.Controllers
 {

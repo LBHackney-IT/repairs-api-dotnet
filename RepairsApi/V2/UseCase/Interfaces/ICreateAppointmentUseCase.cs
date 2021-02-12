@@ -1,9 +1,9 @@
+using System.Threading.Tasks;
+using RepairsApi.V2.Controllers;
 using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Gateways;
-using System;
-using System.Threading.Tasks;
 
-namespace RepairsApi.V2.Controllers
+namespace RepairsApi.V2.UseCase.Interfaces
 {
     public interface ICreateAppointmentUseCase
     {

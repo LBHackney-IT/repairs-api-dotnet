@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace RepairsApi.V2.Controllers
+namespace RepairsApi.V2.Boundary.Response
 {
     public class AppointmentDayViewModel
     {
