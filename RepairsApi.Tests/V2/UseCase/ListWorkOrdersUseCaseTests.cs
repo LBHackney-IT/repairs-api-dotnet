@@ -1,21 +1,18 @@
+using FluentAssertions;
+using Moq;
+using NUnit.Framework;
+using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.Tests.V2.Gateways;
+using RepairsApi.V2.Boundary.Response;
+using RepairsApi.V2.Controllers.Parameters;
+using RepairsApi.V2.Factories;
+using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Infrastructure.Extensions;
+using RepairsApi.V2.UseCase;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
-using Moq;
-using NUnit.Framework;
-using RepairsApi.Tests.Helpers;
-using RepairsApi.Tests.Helpers.StubGeneration;
-using RepairsApi.Tests.V2.Gateways;
-using RepairsApi.V2.Boundary.Response;
-using RepairsApi.V2.Controllers;
-using RepairsApi.V2.Controllers.Parameters;
-using RepairsApi.V2.Factories;
-using RepairsApi.V2.Gateways;
-using RepairsApi.V2.Infrastructure;
-using RepairsApi.V2.Infrastructure.Extensions;
-using RepairsApi.V2.UseCase;
 
 namespace RepairsApi.Tests.V2.UseCase
 {
@@ -186,28 +183,6 @@ namespace RepairsApi.Tests.V2.UseCase
                     }
                 }
             }
-        }
-
-        private ScheduleOfRates AddSorCode(string contractorRef = "contractor")
-        {
-            var expectedCode = new ScheduleOfRates
-            {
-                CustomCode = "1",
-                CustomName = "name",
-                SORContractorRef = contractorRef,
-                Priority = new SORPriority
-                {
-                    Description = "priorityDescription",
-                    PriorityCode = 1
-                }
-            };
-            var expectedCodes = new List<ScheduleOfRates>
-            {
-                expectedCode
-            };
-            _sorGatewayMock.Setup(g => g.GetSorCodes(It.IsAny<string>()))
-                .ReturnsAsync(expectedCodes);
-            return expectedCode;
         }
     }
 }
