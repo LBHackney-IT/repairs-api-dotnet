@@ -151,29 +151,6 @@ namespace RepairsApi.V2.Factories
             };
         }
 
-        public static ScheduleOfRatesModel ToResponse(this Infrastructure.ScheduleOfRates sorCode)
-        {
-            return new ScheduleOfRatesModel
-            {
-                CustomCode = sorCode.CustomCode,
-                CustomName = sorCode.CustomName,
-                SORContractor = new Contractor
-                {
-                    Reference = sorCode.SORContractorRef
-                },
-                Priority = sorCode.Priority?.ToResponse()
-            };
-        }
-
-        public static SORPriority ToResponse(this Infrastructure.SORPriority priority)
-        {
-            return new SORPriority
-            {
-                Description = priority.Description,
-                PriorityCode = priority.PriorityCode
-            };
-        }
-
         public static WorkElement ToResponse(this Infrastructure.WorkElement workElement)
         {
             return new WorkElement
@@ -250,6 +227,24 @@ namespace RepairsApi.V2.Factories
                 DateAdded = domain.DateAdded,
                 Description = domain.Description,
                 Status = domain.Status
+            };
+        }
+
+        public static SorTradeResponse ToResponse(this Infrastructure.Hackney.SorCodeTrade trade)
+        {
+            return new SorTradeResponse
+            {
+                Code = trade.Code,
+                Name = trade.Name
+            };
+        }
+
+        public static Contractor ToResponse(this Infrastructure.Hackney.Contractor contractor)
+        {
+            return new Contractor
+            {
+                ContractorName = contractor.Name,
+                ContractorReference = contractor.Reference
             };
         }
     }

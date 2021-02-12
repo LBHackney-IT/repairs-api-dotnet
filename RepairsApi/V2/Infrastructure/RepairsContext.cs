@@ -1,26 +1,29 @@
 using Microsoft.EntityFrameworkCore;
+using RepairsApi.V2.Infrastructure.Hackney;
 
 namespace RepairsApi.V2.Infrastructure
 {
-
     public class RepairsContext : DbContext
     {
-        private readonly DataImporter _dataImporter;
 
         public RepairsContext(
-            DbContextOptions options,
-            DataImporter dataImporter
+            DbContextOptions<RepairsContext> options
         ) : base(options)
         {
-            _dataImporter = dataImporter;
         }
 
         public DbSet<WorkOrder> WorkOrders { get; set; }
         public DbSet<WorkElement> WorkElements { get; set; }
         public DbSet<WorkOrderComplete> WorkOrderCompletes { get; set; }
         public DbSet<JobStatusUpdate> JobStatusUpdates { get; set; }
+
         public DbSet<ScheduleOfRates> SORCodes { get; set; }
+        public DbSet<SorCodeTrade> Trades { get; set; }
+        public DbSet<Contractor> Contractors { get; set; }
         public DbSet<SORPriority> SORPriorities { get; set; }
+        public DbSet<Contract> Contracts { get; set; }
+        public DbSet<PropertyContract> PropertyContracts { get; set; }
+        public DbSet<SORContract> SORContracts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -37,7 +40,41 @@ namespace RepairsApi.V2.Infrastructure
                 .HasOne(jobStatusUpdate => jobStatusUpdate.RelatedWorkOrder)
                 .WithMany(workOrder => workOrder.JobStatusUpdates);
 
-            modelBuilder.Seed(_dataImporter);
+            modelBuilder.Entity<PropertyContract>()
+                .HasKey(pc => new { pc.ContractReference, pc.PropRef });
+
+            modelBuilder.Entity<SORContract>()
+                .HasKey(pc => new { pc.ContractReference, pc.SorCodeCode });
+
+            modelBuilder.Entity<ScheduleOfRates>()
+                .HasOne<SorCodeTrade>(sor => sor.Trade)
+                .WithMany()
+                .HasForeignKey(sor => sor.TradeCode);
+
+            modelBuilder.Entity<ScheduleOfRates>()
+                .HasOne<SORPriority>(sor => sor.Priority)
+                .WithMany()
+                .HasForeignKey(sor => sor.PriorityId);
+
+            modelBuilder.Entity<Contract>()
+                .HasOne<Contractor>(c => c.Contractor)
+                .WithMany(c => c.Contracts)
+                .HasForeignKey(c => c.ContractorReference);
+
+            modelBuilder.Entity<SORContract>()
+                .HasOne(s => s.SorCode)
+                .WithMany(sor => sor.SorCodeMap)
+                .HasForeignKey(s => s.SorCodeCode);
+
+            modelBuilder.Entity<SORContract>()
+                .HasOne(s => s.Contract)
+                .WithMany(c => c.SorCodeMap)
+                .HasForeignKey(s => s.ContractReference);
+
+            modelBuilder.Entity<PropertyContract>()
+                .HasOne(p => p.Contract)
+                .WithMany(c => c.PropertyMap)
+                .HasForeignKey(p => p.ContractReference);
         }
     }
 }

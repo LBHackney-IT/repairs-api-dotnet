@@ -114,8 +114,6 @@ namespace RepairsApi
             });
             ConfigureDbContext(services);
 
-            services.AddTransient(provider => new DataImporter(Path.Combine(_env.ContentRootPath, "V2/SeededData")));
-
             AddHttpClients(services);
             services.Configure<GatewayOptions>(Configuration.GetSection(nameof(GatewayOptions)));
 
@@ -154,6 +152,7 @@ namespace RepairsApi
             services.AddTransient<IUpdateJobStatusUseCase, UpdateJobStatusUseCase>();
             services.AddTransient<IGetWorkOrderUseCase, GetWorkOrderUseCase>();
             services.AddTransient<IListWorkOrderTasksUseCase, ListWorkOrderTasksUseCase>();
+            services.AddTransient<IListSorTradesUseCase, ListSorTradesUseCase>();
             services.AddTransient<IMoreSpecificSorUseCase, MoreSpecificSorUseCase>();
             services.AddTransient<IListWorkOrderNotesUseCase, ListWorkOrderNotesUseCase>();
         }

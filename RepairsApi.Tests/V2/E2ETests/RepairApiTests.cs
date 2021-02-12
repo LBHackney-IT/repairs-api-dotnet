@@ -97,7 +97,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         {
             var client = CreateClient();
 
-            var request = RepairMockBuilder.CreateFullRaiseRepair();
+            var request = GenerateWorkOrder<RaiseRepair>().Generate();
             request.WorkElement.First().RateScheduleItem.First().Quantity.Amount.Add(3.5);
             var serializedContent = JsonConvert.SerializeObject(request);
             StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");

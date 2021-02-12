@@ -75,6 +75,10 @@ namespace RepairsApi.Tests
                 var dbContext = scope.ServiceProvider.GetRequiredService<RepairsContext>();
 
                 dbContext.Database.EnsureCreated();
+
+                dbContext.SeedData();
+
+                dbContext.SaveChanges();
             }
         }
 

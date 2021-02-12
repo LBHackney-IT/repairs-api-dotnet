@@ -1,3 +1,4 @@
+using RepairsApi.V2.Infrastructure.Hackney;
 using System;
 using System.ComponentModel.DataAnnotations;
 

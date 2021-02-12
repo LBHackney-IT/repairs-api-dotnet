@@ -15,12 +15,12 @@ namespace RepairsApi.Tests
 
         private MockWebApplicationFactory _factory;
         private NpgsqlConnection _connection = null;
-        private DbContextOptionsBuilder _builder;
+        private DbContextOptionsBuilder<RepairsContext> _builder;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            _builder = new DbContextOptionsBuilder();
+            _builder = new DbContextOptionsBuilder<RepairsContext>();
 
             try
             {
@@ -46,7 +46,7 @@ namespace RepairsApi.Tests
         {
             _factory = new MockWebApplicationFactory(_connection);
             Client = _factory.CreateClient();
-            RepairsContext = new RepairsContext(_builder.Options, new DataImporter("../../../../RepairsApi/V2/SeededData"));
+            RepairsContext = new RepairsContext(_builder.Options);
             RepairsContext.Database.EnsureCreated();
         }
 

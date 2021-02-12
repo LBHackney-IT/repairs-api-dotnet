@@ -5,7 +5,7 @@ namespace RepairsApi.V2.Domain
     public class SORPriority
     {
 
-        public int PriorityCode
+        public int? PriorityCode
         {
             get; set;
         }

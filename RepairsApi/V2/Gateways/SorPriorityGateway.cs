@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Infrastructure.Hackney;
 
 namespace RepairsApi.V2.Gateways
 {

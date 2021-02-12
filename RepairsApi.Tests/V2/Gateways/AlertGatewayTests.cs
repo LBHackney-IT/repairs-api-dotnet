@@ -17,8 +17,6 @@ namespace RepairsApi.Tests.V2.Gateways
 {
     public class AlertGatewayTests
     {
-        private static Uri AlertUri => new Uri("http://alerttest/");
-        private static Uri PropertyUri => new Uri("http://propertytest/");
         private Mock<IApiGateway> _apiGatewayMock;
         private AlertsGateway _classUnderTest;
 

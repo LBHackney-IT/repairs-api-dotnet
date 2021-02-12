@@ -5,6 +5,7 @@ using FluentAssertions;
 using FluentAssertions.Common;
 using Moq;
 using NUnit.Framework;
+using RepairsApi.Tests.Helpers.StubGeneration;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Gateways;
@@ -18,41 +19,30 @@ namespace RepairsApi.Tests.V2.UseCase
     {
         private ListScheduleOfRatesUseCase _classUnderTest;
         private Mock<IScheduleOfRatesGateway> _mockScheduleOfRatesGateway;
+        private Generator<ScheduleOfRatesModel> _generator;
 
         [SetUp]
         public void Setup()
         {
+            _generator = new Generator<ScheduleOfRatesModel>();
+            _generator.AddDefaultGenerators();
             _mockScheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
             _classUnderTest = new ListScheduleOfRatesUseCase(_mockScheduleOfRatesGateway.Object);
         }
 
         [Test]
-        public async Task CanListCodes()
+        public async Task CanExecute()
         {
             // arrange
-            var expectedCode = new ScheduleOfRates
-            {
-                CustomCode = "1",
-                CustomName = "name",
-                SORContractorRef = "contractor",
-                Priority = new SORPriority
-                {
-                    Description = "priorityDescription",
-                    PriorityCode = 1
-                }
-            };
-            var expectedCodes = new List<ScheduleOfRates>
-            {
-                expectedCode
-            };
-            _mockScheduleOfRatesGateway.Setup(g => g.GetSorCodes(null))
+            var expectedCodes = _generator.GenerateList(10);
+            _mockScheduleOfRatesGateway.Setup(x => x.GetSorCodes(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(expectedCodes);
 
             // act
-            var codes = await _classUnderTest.Execute();
+            var result = await _classUnderTest.Execute("trade", "property", "contractor");
 
             // assert
-            codes.Single().Should().BeEquivalentTo(expectedCode.ToResponse());
+            result.Should().BeEquivalentTo(expectedCodes);
         }
     }
 
