@@ -9,8 +9,6 @@ namespace RepairsApi.V2.Infrastructure.Hackney
         [Key] public string CustomCode { get; set; }
         public string CustomName { get; set; }
         public double? Cost { get; set; }
-
-        [Required]
         public virtual SORPriority Priority { get; set; }
         public int? PriorityId { get; set; }
 
