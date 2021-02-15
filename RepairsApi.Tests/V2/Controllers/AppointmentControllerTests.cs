@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.UseCase.Interfaces;
+using RepairsApi.V2;
 
 namespace RepairsApi.Tests.V2.Controllers
 {
@@ -29,7 +30,7 @@ namespace RepairsApi.Tests.V2.Controllers
         public async Task ListReturns404ForNotFound()
         {
             _listAppointmentsMock.Setup(lam => lam.Execute(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>())).ThrowsAsync(new ResourceNotFoundException());
-            var result = await _classUnderTest.ListAppointments(1, DateTime.UtcNow.AddDays(-1), DateTime.UtcNow.AddDays(1));
+            var result = await _classUnderTest.ListAppointments(1, DateTime.UtcNow.AddDays(-1).ToString(DateConstants.DATEFORMAT), DateTime.UtcNow.AddDays(1).ToString(DateConstants.DATEFORMAT));
 
             GetStatusCode(result).Should().Be(404);
         }
@@ -55,7 +56,7 @@ namespace RepairsApi.Tests.V2.Controllers
                 }
             };
             _listAppointmentsMock.Setup(lam => lam.Execute(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(list);
-            var result = await _classUnderTest.ListAppointments(1, DateTime.UtcNow.AddDays(-1), DateTime.UtcNow.AddDays(1));
+            var result = await _classUnderTest.ListAppointments(1, DateTime.UtcNow.AddDays(-1).ToString(DateConstants.DATEFORMAT), DateTime.UtcNow.AddDays(1).ToString(DateConstants.DATEFORMAT));
 
             GetStatusCode(result).Should().Be(200);
             GetResultData<IEnumerable<AppointmentDayViewModel>>(result).Should().BeEquivalentTo(list);
