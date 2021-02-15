@@ -9,12 +9,15 @@ using RepairsApi.V2.Gateways;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 
 namespace RepairsApi.Tests.V2.E2ETests
 {
     [SingleThreaded]
-    public class PropertyApitests : IntegrationTests<Startup>
+    public class PropertyApitests : MockWebApplicationFactory
     {
+        public HttpClient Client => CreateClient();
+
         [SetUp]
         public void SetUp()
         {

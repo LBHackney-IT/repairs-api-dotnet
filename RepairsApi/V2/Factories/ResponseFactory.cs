@@ -141,7 +141,7 @@ namespace RepairsApi.V2.Factories
                 Reference = workOrder.Id,
                 Description = workOrder.DescriptionOfWork,
                 Owner = workOrder.AssignedToPrimary?.Name,
-                Priority = workOrder.WorkPriority.PriorityDescription,
+                Priority = workOrder.WorkPriority?.PriorityDescription,
                 Property = addressLine,
                 DateRaised = workOrder.DateRaised,
                 LastUpdated = null,

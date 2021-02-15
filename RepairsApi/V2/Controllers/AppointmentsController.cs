@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.UseCase.Interfaces;
+using System.ComponentModel.DataAnnotations;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -36,16 +37,36 @@ namespace RepairsApi.V2.Controllers
         [Produces("application/json")]
         [ProducesResponseType(typeof(List<AppointmentDayViewModel>), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> ListAppointments([FromQuery] int workOrderReference, DateTime fromDate, DateTime toDate)
+        public async Task<IActionResult> ListAppointments([FromQuery][Required] int workOrderReference, string fromDate, string toDate)
         {
             try
             {
-                return Ok(await _listAppointmentsUseCase.Execute(workOrderReference, fromDate, toDate));
+                var now = DateTime.UtcNow;
+                DateTime startOfMonth = new DateTime(now.Year, now.Month, 1);
+                DateTime endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
+                DateTime? parsedFromDate = ParseDate(fromDate);
+                DateTime? parsedToDate = ParseDate(toDate);
+                return base.Ok(await _listAppointmentsUseCase.Execute(workOrderReference, parsedFromDate ?? startOfMonth, parsedToDate ?? endOfMonth));
             }
             catch (ResourceNotFoundException ex)
             {
                 return NotFound(ex.Message);
             }
+            catch (FormatException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (NotSupportedException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        private static DateTime? ParseDate(string dateString)
+        {
+            if (string.IsNullOrWhiteSpace(dateString)) return null;
+
+            return DateTime.ParseExact(dateString, DateConstants.DATEFORMAT, null);
         }
 
         /// <summary>
