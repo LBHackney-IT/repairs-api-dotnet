@@ -20,6 +20,8 @@ namespace RepairsApi.V2.Infrastructure.Hackney
 
         [Required]
         public virtual List<SORContract> SorCodeMap { get; set; }
+
+        public bool Enabled { get; set; }
     }
 
     public class SORPriority
