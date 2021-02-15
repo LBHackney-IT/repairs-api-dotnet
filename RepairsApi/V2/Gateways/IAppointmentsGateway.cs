@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace RepairsApi.V2.Controllers
+namespace RepairsApi.V2.Gateways
 {
     public interface IAppointmentsGateway
     {

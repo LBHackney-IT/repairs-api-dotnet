@@ -124,7 +124,7 @@ namespace RepairsApi.Tests.V2.Gateways
 
         private static string GenerateAppointmentRef(int id, DateTime date)
         {
-            return $"{id.ToString()}/{date:dd-MM-yyyy}";
+            return $"{id.ToString()}/{date:yyyy-MM-dd}";
         }
 
         [Test]
@@ -148,7 +148,7 @@ namespace RepairsApi.Tests.V2.Gateways
         [Test]
         public async Task ThrowsWhenNoMatchingAppointment()
         {
-            Func<Task> testFunc = async () => await _classUnderTest.Create("1/01-01-2020", 100001);
+            Func<Task> testFunc = async () => await _classUnderTest.Create("1/2020-01-01", 100001);
 
             await testFunc.Should().ThrowAsync<ResourceNotFoundException>();
         }

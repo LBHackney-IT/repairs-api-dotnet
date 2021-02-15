@@ -37,7 +37,7 @@ namespace RepairsApi.V2.UseCase
                         Description = slot.Description,
                         End = slot.End,
                         Start = slot.Start,
-                        Reference = $"{slot.Id.ToString()}/{slot.Date:dd-MM-yyyy}"
+                        Reference = $"{slot.Id.ToString()}/{slot.Date:yyyy-MM-dd}"
                     }).OrderBy(slot => slot.Start)
                 });
         }

@@ -1,11 +1,10 @@
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using RepairsApi.V2.Controllers;
+using RepairsApi.V2;
 using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
-using RepairsApi.V2.Infrastructure.Hackney;
 using RepairsApi.V2.UseCase;
 using System;
 using System.Collections.Generic;
@@ -103,7 +102,7 @@ namespace RepairsApi.Tests.V2.UseCase
             var appointment = result.First();
             var refArray = appointment.Slots.First().Reference.Split('/', 2);
             var slotId = int.Parse(refArray[0]);
-            var slotDate = DateTime.ParseExact(refArray[1], "dd-MM-yyyy", null);
+            var slotDate = DateTime.ParseExact(refArray[1], DateConstants.DATEFORMAT, null);
             slotId.Should().Be(expectedAppointment.Id);
             slotDate.Should().Be(expectedAppointment.Date);
 

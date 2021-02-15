@@ -39,12 +39,14 @@ namespace RepairsApi.Tests
                     if (_connection != null)
                     {
                         options.UseNpgsql(_connection)
+                        .UseSnakeCaseNamingConvention()
                             .UseLazyLoadingProxies();
                     }
                     else
                     {
                         options.UseInMemoryDatabase("integration")
-                            .UseLazyLoadingProxies();
+                            .UseLazyLoadingProxies()
+                            .UseSnakeCaseNamingConvention();
                         options.ConfigureWarnings(warningOptions =>
                         {
                             warningOptions.Ignore(InMemoryEventId.TransactionIgnoredWarning);
