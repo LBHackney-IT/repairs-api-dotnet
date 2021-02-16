@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure.Hackney;
+using System.ComponentModel.DataAnnotations;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -56,9 +57,9 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(IEnumerable<SorTradeResponse>), StatusCodes.Status200OK)]
         [Route("trades")]
         [HttpGet]
-        public async Task<IActionResult> ListTrades()
+        public async Task<IActionResult> ListTrades([FromQuery][Required]string propRef)
         {
-            return Ok(await _listSorTrades.Execute());
+            return Ok(await _listSorTrades.Execute(propRef));
         }
 
 

@@ -20,9 +20,24 @@ namespace RepairsApi.V2.Gateways
             _context = context;
         }
 
-        public async Task<IEnumerable<SorCodeTrade>> GetTrades()
+        public async Task<IEnumerable<SorCodeTrade>> GetTrades(string propRef)
         {
-            return await _context.Trades.ToListAsync();
+            return await (
+                    from trade in _context.Trades
+                    where (
+                         from sor in _context.SORCodes
+                         join sorContract in _context.SORContracts on sor.Code equals sorContract.SorCodeCode
+                         join contract in _context.Contracts on sorContract.ContractReference equals contract.ContractReference
+                         where
+                        contract.PropertyMap.Any(pm => pm.PropRef == propRef) &&
+                        contract.EffectiveDate < DateTime.UtcNow && DateTime.UtcNow < contract.TerminationDate &&
+                        sor.Enabled
+                         select sor.TradeCode
+                    ).Contains(trade.Code)
+
+                    select trade
+                )
+                .ToListAsync();
         }
 
         public async Task<IEnumerable<ScheduleOfRatesModel>> GetSorCodes(string propertyReference, string tradeCode, string contractorReference)

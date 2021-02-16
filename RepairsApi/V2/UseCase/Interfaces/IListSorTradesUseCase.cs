@@ -6,6 +6,6 @@ namespace RepairsApi.V2.UseCase.Interfaces
 {
     public interface IListSorTradesUseCase
     {
-        Task<IEnumerable<SorTradeResponse>> Execute();
+        Task<IEnumerable<SorTradeResponse>> Execute(string propRef);
     }
 }
