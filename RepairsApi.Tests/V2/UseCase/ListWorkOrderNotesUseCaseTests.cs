@@ -50,16 +50,6 @@ namespace RepairsApi.Tests.V2.UseCase
                 });
         }
 
-        [Test]
-        public async Task ThrowWhenNotFound()
-        {
-            _repairsGatewayMock.Setup(m => m.GetWorkOrder(It.IsAny<int>())).ReturnsAsync((WorkOrder) null);
-
-            Func<Task> sutFunc = async () => await _classUnderTest.Execute(1);
-
-            await sutFunc.Should().ThrowAsync<ResourceNotFoundException>();
-        }
-
         private DateTime RandomDay()
         {
             var start = new DateTime(1995, 1, 1);

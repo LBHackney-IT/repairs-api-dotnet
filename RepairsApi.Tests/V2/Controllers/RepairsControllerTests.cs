@@ -156,7 +156,6 @@ namespace RepairsApi.Tests.V2.Controllers
         public async Task ReturnsOkWhenCanCompleteWorkOrder()
         {
             // arrange
-            UseCaseReturns(true);
             const int expectedWorkOrderId = 4;
             var request = CreateRequest(expectedWorkOrderId);
 
@@ -171,15 +170,15 @@ namespace RepairsApi.Tests.V2.Controllers
         public async Task ReturnsBadRequestWhenCantCompleteWorkOrder()
         {
             // arrange
-            UseCaseReturns(false);
             const int expectedWorkOrderId = 4;
             var request = CreateRequest(expectedWorkOrderId);
+            _completeWorkOrderUseCase.Setup(s => s.Execute(It.IsAny<WorkOrderComplete>())).ThrowsAsync(new NotSupportedException());
 
             // act
             var response = await _classUnderTest.WorkOrderComplete(request);
 
             // assert
-            response.Should().BeOfType<BadRequestResult>();
+            response.Should().BeOfType<BadRequestObjectResult>();
         }
 
         [Test]
@@ -203,8 +202,7 @@ namespace RepairsApi.Tests.V2.Controllers
         public async Task ReturnsOkWhenCanUpdateJobStatus()
         {
             _updateJobStatusUseCase
-                .Setup(uc => uc.Execute(It.IsAny<JobStatusUpdate>()))
-                .ReturnsAsync(true);
+                .Setup(uc => uc.Execute(It.IsAny<JobStatusUpdate>())).Returns(Task.CompletedTask);
 
             var response = await _classUnderTest.JobStatusUpdate(
                 new JobStatusUpdate { RelatedWorkOrderReference = new Reference { ID = "42" } });
@@ -216,8 +214,7 @@ namespace RepairsApi.Tests.V2.Controllers
         public async Task ReturnsBadRequestWhenCannotUpdateJobStatus()
         {
             _updateJobStatusUseCase
-                .Setup(uc => uc.Execute(It.IsAny<JobStatusUpdate>()))
-                .ReturnsAsync(false);
+                .Setup(uc => uc.Execute(It.IsAny<JobStatusUpdate>())).ThrowsAsync(new NotSupportedException());
 
             var response = await _classUnderTest.JobStatusUpdate(
                 new JobStatusUpdate { RelatedWorkOrderReference = new Reference { ID = "41" } });
@@ -325,12 +322,6 @@ namespace RepairsApi.Tests.V2.Controllers
             var result = await _classUnderTest.ListWorkOrderTasks(1);
 
             GetStatusCode(result).Should().Be(400);
-        }
-
-        private void UseCaseReturns(bool result)
-        {
-            _completeWorkOrderUseCase.Setup(uc => uc.Execute(It.IsAny<WorkOrderComplete>()))
-                .ReturnsAsync(result);
         }
 
         private List<WorkOrder> CreateWorkOrders()

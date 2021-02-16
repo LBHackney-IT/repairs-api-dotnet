@@ -5,7 +5,7 @@ namespace RepairsApi.V2.UseCase.Interfaces
 {
     public interface ICompleteWorkOrderUseCase
     {
-        Task<bool> Execute(WorkOrderComplete request);
+        Task Execute(WorkOrderComplete request);
     }
 
 }

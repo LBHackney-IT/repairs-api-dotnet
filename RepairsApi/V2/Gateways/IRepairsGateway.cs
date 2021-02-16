@@ -11,7 +11,7 @@ namespace RepairsApi.V2.Gateways
     {
         Task<int> CreateWorkOrder(WorkOrder raiseRepair);
         Task<IEnumerable<WorkOrder>> GetWorkOrders(params Expression<Func<WorkOrder, bool>>[] whereExpressions);
-        Task<WorkOrder?> GetWorkOrder(int id);
+        Task<WorkOrder> GetWorkOrder(int id);
         Task<IEnumerable<WorkElement>> GetWorkElementsForWorkOrder(WorkOrder workOrder);
         Task<IEnumerable<WorkElement>> GetWorkElementsForWorkOrder(int id);
         Task UpdateWorkOrderStatus(int workOrderId, WorkStatusCode canceled);
