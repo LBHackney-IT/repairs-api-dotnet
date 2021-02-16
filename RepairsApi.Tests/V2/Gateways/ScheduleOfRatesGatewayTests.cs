@@ -197,6 +197,8 @@ namespace RepairsApi.Tests.V2.Gateways
             var expectedTrade = await SeedTrade("trade");
             await SeedContractors(expectedTrade.Code, "not" + expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(7));
             await SeedContractors("not" + expectedTrade.Code, expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(7));
+            await SeedContractors(expectedTrade.Code, expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(-1));
+            await SeedContractors(expectedTrade.Code, expectedProperty, DateTime.UtcNow.AddDays(1), DateTime.UtcNow.AddDays(7));
             var expectedContractors = await SeedContractors(expectedTrade.Code, expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(7));
 
             var result = await _classUnderTest.GetContractors(expectedProperty, expectedTrade.Code);
@@ -305,7 +307,8 @@ namespace RepairsApi.Tests.V2.Gateways
             var sorCode = new ScheduleOfRates
             {
                 Code = stringGenerator.Generate(),
-                TradeCode = tradeCode
+                TradeCode = tradeCode,
+                Enabled = true
             };
             var sorContracts = contracts.Select(c => new SORContract
             {

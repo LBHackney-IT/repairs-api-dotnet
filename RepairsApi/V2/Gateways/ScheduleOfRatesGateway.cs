@@ -88,11 +88,12 @@ namespace RepairsApi.V2.Gateways
         {
             var contractors = _context.Contracts.Where(contract =>
                 contract.SorCodeMap.Any(scm =>
-                    scm.SorCode.TradeCode == tradeCode
+                    scm.SorCode.TradeCode == tradeCode && scm.SorCode.Enabled
                 ) &&
                 contract.PropertyMap.Any(pm =>
                     pm.PropRef == propertyRef
-                )
+                ) &&
+                contract.EffectiveDate < DateTime.UtcNow && DateTime.UtcNow < contract.TerminationDate
             ).Select(c => new Contractor
             {
                 ContractorName = c.Contractor.Name,
