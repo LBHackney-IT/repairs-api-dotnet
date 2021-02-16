@@ -10,6 +10,7 @@ using RepairsApi.V2.UseCase.Interfaces;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -46,6 +47,8 @@ namespace RepairsApi.V2.Controllers
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType(typeof(List<PropertyListItem>), 200)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status502BadGateway)]
+        [ProducesDefaultResponseType]
         public async Task<IActionResult> ListProperties([FromQuery] string address, [FromQuery] string postcode, [FromQuery] string q)
         {
             IEnumerable<PropertyModel> properties;
@@ -83,6 +86,8 @@ namespace RepairsApi.V2.Controllers
         [Produces("application/json")]
         [ProducesResponseType(typeof(PropertyResponse), 200)]
         [ProducesResponseType(typeof(NotFoundResult), 404)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status502BadGateway)]
+        [ProducesDefaultResponseType]
         public async Task<IActionResult> GetProperty([FromRoute][Required] string propertyReference)
         {
             PropertyWithAlerts property;
@@ -112,6 +117,8 @@ namespace RepairsApi.V2.Controllers
         [Route("{propertyReference}/alerts")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(CautionaryAlertResponseList), 200)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status502BadGateway)]
+        [ProducesDefaultResponseType]
         public async Task<IActionResult> ListCautionaryAlerts([FromRoute][Required] string propertyReference)
         {
             AlertList alerts;

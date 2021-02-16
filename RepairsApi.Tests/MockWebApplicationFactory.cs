@@ -72,26 +72,22 @@ namespace RepairsApi.Tests
 
         private static void InitialiseDB(ServiceProvider serviceProvider)
         {
-            using (var scope = serviceProvider.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<RepairsContext>();
+            using var scope = serviceProvider.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<RepairsContext>();
 
-                dbContext.Database.EnsureCreated();
+            dbContext.Database.EnsureCreated();
 
-                dbContext.SeedData();
+            dbContext.SeedData();
 
-                dbContext.SaveChanges();
-            }
+            dbContext.SaveChanges();
         }
 
         protected void WithContext(Action<RepairsContext> action)
         {
-            using (var scope = Services.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<RepairsContext>();
+            using var scope = Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<RepairsContext>();
 
-                action(dbContext);
-            }
+            action(dbContext);
         }
     }
 }

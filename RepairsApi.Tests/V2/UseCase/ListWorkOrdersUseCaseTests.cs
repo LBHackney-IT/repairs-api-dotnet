@@ -170,19 +170,5 @@ namespace RepairsApi.Tests.V2.UseCase
                 .ReturnsAsync(generatedWorkOrders);
             return generatedWorkOrders;
         }
-
-        private static void SetSorCodes(string expectedCode, params WorkOrder[] expectedWorkOrders)
-        {
-            foreach (var workOrder in expectedWorkOrders)
-            {
-                foreach (var workElement in workOrder.WorkElements)
-                {
-                    foreach (var rateScheduleItem in workElement.RateScheduleItem)
-                    {
-                        rateScheduleItem.CustomCode = expectedCode;
-                    }
-                }
-            }
-        }
     }
 }

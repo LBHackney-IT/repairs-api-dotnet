@@ -40,12 +40,10 @@ namespace RepairsApi.V2.UseCase
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
 
             ValidateRequest(workOrderComplete);
-            await using (var transaction = await _transactionManager.Start())
-            {
-                await _workOrderCompletionGateway.CreateWorkOrderCompletion(workOrderComplete.ToDb(workOrder, null));
-                await UpdateWorkOrderStatus(workOrder.Id, workOrderComplete);
-                await transaction.Commit();
-            }
+            await using var transaction = await _transactionManager.Start();
+            await _workOrderCompletionGateway.CreateWorkOrderCompletion(workOrderComplete.ToDb(workOrder, null));
+            await UpdateWorkOrderStatus(workOrder.Id, workOrderComplete);
+            await transaction.Commit();
         }
 
         private async Task UpdateWorkOrderStatus(int workOrderId, WorkOrderComplete workOrderComplete)
