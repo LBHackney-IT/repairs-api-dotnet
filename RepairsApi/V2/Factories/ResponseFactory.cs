@@ -110,18 +110,18 @@ namespace RepairsApi.V2.Factories
 
         public static WorkOrderResponse ToResponse(this Infrastructure.WorkOrder workOrder)
         {
-            Infrastructure.PropertyClass propertyClass = workOrder.Site?.PropertyClass.FirstOrDefault();
+            Infrastructure.PropertyClass propertyClass = workOrder.Site?.PropertyClass?.FirstOrDefault();
             string addressLine = propertyClass?.Address?.AddressLine;
             return new WorkOrderResponse
             {
                 Reference = workOrder.Id,
                 Description = workOrder.DescriptionOfWork,
-                Priority = workOrder.WorkPriority.PriorityDescription,
+                Priority = workOrder.WorkPriority?.PriorityDescription,
                 Property = addressLine,
                 DateRaised = workOrder.DateRaised,
-                PropertyReference = workOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference,
-                Target = workOrder.WorkPriority.RequiredCompletionDateTime,
-                PriorityCode = workOrder.WorkPriority.PriorityCode,
+                PropertyReference = workOrder.Site?.PropertyClass?.FirstOrDefault()?.PropertyReference,
+                Target = workOrder.WorkPriority?.RequiredCompletionDateTime,
+                PriorityCode = workOrder.WorkPriority?.PriorityCode,
                 LastUpdated = null,
                 Owner = workOrder.AssignedToPrimary?.Name,
                 RaisedBy = workOrder.AgentName,
@@ -134,18 +134,18 @@ namespace RepairsApi.V2.Factories
 
         public static WorkOrderListItem ToListItem(this Infrastructure.WorkOrder workOrder)
         {
-            Infrastructure.PropertyClass propertyClass = workOrder.Site?.PropertyClass.FirstOrDefault();
+            Infrastructure.PropertyClass propertyClass = workOrder.Site?.PropertyClass?.FirstOrDefault();
             string addressLine = propertyClass?.Address?.AddressLine;
             return new WorkOrderListItem
             {
                 Reference = workOrder.Id,
                 Description = workOrder.DescriptionOfWork,
                 Owner = workOrder.AssignedToPrimary?.Name,
-                Priority = workOrder.WorkPriority.PriorityDescription,
+                Priority = workOrder.WorkPriority?.PriorityDescription,
                 Property = addressLine,
                 DateRaised = workOrder.DateRaised,
                 LastUpdated = null,
-                PropertyReference = workOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference,
+                PropertyReference = workOrder.Site?.PropertyClass?.FirstOrDefault()?.PropertyReference,
                 TradeCode = workOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomCode,
                 Status = workOrder.GetStatus()
             };

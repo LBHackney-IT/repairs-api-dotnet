@@ -28,11 +28,6 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
 
-            if (workOrder == null)
-            {
-                throw new ResourceNotFoundException($"Unable to locate work order {workOrderId}");
-            }
-
             var existingCodes = workOrder.WorkElements.SelectMany(we => we.RateScheduleItem);
             var newCodes = workElement.RateScheduleItem.Where(rsi => !existingCodes.Any(ec => ec.CustomCode == rsi.CustomCode));
 
