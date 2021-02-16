@@ -33,17 +33,20 @@ namespace RepairsApi.Tests.V2.Gateways
         public async Task CanGetTrades()
         {
             // arrange
-            var generator = new Generator<SorCodeTrade>();
-            generator.AddDefaultGenerators();
-            var expectedTrades = generator.GenerateList(10);
-            await InMemoryDb.Instance.Trades.AddRangeAsync(expectedTrades);
+            const string expectedProperty = "property";
+            var expectedPriority = await SeedPriority();
+            string contractorReference = "contractor";
+            await SeedContractor(contractorReference);
+            var expectedTrade = await SeedTrade(Guid.NewGuid().ToString());
+            var validContracts = await SeedContracts(expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(7), contractorReference);
+            await SeedSorCodes(expectedPriority, expectedProperty, expectedTrade, validContracts.First());
             await InMemoryDb.Instance.SaveChangesAsync();
 
             // act
-            var result = await _classUnderTest.GetTrades();
+            var result = await _classUnderTest.GetTrades(expectedProperty);
 
             // assert
-            result.Should().BeEquivalentTo(expectedTrades);
+            result.Single().Should().BeEquivalentTo(expectedTrade);
         }
 
         [Test]

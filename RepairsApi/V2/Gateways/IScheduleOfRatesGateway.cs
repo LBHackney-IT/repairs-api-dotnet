@@ -11,7 +11,7 @@ namespace RepairsApi.V2.Gateways
 {
     public interface IScheduleOfRatesGateway
     {
-        Task<IEnumerable<SorCodeTrade>> GetTrades();
+        Task<IEnumerable<SorCodeTrade>> GetTrades(string propRef);
         Task<IEnumerable<ScheduleOfRatesModel>> GetSorCodes(string propertyReference, string tradeCode, string contractorReference);
         Task<double?> GetCost(string contractReference, string sorCode);
         Task<IEnumerable<string>> GetContracts(string contractorReference);

@@ -28,7 +28,7 @@ namespace RepairsApi.Tests.V2.E2ETests
 
         private static async Task<IEnumerable<SorTradeResponse>> GetTrades(HttpClient client)
         {
-            var response = await client.GetAsync(new Uri("/api/v2/schedule-of-rates/trades", UriKind.Relative));
+            var response = await client.GetAsync(new Uri($"/api/v2/schedule-of-rates/trades?propref={TestDataSeeder.PropRef}", UriKind.Relative));
 
             response.StatusCode.Should().Be(200);
 
