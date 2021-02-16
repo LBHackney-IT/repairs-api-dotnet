@@ -23,11 +23,6 @@ namespace RepairsApi.V2.UseCase
         {
             var workOrder = await _repairsGatway.GetWorkOrder(id);
 
-            if (workOrder == null)
-            {
-                throw new ResourceNotFoundException($"Unable to find work order: {id}");
-            }
-
             return workOrder.JobStatusUpdates?
                 .Where(jsu => !jsu.Comments.IsNullOrEmpty())
                 .Where(jsu => jsu.EventTime.HasValue)
