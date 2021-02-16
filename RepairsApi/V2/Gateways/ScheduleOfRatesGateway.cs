@@ -36,7 +36,8 @@ namespace RepairsApi.V2.Gateways
                 sor.Trade.Code == tradeCode &&
                 contract.PropertyMap.Any(pm => pm.PropRef == propertyReference) &&
                 contract.EffectiveDate < DateTime.UtcNow && DateTime.UtcNow < contract.TerminationDate &&
-                contract.ContractorReference == contractorReference
+                contract.ContractorReference == contractorReference &&
+                sor.Enabled
                 select new ScheduleOfRatesModel
                 {
                     CustomCode = sor.CustomCode,

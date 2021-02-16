@@ -161,6 +161,25 @@ namespace RepairsApi.Tests.V2.Gateways
             await GetAndValidateCodes(expectedProperty, expectedTrade, contractorReference, expectedCodes);
         }
 
+        [Test]
+        public async Task OnlyReturnsEnabled()
+        {
+            // arrange
+            const string expectedProperty = "property";
+            var expectedPriority = await SeedPriority();
+            string contractorReference = "contractor";
+            await SeedContractor(contractorReference);
+            var expectedTrade = await SeedTrade(Guid.NewGuid().ToString());
+            var validContracts = await SeedContracts(expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(7), contractorReference);
+
+            await SeedSorCodes(expectedPriority, expectedProperty, expectedTrade, validContracts.First(), false);
+            var expectedCodes = await SeedSorCodes(expectedPriority, expectedProperty, expectedTrade, validContracts.First());
+
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            await GetAndValidateCodes(expectedProperty, expectedTrade, contractorReference, expectedCodes);
+        }
+
         private static async Task SeedContractor(string contractorReference)
         {
             InMemoryDb.Instance.Contractors.Add(new Contractor
@@ -209,7 +228,8 @@ namespace RepairsApi.Tests.V2.Gateways
             SORPriority expectedPriority,
             string expectedProperty,
             SorCodeTrade expectedTrade,
-            Contract expectedContract = null)
+            Contract expectedContract = null,
+            bool enabled = true)
         {
             var expectedGenerator = new Generator<ScheduleOfRates>();
 
@@ -218,6 +238,7 @@ namespace RepairsApi.Tests.V2.Gateways
                 .AddValue(expectedPriority, (ScheduleOfRates sor) => sor.Priority)
                 .AddValue(expectedProperty, (PropertyContract pc) => pc.PropRef)
                 .AddValue(expectedTrade, (ScheduleOfRates sor) => sor.Trade)
+                .AddValue(enabled, (ScheduleOfRates sor) => sor.Enabled)
                 .AddGenerator(() => generateJoinEntry(expectedContract), (ScheduleOfRates sor) => sor.SorCodeMap);
             var expectedCodes = expectedGenerator.GenerateList(10);
 
