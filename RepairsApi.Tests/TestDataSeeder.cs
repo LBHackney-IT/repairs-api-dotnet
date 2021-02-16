@@ -152,7 +152,7 @@ namespace RepairsApi.Tests
         {
             var generator = new Generator<ScheduleOfRates>()
                 .AddDefaultGenerators()
-                .AddGenerator(() => SeedCode(SorCodes), (ScheduleOfRates sor) => sor.CustomCode)
+                .AddGenerator(() => SeedCode(SorCodes), (ScheduleOfRates sor) => sor.Code)
                 .AddGenerator(() => PickCode(TradeCodes), (ScheduleOfRates sor) => sor.TradeCode)
                 .AddGenerator(() => PickCode(PriorityCodes), (ScheduleOfRates sor) => sor.PriorityId)
                 .AddValue(true, (ScheduleOfRates sor) => sor.Enabled)
@@ -165,8 +165,9 @@ namespace RepairsApi.Tests
             {
                 Enabled = true,
                 Cost = 1,
-                CustomCode = SorCode,
-                CustomName = SorCode,
+                Code = SorCode,
+                ShortDescription = SorCode,
+                LongDescription = SorCode,
                 PriorityId = PriorityId,
                 TradeCode = Trade
             });

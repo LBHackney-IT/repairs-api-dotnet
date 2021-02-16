@@ -4,9 +4,9 @@ namespace RepairsApi.V2.Boundary.Response
 {
     public class ScheduleOfRatesModel
     {
-        public string CustomCode { get; set; }
-        public string CustomName { get; set; }
-
+        public string Code { get; set; }
+        public string ShortDescription { get; set; }
+        public string LongDescription { get; set; }
         public SORPriority Priority { get; set; }
     }
 

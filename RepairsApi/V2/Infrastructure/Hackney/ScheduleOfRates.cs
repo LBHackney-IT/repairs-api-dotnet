@@ -6,8 +6,9 @@ namespace RepairsApi.V2.Infrastructure.Hackney
 {
     public class ScheduleOfRates
     {
-        [Key] public string CustomCode { get; set; }
-        public string CustomName { get; set; }
+        [Key] public string Code { get; set; }
+        public string ShortDescription { get; set; }
+        public string LongDescription { get; set; }
         public double? Cost { get; set; }
         public virtual SORPriority Priority { get; set; }
         public int? PriorityId { get; set; }

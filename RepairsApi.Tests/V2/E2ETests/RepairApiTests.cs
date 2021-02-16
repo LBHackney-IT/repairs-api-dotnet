@@ -268,7 +268,7 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             WithContext(ctx =>
             {
-                sorCodes = ctx.SORCodes.Select(sor => sor.CustomCode).ToArray();
+                sorCodes = ctx.SORCodes.Select(sor => sor.Code).ToArray();
             });
 
             return new Generator<T>()
