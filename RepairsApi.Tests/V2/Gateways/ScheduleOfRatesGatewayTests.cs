@@ -41,7 +41,7 @@ namespace RepairsApi.Tests.V2.Gateways
             var validContracts = await SeedContracts(expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(7), contractorReference);
             await SeedSorCodes(expectedPriority, expectedProperty, expectedTrade, validContracts.First());
             await InMemoryDb.Instance.SaveChangesAsync();
-            
+
             // act
             var result = await _classUnderTest.GetTrades(expectedProperty);
 
