@@ -41,7 +41,7 @@ namespace RepairsApi.V2.Gateways
 
         public async Task<WorkOrder> GetWorkOrder(int id)
         {
-            return await _repairsContext.WorkOrders
+            var workOrder = await _repairsContext.WorkOrders
                 .Include(wo => wo.AssignedToPrimary)
                 .SingleOrDefaultAsync(wo => wo.Id == id);
 
