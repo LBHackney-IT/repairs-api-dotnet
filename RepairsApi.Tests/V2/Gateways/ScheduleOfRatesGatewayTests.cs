@@ -215,8 +215,9 @@ namespace RepairsApi.Tests.V2.Gateways
             // assert
             var expectedResult = expectedCodes.Select(sor => new ScheduleOfRatesModel
             {
-                CustomCode = sor.CustomCode,
-                CustomName = sor.CustomName,
+                Code = sor.Code,
+                ShortDescription = sor.ShortDescription,
+                LongDescription = sor.LongDescription,
                 Priority = new RepairsApi.V2.Domain.SORPriority
                 {
                     PriorityCode = sor.Priority?.PriorityCode,
@@ -305,14 +306,14 @@ namespace RepairsApi.Tests.V2.Gateways
             }).ToList();
             var sorCode = new ScheduleOfRates
             {
-                CustomCode = stringGenerator.Generate(),
+                Code = stringGenerator.Generate(),
                 TradeCode = tradeCode,
                 Enabled = true
             };
             var sorContracts = contracts.Select(c => new SORContract
             {
                 ContractReference = c.ContractReference,
-                SorCodeCode = sorCode.CustomCode,
+                SorCodeCode = sorCode.Code,
                 Cost = doubleGenerator.Generate()
             }).ToList();
 

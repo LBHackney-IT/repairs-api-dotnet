@@ -30,7 +30,7 @@ namespace RepairsApi.V2.Gateways
             return await
             (
                 from sor in _context.SORCodes
-                join sorContract in _context.SORContracts on sor.CustomCode equals sorContract.SorCodeCode
+                join sorContract in _context.SORContracts on sor.Code equals sorContract.SorCodeCode
                 join contract in _context.Contracts on sorContract.ContractReference equals contract.ContractReference
                 where
                 sor.Trade.Code == tradeCode &&
@@ -40,8 +40,9 @@ namespace RepairsApi.V2.Gateways
                 sor.Enabled
                 select new ScheduleOfRatesModel
                 {
-                    CustomCode = sor.CustomCode,
-                    CustomName = sor.CustomName,
+                    Code = sor.Code,
+                    ShortDescription = sor.ShortDescription,
+                    LongDescription = sor.LongDescription,
                     Priority = new Domain.SORPriority
                     {
                         Description = sor.Priority.Description,
@@ -72,8 +73,9 @@ namespace RepairsApi.V2.Gateways
             return await _context.SORCodes
                 .Select(sor => new ScheduleOfRatesModel
                 {
-                    CustomCode = sor.CustomCode,
-                    CustomName = sor.CustomName,
+                    Code = sor.Code,
+                    ShortDescription = sor.ShortDescription,
+                    LongDescription = sor.LongDescription,
                     Priority = new Domain.SORPriority
                     {
                         Description = sor.Priority.Description,
