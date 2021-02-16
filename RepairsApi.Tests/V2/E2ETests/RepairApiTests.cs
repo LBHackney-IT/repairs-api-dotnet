@@ -206,6 +206,16 @@ namespace RepairsApi.Tests.V2.E2ETests
             notes.Should().ContainSingle(n => n.Note == expectedNote);
         }
 
+        [Test]
+        public async Task GetMissingWorkOrder()
+        {
+            var client = CreateClient();
+
+            var response = await client.GetAsync(new Uri($"/api/v2/repairs/1000", UriKind.Relative));
+
+            response.StatusCode.Should().Be(404);
+        }
+
         private async Task<int> ScheduleAndUpdateWorkOrder(string updateComments = "comments")
         {
 

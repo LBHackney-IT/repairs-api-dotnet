@@ -130,12 +130,16 @@ namespace RepairsApi.V2.Controllers
         {
             try
             {
-                var result = await _completeWorkOrderUseCase.Execute(request);
-                return result ? (IActionResult) Ok() : BadRequest();
+                await _completeWorkOrderUseCase.Execute(request);
+                return Ok();
             }
             catch (NotSupportedException e)
             {
                 return BadRequest(e.Message);
+            }
+            catch (ResourceNotFoundException e)
+            {
+                return NotFound(e.Message);
             }
         }
 
@@ -150,8 +154,8 @@ namespace RepairsApi.V2.Controllers
         {
             try
             {
-                var result = await _updateJobStatusUseCase.Execute(request);
-                return result ? (IActionResult) Ok() : BadRequest("No WorkOrder was found with the provided ID.");
+                await _updateJobStatusUseCase.Execute(request);
+                return Ok();
             }
             catch (NotSupportedException e)
             {

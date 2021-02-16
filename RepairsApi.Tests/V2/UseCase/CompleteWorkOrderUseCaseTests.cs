@@ -13,6 +13,7 @@ using Generated = RepairsApi.V2.Generated;
 using RepairsApi.V2.UseCase;
 using RepairsApi.Tests.Helpers.StubGeneration;
 using RepairsApi.V2.Generated.CustomTypes;
+using RepairsApi.V2.Exceptions;
 
 namespace RepairsApi.Tests.V2.UseCase
 {
@@ -46,10 +47,7 @@ namespace RepairsApi.Tests.V2.UseCase
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
 
             // act
-            var result = await _classUnderTest.Execute(workOrderCompleteRequest);
-
-            // assert
-            result.Should().BeTrue();
+            await _classUnderTest.Execute(workOrderCompleteRequest);
 
             var lastWorkOrderComplete = _workOrderCompletionGatewayMock.LastWorkOrderComplete;
             lastWorkOrderComplete.Should().NotBeNull();
@@ -71,10 +69,7 @@ namespace RepairsApi.Tests.V2.UseCase
             };
 
             // act
-            var result = await _classUnderTest.Execute(workOrderCompleteRequest);
-
-            // assert
-            result.Should().BeTrue();
+            await _classUnderTest.Execute(workOrderCompleteRequest);
 
             var lastWorkOrderComplete = _workOrderCompletionGatewayMock.LastWorkOrderComplete;
             lastWorkOrderComplete.Should().NotBeNull();
@@ -82,29 +77,16 @@ namespace RepairsApi.Tests.V2.UseCase
         }
 
         [Test]
-        public async Task ReturnFalseWhenWorkOrderDoesntExist()
-        {
-            // arrange
-            var expectedWorkOrderId = 5;
-
-            // act
-            var result = await _classUnderTest.Execute(CreateRequest(expectedWorkOrderId));
-
-            // assert
-            result.Should().BeFalse();
-        }
-
-        [Test]
         public async Task ReturnFalseWhenAlreadyComplete()
         {
             // arrange
-            _workOrderCompletionGatewayMock.Setup(m => m.IsWorkOrderCompleted(It.IsAny<int>())).ReturnsAsync(false);
+            _workOrderCompletionGatewayMock.Setup(m => m.IsWorkOrderCompleted(It.IsAny<int>())).ReturnsAsync(true);
 
             // act
-            var result = await _classUnderTest.Execute(CreateRequest(1));
+            Func<Task> fn = async () => await _classUnderTest.Execute(CreateRequest(1));
 
             // assert
-            result.Should().BeFalse();
+            await fn.Should().ThrowAsync<NotSupportedException>();
         }
 
         [Test]
@@ -203,10 +185,9 @@ namespace RepairsApi.Tests.V2.UseCase
             };
 
             // act
-            var result = await _classUnderTest.Execute(workOrderCompleteRequest);
+            await _classUnderTest.Execute(workOrderCompleteRequest);
 
             // assert
-            result.Should().BeTrue();
             _repairsGatewayMock.Verify(rgm => rgm.UpdateWorkOrderStatus(expectedWorkOrder.Id, expectedNewStatus));
         }
 

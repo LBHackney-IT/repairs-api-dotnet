@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq.Expressions;
+using RepairsApi.V2.Exceptions;
 
 namespace RepairsApi.V2.Gateways
 {
@@ -43,6 +44,13 @@ namespace RepairsApi.V2.Gateways
             return await _repairsContext.WorkOrders
                 .Include(wo => wo.AssignedToPrimary)
                 .SingleOrDefaultAsync(wo => wo.Id == id);
+
+            if (workOrder is null)
+            {
+                throw new ResourceNotFoundException($"Unable to locate work order {id}");
+            }
+
+            return workOrder;
         }
 
         public async Task<IEnumerable<WorkElement>> GetWorkElementsForWorkOrder(WorkOrder workOrder)

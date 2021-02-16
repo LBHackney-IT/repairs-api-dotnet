@@ -29,20 +29,17 @@ namespace RepairsApi.V2.UseCase
             _strategyFactory = strategyFactory;
         }
 
-        public async Task<bool> Execute(JobStatusUpdate jobStatusUpdate)
+        public async Task Execute(JobStatusUpdate jobStatusUpdate)
         {
             var workOrderId = int.Parse(jobStatusUpdate.RelatedWorkOrderReference.ID);
 
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
-            if (workOrder is null) return false;
 
             var workElements = await _repairsGateway.GetWorkElementsForWorkOrder(workOrder);
 
             await _strategyFactory.ProcessActions(jobStatusUpdate);
 
             await _jobStatusUpdateGateway.CreateJobStatusUpdate(jobStatusUpdate.ToDb(workElements, workOrder));
-
-            return true;
         }
 
     }

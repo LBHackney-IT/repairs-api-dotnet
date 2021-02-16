@@ -5,6 +5,6 @@ namespace RepairsApi.V2.UseCase.Interfaces
 {
     public interface IUpdateJobStatusUseCase
     {
-        Task<bool> Execute(JobStatusUpdate jobStatusUpdate);
+        Task Execute(JobStatusUpdate jobStatusUpdate);
     }
 }
