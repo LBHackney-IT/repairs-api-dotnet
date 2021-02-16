@@ -12,6 +12,7 @@ using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase;
 using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
 using Generated = RepairsApi.V2.Generated;
+using RepairsApi.V2.Exceptions;
 
 namespace RepairsApi.Tests.V2.UseCase
 {
@@ -42,7 +43,7 @@ namespace RepairsApi.Tests.V2.UseCase
         }
 
         [Test]
-        public async Task CanUpdateJobStatus()
+        public void CanUpdateJobStatus()
         {
             const int desiredWorkOrderId = 42;
             _jobStatusUpdateGateway.Setup(gateway => gateway.CreateJobStatusUpdate(It.Is<JobStatusUpdate>(jsu => jsu.RelatedWorkOrder.Id == desiredWorkOrderId)))
@@ -57,7 +58,7 @@ namespace RepairsApi.Tests.V2.UseCase
             _repairsGatewayMock.Setup(gateway => gateway.GetWorkElementsForWorkOrder(It.Is<WorkOrder>(wo => wo.Id == desiredWorkOrderId)))
                 .ReturnsAsync(_fixture.Create<List<WorkElement>>);
 
-            var result = await _classUnderTest.Execute(
+            Assert.DoesNotThrowAsync(async () => await _classUnderTest.Execute(
                 new Generated.JobStatusUpdate
                 {
                     RelatedWorkOrderReference = new Generated.Reference
@@ -65,25 +66,7 @@ namespace RepairsApi.Tests.V2.UseCase
                         ID = "42"
                     },
                     TypeCode = Generated.JobStatusUpdateTypeCode._0
-                });
-
-            result.Should().BeTrue();
-        }
-
-        [Test]
-        public async Task ReturnFalseWhenWorkOrderDoesntExist()
-        {
-            var result = await _classUnderTest.Execute(
-                new Generated.JobStatusUpdate
-                {
-                    RelatedWorkOrderReference = new Generated.Reference
-                    {
-                        ID = "41"
-                    }
-                });
-
-            // assert
-            result.Should().BeFalse();
+                }));
         }
 
         [Test]
@@ -118,9 +101,8 @@ namespace RepairsApi.Tests.V2.UseCase
             _repairsGatewayMock.Setup(gateway => gateway.GetWorkElementsForWorkOrder(It.Is<WorkOrder>(wo => wo.Id == desiredWorkOrderId)))
                 .ReturnsAsync(_fixture.Create<List<WorkElement>>);
 
-            var result = await _classUnderTest.Execute(CreateMoreSpecificSORUpdateRequest(desiredWorkOrderId, workOrder, "code"));
+            await _classUnderTest.Execute(CreateMoreSpecificSORUpdateRequest(desiredWorkOrderId, workOrder, "code"));
 
-            result.Should().BeTrue();
             _strategyFactory.Verify(uc => uc.ProcessActions(It.IsAny<Generated.JobStatusUpdate>()));
         }
 

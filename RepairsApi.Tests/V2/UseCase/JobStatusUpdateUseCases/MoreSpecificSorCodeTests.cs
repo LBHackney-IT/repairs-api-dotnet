@@ -104,7 +104,8 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             };
             var request = CreateMoreSpecificSORUpdateRequest(desiredWorkOrderId, workOrder, expectedNewCode);
 
-            Assert.ThrowsAsync<ResourceNotFoundException>(() => _classUnderTest.Execute(request));
+            Func<Task> fn = () => _classUnderTest.Execute(request);
+            fn.Should().ThrowAsync<ResourceNotFoundException>();
         }
 
         private static RateScheduleItem CloneRateScheduleItem(RateScheduleItem toModify)

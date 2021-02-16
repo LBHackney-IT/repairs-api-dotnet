@@ -28,21 +28,16 @@ namespace RepairsApi.V2.UseCase
             _transactionManager = transactionManager;
         }
 
-        public async Task<bool> Execute(WorkOrderComplete workOrderComplete)
+        public async Task Execute(WorkOrderComplete workOrderComplete)
         {
             var workOrderId = int.Parse(workOrderComplete.WorkOrderReference.ID);
 
             if (await _workOrderCompletionGateway.IsWorkOrderCompleted(workOrderId))
             {
-                return false;
+                throw new NotSupportedException("Cannot complete a work order twice");
             }
 
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
-
-            if (workOrder is null)
-            {
-                return false;
-            }
 
             ValidateRequest(workOrderComplete);
             await using (var transaction = await _transactionManager.Start())
@@ -51,8 +46,6 @@ namespace RepairsApi.V2.UseCase
                 await UpdateWorkOrderStatus(workOrder.Id, workOrderComplete);
                 await transaction.Commit();
             }
-
-            return true;
         }
 
         private async Task UpdateWorkOrderStatus(int workOrderId, WorkOrderComplete workOrderComplete)
