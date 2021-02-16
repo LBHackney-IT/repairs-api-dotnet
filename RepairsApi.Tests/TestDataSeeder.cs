@@ -155,6 +155,7 @@ namespace RepairsApi.Tests
                 .AddGenerator(() => SeedCode(SorCodes), (ScheduleOfRates sor) => sor.CustomCode)
                 .AddGenerator(() => PickCode(TradeCodes), (ScheduleOfRates sor) => sor.TradeCode)
                 .AddGenerator(() => PickCode(PriorityCodes), (ScheduleOfRates sor) => sor.PriorityId)
+                .AddValue(true, (ScheduleOfRates sor) => sor.Enabled)
                 .Ignore((ScheduleOfRates sor) => sor.Priority)
                 .Ignore((ScheduleOfRates sor) => sor.Trade)
                 .Ignore((ScheduleOfRates sor) => sor.SorCodeMap);
@@ -162,6 +163,7 @@ namespace RepairsApi.Tests
             ctx.Set<ScheduleOfRates>().AddRange(generator.GenerateList(100));
             ctx.Set<ScheduleOfRates>().Add(new ScheduleOfRates
             {
+                Enabled = true,
                 Cost = 1,
                 CustomCode = SorCode,
                 CustomName = SorCode,
