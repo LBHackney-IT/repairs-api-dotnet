@@ -1,13 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Common;
+using Moq;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers;
 using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.V2.Domain;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Services;
 
 namespace RepairsApi.Tests.V2.Gateways
 {
@@ -15,12 +19,14 @@ namespace RepairsApi.Tests.V2.Gateways
     {
         private WorkOrderCompletionGateway _classUnderTest;
         private Generator<WorkOrderComplete> _generator;
+        private Mock<ICurrentUserService> _currentUserServiceMock;
 
         [SetUp]
         public void Setup()
         {
             SetupGenerator();
-            _classUnderTest = new WorkOrderCompletionGateway(InMemoryDb.Instance);
+            _currentUserServiceMock = new Mock<ICurrentUserService>();
+            _classUnderTest = new WorkOrderCompletionGateway(InMemoryDb.Instance, _currentUserServiceMock.Object);
         }
 
         private void SetupGenerator()
@@ -39,6 +45,7 @@ namespace RepairsApi.Tests.V2.Gateways
         public async Task CanCreateWorkOrderCompletion()
         {
             // arrange
+            SetupUser();
             var expected = CreateWorkOrderCompletion();
 
             // act
@@ -47,6 +54,36 @@ namespace RepairsApi.Tests.V2.Gateways
 
             // assert
             InMemoryDb.Instance.WorkOrderCompletes.Should().ContainSingle().Which.IsSameOrEqualTo(expected);
+        }
+
+        [Test]
+        public async Task CreateSetsUserInfo()
+        {
+            // arrange
+            var expected = CreateWorkOrderCompletion();
+            var expectedUser = SetupUser();
+
+            // act
+            await _classUnderTest.CreateWorkOrderCompletion(expected);
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            // assert
+            InMemoryDb.Instance.WorkOrderCompletes.Should().ContainSingle().Which.JobStatusUpdates.All(jsu =>
+                jsu.AuthorName == expectedUser.Name &&
+                jsu.AuthorEmail == expectedUser.Email
+            ).Should().BeTrue();
+        }
+
+        private User SetupUser()
+        {
+            var expectedUser = new User
+            {
+                Name = "name",
+                Email = "email"
+            };
+            _currentUserServiceMock.Setup(x => x.GetUser())
+                .Returns(expectedUser);
+            return expectedUser;
         }
 
         [Test]
