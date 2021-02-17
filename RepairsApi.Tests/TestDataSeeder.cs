@@ -8,8 +8,6 @@ using System.Linq;
 
 namespace RepairsApi.Tests
 {
-
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Ignore duplicate adds")]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible", Justification = "Access Seeded Data")]
     public static class TestDataSeeder
     {
@@ -20,11 +18,11 @@ namespace RepairsApi.Tests
         public const string Trade = "trade";
         public const string Priority = "priority";
         private const int PriorityId = 1;
-        private static object _lockObj = new object();
+        private static readonly object _lockObj = new object();
 
         private static int _intSeeder = 2;
 
-        private static Random _rand = new Random();
+        private static readonly Random _rand = new Random();
         public static List<string> ContractReferences = new List<string>();
 
         public static List<string> ContractorReferences = new List<string>();
@@ -221,7 +219,7 @@ namespace RepairsApi.Tests
 
         public static T PickCode<T>(List<T> values)
         {
-            if (values.Count <= 0) return default(T);
+            if (values.Count <= 0) return default;
 
             return values[_rand.Next(values.Count)];
         }
