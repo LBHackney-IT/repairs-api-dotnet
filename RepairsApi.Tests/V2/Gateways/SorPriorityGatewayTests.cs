@@ -21,7 +21,8 @@ namespace RepairsApi.Tests.V2.Gateways
             InMemoryDb.Instance.SORPriorities.Add(new RepairsApi.V2.Infrastructure.Hackney.SORPriority
             {
                 Description = "desc",
-                PriorityCode = 1
+                PriorityCode = 1,
+                Enabled = true
             });
             await InMemoryDb.Instance.SaveChangesAsync();
 
