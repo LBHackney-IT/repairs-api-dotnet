@@ -28,6 +28,10 @@ namespace RepairsApi.V2.Infrastructure.Hackney
         [Key] public int PriorityCode { get; set; }
 
         public string Description { get; set; }
+
+        public int? DaysToComplete { get; set; }
+
+        public bool Enabled { get; set; }
     }
 
     public class SorCodeTrade

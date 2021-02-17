@@ -18,7 +18,7 @@ namespace RepairsApi.V2.Gateways
 
         public async Task<IEnumerable<SORPriority>> GetPriorities()
         {
-            return await _priorities.OrderBy(p => p.PriorityCode).ToListAsync();
+            return await _priorities.Where(p => p.Enabled).OrderBy(p => p.DaysToComplete).ToListAsync();
         }
     }
 }
