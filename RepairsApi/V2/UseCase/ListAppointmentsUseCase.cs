@@ -37,14 +37,14 @@ namespace RepairsApi.V2.UseCase
                         Description = slot.Description,
                         End = slot.End,
                         Start = slot.Start,
-                        Reference = $"{slot.Id.ToString()}/{slot.Date:yyyy-MM-dd}"
+                        Reference = $"{slot.Id}/{slot.Date:yyyy-MM-dd}"
                     }).OrderBy(slot => slot.Start)
                 });
         }
 
         private static string GetContractor(Infrastructure.WorkOrder workOrder)
         {
-            return workOrder.Id.ToString(); //  TODO Calculate contractor
+            return workOrder.AssignedToPrimary?.ContractorReference;
         }
     }
 }
