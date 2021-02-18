@@ -1,5 +1,9 @@
 using Microsoft.AspNetCore.Http;
+using RepairsApi.V2.Authorisation;
+using RepairsApi.V2.Domain;
 using RepairsApi.V2.Services;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace RepairsApi.V2.MiddleWare
@@ -14,10 +18,33 @@ namespace RepairsApi.V2.MiddleWare
             this._next = next;
         }
 
-        public async Task Invoke(HttpContext httpContext, ICurrentUserLoader userInitialiser)
+        public async Task Invoke(HttpContext httpContext, CurrentUserService userService)
         {
-            userInitialiser.LoadUser(httpContext.Request.Headers[HEADER]);
+            userService.LoadUser(httpContext.Request.Headers[HEADER]);
+            if (userService.IsUserPresent())
+            {
+                httpContext.User = MapUser(userService.GetUser());
+            }
             await _next(httpContext);
+        }
+
+        private static ClaimsPrincipal MapUser(User user)
+        {
+            var identity = new ClaimsIdentity();
+
+            identity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
+            identity.AddClaim(new Claim(ClaimTypes.Name, user.Name));
+
+            foreach (var group in user.Groups)
+            {
+                if (Groups.SecurityGroups.TryGetValue(group, out PermissionsModel perms))
+                {
+                    identity.AddClaim(new Claim(ClaimTypes.Role, perms.SecurityGroup.ToString()));
+                    identity.AddClaim(new Claim(CustomClaimTypes.CONTRACTOR, perms.ContractorReference));
+                }
+            }
+
+            return new ClaimsPrincipal(identity);
         }
     }
 }

@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Controllers.Parameters;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using RepairsApi.V2.Authorisation;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -54,6 +56,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
+        [Authorize(Roles = SecurityGroup.AGENT)]
         public async Task<IActionResult> RaiseRepair([FromBody] RaiseRepair request)
         {
             try

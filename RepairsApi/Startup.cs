@@ -23,6 +23,7 @@ using RepairsApi.V2.UseCase;
 using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
 using RepairsApi.V2.MiddleWare;
 using RepairsApi.V2.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RepairsApi
 {
@@ -53,6 +54,8 @@ namespace RepairsApi
                 o.AssumeDefaultVersionWhenUnspecified = true; // assume that the caller wants the default version if they don't specify
                 o.ApiVersionReader = new UrlSegmentApiVersionReader(); // read the version number from the url segment header)
             });
+
+            services.AddAuthorization();
 
             services.AddSingleton<IApiVersionDescriptionProvider, DefaultApiVersionDescriptionProvider>();
 
@@ -221,6 +224,7 @@ namespace RepairsApi
             app.UseSwagger();
             app.UseMiddleware<InitialiseUserMiddleware>();
             app.UseRouting();
+            app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
                 // SwaggerGen won't find controllers that are routed via this technique.

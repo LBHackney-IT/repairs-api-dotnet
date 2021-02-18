@@ -26,6 +26,7 @@ namespace RepairsApi.Tests.V2.Services
             user.Should().NotBeNull();
             user.Name.Should().Be(TestUserInformation.NAME);
             user.Email.Should().Be(TestUserInformation.EMAIL);
+            user.Groups.Should().BeEquivalentTo(TestUserInformation.GROUPS);
         }
 
         [Test]
