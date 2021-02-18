@@ -40,7 +40,11 @@ namespace RepairsApi.V2.MiddleWare
                 if (Groups.SecurityGroups.TryGetValue(group, out PermissionsModel perms))
                 {
                     identity.AddClaim(new Claim(ClaimTypes.Role, perms.SecurityGroup.ToString()));
-                    identity.AddClaim(new Claim(CustomClaimTypes.CONTRACTOR, perms.ContractorReference));
+
+                    if (!string.IsNullOrWhiteSpace(perms.ContractorReference))
+                    {
+                        identity.AddClaim(new Claim(CustomClaimTypes.CONTRACTOR, perms.ContractorReference));
+                    }
                 }
             }
 

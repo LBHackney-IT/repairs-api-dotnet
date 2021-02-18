@@ -24,6 +24,9 @@ using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
 using RepairsApi.V2.MiddleWare;
 using RepairsApi.V2.Services;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using RepairsApi.V2.Authorisation;
 
 namespace RepairsApi
 {
@@ -128,6 +131,7 @@ namespace RepairsApi
             services.AddScoped<ICurrentUserService>(sp => sp.GetService<CurrentUserService>());
             services.AddScoped<ICurrentUserLoader>(sp => sp.GetService<CurrentUserService>());
             services.AddTransient<ITransactionManager, TransactionManager>();
+            services.AddSingleton<IAuthenticationService, ChallengeOnlyAuthenticationService>();
         }
 
         private static void RegisterGateways(IServiceCollection services)
