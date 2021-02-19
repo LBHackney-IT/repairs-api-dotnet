@@ -145,19 +145,8 @@ namespace RepairsApi.V2.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> WorkOrderComplete([FromBody] WorkOrderComplete request)
         {
-            try
-            {
-                await _completeWorkOrderUseCase.Execute(request);
-                return Ok();
-            }
-            catch (NotSupportedException e)
-            {
-                return BadRequest(e.Message);
-            }
-            catch (ResourceNotFoundException e)
-            {
-                return NotFound(e.Message);
-            }
+            await _completeWorkOrderUseCase.Execute(request);
+            return Ok();
         }
 
         /// <summary>
@@ -173,19 +162,8 @@ namespace RepairsApi.V2.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> JobStatusUpdate([FromBody] JobStatusUpdate request)
         {
-            try
-            {
-                await _updateJobStatusUseCase.Execute(request);
-                return Ok();
-            }
-            catch (NotSupportedException e)
-            {
-                return BadRequest(e.Message);
-            }
-            catch (ResourceNotFoundException e)
-            {
-                return NotFound(e.Message);
-            }
+            await _updateJobStatusUseCase.Execute(request);
+            return Ok();
         }
 
         /// <summary>
@@ -200,19 +178,8 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> ListWorkOrderTasks(int id)
         {
-            try
-            {
-                var result = await _listWorkOrderTasksUseCase.Execute(id);
-                return Ok(result.ToResponse());
-            }
-            catch (NotSupportedException e)
-            {
-                return BadRequest(e.Message);
-            }
-            catch (ResourceNotFoundException e)
-            {
-                return NotFound(e.Message);
-            }
+            var result = await _listWorkOrderTasksUseCase.Execute(id);
+            return Ok(result.ToResponse());
         }
 
         /// <summary>
@@ -226,15 +193,8 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> ListWorkOrderNotes(int id)
         {
-            try
-            {
-                var result = await _listWorkOrderNotesUseCase.Execute(id);
-                return Ok(result);
-            }
-            catch (ResourceNotFoundException e)
-            {
-                return NotFound(e.Message);
-            }
+            var result = await _listWorkOrderNotesUseCase.Execute(id);
+            return Ok(result);
         }
     }
 

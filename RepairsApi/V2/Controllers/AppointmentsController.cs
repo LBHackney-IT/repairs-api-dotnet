@@ -53,15 +53,7 @@ namespace RepairsApi.V2.Controllers
                 DateTime? parsedToDate = ParseDate(toDate);
                 return base.Ok(await _listAppointmentsUseCase.Execute(workOrderReference, parsedFromDate ?? startOfMonth, parsedToDate ?? endOfMonth));
             }
-            catch (ResourceNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
             catch (FormatException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (NotSupportedException ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -93,14 +85,6 @@ namespace RepairsApi.V2.Controllers
                 var workOrderId = int.Parse(appointmentRequest.WorkOrderReference.ID);
                 await _createAppointmentUseCase.Execute(appointmentId, workOrderId);
                 return Ok();
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (NotSupportedException ex)
-            {
-                return BadRequest(ex.Message);
             }
             catch (FormatException)
             {

@@ -54,8 +54,6 @@ namespace RepairsApi.V2.Controllers
         [Authorize(Roles = SecurityGroup.AGENT)]
         public async Task<IActionResult> ListProperties([FromQuery] string address, [FromQuery] string postcode, [FromQuery] string q)
         {
-            IEnumerable<PropertyModel> properties;
-
             PropertySearchModel searchModel = new PropertySearchModel
             {
                 Address = address,
@@ -63,15 +61,8 @@ namespace RepairsApi.V2.Controllers
                 Query = q
             };
 
-            try
-            {
-                _logger.LogInformation("Listing properties");
-                properties = await _listPropertiesUseCase.ExecuteAsync(searchModel);
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode(502, $"{ex.Message}. Upstream Sent {ex.StatusCode}");
-            }
+            _logger.LogInformation("Listing properties");
+            var properties = await _listPropertiesUseCase.ExecuteAsync(searchModel);
 
             List<PropertyListItem> response = properties.ToResponse();
             _logger.LogInformation($"Found {response.Count} properties");
@@ -94,20 +85,7 @@ namespace RepairsApi.V2.Controllers
         [Authorize(Roles = SecurityGroup.AGENT)]
         public async Task<IActionResult> GetProperty([FromRoute][Required] string propertyReference)
         {
-            PropertyWithAlerts property;
-
-            try
-            {
-                property = await _getPropertyUseCase.ExecuteAsync(propertyReference);
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode(502, $"{ex.Message}. Upstream Sent {ex.StatusCode}");
-            }
+            var property = await _getPropertyUseCase.ExecuteAsync(propertyReference);
 
             return Ok(property.ToResponse());
         }
@@ -126,16 +104,7 @@ namespace RepairsApi.V2.Controllers
         [Authorize(Roles = SecurityGroup.AGENT)]
         public async Task<IActionResult> ListCautionaryAlerts([FromRoute][Required] string propertyReference)
         {
-            AlertList alerts;
-
-            try
-            {
-                alerts = await _listAlertsUseCase.ExecuteAsync(propertyReference);
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode(502, $"{ex.Message}. Upstream Sent {ex.StatusCode}");
-            }
+            var alerts = await _listAlertsUseCase.ExecuteAsync(propertyReference);
 
             return Ok(alerts.ToResponse());
         }

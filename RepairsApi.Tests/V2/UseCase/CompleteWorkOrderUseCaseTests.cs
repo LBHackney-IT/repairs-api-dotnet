@@ -14,12 +14,15 @@ using RepairsApi.V2.UseCase;
 using RepairsApi.Tests.Helpers.StubGeneration;
 using RepairsApi.V2.Generated.CustomTypes;
 using RepairsApi.V2.Exceptions;
+using RepairsApi.V2.Services;
+using RepairsApi.V2.Authorisation;
 
 namespace RepairsApi.Tests.V2.UseCase
 {
     public class CompleteWorkOrderUseCaseTests
     {
         private Mock<IRepairsGateway> _repairsGatewayMock;
+        private CurrentUserServiceMock _currentUserServiceMock;
         private CompleteWorkOrderUseCase _classUnderTest;
         private Generator<WorkOrder> _generator;
         private MockWorkOrderCompletionGateway _workOrderCompletionGatewayMock;
@@ -29,8 +32,14 @@ namespace RepairsApi.Tests.V2.UseCase
         {
             ConfigureGenerator();
             _repairsGatewayMock = new Mock<IRepairsGateway>();
+            _currentUserServiceMock = new CurrentUserServiceMock();
+            _currentUserServiceMock.SetSecurityGroup(SecurityGroup.AGENT, true);
             _workOrderCompletionGatewayMock = new MockWorkOrderCompletionGateway();
-            _classUnderTest = new CompleteWorkOrderUseCase(_repairsGatewayMock.Object, _workOrderCompletionGatewayMock.Object, InMemoryDb.TransactionManager);
+            _classUnderTest = new CompleteWorkOrderUseCase(
+                _repairsGatewayMock.Object,
+                _workOrderCompletionGatewayMock.Object,
+                InMemoryDb.TransactionManager,
+                _currentUserServiceMock.Object);
         }
 
         private void ConfigureGenerator()
@@ -59,6 +68,7 @@ namespace RepairsApi.Tests.V2.UseCase
         {
             // arrange
             var expectedWorkOrder = CreateWorkOrder();
+            _currentUserServiceMock.SetSecurityGroup(SecurityGroup.CONTRACTOR, true);
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
             workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
             {
@@ -169,10 +179,31 @@ namespace RepairsApi.Tests.V2.UseCase
             Assert.ThrowsAsync<NotSupportedException>(() => _classUnderTest.Execute(workOrderCompleteRequest));
         }
 
-        [TestCase(CustomJobStatusUpdates.COMPLETED, WorkStatusCode.Complete)]
         [TestCase(CustomJobStatusUpdates.CANCELLED, WorkStatusCode.Canceled)]
-        public async Task UpdatesWorkOrderStatus(string customUpdateType, WorkStatusCode expectedNewStatus)
+        public async Task UpdatesWorkOrderStatusCancelled(string customUpdateType, WorkStatusCode expectedNewStatus)
         {
+            // arrange
+            var expectedWorkOrder = CreateWorkOrder();
+            var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
+            workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
+            {
+                new Generated.JobStatusUpdates
+                {
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = customUpdateType, Comments = "expectedComment"
+                }
+            };
+
+            // act
+            await _classUnderTest.Execute(workOrderCompleteRequest);
+
+            // assert
+            _repairsGatewayMock.Verify(rgm => rgm.UpdateWorkOrderStatus(expectedWorkOrder.Id, expectedNewStatus));
+        }
+
+        [TestCase(CustomJobStatusUpdates.COMPLETED, WorkStatusCode.Complete)]
+        public async Task UpdatesWorkOrderStatusComplete(string customUpdateType, WorkStatusCode expectedNewStatus)
+        {
+            _currentUserServiceMock.SetSecurityGroup(SecurityGroup.CONTRACTOR, true);
             // arrange
             var expectedWorkOrder = CreateWorkOrder();
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);

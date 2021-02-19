@@ -4,6 +4,7 @@ using NUnit.Framework;
 using RepairsApi.Tests.Helpers.StubGeneration;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Generated;
+using RepairsApi.V2.Generated.CustomTypes;
 using RepairsApi.V2.Infrastructure;
 using System;
 using System.Collections.Generic;
@@ -292,14 +293,16 @@ namespace RepairsApi.Tests.V2.E2ETests
             string workOrderId = workOrders.First().Reference.ToString();
             HttpResponseMessage completeResponse = await CompleteWorkOrder(client, workOrderId);
 
-            completeResponse.StatusCode.Should().Be(HttpStatusCode.OK, completeResponse.Content.ToString());
+            completeResponse.StatusCode.Should().Be(HttpStatusCode.OK, await completeResponse.Content.ReadAsStringAsync());
         }
 
         private static async Task<HttpResponseMessage> CompleteWorkOrder(HttpClient client, string workOrderId)
         {
             Generator<WorkOrderComplete> generator = new Generator<WorkOrderComplete>()
                 .AddWorkOrderCompleteGenerators()
-                .AddValue(workOrderId, (WorkOrderComplete woc) => woc.WorkOrderReference.ID);
+                .AddValue(workOrderId, (WorkOrderComplete woc) => woc.WorkOrderReference.ID)
+                .AddValue(JobStatusUpdateTypeCode._0, (JobStatusUpdates jsu) => jsu.TypeCode)
+                .AddValue(CustomJobStatusUpdates.CANCELLED, (JobStatusUpdates jsu) => jsu.OtherType);
 
             var completeRequest = generator.Generate();
 

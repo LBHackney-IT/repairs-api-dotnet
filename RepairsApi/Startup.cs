@@ -229,6 +229,7 @@ namespace RepairsApi
             app.UseMiddleware<InitialiseUserMiddleware>();
             app.UseRouting();
             app.UseAuthorization();
+            app.UseMiddleware<ExceptionMiddleware>();
             app.UseEndpoints(endpoints =>
             {
                 // SwaggerGen won't find controllers that are routed via this technique.
