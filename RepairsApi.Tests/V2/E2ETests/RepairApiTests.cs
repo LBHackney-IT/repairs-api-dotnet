@@ -248,6 +248,7 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             var updateRequest = generator.Generate();
 
+            client.SetContractor("PCL");
             var serializedUpdateContent = JsonConvert.SerializeObject(updateRequest);
             StringContent updateContent = new StringContent(serializedUpdateContent, Encoding.UTF8, "application/json");
             var updateResponse = await client.PostAsync(new Uri("/api/v2/jobStatusUpdate", UriKind.Relative), updateContent);
