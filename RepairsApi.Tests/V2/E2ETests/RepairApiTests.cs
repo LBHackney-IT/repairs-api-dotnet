@@ -111,15 +111,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         public async Task BadRequestWhenDoesntHaveRequiredFromJson()
         {
             var client = CreateClient();
-            client.SetUser(new RepairsApi.V2.Domain.User
-            {
-                Name = "name",
-                Email = "email",
-                Groups = new List<string>()
-                {
-                    "repairs-hub-frontend-staging"
-                }
-            });
+            client.SetAgent();
             string request = Requests.InvalidRaiseRepair;
             StringContent content = new StringContent(request, Encoding.UTF8, "application/json");
 
