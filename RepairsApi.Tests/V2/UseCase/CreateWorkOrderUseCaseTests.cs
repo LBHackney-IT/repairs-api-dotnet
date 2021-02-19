@@ -101,7 +101,7 @@ namespace RepairsApi.Tests.V2.UseCase
         {
             var generator = new Generator<WorkOrder>()
                 .AddInfrastructureWorkOrderGenerators()
-                .AddValue(new List<Trade>{new Trade{Code = TradeCode.B2}}, (WorkElement we) => we.Trade);
+                .AddValue(new List<Trade> { new Trade { Code = TradeCode.B2 } }, (WorkElement we) => we.Trade);
             var workOrder = generator.Generate();
 
             await _classUnderTest.Execute(workOrder);

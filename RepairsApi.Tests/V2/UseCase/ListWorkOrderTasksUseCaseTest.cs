@@ -52,19 +52,19 @@ namespace RepairsApi.Tests.V2.UseCase
         {
             var expected = new Generator<RateScheduleItem>().Generate();
             _repairsGatewayMock.Setup(m => m.GetWorkElementsForWorkOrder(It.IsAny<int>()))
-                .ReturnsAsync(new List<WorkElement>{ new WorkElement{RateScheduleItem = new List<RateScheduleItem>{expected}}});
+                .ReturnsAsync(new List<WorkElement> { new WorkElement { RateScheduleItem = new List<RateScheduleItem> { expected } } });
 
             var resultList = await _classUnderTest.Execute(1);
 
             var result = resultList.Single();
 
-            result.Description.Should().Be( expected.CustomName);
-            result.Quantity.Should().Be( expected.Quantity?.Amount ?? 0);
-            result.Cost.Should().Be( expected.CodeCost);
-            result.Id.Should().Be( expected.CustomCode);
-            result.Status.Should().Be( "Unknown");
-            result.DateAdded.Should().Be( expected.DateCreated.GetValueOrDefault());
-            result.Original.Should().Be( expected.Original);
+            result.Description.Should().Be(expected.CustomName);
+            result.Quantity.Should().Be(expected.Quantity?.Amount ?? 0);
+            result.Cost.Should().Be(expected.CodeCost);
+            result.Id.Should().Be(expected.CustomCode);
+            result.Status.Should().Be("Unknown");
+            result.DateAdded.Should().Be(expected.DateCreated.GetValueOrDefault());
+            result.Original.Should().Be(expected.Original);
         }
     }
 }
