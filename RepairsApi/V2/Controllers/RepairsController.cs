@@ -167,6 +167,8 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
+        [Authorize(Roles = SecurityGroup.CONTRACTOR)]
+
         public async Task<IActionResult> JobStatusUpdate([FromBody] JobStatusUpdate request)
         {
             var authorised = await _authorizationService.AuthorizeAsync(User, request, "VarySpendLimit");

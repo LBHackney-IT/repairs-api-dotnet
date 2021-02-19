@@ -1,5 +1,6 @@
 using FluentAssertions;
 using NUnit.Framework;
+using RepairsApi.Tests.Helpers;
 using RepairsApi.V2;
 using System;
 using System.Threading.Tasks;
@@ -16,6 +17,15 @@ namespace RepairsApi.Tests.V2.E2ETests
             var result = await client.GetAsync(new Uri("/api/v2/appointments", UriKind.Relative));
 
             result.StatusCode.Should().Be(400);
+        }
+
+        [Test]
+        public async Task UnAuthorisedOnList()
+        {
+            await AuthorisationHelper.VerifyContractorUnauthorised(
+                CreateClient(),
+                "PCL",
+                async client => await client.GetAsync(new Uri("/api/v2/appointments", UriKind.Relative)));
         }
 
         [Test]

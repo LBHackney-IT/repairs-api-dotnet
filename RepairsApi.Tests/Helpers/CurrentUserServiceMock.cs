@@ -10,5 +10,10 @@ namespace RepairsApi.Tests.Helpers
         {
             Setup(m => m.HasGroup(group)).Returns(isInGroup);
         }
+
+        public void SetContractor(string contractor)
+        {
+            Setup(m => m.TryGetContractor(out contractor)).Returns(true);
+        }
     }
 }

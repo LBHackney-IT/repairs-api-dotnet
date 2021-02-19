@@ -1,8 +1,10 @@
 using JWT.Algorithms;
 using JWT.Builder;
 using Newtonsoft.Json;
+using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Domain;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 
 namespace RepairsApi.Tests
@@ -33,6 +35,21 @@ namespace RepairsApi.Tests
                     "repairs-hub-frontend-staging",
                     "repairs-hub-frontend-staging-raiselimit50",
                     "repairs-hub-frontend-staging-varylimit50"
+                }
+            });
+        }
+
+        public static void SetContractor(this HttpClient client, string contractorReference)
+        {
+            var group = Groups.SecurityGroups.Where(kv => kv.Value.ContractorReference == contractorReference).Select(kv => kv.Key).Single();
+
+            client.SetUser(new RepairsApi.V2.Domain.User
+            {
+                Name = TestUserInformation.NAME,
+                Email = TestUserInformation.EMAIL,
+                Groups = new List<string>()
+                {
+                    group
                 }
             });
         }
