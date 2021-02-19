@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using RepairsApi.Tests.Helpers;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.Infrastructure;
@@ -96,6 +97,19 @@ namespace RepairsApi.Tests.V2.E2ETests
             var result = await GetResult<IEnumerable<ScheduleOfRatesModel>>(response);
 
             result.Count().Should().BeGreaterOrEqualTo(1);
+        }
+
+        [TestCase("/api/v2/contractors?tradeCode=1&propertyReference=1")]
+        [TestCase("api/v2/schedule-of-rates/priorities")]
+        public async Task AuthorisationTests(string test)
+        {
+            await AuthorisationHelper.VerifyContractorUnauthorised(
+                CreateClient(),
+                "PCL",
+                async client =>
+                {
+                    return await client.GetAsync(new Uri(test, UriKind.Relative));
+                });
         }
 
         private static async Task<T> GetResult<T>(HttpResponseMessage response)

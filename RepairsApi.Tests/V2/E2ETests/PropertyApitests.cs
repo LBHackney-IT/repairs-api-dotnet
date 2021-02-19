@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace RepairsApi.Tests.V2.E2ETests
 {
@@ -214,6 +215,22 @@ namespace RepairsApi.Tests.V2.E2ETests
             // Assert
             response.IsSuccess.Should().BeTrue();
             response.Status.Should().Be(HttpStatusCode.OK);
+        }
+
+        [TestCase("/api/v2/properties/100")]
+        [TestCase("/api/v2/properties/100/alerts")]
+        [TestCase("/api/v2/properties/?postcode=1111")]
+        [TestCase("/api/v2/properties/?q=1111")]
+        [TestCase("/api/v2/properties/?address=1111")]
+        public async Task AuthorisationTests(string test)
+        {
+            await AuthorisationHelper.VerifyContractorUnauthorised(
+                Client,
+                "PCL",
+                async client =>
+                {
+                    return await client.GetAsync(new Uri(test, UriKind.Relative));
+                });
         }
     }
 }

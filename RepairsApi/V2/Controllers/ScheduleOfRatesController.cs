@@ -62,7 +62,6 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(IEnumerable<SorTradeResponse>), StatusCodes.Status200OK)]
         [Route("trades")]
         [HttpGet]
-        [Authorize(Roles = SecurityGroup.AGENT)]
         public async Task<IActionResult> ListTrades([FromQuery][Required] string propRef)
         {
             return Ok(await _listSorTrades.Execute(propRef));
