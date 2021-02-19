@@ -36,7 +36,7 @@ namespace RepairsApi.Tests
                 }
             });
         }
-        
+
         public static void SetContractor(this HttpClient client, string contractorReference)
         {
             var group = Groups.SecurityGroups.Where(kv => kv.Value.ContractorReference == contractorReference).Select(kv => kv.Key).Single();

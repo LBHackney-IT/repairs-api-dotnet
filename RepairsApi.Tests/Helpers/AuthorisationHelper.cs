@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using RepairsApi.V2.Authorisation;
 using System;
 using System.Net.Http;
