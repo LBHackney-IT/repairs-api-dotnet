@@ -10,5 +10,6 @@ namespace RepairsApi.V2.Domain
         public DateTime? DateAdded { get; internal set; }
         public string Description { get; internal set; }
         public string Status { get; internal set; }
+        public bool Original { get; set; }
     }
 }
