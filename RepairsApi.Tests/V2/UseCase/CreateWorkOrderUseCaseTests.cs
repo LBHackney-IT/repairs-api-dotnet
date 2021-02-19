@@ -9,13 +9,19 @@ using RepairsApi.V2.Services;
 using RepairsApi.V2.UseCase;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.Tests.V2.Gateways;
+using RepairsApi.V2.Generated;
+using Trade = RepairsApi.V2.Infrastructure.Trade;
+using WorkElement = RepairsApi.V2.Infrastructure.WorkElement;
 
 namespace RepairsApi.Tests.V2.UseCase
 {
     public class CreateWorkOrderUseCaseTests
     {
-        private Mock<IRepairsGateway> _repairsGatewayMock;
+        private MockRepairsGateway _repairsGatewayMock;
         private Mock<IScheduleOfRatesGateway> _scheduleOfRatesGateway;
         private Mock<ICurrentUserService> _currentUserServiceMock;
         private CreateWorkOrderUseCase _classUnderTest;
@@ -23,7 +29,7 @@ namespace RepairsApi.Tests.V2.UseCase
         [SetUp]
         public void Setup()
         {
-            _repairsGatewayMock = new Mock<IRepairsGateway>();
+            _repairsGatewayMock = new MockRepairsGateway();
             _scheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
             _currentUserServiceMock = new Mock<ICurrentUserService>();
             _classUnderTest = new CreateWorkOrderUseCase(
@@ -38,7 +44,7 @@ namespace RepairsApi.Tests.V2.UseCase
         public async Task Runs()
         {
             int newId = 1;
-            _repairsGatewayMock.Setup(m => m.CreateWorkOrder(It.IsAny<WorkOrder>())).ReturnsAsync(newId);
+            _repairsGatewayMock.ReturnWOId(newId);
             var result = await _classUnderTest.Execute(new WorkOrder());
 
             result.Should().Be(newId);
@@ -48,7 +54,7 @@ namespace RepairsApi.Tests.V2.UseCase
         public async Task SetsCurrentDate()
         {
             int newId = 1;
-            _repairsGatewayMock.Setup(m => m.CreateWorkOrder(It.IsAny<WorkOrder>())).ReturnsAsync(newId);
+            _repairsGatewayMock.ReturnWOId(newId);
             var result = await _classUnderTest.Execute(new WorkOrder());
 
             VerifyRaiseRepairIsCloseToNow();
@@ -58,7 +64,7 @@ namespace RepairsApi.Tests.V2.UseCase
         public async Task DoesNotThrowsNotSupportedWhenSingleTradesPosted()
         {
             int newId = 1;
-            _repairsGatewayMock.Setup(m => m.CreateWorkOrder(It.IsAny<WorkOrder>())).ReturnsAsync(newId);
+            _repairsGatewayMock.ReturnWOId(newId);
             var workOrder = new WorkOrder
             {
                 WorkElements = new List<WorkElement>
@@ -68,7 +74,7 @@ namespace RepairsApi.Tests.V2.UseCase
                 }
             };
 
-            var result = await _classUnderTest.Execute(new WorkOrder());
+            var result = await _classUnderTest.Execute(workOrder);
 
             result.Should().Be(newId);
         }
@@ -77,7 +83,7 @@ namespace RepairsApi.Tests.V2.UseCase
         public void ThrowsNotSupportedWhenMultipleTradesPosted()
         {
             int newId = 1;
-            _repairsGatewayMock.Setup(m => m.CreateWorkOrder(It.IsAny<WorkOrder>())).ReturnsAsync(newId);
+            _repairsGatewayMock.ReturnWOId(newId);
             var workOrder = new WorkOrder
             {
                 WorkElements = new List<WorkElement>
@@ -88,6 +94,20 @@ namespace RepairsApi.Tests.V2.UseCase
             };
 
             Assert.ThrowsAsync<NotSupportedException>(async () => await _classUnderTest.Execute(workOrder));
+        }
+
+        [Test]
+        public async Task SetsRSIToOriginalTrue()
+        {
+            var generator = new Generator<WorkOrder>()
+                .AddInfrastructureWorkOrderGenerators()
+                .AddValue(new List<Trade>{new Trade{Code = TradeCode.B2}}, (WorkElement we) => we.Trade);
+            var workOrder = generator.Generate();
+
+            await _classUnderTest.Execute(workOrder);
+
+            _repairsGatewayMock.LastWorkOrder.WorkElements.All(we => we.RateScheduleItem.All(rsi => rsi.Original))
+                .Should().BeTrue();
         }
 
         private void VerifyRaiseRepairIsCloseToNow()
