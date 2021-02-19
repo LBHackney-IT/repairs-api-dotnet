@@ -6,6 +6,7 @@ using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Domain;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
 
@@ -27,10 +28,10 @@ namespace RepairsApi.V2.Services
             if (string.IsNullOrWhiteSpace(jwt)) return;
             try
             {
-                var values = new JwtBuilder()
+                var jwtUser = new JwtBuilder()
                         .Decode<User>(jwt);
 
-                _user = MapUser(values);
+                _user = MapUser(jwtUser);
             }
             catch (Exception e)
             {
@@ -66,6 +67,8 @@ namespace RepairsApi.V2.Services
             identity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
             identity.AddClaim(new Claim(ClaimTypes.Name, user.Name));
 
+            var raiseLimit = 0.0;
+
             foreach (var group in user.Groups)
             {
                 if (Groups.SecurityGroups.TryGetValue(group, out PermissionsModel perms))
@@ -77,7 +80,14 @@ namespace RepairsApi.V2.Services
                         identity.AddClaim(new Claim(CustomClaimTypes.CONTRACTOR, perms.ContractorReference));
                     }
                 }
+
+                if (Groups.RaiseLimitGroups.TryGetValue(group, out double limit))
+                {
+                    raiseLimit = Math.Max(raiseLimit, limit);
+                }
             }
+
+            identity.AddClaim(new Claim(CustomClaimTypes.RAISELIMIT, raiseLimit.ToString(CultureInfo.InvariantCulture)));
 
             return new ClaimsPrincipal(identity);
         }

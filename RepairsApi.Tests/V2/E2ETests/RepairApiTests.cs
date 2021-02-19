@@ -14,6 +14,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Castle.Core.Internal;
 using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using RateScheduleItem = RepairsApi.V2.Generated.RateScheduleItem;
@@ -58,7 +59,8 @@ namespace RepairsApi.Tests.V2.E2ETests
         {
             var client = CreateClient();
 
-            Generator<ScheduleRepair> generator = GenerateWorkOrder<ScheduleRepair>();
+            Generator<ScheduleRepair> generator = GenerateWorkOrder<ScheduleRepair>()
+                .AddValue(new List<double>{1}, (RateScheduleItem rsi) => rsi.Quantity.Amount);
 
             var request = generator.Generate();
             var serializedContent = JsonConvert.SerializeObject(request);
@@ -68,6 +70,22 @@ namespace RepairsApi.Tests.V2.E2ETests
             {
                 repair.WorkPriority.NumberOfDays.Should().Be(request.Priority.NumberOfDays);
             });
+        }
+
+        [Test]
+        public async Task ScheduleReturns401WhenLimitExceeded()
+        {
+            var client = CreateClient();
+
+            Generator<ScheduleRepair> generator = GenerateWorkOrder<ScheduleRepair>()
+                .AddValue(new List<double>{1000}, (RateScheduleItem rsi) => rsi.Quantity.Amount);
+
+            var request = generator.Generate();
+            var serializedContent = JsonConvert.SerializeObject(request);
+            StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync(new Uri("/api/v2/repairs/schedule", UriKind.Relative), content);
+            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
 
         [Test]
@@ -265,15 +283,19 @@ namespace RepairsApi.Tests.V2.E2ETests
 
         private Generator<T> GenerateWorkOrder<T>()
         {
-            string[] sorCodes = Array.Empty<string>();
+            var sorCodes = Array.Empty<(string sorCode,string contractorRef)>();
 
             WithContext(ctx =>
             {
-                sorCodes = ctx.SORCodes.Select(sor => sor.Code).ToArray();
+                var tempSorCodes = ctx.SORCodes.Select(sor => new {sor.Code, sor.SorCodeMap.FirstOrDefault().Contract.ContractorReference}).ToArray();
+                sorCodes = tempSorCodes
+                    .Where(c => !c.ContractorReference.IsNullOrEmpty())
+                    .Select(c => (c.Code, c.ContractorReference)).ToArray();
             });
 
             return new Generator<T>()
                 .AddWorkOrderGenerators()
+                .AddValue(new List<double>{0}, (RateScheduleItem rsi) => rsi.Quantity.Amount)
                 .WithSorCodes(sorCodes);
         }
 

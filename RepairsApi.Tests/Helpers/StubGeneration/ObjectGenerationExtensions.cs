@@ -65,11 +65,14 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                 .SetListLength<RateScheduleItem>(1);
         }
 
-        public static Generator<T> WithSorCodes<T>(this Generator<T> generator, params string[] sorCodes)
+        public static Generator<T> WithSorCodes<T>(this Generator<T> generator, params (string sorCode,string contractorRef)[] sorCodes)
         {
             Random rand = new Random();
+            var sorCode = sorCodes[rand.Next(sorCodes.Length)];
 
-            return generator.AddGenerator(() => sorCodes[rand.Next(sorCodes.Length)], (RateScheduleItem rsi) => rsi.CustomCode);
+            return generator
+                .AddGenerator(() => sorCode.sorCode, (RateScheduleItem rsi) => rsi.CustomCode)
+                .AddGenerator(() => sorCode.contractorRef, (Reference r) => r.ID);
         }
 
         public static Generator<T> AddInfrastructureWorkOrderGenerators<T>(this Generator<T> generator)

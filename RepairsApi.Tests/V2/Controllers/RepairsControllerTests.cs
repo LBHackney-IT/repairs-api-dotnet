@@ -14,7 +14,9 @@ using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using RepairsApi.V2.Controllers.Parameters;
 using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
@@ -34,11 +36,15 @@ namespace RepairsApi.Tests.V2.Controllers
         private Mock<IGetWorkOrderUseCase> _getWorkOrderUseCase;
         private Mock<IListWorkOrderTasksUseCase> _listWorkOrderTasksUseCase;
         private Mock<IListWorkOrderNotesUseCase> _listWorkOrderNotesUseCase;
+        private Mock<IAuthorizationService> _authMock;
 
         [SetUp]
         public void SetUp()
         {
             ConfigureGenerator();
+            _authMock = new Mock<IAuthorizationService>();
+            _authMock.Setup(a => a.AuthorizeAsync(It.IsAny<ClaimsPrincipal>(), It.IsAny<object>(), It.IsAny<string>()))
+                .ReturnsAsync(AuthorizationResult.Success());
             _createWorkOrderUseCaseMock = new Mock<ICreateWorkOrderUseCase>();
             _listWorkOrdersUseCase = new Mock<IListWorkOrdersUseCase>();
             _completeWorkOrderUseCase = new Mock<ICompleteWorkOrderUseCase>();
@@ -47,6 +53,7 @@ namespace RepairsApi.Tests.V2.Controllers
             _listWorkOrderTasksUseCase = new Mock<IListWorkOrderTasksUseCase>();
             _listWorkOrderNotesUseCase = new Mock<IListWorkOrderNotesUseCase>();
             _classUnderTest = new RepairsController(
+                _authMock.Object,
                 _createWorkOrderUseCaseMock.Object,
                 _listWorkOrdersUseCase.Object,
                 _completeWorkOrderUseCase.Object,

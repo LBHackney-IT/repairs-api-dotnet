@@ -6,6 +6,7 @@ using RepairsApi.V2.Generated;
 using RepairsApi.V2.UseCase.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Controllers.Parameters;
@@ -21,6 +22,7 @@ namespace RepairsApi.V2.Controllers
     [ApiVersion("2.0")]
     public class RepairsController : Controller
     {
+        private readonly IAuthorizationService _authorizationService;
         private readonly ICreateWorkOrderUseCase _createWorkOrderUseCase;
         private readonly IListWorkOrdersUseCase _listWorkOrdersUseCase;
         private readonly ICompleteWorkOrderUseCase _completeWorkOrderUseCase;
@@ -30,6 +32,7 @@ namespace RepairsApi.V2.Controllers
         private readonly IListWorkOrderNotesUseCase _listWorkOrderNotesUseCase;
 
         public RepairsController(
+            IAuthorizationService authorizationService,
             ICreateWorkOrderUseCase createWorkOrderUseCase,
             IListWorkOrdersUseCase listWorkOrdersUseCase,
             ICompleteWorkOrderUseCase completeWorkOrderUseCase,
@@ -38,6 +41,7 @@ namespace RepairsApi.V2.Controllers
             IListWorkOrderTasksUseCase listWorkOrderTasksUseCase,
             IListWorkOrderNotesUseCase listWorkOrderNotesUseCase)
         {
+            _authorizationService = authorizationService;
             _createWorkOrderUseCase = createWorkOrderUseCase;
             _listWorkOrdersUseCase = listWorkOrdersUseCase;
             _completeWorkOrderUseCase = completeWorkOrderUseCase;
@@ -86,6 +90,9 @@ namespace RepairsApi.V2.Controllers
         {
             try
             {
+                var authorised = await _authorizationService.AuthorizeAsync(User, (request.WorkElement, request.AssignedToPrimary.Reference?.FirstOrDefault()?.ID), "RaiseSpendLimit");
+                if (!authorised.Succeeded) return Unauthorized("Request Work Order is above Spend Limit");
+
                 var result = await _createWorkOrderUseCase.Execute(request.ToDb());
                 return Ok(result);
             }

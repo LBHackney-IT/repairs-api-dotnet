@@ -23,9 +23,9 @@ using RepairsApi.V2.UseCase;
 using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
 using RepairsApi.V2.MiddleWare;
 using RepairsApi.V2.Services;
-using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using RepairsApi.V2.Authorisation;
 
 namespace RepairsApi
@@ -58,7 +58,12 @@ namespace RepairsApi
                 o.ApiVersionReader = new UrlSegmentApiVersionReader(); // read the version number from the url segment header)
             });
 
-            services.AddAuthorization();
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("RaiseSpendLimit", policy =>
+                    policy.Requirements.Add(new RaiseLimitRequirement()));
+            });
+            services.AddSingleton<IAuthorizationHandler, SpendLimitAuthorizationHandler>();
 
             services.AddSingleton<IApiVersionDescriptionProvider, DefaultApiVersionDescriptionProvider>();
 
@@ -237,4 +242,5 @@ namespace RepairsApi
             });
         }
     }
+
 }

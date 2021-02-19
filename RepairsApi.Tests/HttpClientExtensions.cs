@@ -30,7 +30,8 @@ namespace RepairsApi.Tests
                 Email = TestUserInformation.EMAIL,
                 Groups = new List<string>()
                 {
-                    "repairs-hub-frontend-staging"
+                    "repairs-hub-frontend-staging",
+                    "repairs-hub-frontend-staging-limit50"
                 }
             });
         }

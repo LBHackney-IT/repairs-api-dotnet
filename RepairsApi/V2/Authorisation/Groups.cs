@@ -12,6 +12,12 @@ namespace RepairsApi.V2.Authorisation
             { "repairs-hub-frontend-staging-contractors-alphatrack", (SecurityGroup.CONTRACTOR, "ASL") },
             { "repairs-hub-frontend-staging-contractors-purdy", (SecurityGroup.CONTRACTOR, "PCL") },
         };
+
+        public static readonly Dictionary<string, double> RaiseLimitGroups = new Dictionary<string, double>
+        {
+            { "repairs-hub-frontend-staging-limit50", 50 },
+            { "repairs-hub-frontend-staging-limit150", 150 },
+        };
     }
 
     public static class SecurityGroup
