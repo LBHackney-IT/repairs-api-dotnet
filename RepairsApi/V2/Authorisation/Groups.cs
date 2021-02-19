@@ -4,22 +4,30 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace RepairsApi.V2.Authorisation
 {
-    public static class Groups
+
+    public interface IGroups
     {
-        public static readonly Dictionary<string, PermissionsModel> SecurityGroups = new Dictionary<string, PermissionsModel>
+        Dictionary<string, PermissionsModel> SecurityGroups { get; }
+        Dictionary<string, double> RaiseLimitGroups { get; }
+        Dictionary<string, double> VaryLimitGroups { get; }
+    }
+
+    public class Groups : IGroups
+    {
+        public Dictionary<string, PermissionsModel> SecurityGroups { get; } = new Dictionary<string, PermissionsModel>
         {
             { "repairs-hub-frontend-staging", (SecurityGroup.AGENT, null) },
             { "repairs-hub-frontend-staging-contractors-alphatrack", (SecurityGroup.CONTRACTOR, "ASL") },
             { "repairs-hub-frontend-staging-contractors-purdy", (SecurityGroup.CONTRACTOR, "PCL") },
         };
 
-        public static readonly Dictionary<string, double> RaiseLimitGroups = new Dictionary<string, double>
+        public Dictionary<string, double> RaiseLimitGroups { get; } = new Dictionary<string, double>
         {
             { "repairs-hub-frontend-staging-raiselimit50", 50 },
             { "repairs-hub-frontend-staging-raiselimit150", 150 },
         };
 
-        public static readonly Dictionary<string, double> VaryLimitGroups = new Dictionary<string, double>
+        public Dictionary<string, double> VaryLimitGroups { get; } = new Dictionary<string, double>
         {
             { "repairs-hub-frontend-staging-varylimit50", 50 },
             { "repairs-hub-frontend-staging-varylimit150", 150 },

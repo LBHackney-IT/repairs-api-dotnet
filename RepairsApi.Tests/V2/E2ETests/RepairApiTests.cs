@@ -7,6 +7,7 @@ using RepairsApi.V2.Generated;
 using RepairsApi.V2.Generated.CustomTypes;
 using RepairsApi.V2.Infrastructure;
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -17,6 +18,7 @@ using System.Threading.Tasks;
 using Castle.Core.Internal;
 using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
 using JsonSerializer = System.Text.Json.JsonSerializer;
+using Quantity = RepairsApi.V2.Generated.Quantity;
 using RateScheduleItem = RepairsApi.V2.Generated.RateScheduleItem;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 
@@ -215,7 +217,8 @@ namespace RepairsApi.Tests.V2.E2ETests
         [Test]
         public async Task UpdateReturns401WhenLimitExceeded()
         {
-            var res = await ScheduleAndUpdateWorkOrder("expectedCode", "comments", 1000);
+            var expectedCode = TestDataSeeder.SorCode;
+            var res = await ScheduleAndUpdateWorkOrder(expectedCode, "comments", 1000);
             res.response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
 
@@ -264,7 +267,14 @@ namespace RepairsApi.Tests.V2.E2ETests
             var workElement = request.WorkElement.First();
             var expectedNewCode = new RateScheduleItem
             {
-                CustomCode = expectedCode
+                CustomCode = expectedCode,
+                Quantity = new Quantity
+                {
+                    Amount = new List<double>
+                    {
+                        quantity
+                    }
+                }
             };
             workElement.RateScheduleItem.Add(expectedNewCode);
 
@@ -273,8 +283,7 @@ namespace RepairsApi.Tests.V2.E2ETests
                 .AddValue(JobStatusUpdateTypeCode._80, (JobStatusUpdate jsu) => jsu.TypeCode)
                 .AddValue(workOrderId.ToString(), (JobStatusUpdate jsu) => jsu.RelatedWorkOrderReference.ID)
                 .AddValue(workElement, (JobStatusUpdate jsu) => jsu.MoreSpecificSORCode)
-                .AddValue(updateComments, (JobStatusUpdate jsu) => jsu.Comments)
-                .AddValue(new List<double>{quantity}, (RateScheduleItem rsi) => rsi.Quantity.Amount);
+                .AddValue(updateComments, (JobStatusUpdate jsu) => jsu.Comments);
 
             var updateRequest = generator.Generate();
 
@@ -289,6 +298,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         private async Task ValidateUpdate(HttpResponseMessage updateResponse, int workOrderId, string expectedNewCode)
         {
             var client = CreateClient();
+            client.SetContractor("PCL");
 
             updateResponse.StatusCode.Should().Be(HttpStatusCode.OK, updateResponse.Content.ToString());
 

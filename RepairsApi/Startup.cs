@@ -65,8 +65,8 @@ namespace RepairsApi
                 options.AddPolicy("VarySpendLimit", policy =>
                     policy.Requirements.Add(new VaryLimitRequirement()));
             });
-            services.AddSingleton<IAuthorizationHandler, RaiseSpendLimitAuthorizationHandler>();
-            services.AddSingleton<IAuthorizationHandler, VarySpendLimitAuthorizationHandler>();
+            services.AddScoped<IAuthorizationHandler, RaiseSpendLimitAuthorizationHandler>();
+            services.AddScoped<IAuthorizationHandler, VarySpendLimitAuthorizationHandler>();
 
             services.AddSingleton<IApiVersionDescriptionProvider, DefaultApiVersionDescriptionProvider>();
 
