@@ -13,12 +13,12 @@ namespace RepairsApi.V2.Authorisation
     {
     }
 
-    public class SpendLimitAuthorizationHandler :
-        AuthorizationHandler<RaiseLimitRequirement, (ICollection<WorkElement> codes,string contrctorRef)>
+    public class RaiseSpendLimitAuthorizationHandler :
+        AuthorizationHandler<RaiseLimitRequirement, ScheduleRepair>
     {
         private readonly IScheduleOfRatesGateway _sorGateway;
 
-        public SpendLimitAuthorizationHandler(IScheduleOfRatesGateway sorGateway)
+        public RaiseSpendLimitAuthorizationHandler(IScheduleOfRatesGateway sorGateway)
         {
             _sorGateway = sorGateway;
         }
@@ -26,14 +26,15 @@ namespace RepairsApi.V2.Authorisation
         protected override async Task HandleRequirementAsync(
             AuthorizationHandlerContext context,
             RaiseLimitRequirement requirement,
-            (ICollection<WorkElement> codes,string contrctorRef) resource
+            ScheduleRepair resource
             )
         {
-            var rawCodes = resource.codes
+            var contractorRef = resource.AssignedToPrimary.Reference?.FirstOrDefault()?.ID;
+            var rawCodes = resource.WorkElement
                 .SelectMany(we => we.RateScheduleItem)
                 .Select(rsi => (code: rsi.CustomCode, amount: rsi.Quantity.Amount.Sum()));
             double totalCost = 0;
-            await rawCodes.ForEachAsync(async c => totalCost += c.amount * await _sorGateway.GetCost(resource.contrctorRef, c.code) ?? 0);
+            await rawCodes.ForEachAsync(async c => totalCost += c.amount * await _sorGateway.GetCost(contractorRef, c.code) ?? 0);
 
             var limit = double.Parse(context.User.FindFirst(CustomClaimTypes.RAISELIMIT).Value);
 

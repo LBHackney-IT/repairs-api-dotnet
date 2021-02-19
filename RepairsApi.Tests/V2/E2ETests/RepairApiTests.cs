@@ -207,14 +207,25 @@ namespace RepairsApi.Tests.V2.E2ETests
         [Test]
         public async Task UpdateScheduleRepairWorkOrder()
         {
-            await ScheduleAndUpdateWorkOrder();
+            const string expectedCode = "expectedCode";
+            var (workOrderId, response) = await ScheduleAndUpdateWorkOrder(expectedCode, "comments", 0);
+            await ValidateUpdate(response, workOrderId, expectedCode);
+        }
+
+        [Test]
+        public async Task UpdateReturns401WhenLimitExceeded()
+        {
+            var res = await ScheduleAndUpdateWorkOrder("expectedCode", "comments", 1000);
+            res.response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
 
         [Test]
         public async Task CanViewNotes()
         {
-            string expectedNote = "expectedNote";
-            var workOrderId = await ScheduleAndUpdateWorkOrder(expectedNote);
+            const string expectedNote = "expectedNote";
+            const string expectedCode = "expectedCode";
+            var (workOrderId, httpResponseMessage) = await ScheduleAndUpdateWorkOrder(expectedCode, expectedNote);
+            await ValidateUpdate(httpResponseMessage, workOrderId, expectedCode);
 
             var client = CreateClient();
             var response = await client.GetAsync(new Uri($"/api/v2/repairs/{workOrderId}/notes", UriKind.Relative));
@@ -235,7 +246,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             response.StatusCode.Should().Be(404);
         }
 
-        private async Task<int> ScheduleAndUpdateWorkOrder(string updateComments = "comments")
+        private async Task<(int workOrderId, HttpResponseMessage response)> ScheduleAndUpdateWorkOrder(string expectedCode, string updateComments = "comments", int quantity = 0)
         {
 
             string endpoint = "/api/v2/repairs/schedule";
@@ -253,7 +264,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             var workElement = request.WorkElement.First();
             var expectedNewCode = new RateScheduleItem
             {
-                CustomCode = "newCode"
+                CustomCode = expectedCode
             };
             workElement.RateScheduleItem.Add(expectedNewCode);
 
@@ -262,13 +273,21 @@ namespace RepairsApi.Tests.V2.E2ETests
                 .AddValue(JobStatusUpdateTypeCode._80, (JobStatusUpdate jsu) => jsu.TypeCode)
                 .AddValue(workOrderId.ToString(), (JobStatusUpdate jsu) => jsu.RelatedWorkOrderReference.ID)
                 .AddValue(workElement, (JobStatusUpdate jsu) => jsu.MoreSpecificSORCode)
-                .AddValue(updateComments, (JobStatusUpdate jsu) => jsu.Comments);
+                .AddValue(updateComments, (JobStatusUpdate jsu) => jsu.Comments)
+                .AddValue(new List<double>{quantity}, (RateScheduleItem rsi) => rsi.Quantity.Amount);
 
             var updateRequest = generator.Generate();
 
             var serializedUpdateContent = JsonConvert.SerializeObject(updateRequest);
             StringContent updateContent = new StringContent(serializedUpdateContent, Encoding.UTF8, "application/json");
-            var updateResponse = await client.PostAsync(new Uri("/api/v2/jobStatusUpdate", UriKind.Relative), updateContent);
+            var response = await client.PostAsync(new Uri("/api/v2/jobStatusUpdate", UriKind.Relative), updateContent);
+
+            return (workOrderId, response);
+        }
+
+        private async Task ValidateUpdate(HttpResponseMessage updateResponse, int workOrderId, string expectedNewCode)
+        {
+            var client = CreateClient();
 
             updateResponse.StatusCode.Should().Be(HttpStatusCode.OK, updateResponse.Content.ToString());
 
@@ -276,9 +295,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             var response = await client.GetAsync(new Uri($"/api/v2/repairs/{workOrderId}/tasks", UriKind.Relative));
             string responseContent = await response.Content.ReadAsStringAsync();
             var workOrderItems = JsonConvert.DeserializeObject<IEnumerable<WorkOrderItemViewModel>>(responseContent);
-            workOrderItems.Should().ContainSingle(woi => woi.Code == expectedNewCode.CustomCode);
-
-            return workOrderId;
+            workOrderItems.Should().ContainSingle(woi => woi.Code == expectedNewCode);
         }
 
         private Generator<T> GenerateWorkOrder<T>()

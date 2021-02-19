@@ -108,7 +108,9 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
             return generator
                 .AddDefaultGenerators()
                 .AddWorkOrderGenerators()
-                .AddValue(null, (RepairsApi.V2.Generated.JobStatusUpdate jsu) => jsu.AdditionalWork);
+                .AddValue(null, (RepairsApi.V2.Generated.JobStatusUpdate jsu) => jsu.AdditionalWork)
+                .SetListLength<WorkElement>(1)
+                .SetListLength<RateScheduleItem>(1);
         }
     }
 }

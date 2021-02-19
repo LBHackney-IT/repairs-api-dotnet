@@ -15,8 +15,14 @@ namespace RepairsApi.V2.Authorisation
 
         public static readonly Dictionary<string, double> RaiseLimitGroups = new Dictionary<string, double>
         {
-            { "repairs-hub-frontend-staging-limit50", 50 },
-            { "repairs-hub-frontend-staging-limit150", 150 },
+            { "repairs-hub-frontend-staging-raiselimit50", 50 },
+            { "repairs-hub-frontend-staging-raiselimit150", 150 },
+        };
+
+        public static readonly Dictionary<string, double> VaryLimitGroups = new Dictionary<string, double>
+        {
+            { "repairs-hub-frontend-staging-varylimit50", 50 },
+            { "repairs-hub-frontend-staging-varylimit150", 150 },
         };
     }
 

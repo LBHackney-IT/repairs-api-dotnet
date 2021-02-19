@@ -31,7 +31,8 @@ namespace RepairsApi.Tests
                 Groups = new List<string>()
                 {
                     "repairs-hub-frontend-staging",
-                    "repairs-hub-frontend-staging-limit50"
+                    "repairs-hub-frontend-staging-raiselimit50",
+                    "repairs-hub-frontend-staging-varylimit50"
                 }
             });
         }

@@ -90,7 +90,7 @@ namespace RepairsApi.V2.Controllers
         {
             try
             {
-                var authorised = await _authorizationService.AuthorizeAsync(User, (request.WorkElement, request.AssignedToPrimary.Reference?.FirstOrDefault()?.ID), "RaiseSpendLimit");
+                var authorised = await _authorizationService.AuthorizeAsync(User, request, "RaiseSpendLimit");
                 if (!authorised.Succeeded) return Unauthorized("Request Work Order is above Spend Limit");
 
                 var result = await _createWorkOrderUseCase.Execute(request.ToDb());
@@ -169,6 +169,9 @@ namespace RepairsApi.V2.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> JobStatusUpdate([FromBody] JobStatusUpdate request)
         {
+            var authorised = await _authorizationService.AuthorizeAsync(User, request, "VarySpendLimit");
+            if (!authorised.Succeeded) return Unauthorized("Resulting Work Order is above Spend Limit");
+
             await _updateJobStatusUseCase.Execute(request);
             return Ok();
         }
