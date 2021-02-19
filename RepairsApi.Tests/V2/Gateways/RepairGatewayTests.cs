@@ -7,17 +7,22 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Common;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Services;
+using Moq;
 
 namespace RepairsApi.Tests.V2.Gateways
 {
     public class RepairGatewayTests
     {
+        private Mock<ICurrentUserService> _userServiceMock;
         private RepairsGateway _classUnderTest;
 
         [SetUp]
         public void Setup()
         {
-            _classUnderTest = new RepairsGateway(InMemoryDb.Instance);
+            _userServiceMock = new Mock<ICurrentUserService>();
+            _userServiceMock.Setup(m => m.HasGroup(It.IsAny<string>())).Returns(true);
+            _classUnderTest = new RepairsGateway(InMemoryDb.Instance, _userServiceMock.Object);
         }
 
         [TearDown]

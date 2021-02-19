@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure.Hackney;
 using System.ComponentModel.DataAnnotations;
+using RepairsApi.V2.Authorisation;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -42,6 +44,7 @@ namespace RepairsApi.V2.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
+        [Authorize(Roles = SecurityGroup.AGENT)]
         public async Task<IActionResult> ListRecords([FromQuery] string tradeCode, [FromQuery] string propertyReference, [FromQuery] string contractorReference)
         {
             if (string.IsNullOrWhiteSpace(tradeCode) && string.IsNullOrWhiteSpace(propertyReference) && string.IsNullOrWhiteSpace(contractorReference))
@@ -59,6 +62,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(IEnumerable<SorTradeResponse>), StatusCodes.Status200OK)]
         [Route("trades")]
         [HttpGet]
+        [Authorize(Roles = SecurityGroup.AGENT)]
         public async Task<IActionResult> ListTrades([FromQuery][Required] string propRef)
         {
             return Ok(await _listSorTrades.Execute(propRef));
@@ -71,6 +75,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(IEnumerable<SORPriority>), StatusCodes.Status200OK)]
         [HttpGet]
         [Route("priorities")]
+        [Authorize(Roles = SecurityGroup.AGENT)]
         public async Task<IActionResult> ListPriorities()
         {
             return Ok(await _priorityGateway.GetPriorities());

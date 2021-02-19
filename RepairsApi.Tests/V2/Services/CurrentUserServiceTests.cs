@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
+using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Services;
 
 namespace RepairsApi.Tests.V2.Services
@@ -24,9 +25,8 @@ namespace RepairsApi.Tests.V2.Services
             var user = _classUnderTest.GetUser();
 
             user.Should().NotBeNull();
-            user.Name.Should().Be(TestUserInformation.NAME);
-            user.Email.Should().Be(TestUserInformation.EMAIL);
-            user.Groups.Should().BeEquivalentTo(TestUserInformation.GROUPS);
+            user.Name().Should().Be(TestUserInformation.NAME);
+            user.Email().Should().Be(TestUserInformation.EMAIL);
         }
 
         [Test]

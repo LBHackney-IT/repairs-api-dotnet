@@ -2,6 +2,7 @@ using JWT.Algorithms;
 using JWT.Builder;
 using Newtonsoft.Json;
 using RepairsApi.V2.Domain;
+using System.Collections.Generic;
 using System.Net.Http;
 
 namespace RepairsApi.Tests
@@ -19,6 +20,19 @@ namespace RepairsApi.Tests
                 .Encode();
             client.DefaultRequestHeaders.Remove("X-Hackney-User");
             client.DefaultRequestHeaders.Add("X-Hackney-User", jwt);
+        }
+
+        public static void SetAgent(this HttpClient client)
+        {
+            client.SetUser(new RepairsApi.V2.Domain.User
+            {
+                Name = TestUserInformation.NAME,
+                Email = TestUserInformation.EMAIL,
+                Groups = new List<string>()
+                {
+                    "repairs-hub-frontend-staging"
+                }
+            });
         }
     }
 }

@@ -67,7 +67,7 @@ namespace RepairsApi.Tests
         {
             base.ConfigureClient(client);
 
-            client.DefaultRequestHeaders.Add("X-Hackney-User", TestUserInformation.JWT);
+            client.SetAgent();
         }
 
         private static void InitialiseDB(ServiceProvider serviceProvider)
