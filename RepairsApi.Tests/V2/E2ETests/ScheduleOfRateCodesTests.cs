@@ -105,7 +105,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         {
             await AuthorisationHelper.VerifyContractorUnauthorised(
                 CreateClient(),
-                "PCL",
+                GetGroup(TestDataSeeder.Contractor),
                 async client =>
                 {
                     return await client.GetAsync(new Uri(test, UriKind.Relative));

@@ -53,7 +53,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                 {
                     new Reference
                     {
-                        ID = "PCL"
+                        ID = TestDataSeeder.Contractor
                     }
                 };
 

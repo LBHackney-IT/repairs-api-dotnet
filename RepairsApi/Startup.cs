@@ -132,6 +132,8 @@ namespace RepairsApi
             services.AddScoped<ICurrentUserLoader>(sp => sp.GetService<CurrentUserService>());
             services.AddTransient<ITransactionManager, TransactionManager>();
             services.AddSingleton<IAuthenticationService, ChallengeOnlyAuthenticationService>();
+
+            services.Configure<GroupOptions>(Configuration.GetSection(nameof(GroupOptions)));
         }
 
         private static void RegisterGateways(IServiceCollection services)

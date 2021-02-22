@@ -1,6 +1,7 @@
 using JWT;
 using JWT.Builder;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Domain;
@@ -15,11 +16,13 @@ namespace RepairsApi.V2.Services
     public class CurrentUserService : ICurrentUserLoader, ICurrentUserService
     {
         private readonly ILogger<CurrentUserService> _logger;
+        private readonly GroupOptions _options;
         private ClaimsPrincipal? _user = null;
 
-        public CurrentUserService(ILogger<CurrentUserService> logger)
+        public CurrentUserService(ILogger<CurrentUserService> logger, IOptions<GroupOptions> options)
         {
             _logger = logger;
+            _options = options.Value;
         }
 
         public void LoadUser(string jwt)
@@ -59,7 +62,7 @@ namespace RepairsApi.V2.Services
             return !string.IsNullOrWhiteSpace(contractor);
         }
 
-        private static ClaimsPrincipal MapUser(User user)
+        private ClaimsPrincipal MapUser(User user)
         {
             var identity = new ClaimsIdentity();
 
@@ -68,7 +71,7 @@ namespace RepairsApi.V2.Services
 
             foreach (var group in user.Groups)
             {
-                if (Groups.SecurityGroups.TryGetValue(group, out PermissionsModel perms))
+                if (_options.SecurityGroups.TryGetValue(group, out PermissionsModel? perms))
                 {
                     identity.AddClaim(new Claim(ClaimTypes.Role, perms.SecurityGroup.ToString()));
 

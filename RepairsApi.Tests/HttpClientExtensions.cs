@@ -32,15 +32,13 @@ namespace RepairsApi.Tests
                 Email = TestUserInformation.EMAIL,
                 Groups = new List<string>()
                 {
-                    "repairs-hub-frontend-staging"
+                    "agent"
                 }
             });
         }
 
-        public static void SetContractor(this HttpClient client, string contractorReference)
+        public static void SetGroup(this HttpClient client, string group)
         {
-            var group = Groups.SecurityGroups.Where(kv => kv.Value.ContractorReference == contractorReference).Select(kv => kv.Key).Single();
-
             client.SetUser(new RepairsApi.V2.Domain.User
             {
                 Name = TestUserInformation.NAME,

@@ -1,8 +1,10 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using NUnit.Framework;
 using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Services;
+using System.Collections.Generic;
 
 namespace RepairsApi.Tests.V2.Services
 {
@@ -13,7 +15,11 @@ namespace RepairsApi.Tests.V2.Services
         [SetUp]
         public void SetUp()
         {
-            _classUnderTest = new CurrentUserService(new NullLogger<CurrentUserService>());
+            GroupOptions options = new GroupOptions
+            {
+                SecurityGroups = new Dictionary<string, PermissionsModel>()
+            };
+            _classUnderTest = new CurrentUserService(new NullLogger<CurrentUserService>(), Options.Create(options));
         }
 
         [Test]

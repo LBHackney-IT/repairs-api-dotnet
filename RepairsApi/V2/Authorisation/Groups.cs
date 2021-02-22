@@ -4,14 +4,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace RepairsApi.V2.Authorisation
 {
-    public static class Groups
+    public class GroupOptions
     {
-        public static readonly Dictionary<string, PermissionsModel> SecurityGroups = new Dictionary<string, PermissionsModel>
-        {
-            { "repairs-hub-frontend-staging", (SecurityGroup.AGENT, null) },
-            { "repairs-hub-frontend-staging-contractors-alphatrack", (SecurityGroup.CONTRACTOR, "ASL") },
-            { "repairs-hub-frontend-staging-contractors-purdy", (SecurityGroup.CONTRACTOR, "PCL") },
-        };
+        public Dictionary<string, PermissionsModel> SecurityGroups { get; set; }
     }
 
     public static class SecurityGroup
@@ -20,15 +15,17 @@ namespace RepairsApi.V2.Authorisation
         public const string CONTRACTOR = "contractor";
     }
 
-    [SuppressMessage("Design", "CA1066:Type {0} should implement IEquatable<T> because it overrides Equals", Justification = "Generated struct from tuple")]
     [SuppressMessage("Usage", "CA2225:Operator overloads have named alternates", Justification = "Generated struct from tuple")]
     [SuppressMessage("Design", "CA1051:Do not declare visible instance fields", Justification = "Generated struct from tuple")]
-    [SuppressMessage("Performance", "CA1815:Override equals and operator equals on value types", Justification = "Generated struct from tuple")]
-    [SuppressMessage("Usage", "CA2231:Overload operator equals on overriding value type Equals", Justification = "Generated struct from tuple")]
-    public struct PermissionsModel
+    public class PermissionsModel
     {
         public string SecurityGroup;
         public string ContractorReference;
+
+        public PermissionsModel()
+        {
+
+        }
 
         public PermissionsModel(string securityGroup, string contractorReference)
         {
