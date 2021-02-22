@@ -69,6 +69,7 @@ namespace RepairsApi.V2.Services
             identity.AddClaim(new Claim(ClaimTypes.Name, user.Name));
 
             var raiseLimit = 0.0;
+            var varyLimit = 0.0;
 
             foreach (var group in user.Groups)
             {
@@ -82,13 +83,19 @@ namespace RepairsApi.V2.Services
                     }
                 }
 
-                if (Groups.RaiseLimitGroups.TryGetValue(group, out double limit))
+                if (_options.RaiseLimitGroups.TryGetValue(group, out SpendLimitModel? newRaiseLimit))
                 {
-                    raiseLimit = Math.Max(raiseLimit, limit);
+                    raiseLimit = Math.Max(raiseLimit, newRaiseLimit.Limit);
+                }
+
+                if (_options.VaryLimitGroups.TryGetValue(group, out SpendLimitModel? newVaryLimit))
+                {
+                    varyLimit = Math.Max(varyLimit, newVaryLimit.Limit);
                 }
             }
 
             identity.AddClaim(new Claim(CustomClaimTypes.RAISELIMIT, raiseLimit.ToString(CultureInfo.InvariantCulture)));
+            identity.AddClaim(new Claim(CustomClaimTypes.VARYLIMIT, varyLimit.ToString(CultureInfo.InvariantCulture)));
 
             return new ClaimsPrincipal(identity);
         }

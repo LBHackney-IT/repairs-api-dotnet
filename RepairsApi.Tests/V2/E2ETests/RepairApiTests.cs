@@ -61,8 +61,13 @@ namespace RepairsApi.Tests.V2.E2ETests
         {
             var client = CreateClient();
 
-            Generator<ScheduleRepair> generator = GenerateWorkOrder<ScheduleRepair>()
-                .AddValue(new List<double>{1}, (RateScheduleItem rsi) => rsi.Quantity.Amount);
+            Generator<ScheduleRepair> generator;
+            using (var ctx = GetContext())
+            {
+                generator = GenerateWorkOrder<ScheduleRepair>()
+                    .AddValue(new List<double> { 1 }, (RateScheduleItem rsi) => rsi.Quantity.Amount)
+                    .WithValidCodes(ctx.DB);
+            }
 
             var request = generator.Generate();
             var serializedContent = JsonConvert.SerializeObject(request);
@@ -80,7 +85,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             var client = CreateClient();
 
             Generator<ScheduleRepair> generator = GenerateWorkOrder<ScheduleRepair>()
-                .AddValue(new List<double>{1000}, (RateScheduleItem rsi) => rsi.Quantity.Amount);
+                .AddValue(new List<double>{ 1000 }, (RateScheduleItem rsi) => rsi.Quantity.Amount);
 
             var request = generator.Generate();
             var serializedContent = JsonConvert.SerializeObject(request);
@@ -218,8 +223,8 @@ namespace RepairsApi.Tests.V2.E2ETests
         public async Task UpdateReturns401WhenLimitExceeded()
         {
             var expectedCode = TestDataSeeder.SorCode;
-            var res = await ScheduleAndUpdateWorkOrder(expectedCode, "comments", 1000);
-            res.response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+            var (_, response) = await ScheduleAndUpdateWorkOrder(expectedCode, "comments", 1000);
+            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
 
         [Test]
@@ -298,7 +303,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         private async Task ValidateUpdate(HttpResponseMessage updateResponse, int workOrderId, string expectedNewCode)
         {
             var client = CreateClient();
-            client.SetContractor("PCL");
+            client.SetGroup(GetGroup(TestDataSeeder.Contractor));
 
             updateResponse.StatusCode.Should().Be(HttpStatusCode.OK, updateResponse.Content.ToString());
 
@@ -311,20 +316,18 @@ namespace RepairsApi.Tests.V2.E2ETests
 
         private Generator<T> GenerateWorkOrder<T>()
         {
-            var sorCodes = Array.Empty<(string sorCode,string contractorRef)>();
+            Generator<T> gen = new Generator<T>();
 
-            WithContext(ctx =>
+            using (var ctx = GetContext())
             {
-                var tempSorCodes = ctx.SORCodes.Select(sor => new {sor.Code, sor.SorCodeMap.FirstOrDefault().Contract.ContractorReference}).ToArray();
-                sorCodes = tempSorCodes
-                    .Where(c => !c.ContractorReference.IsNullOrEmpty())
-                    .Select(c => (c.Code, c.ContractorReference)).ToArray();
-            });
+                var db = ctx.DB;
+                gen = new Generator<T>()
+                                .AddWorkOrderGenerators()
+                                .AddValue(new List<double> { 0 }, (RateScheduleItem rsi) => rsi.Quantity.Amount)
+                                .WithValidCodes(db);
+            };
 
-            return new Generator<T>()
-                .AddWorkOrderGenerators()
-                .AddValue(new List<double>{0}, (RateScheduleItem rsi) => rsi.Quantity.Amount)
-                .WithSorCodes(sorCodes);
+            return gen;
         }
 
         private async Task ValidateCreationAndCompletion(object request, string endpoint)
@@ -382,12 +385,13 @@ namespace RepairsApi.Tests.V2.E2ETests
             response.StatusCode.Should().Be(HttpStatusCode.OK, responseContent);
             var id = JsonSerializer.Deserialize<int>(responseContent);
 
-            WithContext(repairsContext =>
+            using (var ctx = GetContext())
             {
-                var repair = repairsContext.WorkOrders.Find(id);
+                var db = ctx.DB;
+                var repair = db.WorkOrders.Find(id);
                 repair.Should().NotBeNull();
                 assertions?.Invoke(repair);
-            });
+            };
 
             return id;
         }

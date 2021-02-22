@@ -32,7 +32,8 @@ namespace RepairsApi.Tests
                 Email = TestUserInformation.EMAIL,
                 Groups = new List<string>()
                 {
-                    "agent"
+                    "agent",
+                    "raise50"
                 }
             });
         }

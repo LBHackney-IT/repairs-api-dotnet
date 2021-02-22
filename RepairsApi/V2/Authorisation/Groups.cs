@@ -7,6 +7,8 @@ namespace RepairsApi.V2.Authorisation
     public class GroupOptions
     {
         public Dictionary<string, PermissionsModel> SecurityGroups { get; set; }
+        public Dictionary<string, SpendLimitModel> RaiseLimitGroups { get; set; }
+        public Dictionary<string, SpendLimitModel> VaryLimitGroups { get; set; }
 
         public override string ToString()
         {
@@ -24,5 +26,10 @@ namespace RepairsApi.V2.Authorisation
     {
         public string SecurityGroup { get; set; }
         public string ContractorReference { get; set; }
+    }
+
+    public class SpendLimitModel
+    {
+        public double Limit { get; set; }
     }
 }

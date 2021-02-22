@@ -85,12 +85,9 @@ namespace RepairsApi.Tests
             dbContext.SaveChanges();
         }
 
-        protected void WithContext(Action<RepairsContext> action)
+        protected ScopedContext GetContext()
         {
-            using var scope = Services.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<RepairsContext>();
-
-            action(dbContext);
+            return new ScopedContext(Services);
         }
 
         protected string GetGroup(string contractor)
@@ -98,6 +95,24 @@ namespace RepairsApi.Tests
             var groups = Server.Services.GetService<IOptions<GroupOptions>>().Value;
 
             return groups.SecurityGroups.Where(kv => kv.Value.ContractorReference == contractor).Select(kv => kv.Key).Single();
+        }
+    }
+
+    public sealed class ScopedContext : IDisposable
+    {
+        private readonly IServiceScope _scope;
+
+        public RepairsContext DB { get; private set; }
+
+        public ScopedContext(IServiceProvider services)
+        {
+            _scope = services.CreateScope();
+            DB = _scope.ServiceProvider.GetRequiredService<RepairsContext>();
+        }
+
+        public void Dispose()
+        {
+            _scope.Dispose();
         }
     }
 }

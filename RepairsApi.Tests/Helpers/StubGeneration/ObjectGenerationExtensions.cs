@@ -2,6 +2,7 @@ using Bogus;
 using RepairsApi.V2.Generated;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using JobStatusUpdate = RepairsApi.V2.Infrastructure.JobStatusUpdate;
 
@@ -82,6 +83,21 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
             return generator
                 .AddGenerator(() => sorCode.sorCode, (RateScheduleItem rsi) => rsi.CustomCode)
                 .AddGenerator(() => sorCode.contractorRef, (Reference r) => r.ID);
+        }
+
+        public static Generator<T> WithValidCodes<T>(this Generator<T> generator, RepairsApi.V2.Infrastructure.RepairsContext ctx)
+        {
+            var sorCodes = ctx.SORCodes
+                .Select(sor => new { sor.Code, sor.SorCodeMap.FirstOrDefault().Contract.ContractorReference })
+                .Where(c => !string.IsNullOrEmpty(c.ContractorReference))
+                .ToArray();
+
+            Random rand = new Random();
+            var sorCode = sorCodes[rand.Next(sorCodes.Length)];
+
+            return generator
+                .AddGenerator(() => sorCode.Code, (RateScheduleItem rsi) => rsi.CustomCode)
+                .AddGenerator(() => sorCode.ContractorReference, (Reference r) => r.ID);
         }
 
         public static Generator<T> AddInfrastructureWorkOrderGenerators<T>(this Generator<T> generator)
