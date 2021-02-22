@@ -8,6 +8,10 @@ namespace RepairsApi
         protected override void Init(IWebHostBuilder builder)
         {
             builder
+                .ConfigureAppConfiguration(config =>
+                {
+                    config.AddGroups();
+                })
                 .UseStartup<Startup>();
         }
     }

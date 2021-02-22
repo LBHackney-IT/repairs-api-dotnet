@@ -80,19 +80,6 @@ namespace RepairsApi.Tests.V2.Controllers
             propertyResult.Property.PropertyReference.Should().Be(expectedPropertyReference);
         }
 
-        [Test]
-        public async Task CatchesNotFound()
-        {
-            _getPropertyUseCaseMock.Setup(m => m.ExecuteAsync(It.IsAny<string>())).ThrowsAsync(new ResourceNotFoundException());
-
-            // Act
-            var result = await _classUnderTest.GetProperty("");
-            var statusCode = GetStatusCode(result);
-
-            // Assert
-            statusCode.Should().Be(404);
-        }
-
         [TestCase(0, 0)]
         [TestCase(5, 0)]
         [TestCase(0, 6)]

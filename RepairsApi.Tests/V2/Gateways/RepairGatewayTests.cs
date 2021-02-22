@@ -7,17 +7,22 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Common;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Services;
+using Moq;
+using RepairsApi.Tests.Helpers;
 
 namespace RepairsApi.Tests.V2.Gateways
 {
     public class RepairGatewayTests
     {
+        private CurrentUserServiceMock _userServiceMock;
         private RepairsGateway _classUnderTest;
 
         [SetUp]
         public void Setup()
         {
-            _classUnderTest = new RepairsGateway(InMemoryDb.Instance);
+            _userServiceMock = new CurrentUserServiceMock();
+            _classUnderTest = new RepairsGateway(InMemoryDb.Instance, _userServiceMock.Object);
         }
 
         [TearDown]
@@ -44,7 +49,7 @@ namespace RepairsApi.Tests.V2.Gateways
         public async Task CanGetWorkOrders()
         {
             // arrange
-            var expectedWorkOrders = CreateWorkOrder();
+            var expectedWorkOrders = CreateWorkOrder("contractor");
             await InMemoryDb.Instance.WorkOrders.AddAsync(expectedWorkOrders);
             await InMemoryDb.Instance.SaveChangesAsync();
 
@@ -56,11 +61,27 @@ namespace RepairsApi.Tests.V2.Gateways
         }
 
         [Test]
+        public async Task FilterOutBasedOnContractors()
+        {
+            // arrange
+            var expectedWorkOrders = CreateWorkOrder("contractor");
+            _userServiceMock.SetContractor("othercontractor");
+            await InMemoryDb.Instance.WorkOrders.AddAsync(expectedWorkOrders);
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            // act
+            var workOrders = await _classUnderTest.GetWorkOrders();
+
+            // assert
+            workOrders.Should().BeEmpty();
+        }
+
+        [Test]
         public async Task CanGetWorkOrdersFiltered()
         {
             // arrange
             await InMemoryDb.Instance.WorkOrders.AddRangeAsync(CreateWorkOrders(25));
-            var expectedWorkOrder = CreateWorkOrder();
+            var expectedWorkOrder = CreateWorkOrder("contractor");
             expectedWorkOrder.ParkingArrangements = Guid.NewGuid().ToString();
             await InMemoryDb.Instance.WorkOrders.AddAsync(expectedWorkOrder);
             await InMemoryDb.Instance.SaveChangesAsync();
@@ -77,7 +98,7 @@ namespace RepairsApi.Tests.V2.Gateways
         public async Task CanGetWorkOrderById()
         {
             // arrange
-            var expectedWorkOrder = CreateWorkOrder();
+            var expectedWorkOrder = CreateWorkOrder("contractor");
             await InMemoryDb.Instance.WorkOrders.AddAsync(expectedWorkOrder);
             await InMemoryDb.Instance.SaveChangesAsync();
 
@@ -86,6 +107,22 @@ namespace RepairsApi.Tests.V2.Gateways
 
             // assert
             workOrders.Should().BeEquivalentTo(expectedWorkOrder);
+        }
+
+        [Test]
+        public async Task ThrowsGettingOtherContractorsWorkOrder()
+        {
+            // arrange
+            var expectedWorkOrder = CreateWorkOrder("contractor");
+            _userServiceMock.SetContractor("othercontractor");
+            await InMemoryDb.Instance.WorkOrders.AddAsync(expectedWorkOrder);
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            // act
+            Func<Task> fn = async () => await _classUnderTest.GetWorkOrder(expectedWorkOrder.Id);
+
+            // assert
+            await fn.Should().ThrowAsync<UnauthorizedAccessException>();
         }
 
         [Test]
@@ -122,7 +159,7 @@ namespace RepairsApi.Tests.V2.Gateways
             workElements.Should().BeEquivalentTo(expectedWorkOrder.WorkElements);
         }
 
-        private static ICollection<WorkOrder> CreateWorkOrders(int count)
+        private ICollection<WorkOrder> CreateWorkOrders(int count)
         {
             var list = new List<WorkOrder>();
 
@@ -134,8 +171,9 @@ namespace RepairsApi.Tests.V2.Gateways
             return list;
         }
 
-        private static WorkOrder CreateWorkOrder()
+        private WorkOrder CreateWorkOrder(string contractor = null)
         {
+            _userServiceMock.SetContractor(contractor);
 
             var expected = new WorkOrder
             {
@@ -149,7 +187,11 @@ namespace RepairsApi.Tests.V2.Gateways
                     WorkClassCode = RepairsApi.V2.Generated.WorkClassCode._0
                 },
                 WorkElements = new List<WorkElement>(),
-                DescriptionOfWork = "description"
+                DescriptionOfWork = "description",
+                AssignedToPrimary = new Party
+                {
+                    ContractorReference = contractor
+                }
             };
             return expected;
         }

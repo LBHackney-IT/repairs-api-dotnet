@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 
@@ -27,8 +28,8 @@ namespace RepairsApi.V2.Gateways
             var user = _currentUserService.GetUser();
             completion.JobStatusUpdates.ForEach(jsu =>
             {
-                jsu.AuthorName = user.Name;
-                jsu.AuthorEmail = user.Email;
+                jsu.AuthorName = user.Name();
+                jsu.AuthorEmail = user.Email();
             });
 
             _repairsContext.WorkOrderCompletes.Add(completion);

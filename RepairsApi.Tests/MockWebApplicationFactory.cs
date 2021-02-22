@@ -4,10 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
+using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
 using System;
 using System.Data.Common;
+using System.Linq;
 using System.Net.Http;
 
 namespace RepairsApi.Tests
@@ -67,7 +70,7 @@ namespace RepairsApi.Tests
         {
             base.ConfigureClient(client);
 
-            client.DefaultRequestHeaders.Add("X-Hackney-User", TestUserInformation.JWT);
+            client.SetAgent();
         }
 
         private static void InitialiseDB(ServiceProvider serviceProvider)
@@ -88,6 +91,13 @@ namespace RepairsApi.Tests
             var dbContext = scope.ServiceProvider.GetRequiredService<RepairsContext>();
 
             action(dbContext);
+        }
+
+        protected string GetGroup(string contractor)
+        {
+            var groups = Server.Services.GetService<IOptions<GroupOptions>>().Value;
+
+            return groups.SecurityGroups.Where(kv => kv.Value.ContractorReference == contractor).Select(kv => kv.Key).Single();
         }
     }
 }

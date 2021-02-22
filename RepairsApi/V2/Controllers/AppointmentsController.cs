@@ -8,6 +8,8 @@ using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.UseCase.Interfaces;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
+using RepairsApi.V2.Authorisation;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -39,6 +41,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(List<AppointmentDayViewModel>), 200)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
+        [Authorize(Roles = SecurityGroup.AGENT)]
         public async Task<IActionResult> ListAppointments([FromQuery][Required] int workOrderReference, string fromDate, string toDate)
         {
             try
@@ -50,15 +53,7 @@ namespace RepairsApi.V2.Controllers
                 DateTime? parsedToDate = ParseDate(toDate);
                 return base.Ok(await _listAppointmentsUseCase.Execute(workOrderReference, parsedFromDate ?? startOfMonth, parsedToDate ?? endOfMonth));
             }
-            catch (ResourceNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
             catch (FormatException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (NotSupportedException ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -81,6 +76,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(400)]
+        [Authorize(Roles = SecurityGroup.AGENT)]
         public async Task<IActionResult> CreateAppointment([FromBody] RequestAppointment appointmentRequest)
         {
             try
@@ -89,14 +85,6 @@ namespace RepairsApi.V2.Controllers
                 var workOrderId = int.Parse(appointmentRequest.WorkOrderReference.ID);
                 await _createAppointmentUseCase.Execute(appointmentId, workOrderId);
                 return Ok();
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (NotSupportedException ex)
-            {
-                return BadRequest(ex.Message);
             }
             catch (FormatException)
             {
