@@ -10,5 +10,6 @@ namespace RepairsApi.V2.Boundary.Response
         public double Quantity { get; set; }
         public double? Cost { get; set; }
         public string Status { get; set; }
+        public bool Original { get; set; }
     }
 }

@@ -96,7 +96,7 @@ namespace RepairsApi
                 //Get every ApiVersion attribute specified and create swagger docs for them
                 foreach (var apiVersion in _apiVersions)
                 {
-                    var version = $"v{apiVersion.ApiVersion.ToString()}";
+                    var version = $"v{apiVersion.ApiVersion}";
                     c.SwaggerDoc(version, new OpenApiInfo
                     {
                         Title = $"{ApiName}-api {version}",
@@ -113,8 +113,6 @@ namespace RepairsApi
                     c.IncludeXmlComments(xmlPath);
             });
             ConfigureDbContext(services);
-
-            services.AddTransient(provider => new DataImporter(Path.Combine(_env.ContentRootPath, "V2/SeededData")));
 
             AddHttpClients(services);
             services.Configure<GatewayOptions>(Configuration.GetSection(nameof(GatewayOptions)));
@@ -140,6 +138,7 @@ namespace RepairsApi
             services.AddTransient<IScheduleOfRatesGateway, ScheduleOfRatesGateway>();
             services.AddTransient<IJobStatusUpdateGateway, JobStatusUpdateGateway>();
             services.AddTransient<ISorPriorityGateway, SorPriorityGateway>();
+            services.AddTransient<IAppointmentsGateway, AppointmentGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
@@ -154,8 +153,11 @@ namespace RepairsApi
             services.AddTransient<IUpdateJobStatusUseCase, UpdateJobStatusUseCase>();
             services.AddTransient<IGetWorkOrderUseCase, GetWorkOrderUseCase>();
             services.AddTransient<IListWorkOrderTasksUseCase, ListWorkOrderTasksUseCase>();
+            services.AddTransient<IListSorTradesUseCase, ListSorTradesUseCase>();
             services.AddTransient<IMoreSpecificSorUseCase, MoreSpecificSorUseCase>();
             services.AddTransient<IListWorkOrderNotesUseCase, ListWorkOrderNotesUseCase>();
+            services.AddTransient<IListAppointmentsUseCase, ListAppointmentsUseCase>();
+            services.AddTransient<ICreateAppointmentUseCase, CreateAppointmentUseCase>();
         }
 
         private void AddHttpClients(IServiceCollection services)

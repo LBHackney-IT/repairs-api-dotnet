@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,10 +19,14 @@ namespace RepairsApi.V2.UseCase
             _scheduleOfRatesGateway = scheduleOfRatesGateway;
         }
 
+        public async Task<IEnumerable<ScheduleOfRatesModel>> Execute(string tradeCode, string propertyReference, string contractorReference)
+        {
+            return await _scheduleOfRatesGateway.GetSorCodes(propertyReference, tradeCode, contractorReference);
+        }
+
         public async Task<IEnumerable<ScheduleOfRatesModel>> Execute()
         {
-            var sorCodes = await _scheduleOfRatesGateway.GetSorCodes();
-            return sorCodes.Select(c => c.ToResponse());
+            return await _scheduleOfRatesGateway.GetSorCodes();
         }
     }
 }

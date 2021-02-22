@@ -35,6 +35,12 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                 .AddGenerator(new SimpleValueGenerator<TProp>(value), accessors);
         }
 
+        public static Generator<T> Ignore<T, TModel, TProp>(this Generator<T> generator, params Expression<Func<TModel, TProp>>[] accessors)
+            where TProp : class
+        {
+            return generator.AddValue(null, accessors);
+        }
+
         public static Generator<T> AddGenerator<T, TModel, TProp>(this Generator<T> generator, Func<TProp> valueGenerator, params Expression<Func<TModel, TProp>>[] accessors)
         {
             return generator
@@ -48,7 +54,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                 .AddValue(new string[] { "address", "line" }, (PropertyAddress addr) => addr.AddressLine)
                 .AddValue(new string[] { "address", "line" }, (Address addr) => addr.AddressLine)
                 .AddValue(GetSitePropertyUnitGenerator(), (RaiseRepair rr) => rr.SitePropertyUnit)
-                .AddValue(new double[] { 2.0 }, (Quantity q) => q.Amount)
+                .AddValue(new List<double> { 2.0 }, (Quantity q) => q.Amount)
                 .AddValue(new string[] { "2.0" },
                     (GeographicalLocation q) => q.Latitude,
                     (GeographicalLocation q) => q.Longitude,
@@ -72,7 +78,8 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                 .AddDefaultGenerators()
                 .AddValue(RepairsApi.V2.Infrastructure.WorkStatusCode.Open, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.StatusCode)
                 .AddValue(null, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.WorkOrderComplete)
-                .AddValue(null, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.JobStatusUpdates);
+                .AddValue(null, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.JobStatusUpdates)
+                .AddValue(false, (RepairsApi.V2.Infrastructure.RateScheduleItem rsi) => rsi.Original);
         }
 
         private static ICollection<SitePropertyUnit> GetSitePropertyUnitGenerator()
@@ -96,6 +103,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
         public static Generator<T> AddJobStatusUpdateGenerators<T>(this Generator<T> generator)
         {
             return generator
+                .AddDefaultGenerators()
                 .AddWorkOrderGenerators()
                 .AddValue(null, (RepairsApi.V2.Generated.JobStatusUpdate jsu) => jsu.AdditionalWork);
         }

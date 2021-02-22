@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Controllers.Parameters;
+using Microsoft.AspNetCore.Http;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -50,6 +51,9 @@ namespace RepairsApi.V2.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesDefaultResponseType]
         public async Task<IActionResult> RaiseRepair([FromBody] RaiseRepair request)
         {
             try
@@ -71,6 +75,9 @@ namespace RepairsApi.V2.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("schedule")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesDefaultResponseType]
         public async Task<IActionResult> ScheduleRepair([FromBody] ScheduleRepair request)
         {
             try
@@ -104,6 +111,8 @@ namespace RepairsApi.V2.Controllers
         [Route("{id}")]
         [HttpGet]
         [ProducesResponseType(typeof(WorkOrderResponse), 200)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<IActionResult> Get(int id)
         {
             WorkOrderResponse workOrderResponse;
@@ -126,6 +135,10 @@ namespace RepairsApi.V2.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("/api/v2/workOrderComplete")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<IActionResult> WorkOrderComplete([FromBody] WorkOrderComplete request)
         {
             try
@@ -150,6 +163,10 @@ namespace RepairsApi.V2.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("/api/v2/jobStatusUpdate")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<IActionResult> JobStatusUpdate([FromBody] JobStatusUpdate request)
         {
             try
