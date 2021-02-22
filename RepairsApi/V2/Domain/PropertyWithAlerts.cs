@@ -8,5 +8,6 @@ namespace RepairsApi.V2.Domain
         public IEnumerable<Alert> LocationAlerts { get; set; }
         public IEnumerable<Alert> PersonAlerts { get; set; }
         public TenureInformation Tenure { get; set; }
+        public IEnumerable<ResidentContact> Contacts { get; set; }
     }
 }

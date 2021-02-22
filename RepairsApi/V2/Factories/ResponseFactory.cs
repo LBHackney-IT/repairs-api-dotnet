@@ -86,10 +86,28 @@ namespace RepairsApi.V2.Factories
                     LocationAlert = domain.LocationAlerts.Select(alert => alert.ToResponse()).ToList(),
                     PersonAlert = domain.PersonAlerts.Select(alert => alert.ToResponse()).ToList(),
                 },
-                Tenure = domain.Tenure.ToResponse()
+                Tenure = domain.Tenure.ToResponse(),
+                Contacts = domain.Contacts.ToResponse()
             };
         }
 
+        public static ResidentContactsViewModel ToResponse(this IEnumerable<ResidentContact> domain)
+        {
+            return new ResidentContactsViewModel
+            {
+                Contacts = domain.Select(contact => contact.ToResponse()).ToList()
+            };
+        }
+
+        public static ResidentContactViewModel ToResponse(this ResidentContact domain)
+        {
+            return new ResidentContactViewModel
+            {
+                FirstName = domain.FirstName,
+                LastName = domain.LastName,
+                PhoneNumbers = domain.PhoneNumbers
+            };
+        }
 
         public static TenureViewModel ToResponse(this TenureInformation domain)
         {

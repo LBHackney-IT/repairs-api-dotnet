@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace RepairsApi.V2.Boundary.Response
 {
     public class PropertyResponse
@@ -16,6 +18,23 @@ namespace RepairsApi.V2.Boundary.Response
         /// Gets or Sets Tenure Information
         /// </summary>
         public TenureViewModel Tenure { get; set; }
+
+        /// <summary>
+        /// Gets or Sets Resident Contact Information
+        /// </summary>
+        public ResidentContactsViewModel Contacts { get; set; }
+    }
+
+    public class ResidentContactsViewModel
+    {
+        public IEnumerable<ResidentContactViewModel> Contacts;
+    }
+
+    public class ResidentContactViewModel
+    {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public List<string> PhoneNumbers { get; set; }
     }
 
     public class PropertyViewModel
