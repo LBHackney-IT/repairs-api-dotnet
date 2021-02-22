@@ -24,7 +24,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         {
             await AuthorisationHelper.VerifyContractorUnauthorised(
                 CreateClient(),
-                "PCL",
+                GetGroup(TestDataSeeder.Contractor),
                 async client => await client.GetAsync(new Uri("/api/v2/appointments", UriKind.Relative)));
         }
 
