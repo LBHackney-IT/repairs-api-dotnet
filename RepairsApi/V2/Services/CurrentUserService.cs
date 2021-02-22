@@ -1,13 +1,9 @@
-using JWT;
 using JWT.Builder;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Domain;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 
 namespace RepairsApi.V2.Services
