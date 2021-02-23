@@ -51,8 +51,8 @@ module "postgres_db_production" {
   db_engine = "postgres"
   db_engine_version = "11.8" //DMS does not work well with v12
   db_instance_class = "db.t3.medium"
-  db_allocated_storage = 20
-  maintenance_window = "sun:10:00-sun:10:30"
+  db_allocated_storage = 100
+  maintenance_window = "sun:01:00-sun:01:30"
   db_username = data.aws_ssm_parameter.repairs_postgres_username.value
   db_password = data.aws_ssm_parameter.repairs_postgres_db_password.value
   storage_encrypted = true
