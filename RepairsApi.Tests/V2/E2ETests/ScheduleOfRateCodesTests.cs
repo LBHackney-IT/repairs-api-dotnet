@@ -104,6 +104,21 @@ namespace RepairsApi.Tests.V2.E2ETests
             result.Should().NotBeNull();
         }
 
+
+        [Test]
+        public async Task GetCode404()
+        {
+            var client = CreateClient();
+            client.SetGroup(GetGroup(TestDataSeeder.Contractor));
+
+            var propRef = TestDataSeeder.PropRef;
+            var contractorRef = TestDataSeeder.Contractor;
+
+            var response = await client.GetAsync(new Uri($"/api/v2/schedule-of-rates/codes/1?propertyReference={propRef}&contractorReference={contractorRef}", UriKind.Relative));
+
+            response.StatusCode.Should().Be(404);
+        }
+
         [TestCase("/api/v2/contractors?tradeCode=1&propertyReference=1")]
         [TestCase("api/v2/schedule-of-rates/priorities")]
         public async Task AgentAuthorisationTests(string test)

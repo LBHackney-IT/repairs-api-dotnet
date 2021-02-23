@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using RepairsApi.V2.Factories;
 using Contractor = RepairsApi.V2.Domain.Contractor;
+using RepairsApi.V2.Exceptions;
 
 namespace RepairsApi.V2.Gateways
 {
@@ -104,7 +105,7 @@ namespace RepairsApi.V2.Gateways
 
         public async Task<ScheduleOfRatesModel> GetCode(string sorCode, string propertyReference, string contractorReference)
         {
-            return await
+            var model =  await
             (
                 from sor in _context.SORCodes
                 join sorContract in _context.SORContracts on sor.Code equals sorContract.SorCodeCode
@@ -126,6 +127,10 @@ namespace RepairsApi.V2.Gateways
                     }
                 }
             ).SingleOrDefaultAsync();
+
+            if (model is null) throw new ResourceNotFoundException("Could not find SOR code");
+
+            return model;
         }
     }
 }
