@@ -12,7 +12,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-
+using AutoFixture;
 using static RepairsApi.Tests.V2.DataFakers;
 
 namespace RepairsApi.Tests
@@ -79,9 +79,19 @@ namespace RepairsApi.Tests
             }
 
         }
+
+        private static List<HousingResidentInformationApiResponse> _housingResidentInformationApiResponses;
+
+        public static List<HousingResidentInformationApiResponse> MockHousingResidentInformationApiResponses =>
+            _housingResidentInformationApiResponses ??= new List<HousingResidentInformationApiResponse>(
+                new Fixture()
+                    .Create<List<HousingResidentInformationApiResponse>>()
+                );
+
         #endregion
 
         public static HttpStatusCode? ForcedCode { get; set; }
+
 
         private readonly ApiGateway _innerGateway;
 
@@ -198,6 +208,13 @@ namespace RepairsApi.Tests
             PersonAlertsApiResponse mockAlerts = StubPersonAlertApiResponse(count, tenantReferance).Generate();
 
             MockPersonAlertsApiResponses.Add(mockAlerts);
+        }
+
+        internal static void AddResidentContacts()
+        {
+            var mockContacts = new Fixture().Create<HousingResidentInformationApiResponse>();
+
+            MockHousingResidentInformationApiResponses.Add(mockContacts);
         }
     }
 }

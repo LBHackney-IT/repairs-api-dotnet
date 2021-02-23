@@ -1,5 +1,4 @@
 {
-  "$schema": "http://json.schemastore.org/launchsettings.json",
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
@@ -8,16 +7,18 @@
       "sslPort": 44394
     }
   },
+  "$schema": "http://json.schemastore.org/launchsettings.json",
   "profiles": {
     "transactions_api": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "api/v2/healthcheck/ping",
-      "applicationUrl": "http://localhost:5000",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "CONNECTION_STRING": "Host=127.0.0.1;Port=5432;Username=postgres;Password=mypassword;Database=testdb"
-      }
+        "CONNECTION_STRING": "Host=127.0.0.1;Port=5432;Username=postgres;Password=mypassword;Database=testdb",
+        "GROUPS": "{ \"GroupOptions\": { \"SecurityGroups\": { \"agent\": { \"SecurityGroup\": \"agent\", \"ContractorReference\": \"\" }, \"contractor-test\": { \"SecurityGroup\": \"contractor\", \"ContractorReference\": \"contractor\" } } } }",
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "http://localhost:5000"
     }
   }
 }

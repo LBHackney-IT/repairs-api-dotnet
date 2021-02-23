@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Common;
@@ -8,6 +9,7 @@ using Moq;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers;
 using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
@@ -69,21 +71,22 @@ namespace RepairsApi.Tests.V2.Gateways
 
             // assert
             InMemoryDb.Instance.WorkOrderCompletes.Should().ContainSingle().Which.JobStatusUpdates.All(jsu =>
-                jsu.AuthorName == expectedUser.Name &&
-                jsu.AuthorEmail == expectedUser.Email
+                jsu.AuthorName == expectedUser.Name() &&
+                jsu.AuthorEmail == expectedUser.Email()
             ).Should().BeTrue();
         }
 
-        private User SetupUser()
+        private ClaimsPrincipal SetupUser()
         {
-            var expectedUser = new User
-            {
-                Name = "name",
-                Email = "email"
-            };
+            var identity = new ClaimsIdentity();
+
+            identity.AddClaim(new Claim(ClaimTypes.Email, "email"));
+            identity.AddClaim(new Claim(ClaimTypes.Name, "name"));
+
+            ClaimsPrincipal user = new ClaimsPrincipal(identity);
             _currentUserServiceMock.Setup(x => x.GetUser())
-                .Returns(expectedUser);
-            return expectedUser;
+                .Returns(user);
+            return user;
         }
 
         [Test]

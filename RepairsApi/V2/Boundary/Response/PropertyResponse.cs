@@ -27,7 +27,7 @@ namespace RepairsApi.V2.Boundary.Response
 
     public class ResidentContactsViewModel
     {
-        public IEnumerable<ResidentContactViewModel> Contacts;
+        public IEnumerable<ResidentContactViewModel> Contacts { get; set; }
     }
 
     public class ResidentContactViewModel

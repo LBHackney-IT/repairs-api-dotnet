@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 
@@ -17,8 +18,8 @@ namespace RepairsApi.V2.Gateways
 
         public async Task<int> CreateJobStatusUpdate(JobStatusUpdate update)
         {
-            update.AuthorName = _currentUserService.GetUser().Name;
-            update.AuthorEmail = _currentUserService.GetUser().Email;
+            update.AuthorName = _currentUserService.GetUser().Name();
+            update.AuthorEmail = _currentUserService.GetUser().Email();
             await _repairsContext.JobStatusUpdates.AddAsync(update);
             await _repairsContext.SaveChangesAsync();
 

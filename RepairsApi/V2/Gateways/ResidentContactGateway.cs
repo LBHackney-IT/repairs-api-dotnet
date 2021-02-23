@@ -24,7 +24,7 @@ namespace RepairsApi.V2.Gateways
 
         public async Task<IEnumerable<ResidentContact>> GetByHouseholdReferenceAsync(string householdReference)
         {
-            Uri url = new Uri($"households/house_reference={householdReference}&active_tenancies_only=true");
+            Uri url = new Uri($"households/house_reference={householdReference}&active_tenancies_only=true", UriKind.Relative);
             var response = await _apiGateway.ExecuteRequest<HousingResidentInformationApiResponse>(HttpClientNames.Contacts, url);
 
             if (response.Status == HttpStatusCode.NotFound)

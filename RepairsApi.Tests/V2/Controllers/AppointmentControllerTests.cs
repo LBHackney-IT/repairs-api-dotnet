@@ -27,15 +27,6 @@ namespace RepairsApi.Tests.V2.Controllers
         }
 
         [Test]
-        public async Task ListReturns404ForNotFound()
-        {
-            _listAppointmentsMock.Setup(lam => lam.Execute(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>())).ThrowsAsync(new ResourceNotFoundException());
-            var result = await _classUnderTest.ListAppointments(1, DateTime.UtcNow.AddDays(-1).ToString(DateConstants.DATEFORMAT), DateTime.UtcNow.AddDays(1).ToString(DateConstants.DATEFORMAT));
-
-            GetStatusCode(result).Should().Be(404);
-        }
-
-        [Test]
         public async Task ListReturns()
         {
             IEnumerable<AppointmentDayViewModel> list = new List<AppointmentDayViewModel>
@@ -60,46 +51,6 @@ namespace RepairsApi.Tests.V2.Controllers
 
             GetStatusCode(result).Should().Be(200);
             GetResultData<IEnumerable<AppointmentDayViewModel>>(result).Should().BeEquivalentTo(list);
-        }
-
-        [Test]
-        public async Task Returns404ForNotFound()
-        {
-            _createAppointmentMock.Setup(lam => lam.Execute(It.IsAny<string>(), It.IsAny<int>())).ThrowsAsync(new ResourceNotFoundException());
-
-            var result = await _classUnderTest.CreateAppointment(new RepairsApi.V2.Generated.RequestAppointment
-            {
-                AppointmentReference = new RepairsApi.V2.Generated.Reference
-                {
-                    ID = "1"
-                },
-                WorkOrderReference = new RepairsApi.V2.Generated.Reference
-                {
-                    ID = "2"
-                }
-            });
-
-            GetStatusCode(result).Should().Be(404);
-        }
-
-        [Test]
-        public async Task Returns400ForNotSupported()
-        {
-            _createAppointmentMock.Setup(lam => lam.Execute(It.IsAny<string>(), It.IsAny<int>())).ThrowsAsync(new NotSupportedException());
-
-            var result = await _classUnderTest.CreateAppointment(new RepairsApi.V2.Generated.RequestAppointment
-            {
-                AppointmentReference = new RepairsApi.V2.Generated.Reference
-                {
-                    ID = "1"
-                },
-                WorkOrderReference = new RepairsApi.V2.Generated.Reference
-                {
-                    ID = "2"
-                }
-            });
-
-            GetStatusCode(result).Should().Be(400);
         }
 
         [Test]

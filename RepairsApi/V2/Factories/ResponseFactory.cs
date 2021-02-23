@@ -146,7 +146,8 @@ namespace RepairsApi.V2.Factories
                 CallerName = workOrder.Customer?.Person?.Name?.Full,
                 CallerNumber = workOrder.Customer?.Person?.Communication?.Where(cc => cc.Channel?.Medium == Generated.CommunicationMediumCode._20 /* Audio */).FirstOrDefault()
                     ?.Value,
-                Status = workOrder.GetStatus()
+                Status = workOrder.GetStatus(),
+                ContractorReference = workOrder.AssignedToPrimary?.ContractorReference
             };
         }
 
