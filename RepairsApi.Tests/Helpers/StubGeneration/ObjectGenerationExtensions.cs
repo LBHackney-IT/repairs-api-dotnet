@@ -65,6 +65,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                 .AddValue(GetSitePropertyUnitGenerator(), (RaiseRepair rr) => rr.SitePropertyUnit)
                 .AddValue(new List<double> { 2.0 }, (Quantity q) => q.Amount)
                 .AddValue(contractorReference, (Party p) => p.Reference)
+                .AddValue(TestDataSeeder.SorCode, (RateScheduleItem rsi) => rsi.CustomCode)
                 .AddValue(new string[] { "2.0" },
                     (GeographicalLocation q) => q.Latitude,
                     (GeographicalLocation q) => q.Longitude,

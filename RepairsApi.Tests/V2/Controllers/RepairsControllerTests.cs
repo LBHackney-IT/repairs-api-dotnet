@@ -71,14 +71,15 @@ namespace RepairsApi.Tests.V2.Controllers
         }
 
         [Test]
-        public async Task RaiseRepairReturnsOkWithInt()
+        [Ignore("Raise repair is not currently supported as it does not provide the relevant data for hackneys use cases")]
+        public void RaiseRepairReturnsOkWithInt()
         {
             // arrange
             const int newId = 2;
             _createWorkOrderUseCaseMock.Setup(m => m.Execute(It.IsAny<WorkOrder>())).ReturnsAsync(newId);
 
             // act
-            var result = await _classUnderTest.RaiseRepair(GenerateRaiseRepairRequest());
+            var result = _classUnderTest.RaiseRepair(GenerateRaiseRepairRequest());
 
             // assert
             result.Should().BeOfType<OkObjectResult>();
@@ -98,7 +99,8 @@ namespace RepairsApi.Tests.V2.Controllers
         }
 
         [Test]
-        public async Task RaiseRepairReturnsBadRequestWhenNotSupportedThrown()
+        [Ignore("Raise repair is not currently supported as it does not provide the relevant data for hackneys use cases")]
+        public void RaiseRepairReturnsBadRequestWhenNotSupportedThrown()
         {
             // arrange
             string expectedMessage = "message";
@@ -106,7 +108,7 @@ namespace RepairsApi.Tests.V2.Controllers
                 .ThrowsAsync(new NotSupportedException(expectedMessage));
 
             // act
-            var result = await _classUnderTest.RaiseRepair(GenerateRaiseRepairRequest());
+            var result = _classUnderTest.RaiseRepair(GenerateRaiseRepairRequest());
 
             // assert
             result.Should().BeOfType<BadRequestObjectResult>();

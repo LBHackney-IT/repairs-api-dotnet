@@ -70,13 +70,13 @@ namespace RepairsApi.V2.Gateways
 
         public async Task<double> GetCost(string contractorReference, string sorCode)
         {
-            if (contractorReference is null) throw new ArgumentNullException(contractorReference);
-            if (sorCode is null) throw new ArgumentNullException(sorCode);
+            if (contractorReference is null) throw new ArgumentNullException(nameof(contractorReference));
+            if (sorCode is null) throw new ArgumentNullException(nameof(sorCode));
 
             var costs = await _context.SORContracts
                             .Where(c => c.Contract.ContractorReference == contractorReference && c.SorCodeCode == sorCode)
                             .Select(c => new { ContractCost = c.Cost, CodeCost = c.SorCode.Cost }).SingleOrDefaultAsync();
-            double? finalCost = costs.ContractCost ?? costs.CodeCost;
+            double? finalCost = costs?.ContractCost ?? costs?.CodeCost;
 
             if (!finalCost.HasValue) throw new ResourceNotFoundException($"Cannot find cost for code {sorCode}");
 

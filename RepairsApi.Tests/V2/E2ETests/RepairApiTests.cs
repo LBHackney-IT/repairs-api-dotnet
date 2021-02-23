@@ -29,34 +29,6 @@ namespace RepairsApi.Tests.V2.E2ETests
     public class RepairApiTests : MockWebApplicationFactory
     {
         [Test]
-        public async Task CreatesRepairFromJson()
-        {
-            var client = CreateClient();
-
-            // These request need to pulled from json to stop c sharp adding in default enum properties
-            string request = Requests.RaiseRepair;
-            StringContent content = new StringContent(request, Encoding.UTF8, "application/json");
-
-            await RaiseRepairAndValidate(client, content);
-        }
-
-        [Test]
-        public async Task CreateRepairFromFullRequest()
-        {
-            var client = CreateClient();
-
-            var request = GenerateWorkOrder<RaiseRepair>().Generate();
-            var serializedContent = JsonConvert.SerializeObject(request);
-            StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
-
-            await RaiseRepairAndValidate(client, content, repair =>
-            {
-                repair.WorkPriority.NumberOfDays.Should().Be(request.Priority.NumberOfDays);
-                repair.AgentName.Should().Be(TestUserInformation.NAME);
-            });
-        }
-
-        [Test]
         public async Task ScheduleRepair()
         {
             var client = CreateClient();
@@ -65,8 +37,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             using (var ctx = GetContext())
             {
                 generator = GenerateWorkOrder<ScheduleRepair>()
-                    .AddValue(new List<double> { 1 }, (RateScheduleItem rsi) => rsi.Quantity.Amount)
-                    .WithSorCodes(ctx.DB.SORCodes.Select(s => s.Code).ToArray());
+                    .AddValue(new List<double> { 1 }, (RateScheduleItem rsi) => rsi.Quantity.Amount);
             }
 
             var request = generator.Generate();
@@ -152,12 +123,12 @@ namespace RepairsApi.Tests.V2.E2ETests
         {
             var client = CreateClient();
 
-            var request = GenerateWorkOrder<RaiseRepair>().Generate();
+            var request = GenerateWorkOrder<ScheduleRepair>().Generate();
             request.DescriptionOfWork = "expectedDescription";
             var serializedContent = JsonConvert.SerializeObject(request);
             StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
 
-            await RaiseRepairAndValidate(client, content);
+            await ScheduleRepairAndValidate(client, content);
 
             var response = await client.GetAsync(new Uri("/api/v2/repairs", UriKind.Relative));
 
@@ -168,17 +139,6 @@ namespace RepairsApi.Tests.V2.E2ETests
             workOrders.Should().Contain(wo => wo.Description == request.DescriptionOfWork);
         }
 
-        [Test]
-        public async Task CompleteRaiseRepairWorkOrder()
-        {
-            string endpoint = "/api/v2/repairs";
-
-            Generator<RaiseRepair> requestGenerator = GenerateWorkOrder<RaiseRepair>();
-
-            var request = requestGenerator.Generate();
-
-            await ValidateCreationAndCompletion(request, endpoint);
-        }
 
         [Test]
         public async Task CompleteScheduleRepairWorkOrder()
@@ -215,7 +175,9 @@ namespace RepairsApi.Tests.V2.E2ETests
         [Test]
         public async Task UpdateScheduleRepairWorkOrder()
         {
-            const string expectedCode = "expectedCode";
+            string expectedCode = "expectedCode";
+            AddCode(expectedCode);
+
             var (workOrderId, response) = await ScheduleAndUpdateWorkOrder(expectedCode, "comments", 0);
             await ValidateUpdate(response, workOrderId, expectedCode);
         }
@@ -233,6 +195,8 @@ namespace RepairsApi.Tests.V2.E2ETests
         {
             const string expectedNote = "expectedNote";
             const string expectedCode = "expectedCode";
+
+            AddCode(expectedCode);
             var (workOrderId, httpResponseMessage) = await ScheduleAndUpdateWorkOrder(expectedCode, expectedNote);
             await ValidateUpdate(httpResponseMessage, workOrderId, expectedCode);
 
@@ -243,6 +207,12 @@ namespace RepairsApi.Tests.V2.E2ETests
             string responseContent = await response.Content.ReadAsStringAsync();
             var notes = JsonConvert.DeserializeObject<IList<NoteListItem>>(responseContent);
             notes.Should().ContainSingle(n => n.Note == expectedNote);
+        }
+
+        private void AddCode(string expectedCode)
+        {
+            using (var ctx = GetContext())
+                TestDataSeeder.AddCode(ctx.DB, expectedCode);
         }
 
         [Test]
@@ -306,7 +276,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             var client = CreateClient();
             client.SetGroup(GetGroup(TestDataSeeder.Contractor));
 
-            updateResponse.StatusCode.Should().Be(HttpStatusCode.OK, updateResponse.Content.ToString());
+            updateResponse.StatusCode.Should().Be(HttpStatusCode.OK, await updateResponse.Content.ReadAsStringAsync());
 
             // get the work order to validate new code is on there
             var response = await client.GetAsync(new Uri($"/api/v2/repairs/{workOrderId}/tasks", UriKind.Relative));
@@ -324,8 +294,7 @@ namespace RepairsApi.Tests.V2.E2ETests
                 var db = ctx.DB;
                 gen = new Generator<T>()
                                 .AddWorkOrderGenerators()
-                                .AddValue(new List<double> { 0 }, (RateScheduleItem rsi) => rsi.Quantity.Amount)
-                                .WithSorCodes(db.SORCodes.Select(s => s.Code).ToArray());
+                                .AddValue(new List<double> { 0 }, (RateScheduleItem rsi) => rsi.Quantity.Amount);
             };
 
             return gen;
@@ -396,6 +365,52 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             return id;
         }
+
+        #region [Raise Repair]
+
+        [Test]
+        [Ignore("Raise repair is not currently supported as it does not provide the relevant data for hackneys use cases")]
+        public async Task CompleteRaiseRepairWorkOrder()
+        {
+            string endpoint = "/api/v2/repairs";
+
+            Generator<RaiseRepair> requestGenerator = GenerateWorkOrder<RaiseRepair>();
+
+            var request = requestGenerator.Generate();
+
+            await ValidateCreationAndCompletion(request, endpoint);
+        }
+
+        [Test]
+        [Ignore("Raise repair is not currently supported as it does not provide the relevant data for hackneys use cases")]
+        public async Task CreateRepairFromFullRequest()
+        {
+            var client = CreateClient();
+
+            var request = GenerateWorkOrder<RaiseRepair>().Generate();
+            var serializedContent = JsonConvert.SerializeObject(request);
+            StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
+
+            await RaiseRepairAndValidate(client, content, repair =>
+            {
+                repair.WorkPriority.NumberOfDays.Should().Be(request.Priority.NumberOfDays);
+                repair.AgentName.Should().Be(TestUserInformation.NAME);
+            });
+        }
+
+        [Test]
+        [Ignore("Raise repair is not currently supported as it does not provide the relevant data for hackneys use cases")]
+        public async Task CreatesRepairFromJson()
+        {
+            var client = CreateClient();
+
+            // These request need to pulled from json to stop c sharp adding in default enum properties
+            string request = Requests.RaiseRepair;
+            StringContent content = new StringContent(request, Encoding.UTF8, "application/json");
+
+            await RaiseRepairAndValidate(client, content);
+        }
+        #endregion
 
     }
 }

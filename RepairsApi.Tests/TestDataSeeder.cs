@@ -229,5 +229,29 @@ namespace RepairsApi.Tests
 
             return values[_rand.Next(values.Count)];
         }
+
+        internal static void AddCode(RepairsContext ctx, string expectedCode)
+        {
+            var generator = new Generator<ScheduleOfRates>()
+                .AddDefaultGenerators()
+                .AddValue(expectedCode, (ScheduleOfRates sor) => sor.Code)
+                .AddGenerator(() => PickCode(TradeCodes), (ScheduleOfRates sor) => sor.TradeCode)
+                .AddGenerator(() => PickCode(PriorityCodes), (ScheduleOfRates sor) => sor.PriorityId)
+                .AddValue(true, (ScheduleOfRates sor) => sor.Enabled)
+                .Ignore((ScheduleOfRates sor) => sor.Priority)
+                .Ignore((ScheduleOfRates sor) => sor.Trade)
+                .Ignore((ScheduleOfRates sor) => sor.SorCodeMap);
+
+            ctx.Set<ScheduleOfRates>().Add(generator.Generate());
+
+            ctx.Set<SORContract>().Add(new SORContract
+            {
+                ContractReference = ContractReference,
+                SorCodeCode = expectedCode,
+                Cost = 1
+            });
+
+            ctx.SaveChanges();
+        }
     }
 }

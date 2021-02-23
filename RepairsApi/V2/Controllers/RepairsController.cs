@@ -52,7 +52,7 @@ namespace RepairsApi.V2.Controllers
         }
 
         /// <summary>
-        /// Raise a repair (creates a work order)
+        /// Raise a repair (creates a work order) [CURRENTLY UNSUPPORTED]
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
@@ -61,17 +61,18 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
         [Authorize(Roles = SecurityGroup.AGENT)]
-        public async Task<IActionResult> RaiseRepair([FromBody] RaiseRepair request)
+        public IActionResult RaiseRepair([FromBody] RaiseRepair request)
         {
-            try
-            {
-                var result = await _createWorkOrderUseCase.Execute(request.ToDb());
-                return Ok(result);
-            }
-            catch (NotSupportedException e)
-            {
-                return BadRequest(e.Message);
-            }
+            throw new NotSupportedException("migrate to schedule repair");
+            //try
+            //{
+            //    var result = await _createWorkOrderUseCase.Execute(request.ToDb());
+            //    return Ok(result);
+            //}
+            //catch (NotSupportedException e)
+            //{
+            //    return BadRequest(e.Message);
+            //}
         }
 
 
