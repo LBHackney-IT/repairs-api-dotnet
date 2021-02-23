@@ -280,7 +280,7 @@ workflows:
           requires:
             - deploy-to-staging
       - assume-role-production:
-          context: api-assume-role-production-context
+          context: api-assume-role-housing-production-context
           requires:
             - permit-production-terraform-release
           filters:
