@@ -29,7 +29,7 @@ namespace RepairsApi.V2.Authorisation
             ScheduleRepair resource
             )
         {
-            var contractorRef = resource.AssignedToPrimary.Reference?.FirstOrDefault()?.ID;
+            var contractorRef = resource.AssignedToPrimary?.Organization.Reference?.FirstOrDefault()?.ID;
             var rawCodes = resource.WorkElement
                 .SelectMany(we => we.RateScheduleItem)
                 .Select(rsi => new { rsi.CustomCode, Amount = rsi.Quantity.Amount.Sum() });

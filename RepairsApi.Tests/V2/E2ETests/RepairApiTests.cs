@@ -175,7 +175,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         [Test]
         public async Task UpdateScheduleRepairWorkOrder()
         {
-            string expectedCode = "expectedCode";
+            string expectedCode = "expectedCodeUpdateWorkOrder";
             AddCode(expectedCode);
 
             var (workOrderId, response) = await ScheduleAndUpdateWorkOrder(expectedCode, "comments", 0);
@@ -194,7 +194,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         public async Task CanViewNotes()
         {
             const string expectedNote = "expectedNote";
-            const string expectedCode = "expectedCode";
+            const string expectedCode = "expectedCodeCanViewNotes";
 
             AddCode(expectedCode);
             var (workOrderId, httpResponseMessage) = await ScheduleAndUpdateWorkOrder(expectedCode, expectedNote);

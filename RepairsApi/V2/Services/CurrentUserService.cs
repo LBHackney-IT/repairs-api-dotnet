@@ -78,14 +78,11 @@ namespace RepairsApi.V2.Services
                 if (!string.IsNullOrWhiteSpace(group.UserType))
                     identity.AddClaim(new Claim(ClaimTypes.Role, group.UserType));
 
-                if (!string.IsNullOrWhiteSpace(group.UserType))
-                    identity.AddClaim(new Claim(ClaimTypes.Role, group.UserType));
-
                 if (group.VaryLimit.HasValue)
                     varyLimit = Math.Max(varyLimit, group.VaryLimit.Value);
 
                 if (group.RaiseLimit.HasValue)
-                    varyLimit = Math.Max(raiseLimit, group.RaiseLimit.Value);
+                    raiseLimit = Math.Max(raiseLimit, group.RaiseLimit.Value);
 
             }
 
