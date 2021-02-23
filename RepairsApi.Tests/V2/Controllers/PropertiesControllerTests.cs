@@ -13,6 +13,7 @@ using RepairsApi.V2.UseCase;
 using RepairsApi.V2.UseCase.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using AutoFixture;
 
 using static RepairsApi.Tests.V2.DataFakers;
 
@@ -21,6 +22,8 @@ namespace RepairsApi.Tests.V2.Controllers
     [TestFixture]
     public class PropertiesControllerTests : ControllerTests
     {
+        private Fixture _fixture;
+
         private PropertiesController _classUnderTest;
         private Mock<IListAlertsUseCase> _listAlertsUseCaseMock;
         private Mock<IGetPropertyUseCase> _getPropertyUseCaseMock;
@@ -29,6 +32,8 @@ namespace RepairsApi.Tests.V2.Controllers
         [SetUp]
         public void SetUp()
         {
+            _fixture = new Fixture();
+
             _listAlertsUseCaseMock = new Mock<IListAlertsUseCase>();
             _getPropertyUseCaseMock = new Mock<IGetPropertyUseCase>();
             _listPropertiesUseCaseMock = new Mock<IListPropertiesUseCase>();
@@ -64,7 +69,8 @@ namespace RepairsApi.Tests.V2.Controllers
             {
                 PropertyModel = StubProperties().Generate(),
                 PersonAlerts = StubAlerts().Generate(5),
-                LocationAlerts = StubAlerts().Generate(5)
+                LocationAlerts = StubAlerts().Generate(5),
+                Contacts = _fixture.Create<List<ResidentContact>>()
             };
             property.PropertyModel.PropertyReference = expectedPropertyReference;
 

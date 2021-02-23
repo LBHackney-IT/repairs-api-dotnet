@@ -16,6 +16,7 @@ namespace RepairsApi.Tests.V2.UseCase
         private Mock<IPropertyGateway> _propertyGatewayMock;
         private Mock<IAlertsGateway> _alertGatewayMock;
         private Mock<ITenancyGateway> _tenantGatewayMock;
+        private Mock<IResidentContactGateway> _contactGatewayMock;
         private GetPropertyUseCase _classUnderTest;
 
         [SetUp]
@@ -24,7 +25,8 @@ namespace RepairsApi.Tests.V2.UseCase
             _propertyGatewayMock = new Mock<IPropertyGateway>();
             _alertGatewayMock = new Mock<IAlertsGateway>();
             _tenantGatewayMock = new Mock<ITenancyGateway>();
-            _classUnderTest = new GetPropertyUseCase(_propertyGatewayMock.Object, _alertGatewayMock.Object, _tenantGatewayMock.Object);
+            _contactGatewayMock = new Mock<IResidentContactGateway>();
+            _classUnderTest = new GetPropertyUseCase(_propertyGatewayMock.Object, _alertGatewayMock.Object, _tenantGatewayMock.Object, _contactGatewayMock.Object);
         }
 
         [Test]

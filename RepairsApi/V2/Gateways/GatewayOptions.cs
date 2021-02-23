@@ -22,5 +22,11 @@ namespace RepairsApi.V2.Gateways
 
         [Required]
         public string TenancyApiKey { get; set; }
+
+        [Required]
+        public Uri HousingResidentInformationApi { get; set; }
+
+        [Required]
+        public string HousingResidentInformationApiKey { get; set; }
     }
 }
