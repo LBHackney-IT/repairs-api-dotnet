@@ -105,7 +105,7 @@ namespace RepairsApi.V2.Gateways
 
         public async Task<ScheduleOfRatesModel> GetCode(string sorCode, string propertyReference, string contractorReference)
         {
-            var model =  await
+            var model = await
             (
                 from sor in _context.SORCodes
                 join sorContract in _context.SORContracts on sor.Code equals sorContract.SorCodeCode
