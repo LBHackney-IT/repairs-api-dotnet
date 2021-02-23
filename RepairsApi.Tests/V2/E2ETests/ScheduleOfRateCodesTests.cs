@@ -86,26 +86,42 @@ namespace RepairsApi.Tests.V2.E2ETests
         }
 
         [Test]
-        public async Task GetAllCodes()
+        public async Task GetCode()
         {
             var client = CreateClient();
+            client.SetGroup(GetGroup(TestDataSeeder.Contractor));
 
-            var response = await client.GetAsync(new Uri($"/api/v2/schedule-of-rates/codes", UriKind.Relative));
+            var propRef = TestDataSeeder.PropRef;
+            var contractorRef = TestDataSeeder.Contractor;
+            var sorCode = TestDataSeeder.SorCode;
+
+            var response = await client.GetAsync(new Uri($"/api/v2/schedule-of-rates/codes/{sorCode}?propertyReference={propRef}&contractorReference={contractorRef}", UriKind.Relative));
 
             response.StatusCode.Should().Be(200);
 
-            var result = await GetResult<IEnumerable<ScheduleOfRatesModel>>(response);
+            var result = await GetResult<ScheduleOfRatesModel>(response);
 
-            result.Count().Should().BeGreaterOrEqualTo(1);
+            result.Should().NotBeNull();
         }
 
         [TestCase("/api/v2/contractors?tradeCode=1&propertyReference=1")]
         [TestCase("api/v2/schedule-of-rates/priorities")]
-        public async Task AuthorisationTests(string test)
+        public async Task AgentAuthorisationTests(string test)
         {
             await AuthorisationHelper.VerifyContractorUnauthorised(
                 CreateClient(),
                 GetGroup(TestDataSeeder.Contractor),
+                async client =>
+                {
+                    return await client.GetAsync(new Uri(test, UriKind.Relative));
+                });
+        }
+
+        [TestCase("/api/v2/schedule-of-rates/codes/1?propertyReference=1&contractorReference=1")]
+        public async Task ContractorAuthorisationTests(string test)
+        {
+            await AuthorisationHelper.VerifyAgentUnauthorised(
+                CreateClient(),
                 async client =>
                 {
                     return await client.GetAsync(new Uri(test, UriKind.Relative));
