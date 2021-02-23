@@ -169,6 +169,7 @@ namespace RepairsApi
             services.AddTransient<IPropertyGateway, PropertyGateway>();
             services.AddTransient<IAlertsGateway, AlertsGateway>();
             services.AddTransient<ITenancyGateway, TenancyGateway>();
+            services.AddTransient<IResidentContactGateway, ResidentContactGateway>();
             services.AddTransient<IRepairsGateway, RepairsGateway>();
             services.AddTransient<IWorkOrderCompletionGateway, WorkOrderCompletionGateway>();
             services.AddTransient<IScheduleOfRatesGateway, ScheduleOfRatesGateway>();
@@ -205,6 +206,7 @@ namespace RepairsApi
             AddClient(services, HttpClientNames.Properties, options.PropertiesAPI, options.PropertiesAPIKey);
             AddClient(services, HttpClientNames.Alerts, options.AlertsApi, options.AlertsAPIKey);
             AddClient(services, HttpClientNames.Tenancy, options.TenancyApi, options.TenancyApiKey);
+            AddClient(services, HttpClientNames.Contacts, options.HousingResidentInformationApi, options.HousingResidentInformationApiKey);
         }
 
         private static void AddClient(IServiceCollection services, string clientName, Uri uri, string key)
