@@ -408,7 +408,7 @@ namespace RepairsApi.V2.Factories
                 Role = party.Role,
                 Organization = party.Organization?.ToDb(),
                 Person = party.Person?.ToDb(),
-                ContractorReference = party.Reference?.FirstOrDefault()?.ID
+                ContractorReference = party.Organization?.Reference?.FirstOrDefault()?.ID
             };
         }
 

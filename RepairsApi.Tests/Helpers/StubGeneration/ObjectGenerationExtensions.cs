@@ -63,7 +63,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                 .AddValue(new string[] { "address", "line" }, (Address addr) => addr.AddressLine)
                 .AddValue(GetSitePropertyUnitGenerator(), (RaiseRepair rr) => rr.SitePropertyUnit)
                 .AddValue(new List<double> { 2.0 }, (Quantity q) => q.Amount)
-                .AddValue(contractorReference, (Party p) => p.Reference)
+                .AddValue(contractorReference, (Organization o) => o.Reference)
                 .AddValue(new string[] { "2.0" },
                     (GeographicalLocation q) => q.Latitude,
                     (GeographicalLocation q) => q.Longitude,
