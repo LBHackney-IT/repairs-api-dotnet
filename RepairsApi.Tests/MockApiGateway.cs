@@ -124,6 +124,17 @@ namespace RepairsApi.Tests
             };
         }
 
+        [Route("http://testresidentsapi/households")]
+        public static object HandleResidentContacts(string house_ref, string active_tenancies_only = "true")
+        {
+            Console.WriteLine(house_ref);
+            Console.WriteLine(active_tenancies_only);
+            return new HousingResidentInformationApiResponse
+            {
+                Residents = MockHousingResidentInformationApiResponses.Select(res => res.Residents).FirstOrDefault()
+            };
+        }
+
         [Route("http://testalertsapi/cautionary-alerts/people")]
         public static object HandlePersonAlerts(string tag_ref)
         {

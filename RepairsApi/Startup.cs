@@ -178,6 +178,7 @@ namespace RepairsApi
             AddClient(services, HttpClientNames.Properties, options.PropertiesAPI, options.PropertiesAPIKey);
             AddClient(services, HttpClientNames.Alerts, options.AlertsApi, options.AlertsAPIKey);
             AddClient(services, HttpClientNames.Tenancy, options.TenancyApi, options.TenancyApiKey);
+            AddClient(services, HttpClientNames.Contacts, options.HousingResidentInformationApi, options.HousingResidentInformationApiKey);
         }
 
         private static void AddClient(IServiceCollection services, string clientName, Uri uri, string key)
