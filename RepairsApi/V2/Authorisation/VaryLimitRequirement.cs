@@ -38,20 +38,20 @@ namespace RepairsApi.V2.Authorisation
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
             var contractorRef = workOrder.AssignedToPrimary.ContractorReference;
 
-            var rawCodes = resource.MoreSpecificSORCode.RateScheduleItem
+            var updatedCodes = resource.MoreSpecificSORCode.RateScheduleItem
                 .Select(rsi => new { rsi.CustomCode, Amount = rsi.Quantity.Amount.Sum() }).ToList();
 
-            rawCodes.AddRange(workOrder.WorkElements
-                .SelectMany(we => we.RateScheduleItem)
-                .Where(rsi => !rsi.Original)
-                .Select(rsi => new { rsi.CustomCode, Amount = rsi.Quantity.Amount }));
+            var originalCodes = workOrder.WorkElements.SelectMany(we => we.RateScheduleItem).Where(rsi => rsi.Original).Select(rsi => new { rsi.OriginalQuantity, rsi.CustomCode });
 
             double totalCost = 0;
-            await rawCodes.ForEachAsync(async c => totalCost += c.Amount * await _sorGateway.GetCost(contractorRef, c.CustomCode));
+            await updatedCodes.ForEachAsync(async c => totalCost += c.Amount * await _sorGateway.GetCost(contractorRef, c.CustomCode));
 
-            var limit = double.Parse(context.User.FindFirst(CustomClaimTypes.RAISELIMIT).Value);
+            double originalCost = 0;
+            await originalCodes.ForEachAsync(async c => originalCost += c.OriginalQuantity.Value * await _sorGateway.GetCost(contractorRef, c.CustomCode));
 
-            if (totalCost <= limit)
+            var limit = double.Parse(context.User.FindFirst(CustomClaimTypes.VARYLIMIT).Value);
+
+            if (totalCost <= originalCost + limit)
             {
                 context.Succeed(requirement);
             }
