@@ -49,12 +49,21 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
 
         public static Generator<T> AddWorkOrderGenerators<T>(this Generator<T> generator)
         {
+            var contractorReference = new List<Reference>()
+                {
+                    new Reference
+                    {
+                        ID = TestDataSeeder.Contractor
+                    }
+                };
+
             return generator
                 .AddDefaultGenerators()
                 .AddValue(new string[] { "address", "line" }, (PropertyAddress addr) => addr.AddressLine)
                 .AddValue(new string[] { "address", "line" }, (Address addr) => addr.AddressLine)
                 .AddValue(GetSitePropertyUnitGenerator(), (RaiseRepair rr) => rr.SitePropertyUnit)
                 .AddValue(new List<double> { 2.0 }, (Quantity q) => q.Amount)
+                .AddValue(contractorReference, (Party p) => p.Reference)
                 .AddValue(new string[] { "2.0" },
                     (GeographicalLocation q) => q.Latitude,
                     (GeographicalLocation q) => q.Longitude,

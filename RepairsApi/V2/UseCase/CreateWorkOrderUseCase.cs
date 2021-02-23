@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.MiddleWare;
 using RepairsApi.V2.Services;
+using RepairsApi.V2.Authorisation;
 
 namespace RepairsApi.V2.UseCase
 {
@@ -46,8 +47,8 @@ namespace RepairsApi.V2.UseCase
         {
             if (_currentUserService.IsUserPresent())
             {
-                User user = _currentUserService.GetUser();
-                workOrder.AgentName = user.Name;
+                var user = _currentUserService.GetUser();
+                workOrder.AgentName = user.Name();
             }
         }
 

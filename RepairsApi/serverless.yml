@@ -31,6 +31,7 @@ functions:
       GatewayOptions__AlertsAPIKey: ${ssm:/${self:service}/${self:provider.stage}/alerts-api-token}
       GatewayOptions__TenancyApi: ${ssm:/${self:service}/${self:provider.stage}/tenancy-api-url}
       GatewayOptions__TenancyApiKey: ${ssm:/${self:service}/${self:provider.stage}/tenancy-api-token}
+      GROUPS: ${ssm:/${self:service}/${self:provider.stage}/groups-json}
     events:
       - http:
           path: /{proxy+}

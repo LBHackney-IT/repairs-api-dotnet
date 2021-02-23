@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using RepairsApi.V2.Infrastructure;
-using RepairsApi.Versioning;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -14,15 +8,25 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.SwaggerGen;
+using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Helpers;
-using RepairsApi.V2.UseCase.Interfaces;
-using RepairsApi.V2.UseCase;
-using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
+using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.MiddleWare;
 using RepairsApi.V2.Services;
+using RepairsApi.V2.UseCase;
+using RepairsApi.V2.UseCase.Interfaces;
+using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
+using RepairsApi.Versioning;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 
 namespace RepairsApi
 {
@@ -53,6 +57,8 @@ namespace RepairsApi
                 o.AssumeDefaultVersionWhenUnspecified = true; // assume that the caller wants the default version if they don't specify
                 o.ApiVersionReader = new UrlSegmentApiVersionReader(); // read the version number from the url segment header)
             });
+
+            services.AddAuthorization();
 
             services.AddSingleton<IApiVersionDescriptionProvider, DefaultApiVersionDescriptionProvider>();
 
@@ -125,6 +131,9 @@ namespace RepairsApi
             services.AddScoped<ICurrentUserService>(sp => sp.GetService<CurrentUserService>());
             services.AddScoped<ICurrentUserLoader>(sp => sp.GetService<CurrentUserService>());
             services.AddTransient<ITransactionManager, TransactionManager>();
+            services.AddSingleton<IAuthenticationService, ChallengeOnlyAuthenticationService>();
+
+            services.Configure<GroupOptions>(Configuration.GetSection(nameof(GroupOptions)));
         }
 
         private static void RegisterGateways(IServiceCollection services)
@@ -192,9 +201,12 @@ namespace RepairsApi
                 );
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, IOptions<GroupOptions> groupOptions, ILogger<Startup> logger)
         {
+            var options = groupOptions.Value;
+
+            logger.LogInformation($"Recieved Groups [{options}] from config");
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -221,6 +233,8 @@ namespace RepairsApi
             app.UseSwagger();
             app.UseMiddleware<InitialiseUserMiddleware>();
             app.UseRouting();
+            app.UseAuthorization();
+            app.UseMiddleware<ExceptionMiddleware>();
             app.UseEndpoints(endpoints =>
             {
                 // SwaggerGen won't find controllers that are routed via this technique.

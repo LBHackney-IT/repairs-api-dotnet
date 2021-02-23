@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.Gateways;
 
@@ -28,6 +30,7 @@ namespace RepairsApi.V2.Controllers
         /// <returns></returns>
         [ProducesResponseType(typeof(IEnumerable<Contractor>), 200)]
         [HttpGet]
+        [Authorize(Roles = SecurityGroup.AGENT)]
         public async Task<IActionResult> ListContractors([FromQuery][Required] string propertyReference, [FromQuery][Required] string tradeCode)
         {
             var contractors = await _sorGateway.GetContractors(propertyReference, tradeCode);
