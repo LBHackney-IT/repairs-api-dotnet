@@ -23,10 +23,5 @@ namespace RepairsApi.V2.UseCase
         {
             return await _scheduleOfRatesGateway.GetSorCodes(propertyReference, tradeCode, contractorReference);
         }
-
-        public async Task<IEnumerable<ScheduleOfRatesModel>> Execute()
-        {
-            return await _scheduleOfRatesGateway.GetSorCodes();
-        }
     }
 }
