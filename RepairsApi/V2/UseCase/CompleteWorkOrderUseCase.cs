@@ -1,8 +1,10 @@
+using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated.CustomTypes;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Services;
 using RepairsApi.V2.UseCase.Interfaces;
 using System;
 using System.Linq;
@@ -16,16 +18,19 @@ namespace RepairsApi.V2.UseCase
         private readonly IRepairsGateway _repairsGateway;
         private readonly IWorkOrderCompletionGateway _workOrderCompletionGateway;
         private readonly ITransactionManager _transactionManager;
+        private readonly ICurrentUserService _currentUserService;
 
         public CompleteWorkOrderUseCase(
             IRepairsGateway repairsGateway,
             IWorkOrderCompletionGateway workOrderCompletionGateway,
-            ITransactionManager transactionManager
+            ITransactionManager transactionManager,
+            ICurrentUserService currentUserService
         )
         {
             _repairsGateway = repairsGateway;
             _workOrderCompletionGateway = workOrderCompletionGateway;
             _transactionManager = transactionManager;
+            _currentUserService = currentUserService;
         }
 
         public async Task Execute(WorkOrderComplete workOrderComplete)
@@ -40,32 +45,44 @@ namespace RepairsApi.V2.UseCase
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
 
             ValidateRequest(workOrderComplete);
-            await using (var transaction = await _transactionManager.Start())
-            {
-                await _workOrderCompletionGateway.CreateWorkOrderCompletion(workOrderComplete.ToDb(workOrder, null));
-                await UpdateWorkOrderStatus(workOrder.Id, workOrderComplete);
-                await transaction.Commit();
-            }
+            await using var transaction = await _transactionManager.Start();
+            await UpdateWorkOrderStatus(workOrder.Id, workOrderComplete);
+            await _workOrderCompletionGateway.CreateWorkOrderCompletion(workOrderComplete.ToDb(workOrder, null));
+            await transaction.Commit();
         }
 
         private async Task UpdateWorkOrderStatus(int workOrderId, WorkOrderComplete workOrderComplete)
         {
             await workOrderComplete.JobStatusUpdates.ForEachAsync(async update =>
             {
-                if (update.TypeCode == Generated.JobStatusUpdateTypeCode._0)
+                switch (update.TypeCode)
                 {
-                    switch (update.OtherType)
-                    {
-                        case CustomJobStatusUpdates.COMPLETED:
-                            await _repairsGateway.UpdateWorkOrderStatus(workOrderId, WorkStatusCode.Complete);
-                            return;
-                        case CustomJobStatusUpdates.CANCELLED:
-                            await _repairsGateway.UpdateWorkOrderStatus(workOrderId, WorkStatusCode.Canceled);
-                            return;
-                        default: throw new NotSupportedException("Work Order complete have a completed or cancelled update");
-                    }
+                    case Generated.JobStatusUpdateTypeCode._0: //Other
+                        await HandleCustomType(workOrderId, update);
+                        break;
+                    case Generated.JobStatusUpdateTypeCode._70: // Denied Access
+                        if (!_currentUserService.HasGroup(SecurityGroup.CONTRACTOR)) throw new UnauthorizedAccessException("Not Authorised to close jobs");
+                        await _repairsGateway.UpdateWorkOrderStatus(workOrderId, WorkStatusCode.NoAccess);
+                        break;
+                    default: throw new NotSupportedException("Unsupported workorder complete job status update code");
                 }
             });
+        }
+
+        private async Task HandleCustomType(int workOrderId, Generated.JobStatusUpdates update)
+        {
+            switch (update.OtherType)
+            {
+                case CustomJobStatusUpdates.COMPLETED:
+                    if (!_currentUserService.HasGroup(SecurityGroup.CONTRACTOR)) throw new UnauthorizedAccessException("Not Authorised to close jobs");
+                    await _repairsGateway.UpdateWorkOrderStatus(workOrderId, WorkStatusCode.Complete);
+                    break;
+                case CustomJobStatusUpdates.CANCELLED:
+                    if (!_currentUserService.HasGroup(SecurityGroup.AGENT)) throw new UnauthorizedAccessException("Not Authorised to cancel jobs");
+                    await _repairsGateway.UpdateWorkOrderStatus(workOrderId, WorkStatusCode.Canceled);
+                    break;
+                default: throw new NotSupportedException("Unsupported workorder complete job status update code");
+            }
         }
 
         private static void ValidateRequest(WorkOrderComplete request)

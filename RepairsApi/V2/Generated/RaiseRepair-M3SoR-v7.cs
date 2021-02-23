@@ -4311,8 +4311,6 @@ namespace RepairsApi.V2.Generated
     
         [Newtonsoft.Json.JsonProperty("Quantity", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Quantity Quantity { get; set; }
-    
-    
     }
     
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.2.0 (Newtonsoft.Json v9.0.0.0)")]

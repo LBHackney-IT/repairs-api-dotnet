@@ -51,6 +51,9 @@ namespace RepairsApi.V2.Infrastructure
         PendMaterial = 110, // Pend Material: Work Order Is Pending Materials. Active.
         Scheduled = 120, // Scheduled: Work Is Scheduled Using A Scheduling Tool. Active.
         Superceded = 130, // Superceded: Work Order Is Superceded By Another. Inactive.
+
+        // Extensions
+        NoAccess = 1000,
     }
 
     [Owned]

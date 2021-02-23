@@ -12,15 +12,20 @@ namespace RepairsApi.Tests.V2.Gateways
     public class MockRepairsGateway : Mock<IRepairsGateway>
     {
         private IEnumerable<WorkOrder> _workOrders = new List<WorkOrder>();
-        public WorkElement LastWorkElement { get; set; }
+        private int _workOrderId;
+        public WorkOrder LastWorkOrder { get; set; }
 
         public MockRepairsGateway()
         {
             Setup(g => g.GetWorkOrder(It.IsAny<int>()))
                 .ReturnsAsync((int id) => _workOrders.SingleOrDefault(wo => wo.Id == id));
+
+            Setup(m => m.CreateWorkOrder(It.IsAny<WorkOrder>()))
+                .Callback<WorkOrder>(wo => LastWorkOrder = wo)
+                .ReturnsAsync(() => _workOrderId);
         }
 
-        public void ReturnsWorkOrders(List<WorkOrder> workOrders)
+        public void ReturnsWorkOrders(IEnumerable<WorkOrder> workOrders)
         {
             _workOrders = workOrders;
 
@@ -34,6 +39,11 @@ namespace RepairsApi.Tests.V2.Gateways
                     }
                     return tempWorkOrders;
                 });
+        }
+
+        public void ReturnWOId(int newId)
+        {
+            _workOrderId = newId;
         }
     }
 }

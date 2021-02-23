@@ -1,11 +1,14 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RepairsApi.V2.UseCase.Interfaces;
 using RepairsApi.V2.Boundary.Response;
+using RepairsApi.V2.UseCase.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using RepairsApi.V2.Gateways;
-using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Infrastructure.Hackney;
+using System.ComponentModel.DataAnnotations;
+using RepairsApi.V2.Authorisation;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -18,11 +21,17 @@ namespace RepairsApi.V2.Controllers
 
         private readonly IListScheduleOfRatesUseCase _listScheduleOfRates;
         private readonly ISorPriorityGateway _priorityGateway;
+        private readonly IListSorTradesUseCase _listSorTrades;
 
-        public ScheduleOfRatesController(IListScheduleOfRatesUseCase listScheduleOfRates, ISorPriorityGateway priorityGateway)
+        public ScheduleOfRatesController(
+            IListScheduleOfRatesUseCase listScheduleOfRates,
+            IListSorTradesUseCase listSorTrades,
+            ISorPriorityGateway priorityGateway
+            )
         {
             _listScheduleOfRates = listScheduleOfRates;
             _priorityGateway = priorityGateway;
+            _listSorTrades = listSorTrades;
         }
 
         /// <summary>
@@ -33,16 +42,29 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(IEnumerable<ScheduleOfRatesModel>), StatusCodes.Status200OK)]
         [Route("codes")]
         [HttpGet]
-        public async Task<IActionResult> ListRecords()
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesDefaultResponseType]
+        [Authorize(Roles = SecurityGroup.AGENT)]
+        public async Task<IActionResult> ListRecords([FromQuery] string tradeCode, [FromQuery] string propertyReference, [FromQuery] string contractorReference)
         {
-            return Ok(await _listScheduleOfRates.Execute());
-            //var sorPattern = "^[A-Za-z0-9]{7,8}$";
+            if (string.IsNullOrWhiteSpace(tradeCode) && string.IsNullOrWhiteSpace(propertyReference) && string.IsNullOrWhiteSpace(contractorReference))
+                return Ok(await _listScheduleOfRates.Execute());
+            else if (!string.IsNullOrWhiteSpace(tradeCode) && !string.IsNullOrWhiteSpace(propertyReference) && !string.IsNullOrWhiteSpace(contractorReference))
+                return Ok(await _listScheduleOfRates.Execute(tradeCode, propertyReference, contractorReference));
+
+            return BadRequest();
         }
+
+        /// <summary>
+        /// Returns paged list of trades
+        /// </summary>
+        /// <response code="200">Success. Returns a list of SOR codes</response>
+        [ProducesResponseType(typeof(IEnumerable<SorTradeResponse>), StatusCodes.Status200OK)]
+        [Route("trades")]
         [HttpGet]
-        [Route("/codes/{sorCode}")]
-        public IActionResult ViewRecord(string sorCode)
+        public async Task<IActionResult> ListTrades([FromQuery][Required] string propRef)
         {
-            return Ok(new { sor = sorCode });
+            return Ok(await _listSorTrades.Execute(propRef));
         }
 
 
@@ -52,6 +74,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(IEnumerable<SORPriority>), StatusCodes.Status200OK)]
         [HttpGet]
         [Route("priorities")]
+        [Authorize(Roles = SecurityGroup.AGENT)]
         public async Task<IActionResult> ListPriorities()
         {
             return Ok(await _priorityGateway.GetPriorities());

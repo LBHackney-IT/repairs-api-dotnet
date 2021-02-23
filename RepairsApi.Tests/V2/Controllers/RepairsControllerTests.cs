@@ -167,38 +167,6 @@ namespace RepairsApi.Tests.V2.Controllers
         }
 
         [Test]
-        public async Task ReturnsBadRequestWhenCantCompleteWorkOrder()
-        {
-            // arrange
-            const int expectedWorkOrderId = 4;
-            var request = CreateRequest(expectedWorkOrderId);
-            _completeWorkOrderUseCase.Setup(s => s.Execute(It.IsAny<WorkOrderComplete>())).ThrowsAsync(new NotSupportedException());
-
-            // act
-            var response = await _classUnderTest.WorkOrderComplete(request);
-
-            // assert
-            response.Should().BeOfType<BadRequestObjectResult>();
-        }
-
-        [Test]
-        public async Task ReturnsBadRequestWhenNotSupportedThrownInWorkOrderComplete()
-        {
-            // arrange
-            string expectedMessage = "message";
-            _completeWorkOrderUseCase.Setup(uc => uc.Execute(It.IsAny<WorkOrderComplete>()))
-                .ThrowsAsync(new NotSupportedException(expectedMessage));
-            var request = CreateRequest(1);
-
-            // act
-            var response = await _classUnderTest.WorkOrderComplete(request);
-
-            // assert
-            response.Should().BeOfType<BadRequestObjectResult>()
-                .Which.Value.As<string>().Should().Be(expectedMessage);
-        }
-
-        [Test]
         public async Task ReturnsOkWhenCanUpdateJobStatus()
         {
             _updateJobStatusUseCase
@@ -208,52 +176,6 @@ namespace RepairsApi.Tests.V2.Controllers
                 new JobStatusUpdate { RelatedWorkOrderReference = new Reference { ID = "42" } });
 
             response.Should().BeOfType<OkResult>();
-        }
-
-        [Test]
-        public async Task ReturnsBadRequestWhenCannotUpdateJobStatus()
-        {
-            _updateJobStatusUseCase
-                .Setup(uc => uc.Execute(It.IsAny<JobStatusUpdate>())).ThrowsAsync(new NotSupportedException());
-
-            var response = await _classUnderTest.JobStatusUpdate(
-                new JobStatusUpdate { RelatedWorkOrderReference = new Reference { ID = "41" } });
-
-            response.Should().BeOfType<BadRequestObjectResult>();
-        }
-
-        [Test]
-        public async Task ReturnsBadRequestWhenNotSupportedThrownInJobStatusUpdate()
-        {
-            // arrange
-            string expectedMessage = "message";
-            _updateJobStatusUseCase.Setup(uc => uc.Execute(It.IsAny<JobStatusUpdate>()))
-                .ThrowsAsync(new NotSupportedException(expectedMessage));
-
-            // act
-            var response = await _classUnderTest.JobStatusUpdate(
-                new JobStatusUpdate { RelatedWorkOrderReference = new Reference { ID = "41" } });
-
-            // assert
-            response.Should().BeOfType<BadRequestObjectResult>()
-                .Which.Value.As<string>().Should().Be(expectedMessage);
-        }
-
-        [Test]
-        public async Task ReturnsNotFoundWhenResourceNotFoundThrownInJobStatusUpdate()
-        {
-            // arrange
-            string expectedMessage = "message";
-            _updateJobStatusUseCase.Setup(uc => uc.Execute(It.IsAny<JobStatusUpdate>()))
-                .ThrowsAsync(new ResourceNotFoundException(expectedMessage));
-
-            // act
-            var response = await _classUnderTest.JobStatusUpdate(
-                new JobStatusUpdate { RelatedWorkOrderReference = new Reference { ID = "41" } });
-
-            // assert
-            response.Should().BeOfType<NotFoundObjectResult>()
-                .Which.Value.As<string>().Should().Be(expectedMessage);
         }
 
         [Test]
@@ -303,27 +225,6 @@ namespace RepairsApi.Tests.V2.Controllers
             });
         }
 
-        [Test]
-        public async Task Return404ForNotFound()
-        {
-            _listWorkOrderTasksUseCase.Setup(uc => uc.Execute(1)).ThrowsAsync(new ResourceNotFoundException("message"));
-
-            var result = await _classUnderTest.ListWorkOrderTasks(1);
-
-            GetStatusCode(result).Should().Be(404);
-        }
-
-
-        [Test]
-        public async Task Return400ForNotSupported()
-        {
-            _listWorkOrderTasksUseCase.Setup(uc => uc.Execute(1)).ThrowsAsync(new NotSupportedException("message"));
-
-            var result = await _classUnderTest.ListWorkOrderTasks(1);
-
-            GetStatusCode(result).Should().Be(400);
-        }
-
         private List<WorkOrder> CreateWorkOrders()
         {
             var expectedWorkOrders = _generator.GenerateList(5);
@@ -353,16 +254,6 @@ namespace RepairsApi.Tests.V2.Controllers
             var response = GetResultData<IEnumerable<NoteListItem>>(result);
 
             response.Should().BeEquivalentTo(expected);
-        }
-
-        [Test]
-        public async Task NoteListReturn404ForNotFound()
-        {
-            _listWorkOrderNotesUseCase.Setup(uc => uc.Execute(1)).ThrowsAsync(new ResourceNotFoundException("message"));
-
-            var result = await _classUnderTest.ListWorkOrderNotes(1);
-
-            GetStatusCode(result).Should().Be(404);
         }
     }
 }

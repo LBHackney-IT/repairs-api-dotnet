@@ -1,0 +1,23 @@
+{
+  "$schema": "http://www.oscre.org/referencedatamodel/Main/3.3",
+  "id": "http://www.oscre.org/ns/referencedatamodel/RequestAppointment",
+  "definitions": {
+    "Reference": {
+        "type": "object",
+        "properties": {
+          "ID": {"type": "string", "$comment": "The actual reference number or string used to identify a particular entity in a system or process."},
+          "Description": {"type": "string", "$comment": "An optional description for the reference, or more detail about this reference or who has allocated the reference. For example, this can be used to specify that this reference is a bar code attached to some physical component."},
+          "AllocatedBy": {"type": "string", "$comment": "An identifier of the organization and/or system that allocated this identifier - this could be the name of the organization and/or system or something that identifies the specific instance of a system or database where the ID originated."}
+        },
+        "required": ["ID"]
+      }
+  },
+  "RequestAppointment": {
+    "type": "object",
+    "properties": {
+      "WorkOrderReference": {"type": "#/definitions/Reference"},
+      "AppointmentReference": {"type": "#/definitions/Reference"}
+    },
+    "required": ["WorkOrderReference","AppointmentReference"]
+  }
+}

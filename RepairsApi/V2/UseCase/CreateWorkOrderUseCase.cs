@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.MiddleWare;
 using RepairsApi.V2.Services;
+using RepairsApi.V2.Authorisation;
 
 namespace RepairsApi.V2.UseCase
 {
@@ -46,8 +47,8 @@ namespace RepairsApi.V2.UseCase
         {
             if (_currentUserService.IsUserPresent())
             {
-                User user = _currentUserService.GetUser();
-                workOrder.AgentName = user.Name;
+                var user = _currentUserService.GetUser();
+                workOrder.AgentName = user.Name();
             }
         }
 
@@ -66,14 +67,15 @@ namespace RepairsApi.V2.UseCase
                 await element.RateScheduleItem.ForEachAsync(async item =>
                 {
                     item.DateCreated = DateTime.UtcNow;
-                    item.CodeCost = await GetCost(item.CustomCode);
+                    item.CodeCost = await GetCost(workOrder.AssignedToPrimary?.ContractorReference, item.CustomCode);
+                    item.Original = true;
                 });
             });
         }
 
-        private async Task<double?> GetCost(string customCode)
+        private async Task<double?> GetCost(string contractorReference, string customCode)
         {
-            return await _scheduleOfRatesGateway.GetCost(customCode);
+            return await _scheduleOfRatesGateway.GetCost(contractorReference, customCode);
         }
     }
 }

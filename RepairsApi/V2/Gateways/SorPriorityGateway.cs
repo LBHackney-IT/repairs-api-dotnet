@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Infrastructure.Hackney;
 
 namespace RepairsApi.V2.Gateways
 {
@@ -17,7 +18,7 @@ namespace RepairsApi.V2.Gateways
 
         public async Task<IEnumerable<SORPriority>> GetPriorities()
         {
-            return await _priorities.OrderBy(p => p.PriorityCode).ToListAsync();
+            return await _priorities.Where(p => p.Enabled).OrderBy(p => p.DaysToComplete).ToListAsync();
         }
     }
 }

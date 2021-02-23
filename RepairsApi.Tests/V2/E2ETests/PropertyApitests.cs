@@ -9,12 +9,16 @@ using RepairsApi.V2.Gateways;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace RepairsApi.Tests.V2.E2ETests
 {
     [SingleThreaded]
-    public class PropertyApitests : IntegrationTests<Startup>
+    public class PropertyApitests : MockWebApplicationFactory
     {
+        public HttpClient Client => CreateClient();
+
         [SetUp]
         public void SetUp()
         {
@@ -211,6 +215,22 @@ namespace RepairsApi.Tests.V2.E2ETests
             // Assert
             response.IsSuccess.Should().BeTrue();
             response.Status.Should().Be(HttpStatusCode.OK);
+        }
+
+        [TestCase("/api/v2/properties/100")]
+        [TestCase("/api/v2/properties/100/alerts")]
+        [TestCase("/api/v2/properties/?postcode=1111")]
+        [TestCase("/api/v2/properties/?q=1111")]
+        [TestCase("/api/v2/properties/?address=1111")]
+        public async Task AuthorisationTests(string test)
+        {
+            await AuthorisationHelper.VerifyContractorUnauthorised(
+                Client,
+                GetGroup(TestDataSeeder.Contractor),
+                async client =>
+                {
+                    return await client.GetAsync(new Uri(test, UriKind.Relative));
+                });
         }
     }
 }

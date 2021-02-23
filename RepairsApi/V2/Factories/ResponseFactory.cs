@@ -128,7 +128,8 @@ namespace RepairsApi.V2.Factories
                 CallerName = workOrder.Customer?.Person?.Name?.Full,
                 CallerNumber = workOrder.Customer?.Person?.Communication?.Where(cc => cc.Channel?.Medium == Generated.CommunicationMediumCode._20 /* Audio */).FirstOrDefault()
                     ?.Value,
-                Status = workOrder.GetStatus()
+                Status = workOrder.GetStatus(),
+                ContractorReference = workOrder.AssignedToPrimary?.ContractorReference
             };
         }
 
@@ -148,29 +149,6 @@ namespace RepairsApi.V2.Factories
                 PropertyReference = workOrder.Site?.PropertyClass?.FirstOrDefault()?.PropertyReference,
                 TradeCode = workOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomCode,
                 Status = workOrder.GetStatus()
-            };
-        }
-
-        public static ScheduleOfRatesModel ToResponse(this Infrastructure.ScheduleOfRates sorCode)
-        {
-            return new ScheduleOfRatesModel
-            {
-                CustomCode = sorCode.CustomCode,
-                CustomName = sorCode.CustomName,
-                SORContractor = new Contractor
-                {
-                    Reference = sorCode.SORContractorRef
-                },
-                Priority = sorCode.Priority?.ToResponse()
-            };
-        }
-
-        public static SORPriority ToResponse(this Infrastructure.SORPriority priority)
-        {
-            return new SORPriority
-            {
-                Description = priority.Description,
-                PriorityCode = priority.PriorityCode
             };
         }
 
@@ -249,7 +227,26 @@ namespace RepairsApi.V2.Factories
                 Cost = domain.Cost,
                 DateAdded = domain.DateAdded,
                 Description = domain.Description,
-                Status = domain.Status
+                Status = domain.Status,
+                Original = domain.Original
+            };
+        }
+
+        public static SorTradeResponse ToResponse(this Infrastructure.Hackney.SorCodeTrade trade)
+        {
+            return new SorTradeResponse
+            {
+                Code = trade.Code,
+                Name = trade.Name
+            };
+        }
+
+        public static Contractor ToResponse(this Infrastructure.Hackney.Contractor contractor)
+        {
+            return new Contractor
+            {
+                ContractorName = contractor.Name,
+                ContractorReference = contractor.Reference
             };
         }
     }
