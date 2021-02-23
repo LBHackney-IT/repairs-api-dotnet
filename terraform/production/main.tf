@@ -11,7 +11,7 @@ locals {
 
 terraform {
   backend "s3" {
-    bucket  = "terraform-state-production-apis"
+    bucket  = "terraform-state-housing-production"
     encrypt = true
     region  = "eu-west-2"
     key     = "services/repairs-api/state"
@@ -21,7 +21,7 @@ terraform {
 /*    POSTGRES SET UP    */
 data "aws_vpc" "production_vpc" {
   tags = {
-    Name = "vpc-production-apis-production"
+    Name = "vpc-housing-production"
   }
 }
 data "aws_subnet_ids" "production" {
