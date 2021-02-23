@@ -130,10 +130,26 @@ namespace RepairsApi.V2.Factories
             return new TenureInformation
             {
                 TenancyAgreementReference = tenancyInformation.TenancyAgreementReference,
+                HouseholdReference = tenancyInformation.HouseholdReference,
                 TypeCode = splitTenureType.First(),
                 TypeDescription = splitTenureType.Last(),
                 CanRaiseRepair = RaisableTenureCodes.Contains(splitTenureType.First())
             };
+        }
+
+        public static ResidentContact ToDomain(this ResidentContactInformation apiResponse)
+        {
+            return new ResidentContact
+            {
+                FirstName = apiResponse.FirstName,
+                LastName = apiResponse.LastName,
+                PhoneNumbers = apiResponse.PhoneNumbers.Select(no => no.PhoneNumber).ToList()
+            };
+        }
+
+        public static List<ResidentContact> ToDomain(this HousingResidentInformationApiResponse apiResponse)
+        {
+            return apiResponse.Residents.Select(res => res.ToDomain()).ToList();
         }
     }
 }

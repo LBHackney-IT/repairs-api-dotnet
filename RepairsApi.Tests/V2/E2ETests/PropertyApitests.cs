@@ -37,6 +37,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             MockApiGateway.AddPropertyAlerts(propertyAlertCount, expectedProperty.PropRef);
             MockApiGateway.AddTenantInformation(tenantReference, expectedProperty.PropRef, canRaiseRepair);
             MockApiGateway.AddPersonAlerts(personAlertCount, tenantReference);
+            MockApiGateway.AddResidentContacts();
 
             PropertyViewModel expectedResponse = expectedProperty.ToDomain().ToResponse(new TenureInformation { CanRaiseRepair = canRaiseRepair });
 
