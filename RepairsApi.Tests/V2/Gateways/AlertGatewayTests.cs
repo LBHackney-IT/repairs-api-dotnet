@@ -1,13 +1,10 @@
-using Bogus;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Gateways.Models;
 using System;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -17,8 +14,6 @@ namespace RepairsApi.Tests.V2.Gateways
 {
     public class AlertGatewayTests
     {
-        private static Uri AlertUri => new Uri("http://alerttest/");
-        private static Uri PropertyUri => new Uri("http://propertytest/");
         private Mock<IApiGateway> _apiGatewayMock;
         private AlertsGateway _classUnderTest;
 

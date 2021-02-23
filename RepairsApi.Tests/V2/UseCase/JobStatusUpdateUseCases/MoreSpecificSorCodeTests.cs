@@ -68,7 +68,8 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
 
             await _classUnderTest.Execute(request);
 
-            codeToModify.Should().BeEquivalentTo(expectedNewCode, option => option.Excluding(x => x.Id));
+            codeToModify.Should().BeEquivalentTo(expectedNewCode,
+                option => option.Excluding(x => x.Id).Excluding(x => x.Original));
         }
 
         [Test]
@@ -169,7 +170,6 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
 
         private WorkOrder BuildWorkOrder(int expectedId)
         {
-
             var workOrder = _fixture.Build<WorkOrder>()
                 .With(x => x.WorkElements, new List<WorkElement>
                 {

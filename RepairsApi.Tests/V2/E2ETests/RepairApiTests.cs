@@ -4,6 +4,7 @@ using NUnit.Framework;
 using RepairsApi.Tests.Helpers.StubGeneration;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Generated;
+using RepairsApi.V2.Generated.CustomTypes;
 using RepairsApi.V2.Infrastructure;
 using System;
 using System.Collections.Generic;
@@ -97,7 +98,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         {
             var client = CreateClient();
 
-            var request = RepairMockBuilder.CreateFullRaiseRepair();
+            var request = GenerateWorkOrder<RaiseRepair>().Generate();
             request.WorkElement.First().RateScheduleItem.First().Quantity.Amount.Add(3.5);
             var serializedContent = JsonConvert.SerializeObject(request);
             StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
@@ -111,7 +112,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         public async Task BadRequestWhenDoesntHaveRequiredFromJson()
         {
             var client = CreateClient();
-
+            client.SetAgent();
             string request = Requests.InvalidRaiseRepair;
             StringContent content = new StringContent(request, Encoding.UTF8, "application/json");
 
@@ -247,6 +248,7 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             var updateRequest = generator.Generate();
 
+            client.SetGroup(GetGroup(TestDataSeeder.Contractor));
             var serializedUpdateContent = JsonConvert.SerializeObject(updateRequest);
             StringContent updateContent = new StringContent(serializedUpdateContent, Encoding.UTF8, "application/json");
             var updateResponse = await client.PostAsync(new Uri("/api/v2/jobStatusUpdate", UriKind.Relative), updateContent);
@@ -268,7 +270,7 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             WithContext(ctx =>
             {
-                sorCodes = ctx.SORCodes.Select(sor => sor.CustomCode).ToArray();
+                sorCodes = ctx.SORCodes.Select(sor => sor.Code).ToArray();
             });
 
             return new Generator<T>()
@@ -292,14 +294,16 @@ namespace RepairsApi.Tests.V2.E2ETests
             string workOrderId = workOrders.First().Reference.ToString();
             HttpResponseMessage completeResponse = await CompleteWorkOrder(client, workOrderId);
 
-            completeResponse.StatusCode.Should().Be(HttpStatusCode.OK, completeResponse.Content.ToString());
+            completeResponse.StatusCode.Should().Be(HttpStatusCode.OK, await completeResponse.Content.ReadAsStringAsync());
         }
 
         private static async Task<HttpResponseMessage> CompleteWorkOrder(HttpClient client, string workOrderId)
         {
             Generator<WorkOrderComplete> generator = new Generator<WorkOrderComplete>()
                 .AddWorkOrderCompleteGenerators()
-                .AddValue(workOrderId, (WorkOrderComplete woc) => woc.WorkOrderReference.ID);
+                .AddValue(workOrderId, (WorkOrderComplete woc) => woc.WorkOrderReference.ID)
+                .AddValue(JobStatusUpdateTypeCode._0, (JobStatusUpdates jsu) => jsu.TypeCode)
+                .AddValue(CustomJobStatusUpdates.CANCELLED, (JobStatusUpdates jsu) => jsu.OtherType);
 
             var completeRequest = generator.Generate();
 
@@ -338,5 +342,6 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             return id;
         }
+
     }
 }

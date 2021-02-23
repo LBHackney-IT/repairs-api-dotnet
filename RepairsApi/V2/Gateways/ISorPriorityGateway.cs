@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Infrastructure.Hackney;
 
 namespace RepairsApi.V2.Gateways
 {

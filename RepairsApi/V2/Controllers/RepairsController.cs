@@ -9,6 +9,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Controllers.Parameters;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using RepairsApi.V2.Authorisation;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -50,6 +53,10 @@ namespace RepairsApi.V2.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesDefaultResponseType]
+        [Authorize(Roles = SecurityGroup.AGENT)]
         public async Task<IActionResult> RaiseRepair([FromBody] RaiseRepair request)
         {
             try
@@ -71,6 +78,10 @@ namespace RepairsApi.V2.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("schedule")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesDefaultResponseType]
+        [Authorize(Roles = SecurityGroup.AGENT)]
         public async Task<IActionResult> ScheduleRepair([FromBody] ScheduleRepair request)
         {
             try
@@ -104,6 +115,8 @@ namespace RepairsApi.V2.Controllers
         [Route("{id}")]
         [HttpGet]
         [ProducesResponseType(typeof(WorkOrderResponse), 200)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<IActionResult> Get(int id)
         {
             WorkOrderResponse workOrderResponse;
@@ -126,21 +139,14 @@ namespace RepairsApi.V2.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("/api/v2/workOrderComplete")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<IActionResult> WorkOrderComplete([FromBody] WorkOrderComplete request)
         {
-            try
-            {
-                await _completeWorkOrderUseCase.Execute(request);
-                return Ok();
-            }
-            catch (NotSupportedException e)
-            {
-                return BadRequest(e.Message);
-            }
-            catch (ResourceNotFoundException e)
-            {
-                return NotFound(e.Message);
-            }
+            await _completeWorkOrderUseCase.Execute(request);
+            return Ok();
         }
 
         /// <summary>
@@ -150,21 +156,16 @@ namespace RepairsApi.V2.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("/api/v2/jobStatusUpdate")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        [Authorize(Roles = SecurityGroup.CONTRACTOR)]
+
         public async Task<IActionResult> JobStatusUpdate([FromBody] JobStatusUpdate request)
         {
-            try
-            {
-                await _updateJobStatusUseCase.Execute(request);
-                return Ok();
-            }
-            catch (NotSupportedException e)
-            {
-                return BadRequest(e.Message);
-            }
-            catch (ResourceNotFoundException e)
-            {
-                return NotFound(e.Message);
-            }
+            await _updateJobStatusUseCase.Execute(request);
+            return Ok();
         }
 
         /// <summary>
@@ -179,19 +180,8 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> ListWorkOrderTasks(int id)
         {
-            try
-            {
-                var result = await _listWorkOrderTasksUseCase.Execute(id);
-                return Ok(result.ToResponse());
-            }
-            catch (NotSupportedException e)
-            {
-                return BadRequest(e.Message);
-            }
-            catch (ResourceNotFoundException e)
-            {
-                return NotFound(e.Message);
-            }
+            var result = await _listWorkOrderTasksUseCase.Execute(id);
+            return Ok(result.ToResponse());
         }
 
         /// <summary>
@@ -205,15 +195,8 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> ListWorkOrderNotes(int id)
         {
-            try
-            {
-                var result = await _listWorkOrderNotesUseCase.Execute(id);
-                return Ok(result);
-            }
-            catch (ResourceNotFoundException e)
-            {
-                return NotFound(e.Message);
-            }
+            var result = await _listWorkOrderNotesUseCase.Execute(id);
+            return Ok(result);
         }
     }
 

@@ -1,10 +1,15 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using NUnit.Framework;
+using RepairsApi.Tests.Helpers;
 using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Infrastructure.Hackney;
 
 namespace RepairsApi.Tests.V2.Gateways
 {
@@ -18,57 +23,339 @@ namespace RepairsApi.Tests.V2.Gateways
             _classUnderTest = new ScheduleOfRatesGateway(InMemoryDb.Instance);
         }
 
-        [Test]
-        public async Task CanListSorCodes()
+        [TearDown]
+        public void Teardown()
         {
-            // act
-            var codes = await _classUnderTest.GetSorCodes();
-
-            // assert
-            codes.Should().NotBeNullOrEmpty();
+            InMemoryDb.Teardown();
         }
 
         [Test]
-        public async Task CanFilterCodesByContractor()
+        public async Task CanGetTrades()
         {
             // arrange
-            string expectedContractorRef = Guid.NewGuid().ToString();
-            InMemoryDb.Instance.SORCodes.Add(new ScheduleOfRates
+            const string expectedProperty = "property";
+            var expectedPriority = await SeedPriority();
+            string contractorReference = "contractor";
+            await SeedContractor(contractorReference);
+            var expectedTrade = await SeedTrade(Guid.NewGuid().ToString());
+            var validContracts = await SeedContracts(expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(7), contractorReference);
+            await SeedSorCodes(expectedPriority, expectedProperty, expectedTrade, validContracts.First());
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            // act
+            var result = await _classUnderTest.GetTrades(expectedProperty);
+
+            // assert
+            result.Single().Should().BeEquivalentTo(expectedTrade);
+        }
+
+        [Test]
+        public async Task CanGetContractsByContractor()
+        {
+            // arrange
+            var expectedContractor = new Contractor
             {
-                CustomCode = Guid.NewGuid().ToString(),
-                SORContractorRef = expectedContractorRef
+                Name = "name",
+                Reference = "reference"
+            };
+            var generator = new Generator<Contract>();
+            generator
+                .AddDefaultGenerators()
+                .AddValue(expectedContractor, (Contract c) => c.Contractor)
+                .AddValue(null, (Contract c) => c.PropertyMap)
+                .AddValue(null, (Contract c) => c.SorCodeMap);
+
+            var expectedContracts = generator.GenerateList(10);
+            await InMemoryDb.Instance.Contractors.AddAsync(expectedContractor);
+            await InMemoryDb.Instance.Contracts.AddRangeAsync(expectedContracts);
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            // act
+            var result = await _classUnderTest.GetContracts(expectedContractor.Reference);
+
+            // assert
+            result.Should().BeEquivalentTo(expectedContracts.Select(c => c.ContractReference));
+        }
+
+        [Test]
+        public async Task CanGetCosts()
+        {
+            // arrange
+            var generator = new Generator<SORContract>();
+            Contract contract = new Contract
+            {
+                ContractorReference = "contractor",
+                ContractReference = "contract"
+            };
+            generator
+                .AddDefaultGenerators()
+                .AddValue(null, (SORContract c) => c.SorCode)
+                .AddValue(contract, (SORContract c) => c.Contract);
+            var expectedContract = generator.Generate();
+
+            await InMemoryDb.Instance.SORContracts.AddAsync(expectedContract);
+            await InMemoryDb.Instance.SORContracts.AddRangeAsync(generator.GenerateList(10));
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            // act
+            var result = await _classUnderTest.GetCost(contract.ContractorReference, expectedContract.SorCodeCode);
+
+            // assert
+            result.Should().Be(expectedContract.Cost);
+        }
+
+        [Test]
+        public async Task ValidatesContractDates()
+        {
+            // arrange
+            const string expectedProperty = "property";
+            var expectedPriority = await SeedPriority();
+            var expectedTrade = await SeedTrade(Guid.NewGuid().ToString());
+            string contractorReference = "contractor";
+            await SeedContractor(contractorReference);
+            var invalidContracts = await SeedContracts(expectedProperty, DateTime.UtcNow.AddDays(-14), DateTime.UtcNow.AddDays(-7), contractorReference);
+            var validContracts = await SeedContracts(expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(7), contractorReference);
+
+            await SeedSorCodes(expectedPriority, expectedProperty, expectedTrade, invalidContracts.First());
+            var expectedCodes = await SeedSorCodes(expectedPriority, expectedProperty, expectedTrade, validContracts.First());
+
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            await GetAndValidateCodes(expectedProperty, expectedTrade, contractorReference, expectedCodes);
+        }
+
+        [Test]
+        public async Task ValidatesPropertyRef()
+        {
+            // arrange
+            const string expectedProperty = "property";
+            var expectedPriority = await SeedPriority();
+            string contractorReference = "contractor";
+            await SeedContractor(contractorReference);
+            var expectedTrade = await SeedTrade(Guid.NewGuid().ToString());
+            var invalidContracts = await SeedContracts("not" + expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(7), contractorReference);
+            var validContracts = await SeedContracts(expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(7), contractorReference);
+
+            await SeedSorCodes(expectedPriority, expectedProperty, expectedTrade, invalidContracts.First());
+            var expectedCodes = await SeedSorCodes(expectedPriority, expectedProperty, expectedTrade, validContracts.First());
+
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            await GetAndValidateCodes(expectedProperty, expectedTrade, contractorReference, expectedCodes);
+        }
+
+        [Test]
+        public async Task ValidatesTradeCode()
+        {
+            // arrange
+            const string expectedProperty = "property";
+            var expectedPriority = await SeedPriority();
+            string contractorReference = "contractor";
+            await SeedContractor(contractorReference);
+            var expectedTrade = await SeedTrade(Guid.NewGuid().ToString());
+            var notExpectedTrade = await SeedTrade(Guid.NewGuid().ToString());
+            var validContracts = await SeedContracts(expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(7), contractorReference);
+
+            await SeedSorCodes(expectedPriority, expectedProperty, notExpectedTrade, validContracts.First());
+            var expectedCodes = await SeedSorCodes(expectedPriority, expectedProperty, expectedTrade, validContracts.First());
+
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            await GetAndValidateCodes(expectedProperty, expectedTrade, contractorReference, expectedCodes);
+        }
+
+        [Test]
+        public async Task OnlyReturnsEnabled()
+        {
+            // arrange
+            const string expectedProperty = "property";
+            var expectedPriority = await SeedPriority();
+            string contractorReference = "contractor";
+            await SeedContractor(contractorReference);
+            var expectedTrade = await SeedTrade(Guid.NewGuid().ToString());
+            var validContracts = await SeedContracts(expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(7), contractorReference);
+
+            await SeedSorCodes(expectedPriority, expectedProperty, expectedTrade, validContracts.First(), false);
+            var expectedCodes = await SeedSorCodes(expectedPriority, expectedProperty, expectedTrade, validContracts.First());
+
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            await GetAndValidateCodes(expectedProperty, expectedTrade, contractorReference, expectedCodes);
+        }
+
+        private static async Task SeedContractor(string contractorReference)
+        {
+            InMemoryDb.Instance.Contractors.Add(new Contractor
+            {
+                Reference = contractorReference,
+                Name = "contractor"
             });
             await InMemoryDb.Instance.SaveChangesAsync();
-
-            // act
-            var codes = await _classUnderTest.GetSorCodes(expectedContractorRef);
-
-            // assert
-            codes.Should().ContainSingle().Which.SORContractorRef.Should().Be(expectedContractorRef);
         }
 
         [Test]
-        public async Task CanGetContractorRef()
+        public async Task ListsContractorsFilteredByPropRefAndTrade()
         {
-            // arrange
-            var sorGenerator = new Generator<ScheduleOfRates>()
-                .AddGenerator(new RandomStringGenerator(10));
-            var scheduleOfRatesEnumerable = sorGenerator.GenerateList(25);
-            await InMemoryDb.Instance.SORCodes.AddRangeAsync(scheduleOfRatesEnumerable);
-            var expectedSorCode = new ScheduleOfRates
-            {
-                CustomCode = Guid.NewGuid().ToString(),
-                SORContractorRef = Guid.NewGuid().ToString()
-            };
-            await InMemoryDb.Instance.SORCodes.AddAsync(expectedSorCode);
-            await InMemoryDb.Instance.SaveChangesAsync();
+            const string expectedProperty = "property";
+            var expectedTrade = await SeedTrade("trade");
+            await SeedContractors(expectedTrade.Code, "not" + expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(7));
+            await SeedContractors("not" + expectedTrade.Code, expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(7));
+            await SeedContractors(expectedTrade.Code, expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(-1));
+            await SeedContractors(expectedTrade.Code, expectedProperty, DateTime.UtcNow.AddDays(1), DateTime.UtcNow.AddDays(7));
+            var expectedContractors = await SeedContractors(expectedTrade.Code, expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(7));
 
+            var result = await _classUnderTest.GetContractors(expectedProperty, expectedTrade.Code);
+
+            result.Should().HaveCount(expectedContractors.Count);
+        }
+
+        private async Task GetAndValidateCodes(string expectedProperty, SorCodeTrade expectedTrade, string contractorReference, List<ScheduleOfRates> expectedCodes)
+        {
 
             // act
-            var result = await _classUnderTest.GetContractorReference(expectedSorCode.CustomCode);
+            var result = await _classUnderTest.GetSorCodes(expectedProperty, expectedTrade.Code, contractorReference);
 
             // assert
-            result.Should().Be(expectedSorCode.SORContractorRef);
+            var expectedResult = expectedCodes.Select(sor => new ScheduleOfRatesModel
+            {
+                Code = sor.Code,
+                ShortDescription = sor.ShortDescription,
+                LongDescription = sor.LongDescription,
+                Priority = new RepairsApi.V2.Domain.SORPriority
+                {
+                    PriorityCode = sor.Priority?.PriorityCode,
+                    Description = sor.Priority?.Description,
+                }
+            }).ToList();
+            result.Should().BeEquivalentTo(expectedResult);
+        }
+
+        private static async Task<List<ScheduleOfRates>> SeedSorCodes(
+            SORPriority expectedPriority,
+            string expectedProperty,
+            SorCodeTrade expectedTrade,
+            Contract expectedContract = null,
+            bool enabled = true)
+        {
+            var expectedGenerator = new Generator<ScheduleOfRates>();
+
+            expectedGenerator
+                .AddDefaultGenerators()
+                .AddValue(expectedPriority, (ScheduleOfRates sor) => sor.Priority)
+                .AddValue(expectedProperty, (PropertyContract pc) => pc.PropRef)
+                .AddValue(expectedTrade, (ScheduleOfRates sor) => sor.Trade)
+                .AddValue(enabled, (ScheduleOfRates sor) => sor.Enabled)
+                .AddGenerator(() => generateJoinEntry(expectedContract), (ScheduleOfRates sor) => sor.SorCodeMap);
+            var expectedCodes = expectedGenerator.GenerateList(10);
+
+            await InMemoryDb.Instance.SORCodes.AddRangeAsync(expectedCodes);
+            return expectedCodes;
+        }
+
+        private static List<SORContract> generateJoinEntry(Contract expectedContract)
+        {
+            return new List<SORContract>
+            {
+                new SORContract
+                {
+                    Contract = expectedContract
+                }
+            };
+        }
+
+        private static async Task<List<Contract>> SeedContracts(string expectedProperty, DateTime effectiveDate, DateTime termDate, string contractorReference)
+        {
+
+            var contractGenerator = new Generator<Contract>()
+                .AddDefaultGenerators()
+                .AddValue(contractorReference, (Contract c) => c.ContractorReference)
+                .Ignore((Contract c) => c.Contractor)
+                .Ignore((Contract c) => c.PropertyMap)
+                .AddValue(null, (Contract c) => c.SorCodeMap)
+                .AddValue(effectiveDate, (Contract c) => c.EffectiveDate)
+                .AddValue(termDate, (Contract c) => c.TerminationDate);
+
+            var contracts = contractGenerator.GenerateList(10);
+
+            var propMaps = contracts.Select(c => new PropertyContract
+            {
+                PropRef = expectedProperty,
+                ContractReference = c.ContractReference
+            });
+
+            await InMemoryDb.Instance.Contracts.AddRangeAsync(contracts);
+            await InMemoryDb.Instance.PropertyContracts.AddRangeAsync(propMaps);
+
+            return contracts;
+        }
+
+        private static async Task<List<Contractor>> SeedContractors(string tradeCode, string expectedProperty, DateTime effectiveDate, DateTime termDate)
+        {
+            var stringGenerator = new Generator<string>()
+                .AddDefaultGenerators();
+            var doubleGenerator = new Generator<double>()
+                .AddDefaultGenerators();
+            var contractorGenerator = new Generator<Contractor>()
+                .AddDefaultGenerators()
+                .AddValue(null, (Contractor c) => c.Contracts);
+
+            var contractors = contractorGenerator.GenerateList(10);
+            var contracts = contractors.Select(c => new Contract
+            {
+                ContractReference = stringGenerator.Generate(),
+                ContractorReference = c.Reference,
+                EffectiveDate = effectiveDate,
+                TerminationDate = termDate
+            }).ToList();
+            var sorCode = new ScheduleOfRates
+            {
+                Code = stringGenerator.Generate(),
+                TradeCode = tradeCode,
+                Enabled = true
+            };
+            var sorContracts = contracts.Select(c => new SORContract
+            {
+                ContractReference = c.ContractReference,
+                SorCodeCode = sorCode.Code,
+                Cost = doubleGenerator.Generate()
+            }).ToList();
+
+            var propMaps = contracts.Select(c => new PropertyContract
+            {
+                PropRef = expectedProperty,
+                ContractReference = c.ContractReference
+            }).ToList();
+
+            await InMemoryDb.Instance.Contractors.AddRangeAsync(contractors);
+            await InMemoryDb.Instance.SORCodes.AddAsync(sorCode);
+            await InMemoryDb.Instance.Contracts.AddRangeAsync(contracts);
+            await InMemoryDb.Instance.SORContracts.AddRangeAsync(sorContracts);
+            await InMemoryDb.Instance.PropertyContracts.AddRangeAsync(propMaps);
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            return contractors;
+        }
+
+        private static async Task<SorCodeTrade> SeedTrade(string expectedTradeCode)
+        {
+            var expectedTrade = new SorCodeTrade
+            {
+                Code = expectedTradeCode,
+                Name = "trade"
+            };
+            await InMemoryDb.Instance.Trades.AddAsync(expectedTrade);
+            return expectedTrade;
+        }
+
+        private static async Task<SORPriority> SeedPriority()
+        {
+            var expectedPriority = new SORPriority
+            {
+                Description = "priority",
+                PriorityCode = 1
+            };
+            await InMemoryDb.Instance.SORPriorities.AddAsync(expectedPriority);
+            return expectedPriority;
         }
     }
 }

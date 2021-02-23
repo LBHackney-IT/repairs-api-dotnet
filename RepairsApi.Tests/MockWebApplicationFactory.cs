@@ -4,10 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
+using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
 using System;
 using System.Data.Common;
+using System.Linq;
 using System.Net.Http;
 
 namespace RepairsApi.Tests
@@ -39,12 +42,14 @@ namespace RepairsApi.Tests
                     if (_connection != null)
                     {
                         options.UseNpgsql(_connection)
+                        .UseSnakeCaseNamingConvention()
                             .UseLazyLoadingProxies();
                     }
                     else
                     {
                         options.UseInMemoryDatabase("integration")
-                            .UseLazyLoadingProxies();
+                            .UseLazyLoadingProxies()
+                            .UseSnakeCaseNamingConvention();
                         options.ConfigureWarnings(warningOptions =>
                         {
                             warningOptions.Ignore(InMemoryEventId.TransactionIgnoredWarning);
@@ -65,27 +70,34 @@ namespace RepairsApi.Tests
         {
             base.ConfigureClient(client);
 
-            client.DefaultRequestHeaders.Add("X-Hackney-User", TestUserInformation.JWT);
+            client.SetAgent();
         }
 
         private static void InitialiseDB(ServiceProvider serviceProvider)
         {
-            using (var scope = serviceProvider.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<RepairsContext>();
+            using var scope = serviceProvider.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<RepairsContext>();
 
-                dbContext.Database.EnsureCreated();
-            }
+            dbContext.Database.EnsureCreated();
+
+            dbContext.SeedData();
+
+            dbContext.SaveChanges();
         }
 
         protected void WithContext(Action<RepairsContext> action)
         {
-            using (var scope = Services.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<RepairsContext>();
+            using var scope = Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<RepairsContext>();
 
-                action(dbContext);
-            }
+            action(dbContext);
+        }
+
+        protected string GetGroup(string contractor)
+        {
+            var groups = Server.Services.GetService<IOptions<GroupOptions>>().Value;
+
+            return groups.SecurityGroups.Where(kv => kv.Value.ContractorReference == contractor).Select(kv => kv.Key).Single();
         }
     }
 }

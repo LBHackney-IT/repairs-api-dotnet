@@ -15,14 +15,15 @@ namespace RepairsApi.Tests
             {
                 if (_context == null)
                 {
-                    DbContextOptionsBuilder builder = new DbContextOptionsBuilder();
+                    DbContextOptionsBuilder<RepairsContext> builder = new DbContextOptionsBuilder<RepairsContext>();
+                    builder.EnableSensitiveDataLogging();
                     builder.ConfigureWarnings(options =>
                     {
                         options.Ignore(InMemoryEventId.TransactionIgnoredWarning);
                     });
                     builder.UseInMemoryDatabase(Guid.NewGuid().ToString());
 
-                    _context = new RepairsContext(builder.Options, new DataImporter("../../../../RepairsApi/V2/SeededData"));
+                    _context = new RepairsContext(builder.Options);
                     _context.Database.EnsureCreated();
                 }
 

@@ -1,9 +1,9 @@
-using JWT;
 using JWT.Builder;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Domain;
 using System;
-using System.Collections.Generic;
 using System.Security.Claims;
 
 namespace RepairsApi.V2.Services
@@ -11,14 +11,14 @@ namespace RepairsApi.V2.Services
 #nullable enable
     public class CurrentUserService : ICurrentUserLoader, ICurrentUserService
     {
-        private const string EmailClaim = "email";
-        private const string NameClaim = "name";
         private readonly ILogger<CurrentUserService> _logger;
-        private User? _user = null;
+        private readonly GroupOptions _options;
+        private ClaimsPrincipal? _user = null;
 
-        public CurrentUserService(ILogger<CurrentUserService> logger)
+        public CurrentUserService(ILogger<CurrentUserService> logger, IOptions<GroupOptions> options)
         {
             _logger = logger;
+            _options = options.Value;
         }
 
         public void LoadUser(string jwt)
@@ -27,11 +27,9 @@ namespace RepairsApi.V2.Services
             try
             {
                 var values = new JwtBuilder()
-                        .Decode<IDictionary<string, object>>(jwt);
+                        .Decode<User>(jwt);
 
-                _user = new User();
-                _user.Email = values[EmailClaim].ToString();
-                _user.Name = values[NameClaim].ToString();
+                _user = MapUser(values);
             }
             catch (Exception e)
             {
@@ -44,9 +42,43 @@ namespace RepairsApi.V2.Services
             return _user != null;
         }
 
-        public User? GetUser()
+        public ClaimsPrincipal? GetUser()
         {
             return _user;
+        }
+
+        public bool HasGroup(string groupName)
+        {
+            return _user?.HasClaim(ClaimTypes.Role, groupName) ?? false;
+        }
+
+        public bool TryGetContractor(out string contractor)
+        {
+            contractor = _user?.FindFirst(CustomClaimTypes.CONTRACTOR)?.Value ?? string.Empty;
+            return !string.IsNullOrWhiteSpace(contractor);
+        }
+
+        private ClaimsPrincipal MapUser(User user)
+        {
+            var identity = new ClaimsIdentity();
+
+            identity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
+            identity.AddClaim(new Claim(ClaimTypes.Name, user.Name));
+
+            foreach (var group in user.Groups)
+            {
+                if (_options.SecurityGroups.TryGetValue(group, out PermissionsModel? perms))
+                {
+                    identity.AddClaim(new Claim(ClaimTypes.Role, perms.SecurityGroup.ToString()));
+
+                    if (!string.IsNullOrWhiteSpace(perms.ContractorReference))
+                    {
+                        identity.AddClaim(new Claim(CustomClaimTypes.CONTRACTOR, perms.ContractorReference));
+                    }
+                }
+            }
+
+            return new ClaimsPrincipal(identity);
         }
     }
 }
