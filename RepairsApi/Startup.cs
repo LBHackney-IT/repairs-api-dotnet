@@ -73,12 +73,32 @@ namespace RepairsApi
                         Type = SecuritySchemeType.ApiKey
                     });
 
+                c.AddSecurityDefinition("UserHeader",
+                    new OpenApiSecurityScheme
+                    {
+                        In = ParameterLocation.Header,
+                        Description = "Hackney User JWT",
+                        Name = "X-Hackney-User",
+                        Type = SecuritySchemeType.ApiKey
+                    });
+
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {
                         new OpenApiSecurityScheme
                         {
                             Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Token" }
+                        },
+                        new List<string>()
+                    }
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "UserHeader" }
                         },
                         new List<string>()
                     }
