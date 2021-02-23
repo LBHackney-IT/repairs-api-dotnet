@@ -12,10 +12,6 @@ namespace RepairsApi
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-            .ConfigureAppConfiguration(config =>
-            {
-                config.AddGroups();
-            })
             .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>());
     }
 }

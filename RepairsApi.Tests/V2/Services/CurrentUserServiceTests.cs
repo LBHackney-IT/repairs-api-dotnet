@@ -1,34 +1,31 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
+using Moq;
 using NUnit.Framework;
 using RepairsApi.V2.Authorisation;
+using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Services;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace RepairsApi.Tests.V2.Services
 {
     public class CurrentUserServiceTests
     {
+        private Mock<IGroupsGateway> _groupGatewayMock;
         private CurrentUserService _classUnderTest;
 
         [SetUp]
         public void SetUp()
         {
-            GroupOptions options = new GroupOptions
-            {
-                SecurityGroups = new Dictionary<string, PermissionsModel>(),
-                RaiseLimitGroups = new Dictionary<string, SpendLimitModel>(),
-                VaryLimitGroups = new Dictionary<string, SpendLimitModel>()
-            };
-            _classUnderTest = new CurrentUserService(new NullLogger<CurrentUserService>(), Options.Create(options));
+            _groupGatewayMock = new Mock<IGroupsGateway>();
+            _classUnderTest = new CurrentUserService(new NullLogger<CurrentUserService>(), _groupGatewayMock.Object);
         }
 
         [Test]
-        public void SetsUser()
+        public async Task SetsUser()
         {
             const string JWT = TestUserInformation.JWT;
-            _classUnderTest.LoadUser(JWT);
+            await _classUnderTest.LoadUser(JWT);
 
             var user = _classUnderTest.GetUser();
 
@@ -38,10 +35,10 @@ namespace RepairsApi.Tests.V2.Services
         }
 
         [Test]
-        public void NullUserFromBadJWT()
+        public async Task NullUserFromBadJWT()
         {
             const string JWT = "NotAValidJWT";
-            _classUnderTest.LoadUser(JWT);
+            await _classUnderTest.LoadUser(JWT);
 
             var user = _classUnderTest.GetUser();
 

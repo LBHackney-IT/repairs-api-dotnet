@@ -85,7 +85,6 @@ namespace RepairsApi.Tests
 
         private readonly ApiGateway _innerGateway;
 
-        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Tests")]
         public MockApiGateway(IHttpClientFactory innerFactory)
         {
             var handlerMock = MockHttpMessageHandler.FromClass<MockApiGateway>();

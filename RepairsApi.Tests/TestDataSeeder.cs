@@ -1,5 +1,6 @@
 using Bogus;
 using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Infrastructure.Hackney;
 using System;
@@ -59,8 +60,28 @@ namespace RepairsApi.Tests
                     SeedPropertyMap(ctx);
 
                     SeedSorMap(ctx);
+
+                    SeedSecurityGroups(ctx);
                 }
             }
+        }
+
+        private static void SeedSecurityGroups(RepairsContext ctx)
+        {
+            ctx.SecurityGroups.AddRange(new List<SecurityGroup>
+            {
+                new SecurityGroup { GroupName = "agent", UserType = UserGroups.AGENT },
+                new SecurityGroup { GroupName = "contractor-test", UserType = UserGroups.CONTRACTOR, ContractorReference = "contractor" },
+
+                new SecurityGroup { GroupName = "raise50", RaiseLimit = 50 },
+                new SecurityGroup { GroupName = "raise100", RaiseLimit = 100 },
+                new SecurityGroup { GroupName = "raise150", RaiseLimit = 150 },
+
+                new SecurityGroup { GroupName = "vary50", VaryLimit = 50 },
+                new SecurityGroup { GroupName = "vary100", VaryLimit = 100 },
+                new SecurityGroup { GroupName = "vary150", VaryLimit = 150 },
+            });
+            ctx.SaveChanges();
         }
 
         private static void SeedSorMap(RepairsContext ctx)

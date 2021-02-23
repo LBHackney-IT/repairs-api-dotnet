@@ -60,7 +60,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = SecurityGroup.AGENT)]
+        [Authorize(Roles = UserGroups.AGENT)]
         public IActionResult RaiseRepair([FromBody] RaiseRepair request)
         {
             throw new NotSupportedException("migrate to schedule repair");
@@ -86,7 +86,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = SecurityGroup.AGENT)]
+        [Authorize(Roles = UserGroups.AGENT)]
         public async Task<IActionResult> ScheduleRepair([FromBody] ScheduleRepair request)
         {
             try
@@ -168,7 +168,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = SecurityGroup.CONTRACTOR)]
+        [Authorize(Roles = UserGroups.CONTRACTOR)]
 
         public async Task<IActionResult> JobStatusUpdate([FromBody] JobStatusUpdate request)
         {

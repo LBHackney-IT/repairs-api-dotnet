@@ -61,7 +61,7 @@ namespace RepairsApi.V2.Gateways
 
         private bool UserCanAccess(WorkOrder workOrder)
         {
-            if (_currentUserService.HasGroup(SecurityGroup.AGENT)) return true;
+            if (_currentUserService.HasGroup(UserGroups.AGENT)) return true;
 
             if (_currentUserService.TryGetContractor(out string contractor))
             {
@@ -98,7 +98,7 @@ namespace RepairsApi.V2.Gateways
     {
         public static IQueryable<WorkOrder> RestrictContractor(this IQueryable<WorkOrder> source, ICurrentUserService userService)
         {
-            if (userService.HasGroup(SecurityGroup.AGENT)) return source;
+            if (userService.HasGroup(UserGroups.AGENT)) return source;
 
             if (userService.TryGetContractor(out string contractor))
             {

@@ -1,13 +1,12 @@
 using JWT.Builder;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Domain;
+using RepairsApi.V2.Gateways;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace RepairsApi.V2.Services
 {
@@ -15,16 +14,16 @@ namespace RepairsApi.V2.Services
     public class CurrentUserService : ICurrentUserLoader, ICurrentUserService
     {
         private readonly ILogger<CurrentUserService> _logger;
-        private readonly GroupOptions _options;
+        private readonly IGroupsGateway _groupsGateway;
         private ClaimsPrincipal? _user = null;
 
-        public CurrentUserService(ILogger<CurrentUserService> logger, IOptions<GroupOptions> options)
+        public CurrentUserService(ILogger<CurrentUserService> logger, IGroupsGateway groupsGateway)
         {
             _logger = logger;
-            _options = options.Value;
+            _groupsGateway = groupsGateway;
         }
 
-        public void LoadUser(string jwt)
+        public async Task LoadUser(string jwt)
         {
             if (string.IsNullOrWhiteSpace(jwt)) return;
             try
@@ -32,7 +31,7 @@ namespace RepairsApi.V2.Services
                 var jwtUser = new JwtBuilder()
                         .Decode<User>(jwt);
 
-                _user = MapUser(jwtUser);
+                _user = await MapUser(jwtUser);
             }
             catch (Exception e)
             {
@@ -61,37 +60,33 @@ namespace RepairsApi.V2.Services
             return !string.IsNullOrWhiteSpace(contractor);
         }
 
-        private ClaimsPrincipal MapUser(User user)
+        private async Task<ClaimsPrincipal> MapUser(User user)
         {
             var identity = new ClaimsIdentity();
 
             identity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
             identity.AddClaim(new Claim(ClaimTypes.Name, user.Name));
 
-            var raiseLimit = 0.0;
-            var varyLimit = 0.0;
+            double varyLimit = 0;
+            double raiseLimit = 0;
 
-            foreach (var group in user.Groups)
+            foreach (var group in await _groupsGateway.GetMatchingGroups(user.Groups.ToArray()))
             {
-                if (_options.SecurityGroups.TryGetValue(group, out PermissionsModel? perms))
-                {
-                    identity.AddClaim(new Claim(ClaimTypes.Role, perms.SecurityGroup.ToString()));
+                if (!string.IsNullOrWhiteSpace(group.ContractorReference))
+                    identity.AddClaim(new Claim(CustomClaimTypes.CONTRACTOR, group.ContractorReference));
 
-                    if (!string.IsNullOrWhiteSpace(perms.ContractorReference))
-                    {
-                        identity.AddClaim(new Claim(CustomClaimTypes.CONTRACTOR, perms.ContractorReference));
-                    }
-                }
+                if (!string.IsNullOrWhiteSpace(group.UserType))
+                    identity.AddClaim(new Claim(ClaimTypes.Role, group.UserType));
 
-                if (_options.RaiseLimitGroups.TryGetValue(group, out SpendLimitModel? newRaiseLimit))
-                {
-                    raiseLimit = Math.Max(raiseLimit, newRaiseLimit.Limit);
-                }
+                if (!string.IsNullOrWhiteSpace(group.UserType))
+                    identity.AddClaim(new Claim(ClaimTypes.Role, group.UserType));
 
-                if (_options.VaryLimitGroups.TryGetValue(group, out SpendLimitModel? newVaryLimit))
-                {
-                    varyLimit = Math.Max(varyLimit, newVaryLimit.Limit);
-                }
+                if (group.VaryLimit.HasValue)
+                    varyLimit = Math.Max(varyLimit, group.VaryLimit.Value);
+
+                if (group.RaiseLimit.HasValue)
+                    varyLimit = Math.Max(raiseLimit, group.RaiseLimit.Value);
+
             }
 
             identity.AddClaim(new Claim(CustomClaimTypes.RAISELIMIT, raiseLimit.ToString(CultureInfo.InvariantCulture)));

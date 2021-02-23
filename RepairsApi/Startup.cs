@@ -141,8 +141,6 @@ namespace RepairsApi
             services.AddScoped<ICurrentUserLoader>(sp => sp.GetService<CurrentUserService>());
             services.AddTransient<ITransactionManager, TransactionManager>();
             services.AddSingleton<IAuthenticationService, ChallengeOnlyAuthenticationService>();
-
-            services.Configure<GroupOptions>(Configuration.GetSection(nameof(GroupOptions)));
         }
 
         private static void RegisterGateways(IServiceCollection services)
@@ -157,6 +155,7 @@ namespace RepairsApi
             services.AddTransient<IJobStatusUpdateGateway, JobStatusUpdateGateway>();
             services.AddTransient<ISorPriorityGateway, SorPriorityGateway>();
             services.AddTransient<IAppointmentsGateway, AppointmentGateway>();
+            services.AddTransient<IGroupsGateway, GroupsGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
@@ -210,12 +209,8 @@ namespace RepairsApi
                 );
         }
 
-        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, IOptions<GroupOptions> groupOptions, ILogger<Startup> logger)
+        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            var options = groupOptions.Value;
-
-            logger.LogInformation($"Recieved Groups [{options}] from config");
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

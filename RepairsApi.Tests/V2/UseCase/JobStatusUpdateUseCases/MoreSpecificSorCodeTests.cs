@@ -69,7 +69,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             await _classUnderTest.Execute(request);
 
             codeToModify.Should().BeEquivalentTo(expectedNewCode,
-                option => option.Excluding(x => x.Id).Excluding(x => x.Original));
+                option => option.Excluding(x => x.Id).Excluding(x => x.Original).Excluding(x => x.OriginalQuantity));
         }
 
         [Test]

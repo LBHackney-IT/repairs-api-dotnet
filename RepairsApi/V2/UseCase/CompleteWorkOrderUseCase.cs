@@ -61,7 +61,7 @@ namespace RepairsApi.V2.UseCase
                         await HandleCustomType(workOrderId, update);
                         break;
                     case Generated.JobStatusUpdateTypeCode._70: // Denied Access
-                        if (!_currentUserService.HasGroup(SecurityGroup.CONTRACTOR)) throw new UnauthorizedAccessException("Not Authorised to close jobs");
+                        if (!_currentUserService.HasGroup(UserGroups.CONTRACTOR)) throw new UnauthorizedAccessException("Not Authorised to close jobs");
                         await _repairsGateway.UpdateWorkOrderStatus(workOrderId, WorkStatusCode.NoAccess);
                         break;
                     default: throw new NotSupportedException("Unsupported workorder complete job status update code");
@@ -74,11 +74,11 @@ namespace RepairsApi.V2.UseCase
             switch (update.OtherType)
             {
                 case CustomJobStatusUpdates.COMPLETED:
-                    if (!_currentUserService.HasGroup(SecurityGroup.CONTRACTOR)) throw new UnauthorizedAccessException("Not Authorised to close jobs");
+                    if (!_currentUserService.HasGroup(UserGroups.CONTRACTOR)) throw new UnauthorizedAccessException("Not Authorised to close jobs");
                     await _repairsGateway.UpdateWorkOrderStatus(workOrderId, WorkStatusCode.Complete);
                     break;
                 case CustomJobStatusUpdates.CANCELLED:
-                    if (!_currentUserService.HasGroup(SecurityGroup.AGENT)) throw new UnauthorizedAccessException("Not Authorised to cancel jobs");
+                    if (!_currentUserService.HasGroup(UserGroups.AGENT)) throw new UnauthorizedAccessException("Not Authorised to cancel jobs");
                     await _repairsGateway.UpdateWorkOrderStatus(workOrderId, WorkStatusCode.Canceled);
                     break;
                 default: throw new NotSupportedException("Unsupported workorder complete job status update code");

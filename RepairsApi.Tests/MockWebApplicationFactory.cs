@@ -92,9 +92,8 @@ namespace RepairsApi.Tests
 
         protected string GetGroup(string contractor)
         {
-            var groups = Server.Services.GetService<IOptions<GroupOptions>>().Value;
-
-            return groups.SecurityGroups.Where(kv => kv.Value.ContractorReference == contractor).Select(kv => kv.Key).Single();
+            using var ctx = GetContext();
+            return ctx.DB.SecurityGroups.Where(sg => sg.ContractorReference == contractor).Select(sg => sg.GroupName).Single();
         }
     }
 

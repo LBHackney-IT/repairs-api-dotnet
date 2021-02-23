@@ -44,7 +44,7 @@ namespace RepairsApi.V2.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = SecurityGroup.AGENT)]
+        [Authorize(Roles = UserGroups.AGENT)]
         public async Task<IActionResult> ListRecords([FromQuery] string tradeCode, [FromQuery] string propertyReference, [FromQuery] string contractorReference)
         {
             if (string.IsNullOrWhiteSpace(tradeCode) && string.IsNullOrWhiteSpace(propertyReference) && string.IsNullOrWhiteSpace(contractorReference))
@@ -74,7 +74,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(IEnumerable<SORPriority>), StatusCodes.Status200OK)]
         [HttpGet]
         [Route("priorities")]
-        [Authorize(Roles = SecurityGroup.AGENT)]
+        [Authorize(Roles = UserGroups.AGENT)]
         public async Task<IActionResult> ListPriorities()
         {
             return Ok(await _priorityGateway.GetPriorities());

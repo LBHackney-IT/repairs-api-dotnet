@@ -89,8 +89,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
 
             _typeStack.Push(actualType);
 
-            IValueGenerator gen;
-            if (_generators.TryGetValue(actualType, out gen))
+            if (_generators.TryGetValue(actualType, out IValueGenerator gen))
             {
                 _typeStack.Pop();
                 return gen.Create();
