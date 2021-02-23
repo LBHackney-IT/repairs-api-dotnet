@@ -65,14 +65,20 @@ namespace RepairsApi.Tests
 
         private static void SeedSorMap(RepairsContext ctx)
         {
-            var generator = new Generator<SORContract>()
-                .AddDefaultGenerators()
-                .AddGenerator(() => PickCode(ContractReferences), (SORContract c) => c.ContractReference)
-                .AddGenerator(() => PickCode(SorCodes), (SORContract c) => c.SorCodeCode)
-                .Ignore((SORContract c) => c.Contract)
-                .Ignore((SORContract c) => c.SorCode);
+            List<SORContract> entities = new List<SORContract>();
 
-            IEnumerable<SORContract> entities = generator.GenerateList(100).Distinct();
+            foreach (var code in SorCodes)
+            {
+                foreach (var contract in ContractReferences)
+                {
+                    entities.Add(new SORContract
+                    {
+                        ContractReference = contract,
+                        Cost = 5,
+                        SorCodeCode = code
+                    });
+                }
+            }
 
             ctx.Set<SORContract>().AddRange(entities);
             ctx.Set<SORContract>().Add(new SORContract
@@ -91,7 +97,7 @@ namespace RepairsApi.Tests
                 .AddGenerator(() => PickCode(PropertyReferences), (PropertyContract c) => c.PropRef)
                 .Ignore((PropertyContract c) => c.Contract);
 
-            IEnumerable<PropertyContract> entities = generator.GenerateList(100).Distinct();
+            IEnumerable<PropertyContract> entities = generator.GenerateList(40).Distinct();
 
             ctx.Set<PropertyContract>().AddRange(entities);
             ctx.Set<PropertyContract>().Add(new PropertyContract
@@ -113,7 +119,7 @@ namespace RepairsApi.Tests
                 .Ignore((Contract c) => c.SorCodeMap)
                 .Ignore((Contract c) => c.Contractor);
 
-            ctx.Set<Contract>().AddRange(generator.GenerateList(100));
+            ctx.Set<Contract>().AddRange(generator.GenerateList(10));
             ctx.Set<Contract>().Add(new Contract
             {
                 ContractorReference = Contractor,
@@ -130,7 +136,7 @@ namespace RepairsApi.Tests
                 .AddGenerator(() => SeedCode(ContractorReferences), (Contractor c) => c.Reference)
                 .AddValue(null, (Contractor c) => c.Contracts);
 
-            ctx.Set<Contractor>().AddRange(generator.GenerateList(100));
+            ctx.Set<Contractor>().AddRange(generator.GenerateList(5));
             ctx.Set<Contractor>().Add(new Contractor
             {
                 Name = Contractor,
@@ -140,7 +146,7 @@ namespace RepairsApi.Tests
 
         private static void SeedPropref()
         {
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 5; i++)
             {
                 SeedCode(PropertyReferences);
             }
@@ -158,7 +164,7 @@ namespace RepairsApi.Tests
                 .Ignore((ScheduleOfRates sor) => sor.Trade)
                 .Ignore((ScheduleOfRates sor) => sor.SorCodeMap);
 
-            ctx.Set<ScheduleOfRates>().AddRange(generator.GenerateList(100));
+            ctx.Set<ScheduleOfRates>().AddRange(generator.GenerateList(10));
             ctx.Set<ScheduleOfRates>().Add(new ScheduleOfRates
             {
                 Enabled = true,
@@ -177,7 +183,7 @@ namespace RepairsApi.Tests
                 .AddDefaultGenerators()
                 .AddGenerator(() => SeedCode(PriorityCodes), (SORPriority sp) => sp.PriorityCode);
 
-            ctx.Set<SORPriority>().AddRange(generator.GenerateList(100));
+            ctx.Set<SORPriority>().AddRange(generator.GenerateList(3));
             ctx.Set<SORPriority>().Add(new SORPriority
             {
                 Description = Priority,
@@ -191,7 +197,7 @@ namespace RepairsApi.Tests
                 .AddDefaultGenerators()
                 .AddGenerator(() => SeedCode(TradeCodes), (SorCodeTrade sct) => sct.Code);
 
-            ctx.Set<SorCodeTrade>().AddRange(generator.GenerateList(100));
+            ctx.Set<SorCodeTrade>().AddRange(generator.GenerateList(10));
 
             ctx.Set<SorCodeTrade>().Add(new SorCodeTrade
             {

@@ -66,7 +66,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             {
                 generator = GenerateWorkOrder<ScheduleRepair>()
                     .AddValue(new List<double> { 1 }, (RateScheduleItem rsi) => rsi.Quantity.Amount)
-                    .WithValidCodes(ctx.DB);
+                    .WithSorCodes(ctx.DB.SORCodes.Select(s => s.Code).ToArray());
             }
 
             var request = generator.Generate();
@@ -85,7 +85,8 @@ namespace RepairsApi.Tests.V2.E2ETests
             var client = CreateClient();
 
             Generator<ScheduleRepair> generator = GenerateWorkOrder<ScheduleRepair>()
-                .AddValue(new List<double>{ 1000 }, (RateScheduleItem rsi) => rsi.Quantity.Amount);
+                .AddValue(new List<double> { 1000 }, (RateScheduleItem rsi) => rsi.Quantity.Amount)
+                .AddValue(TestDataSeeder.SorCode, (RateScheduleItem rsi) => rsi.CustomCode);
 
             var request = generator.Generate();
             var serializedContent = JsonConvert.SerializeObject(request);
@@ -324,7 +325,7 @@ namespace RepairsApi.Tests.V2.E2ETests
                 gen = new Generator<T>()
                                 .AddWorkOrderGenerators()
                                 .AddValue(new List<double> { 0 }, (RateScheduleItem rsi) => rsi.Quantity.Amount)
-                                .WithValidCodes(db);
+                                .WithSorCodes(db.SORCodes.Select(s => s.Code).ToArray());
             };
 
             return gen;

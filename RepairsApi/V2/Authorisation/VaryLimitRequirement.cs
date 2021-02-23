@@ -39,15 +39,15 @@ namespace RepairsApi.V2.Authorisation
             var contractorRef = workOrder.AssignedToPrimary.ContractorReference;
 
             var rawCodes = resource.MoreSpecificSORCode.RateScheduleItem
-                .Select(rsi => (code: rsi.CustomCode, amount: rsi.Quantity.Amount.Sum())).ToList();
+                .Select(rsi => new { rsi.CustomCode, Amount = rsi.Quantity.Amount.Sum() }).ToList();
 
             rawCodes.AddRange(workOrder.WorkElements
                 .SelectMany(we => we.RateScheduleItem)
                 .Where(rsi => !rsi.Original)
-                .Select(rsi => (code: rsi.CustomCode, amount: rsi.Quantity.Amount)));
+                .Select(rsi => new { rsi.CustomCode, Amount = rsi.Quantity.Amount }));
 
             double totalCost = 0;
-            await rawCodes.ForEachAsync(async c => totalCost += c.amount * await _sorGateway.GetCost(contractorRef, c.code) ?? 0);
+            await rawCodes.ForEachAsync(async c => totalCost += c.Amount * await _sorGateway.GetCost(contractorRef, c.CustomCode));
 
             var limit = double.Parse(context.User.FindFirst(CustomClaimTypes.RAISELIMIT).Value);
 

@@ -75,29 +75,13 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                 .SetListLength<RateScheduleItem>(1);
         }
 
-        public static Generator<T> WithSorCodes<T>(this Generator<T> generator, params (string sorCode,string contractorRef)[] sorCodes)
+        public static Generator<T> WithSorCodes<T>(this Generator<T> generator, params string[] sorCodes)
         {
             Random rand = new Random();
             var sorCode = sorCodes[rand.Next(sorCodes.Length)];
 
             return generator
-                .AddGenerator(() => sorCode.sorCode, (RateScheduleItem rsi) => rsi.CustomCode)
-                .AddGenerator(() => sorCode.contractorRef, (Reference r) => r.ID);
-        }
-
-        public static Generator<T> WithValidCodes<T>(this Generator<T> generator, RepairsApi.V2.Infrastructure.RepairsContext ctx)
-        {
-            var sorCodes = ctx.SORCodes
-                .Select(sor => new { sor.Code, sor.SorCodeMap.FirstOrDefault().Contract.ContractorReference })
-                .Where(c => !string.IsNullOrEmpty(c.ContractorReference))
-                .ToArray();
-
-            Random rand = new Random();
-            var sorCode = sorCodes[rand.Next(sorCodes.Length)];
-
-            return generator
-                .AddGenerator(() => sorCode.Code, (RateScheduleItem rsi) => rsi.CustomCode)
-                .AddGenerator(() => sorCode.ContractorReference, (Reference r) => r.ID);
+                .AddGenerator(() => sorCode, (RateScheduleItem rsi) => rsi.CustomCode);
         }
 
         public static Generator<T> AddInfrastructureWorkOrderGenerators<T>(this Generator<T> generator)

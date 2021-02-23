@@ -34,7 +34,7 @@ namespace RepairsApi.V2.Authorisation
                 .SelectMany(we => we.RateScheduleItem)
                 .Select(rsi => new { rsi.CustomCode, Amount = rsi.Quantity.Amount.Sum() });
             double totalCost = 0;
-            await rawCodes.ForEachAsync(async c => totalCost += c.Amount * await _sorGateway.GetCost(contractorRef, c.CustomCode) ?? 0);
+            await rawCodes.ForEachAsync(async c => totalCost += c.Amount * await _sorGateway.GetCost(contractorRef, c.CustomCode));
 
             var limit = double.Parse(context.User.FindFirst(CustomClaimTypes.RAISELIMIT).Value);
 

@@ -17,7 +17,9 @@ namespace RepairsApi.Tests.V2.Services
         {
             GroupOptions options = new GroupOptions
             {
-                SecurityGroups = new Dictionary<string, PermissionsModel>()
+                SecurityGroups = new Dictionary<string, PermissionsModel>(),
+                RaiseLimitGroups = new Dictionary<string, SpendLimitModel>(),
+                VaryLimitGroups = new Dictionary<string, SpendLimitModel>()
             };
             _classUnderTest = new CurrentUserService(new NullLogger<CurrentUserService>(), Options.Create(options));
         }

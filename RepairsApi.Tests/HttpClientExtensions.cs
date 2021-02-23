@@ -33,7 +33,8 @@ namespace RepairsApi.Tests
                 Groups = new List<string>()
                 {
                     "agent",
-                    "raise50"
+                    "raise50",
+                    "vary50"
                 }
             });
         }
@@ -46,7 +47,9 @@ namespace RepairsApi.Tests
                 Email = TestUserInformation.EMAIL,
                 Groups = new List<string>()
                 {
-                    group
+                    group,
+                    "raise50",
+                    "vary50"
                 }
             });
         }
