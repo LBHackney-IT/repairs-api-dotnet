@@ -13,6 +13,7 @@ using RepairsApi.V2.Controllers.Parameters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using RepairsApi.V2.Authorisation;
+using Microsoft.FeatureManagement;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -30,6 +31,7 @@ namespace RepairsApi.V2.Controllers
         private readonly IGetWorkOrderUseCase _getWorkOrderUseCase;
         private readonly IListWorkOrderTasksUseCase _listWorkOrderTasksUseCase;
         private readonly IListWorkOrderNotesUseCase _listWorkOrderNotesUseCase;
+        private readonly IFeatureManager _featureManager;
 
         public RepairsController(
             IAuthorizationService authorizationService,
@@ -39,7 +41,8 @@ namespace RepairsApi.V2.Controllers
             IUpdateJobStatusUseCase updateJobStatusUseCase,
             IGetWorkOrderUseCase getWorkOrderUseCase,
             IListWorkOrderTasksUseCase listWorkOrderTasksUseCase,
-            IListWorkOrderNotesUseCase listWorkOrderNotesUseCase)
+            IListWorkOrderNotesUseCase listWorkOrderNotesUseCase,
+            IFeatureManager featureManager)
         {
             _authorizationService = authorizationService;
             _createWorkOrderUseCase = createWorkOrderUseCase;
@@ -49,6 +52,7 @@ namespace RepairsApi.V2.Controllers
             _getWorkOrderUseCase = getWorkOrderUseCase;
             _listWorkOrderTasksUseCase = listWorkOrderTasksUseCase;
             _listWorkOrderNotesUseCase = listWorkOrderNotesUseCase;
+            _featureManager = featureManager;
         }
 
         /// <summary>
@@ -92,7 +96,7 @@ namespace RepairsApi.V2.Controllers
             try
             {
                 var authorised = await _authorizationService.AuthorizeAsync(User, request, "RaiseSpendLimit");
-                if (!authorised.Succeeded) return Unauthorized("Request Work Order is above Spend Limit");
+                if (!authorised.Succeeded && await _featureManager.IsEnabledAsync(FeatureFlags.SPENDLIMITS)) return Unauthorized("Request Work Order is above Spend Limit");
 
                 var result = await _createWorkOrderUseCase.Execute(request.ToDb());
                 return Ok(result);
@@ -173,7 +177,7 @@ namespace RepairsApi.V2.Controllers
         public async Task<IActionResult> JobStatusUpdate([FromBody] JobStatusUpdate request)
         {
             var authorised = await _authorizationService.AuthorizeAsync(User, request, "VarySpendLimit");
-            if (!authorised.Succeeded) return Unauthorized("Resulting Work Order is above Spend Limit");
+            if (!authorised.Succeeded && await _featureManager.IsEnabledAsync(FeatureFlags.SPENDLIMITS)) return Unauthorized("Resulting Work Order is above Spend Limit");
 
             await _updateJobStatusUseCase.Execute(request);
             return Ok();

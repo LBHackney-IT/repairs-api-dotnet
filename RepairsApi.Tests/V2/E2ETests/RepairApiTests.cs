@@ -211,8 +211,8 @@ namespace RepairsApi.Tests.V2.E2ETests
 
         private void AddCode(string expectedCode)
         {
-            using (var ctx = GetContext())
-                TestDataSeeder.AddCode(ctx.DB, expectedCode);
+            using var ctx = GetContext();
+            TestDataSeeder.AddCode(ctx.DB, expectedCode);
         }
 
         [Test]

@@ -22,6 +22,7 @@ using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 using RepairsApi.V2.Domain;
 using RepairsApi.Tests.Helpers;
+using Microsoft.FeatureManagement;
 
 namespace RepairsApi.Tests.V2.Controllers
 {
@@ -36,6 +37,7 @@ namespace RepairsApi.Tests.V2.Controllers
         private Mock<IGetWorkOrderUseCase> _getWorkOrderUseCase;
         private Mock<IListWorkOrderTasksUseCase> _listWorkOrderTasksUseCase;
         private Mock<IListWorkOrderNotesUseCase> _listWorkOrderNotesUseCase;
+        private Mock<IFeatureManager> _featureManager;
         private Mock<IAuthorizationService> _authMock;
 
         [SetUp]
@@ -52,6 +54,7 @@ namespace RepairsApi.Tests.V2.Controllers
             _getWorkOrderUseCase = new Mock<IGetWorkOrderUseCase>();
             _listWorkOrderTasksUseCase = new Mock<IListWorkOrderTasksUseCase>();
             _listWorkOrderNotesUseCase = new Mock<IListWorkOrderNotesUseCase>();
+            _featureManager = new Mock<IFeatureManager>();
             _classUnderTest = new RepairsController(
                 _authMock.Object,
                 _createWorkOrderUseCaseMock.Object,
@@ -60,7 +63,8 @@ namespace RepairsApi.Tests.V2.Controllers
                 _updateJobStatusUseCase.Object,
                 _getWorkOrderUseCase.Object,
                 _listWorkOrderTasksUseCase.Object,
-                _listWorkOrderNotesUseCase.Object
+                _listWorkOrderNotesUseCase.Object,
+                _featureManager.Object
             );
         }
 
