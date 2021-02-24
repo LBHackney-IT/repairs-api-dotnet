@@ -28,158 +28,173 @@ namespace RepairsApi.Tests.V2.E2ETests
     [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Tests")]
     public class RepairApiTests : MockWebApplicationFactory
     {
+
         [Test]
         public async Task ScheduleRepair()
         {
-            var client = CreateClient();
+            // Arrange
+            var request = GenerateWorkOrder<ScheduleRepair>()
+                .AddValue(new List<double> { 1 }, (RateScheduleItem rsi) => rsi.Quantity.Amount)
+                .Generate();
 
-            Generator<ScheduleRepair> generator;
-            using (var ctx = GetContext())
-            {
-                generator = GenerateWorkOrder<ScheduleRepair>()
-                    .AddValue(new List<double> { 1 }, (RateScheduleItem rsi) => rsi.Quantity.Amount);
-            }
+            // Act
+            var (code, response) = await Post<int>("/api/v2/repairs/schedule", request);
 
-            var request = generator.Generate();
-            var serializedContent = JsonConvert.SerializeObject(request);
-            StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
-
-            await ScheduleRepairAndValidate(client, content, repair =>
-            {
-                repair.WorkPriority.NumberOfDays.Should().Be(request.Priority.NumberOfDays);
-            });
+            // Assert
+            code.Should().Be(HttpStatusCode.OK);
+            var wo = GetWorkOrderFromDB(response);
+            wo.WorkPriority.NumberOfDays.Should().Be(request.Priority.NumberOfDays);
         }
 
         [Test]
         public async Task ScheduleReturns401WhenLimitExceeded()
         {
-            var client = CreateClient();
-
-            Generator<ScheduleRepair> generator = GenerateWorkOrder<ScheduleRepair>()
+            // Arrange
+            var request = GenerateWorkOrder<ScheduleRepair>()
                 .AddValue(new List<double> { 1000 }, (RateScheduleItem rsi) => rsi.Quantity.Amount)
-                .AddValue(TestDataSeeder.SorCode, (RateScheduleItem rsi) => rsi.CustomCode);
+                .AddValue(TestDataSeeder.SorCode, (RateScheduleItem rsi) => rsi.CustomCode)
+                .Generate();
 
-            var request = generator.Generate();
-            var serializedContent = JsonConvert.SerializeObject(request);
-            StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
+            // Act
+            var (code, response) = await Post<string>("/api/v2/repairs/schedule", request);
 
-            var response = await client.PostAsync(new Uri("/api/v2/repairs/schedule", UriKind.Relative), content);
-            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+            // Assert
+            code.Should().Be(HttpStatusCode.Unauthorized);
+        }
+
+        private async Task<int> CreateWorkOrder()
+        {
+            var request = GenerateWorkOrder<ScheduleRepair>()
+                .AddValue(new List<double> { 1 }, (RateScheduleItem rsi) => rsi.Quantity.Amount)
+                .Generate();
+
+            var (_, response) = await Post<int>("/api/v2/repairs/schedule", request);
+
+            return response;
         }
 
         [Test]
         public async Task ViewElements()
         {
-            var client = CreateClient();
+            var id = await CreateWorkOrder();
 
-            Generator<ScheduleRepair> generator = GenerateWorkOrder<ScheduleRepair>();
+            var (code, response) = await Get<IEnumerable<WorkOrderItemViewModel>>($"/api/v2/repairs/{id}/tasks");
 
-            var request = generator.Generate();
-            var serializedContent = JsonConvert.SerializeObject(request);
-            StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
+            code.Should().Be(HttpStatusCode.OK);
+            response.Should().NotBeEmpty(); // More precise check
+        }
 
-            var woId = await ScheduleRepairAndValidate(client, content);
+        public async Task<IEnumerable<WorkOrderItemViewModel>> GetTasks(int workOrderId)
+        {
+            var (_, response) = await Get<IEnumerable<WorkOrderItemViewModel>>($"/api/v2/repairs/{workOrderId}/tasks");
 
-            var response = await client.GetAsync(new Uri($"/api/v2/repairs/{woId}/tasks", UriKind.Relative));
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            string responseContent = await response.Content.ReadAsStringAsync();
-            var workOrders = JsonConvert.DeserializeObject<IEnumerable<WorkOrderItemViewModel>>(responseContent);
-
-            int requestItemCount = request.WorkElement.Aggregate(0, (count, we) => count + we.RateScheduleItem.Count);
-            workOrders.Should().HaveCount(requestItemCount);
+            return response;
         }
 
         [Test]
         public async Task BadRequestWhenMultipleAmountsProvided()
         {
-            var client = CreateClient();
-
-            var request = GenerateWorkOrder<RaiseRepair>().Generate();
+            // Arrange
+            var request = GenerateWorkOrder<ScheduleRepair>().Generate();
             request.WorkElement.First().RateScheduleItem.First().Quantity.Amount.Add(3.5);
-            var serializedContent = JsonConvert.SerializeObject(request);
-            StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
 
-            var response = await client.PostAsync(new Uri("/api/v2/repairs", UriKind.Relative), content);
+            // Act
+            var code = await Post("/api/v2/repairs/schedule", request);
 
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        }
-
-        [Test]
-        public async Task BadRequestWhenDoesntHaveRequiredFromJson()
-        {
-            var client = CreateClient();
-            client.SetAgent();
-            string request = Requests.InvalidRaiseRepair;
-            StringContent content = new StringContent(request, Encoding.UTF8, "application/json");
-
-            var response = await client.PostAsync(new Uri("/api/v2/repairs", UriKind.Relative), content);
-
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            // Assert
+            code.Should().Be(HttpStatusCode.BadRequest);
         }
 
         [Test]
         public async Task GetListOfWorkOrders()
         {
-            var client = CreateClient();
+            // Arrange
+            var workOrderId = await CreateWorkOrder();
 
-            var request = GenerateWorkOrder<ScheduleRepair>().Generate();
-            request.DescriptionOfWork = "expectedDescription";
-            var serializedContent = JsonConvert.SerializeObject(request);
-            StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
+            // Act
+            var (code, response) = await Get<List<WorkOrderListItem>>("/api/v2/repairs");
 
-            await ScheduleRepairAndValidate(client, content);
-
-            var response = await client.GetAsync(new Uri("/api/v2/repairs", UriKind.Relative));
-
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            string responseContent = await response.Content.ReadAsStringAsync();
-            var workOrders = JsonConvert.DeserializeObject<List<WorkOrderListItem>>(responseContent);
-            workOrders.Should().Contain(wo => wo.Description == request.DescriptionOfWork);
+            // Assert
+            code.Should().Be(HttpStatusCode.OK);
+            response.Should().Contain(wo => wo.Reference == workOrderId);
         }
 
-
         [Test]
-        public async Task CompleteScheduleRepairWorkOrder()
+        public async Task NewCompleteScheduleRepairWorkOrder()
         {
-            string endpoint = "/api/v2/repairs/schedule";
-            Generator<ScheduleRepair> requestGenerator = GenerateWorkOrder<ScheduleRepair>();
+            // Arrange
+            var id = await CreateWorkOrder();
+            var request = new Generator<WorkOrderComplete>()
+                            .AddWorkOrderCompleteGenerators()
+                            .AddValue(id.ToString(), (WorkOrderComplete woc) => woc.WorkOrderReference.ID)
+                            .AddValue(JobStatusUpdateTypeCode._0, (JobStatusUpdates jsu) => jsu.TypeCode)
+                            .AddValue(CustomJobStatusUpdates.CANCELLED, (JobStatusUpdates jsu) => jsu.OtherType)
+                            .Generate();
 
-            var request = requestGenerator.Generate();
+            // Act
+            var code = await Post("/api/v2/workOrderComplete", request);
 
-            await ValidateCreationAndCompletion(request, endpoint);
+            // Assert
+            code.Should().Be(HttpStatusCode.OK);
+        }
+
+        public async Task<HttpStatusCode> CompleteWorkOrder(int id)
+        {
+            var request = new Generator<WorkOrderComplete>()
+                .AddWorkOrderCompleteGenerators()
+                .AddValue(id.ToString(), (WorkOrderComplete woc) => woc.WorkOrderReference.ID)
+                .AddValue(JobStatusUpdateTypeCode._0, (JobStatusUpdates jsu) => jsu.TypeCode)
+                .AddValue(CustomJobStatusUpdates.CANCELLED, (JobStatusUpdates jsu) => jsu.OtherType)
+                .Generate();
+
+            return await Post("/api/v2/workOrderComplete", request);
         }
 
         [Test]
         public async Task CompleteRepairTwice()
         {
-            string endpoint = "/api/v2/repairs/schedule";
-            Generator<ScheduleRepair> requestGenerator = GenerateWorkOrder<ScheduleRepair>();
+            // Arrange
+            var woId = await CreateWorkOrder();
+            await CompleteWorkOrder(woId);
 
-            var request = requestGenerator.Generate();
-            var client = CreateClient();
+            // Act
+            var secondResponseCode = await CompleteWorkOrder(woId);
 
-            var serializedContent = JsonConvert.SerializeObject(request);
-            StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
-
-            var workOrderId = await ValidateWorkOrderCreation(client, content, null, endpoint);
-
-            var response = await CompleteWorkOrder(client, workOrderId.ToString());
-            var secondResponse = await CompleteWorkOrder(client, workOrderId.ToString());
-
-            response.IsSuccessStatusCode.Should().BeTrue();
-            secondResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            // Assert
+            secondResponseCode.Should().Be(HttpStatusCode.BadRequest);
         }
 
         [Test]
         public async Task UpdateScheduleRepairWorkOrder()
         {
             string expectedCode = "expectedCodeUpdateWorkOrder";
-            AddCode(expectedCode);
+            AddTestCode(expectedCode);
+            var workOrderId = await CreateWorkOrder();
+            var tasks = await GetTasks(workOrderId);
 
-            var (workOrderId, response) = await ScheduleAndUpdateWorkOrder(expectedCode, "comments", 0);
-            await ValidateUpdate(response, workOrderId, expectedCode);
+            var workElement = request.WorkElement.First();
+            var expectedNewCode = new RateScheduleItem
+            {
+                CustomCode = expectedCode,
+                Quantity = new Quantity
+                {
+                    Amount = new List<double>
+                    {
+                        quantity
+                    }
+                }
+            };
+            workElement.RateScheduleItem.Add(expectedNewCode);
+
+            Generator<JobStatusUpdate> generator = new Generator<JobStatusUpdate>()
+                .AddJobStatusUpdateGenerators()
+                .AddValue(JobStatusUpdateTypeCode._80, (JobStatusUpdate jsu) => jsu.TypeCode)
+                .AddValue(workOrderId.ToString(), (JobStatusUpdate jsu) => jsu.RelatedWorkOrderReference.ID)
+                .AddValue(workElement, (JobStatusUpdate jsu) => jsu.MoreSpecificSORCode)
+                .AddValue("comments", (JobStatusUpdate jsu) => jsu.Comments);
+
+            var updateRequest = generator.Generate();
+
         }
 
         [Test]
@@ -196,7 +211,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             const string expectedNote = "expectedNote";
             const string expectedCode = "expectedCodeCanViewNotes";
 
-            AddCode(expectedCode);
+            AddTestCode(expectedCode);
             var (workOrderId, httpResponseMessage) = await ScheduleAndUpdateWorkOrder(expectedCode, expectedNote);
             await ValidateUpdate(httpResponseMessage, workOrderId, expectedCode);
 
@@ -209,7 +224,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             notes.Should().ContainSingle(n => n.Note == expectedNote);
         }
 
-        private void AddCode(string expectedCode)
+        private void AddTestCode(string expectedCode)
         {
             using var ctx = GetContext();
             TestDataSeeder.AddCode(ctx.DB, expectedCode);
@@ -300,53 +315,6 @@ namespace RepairsApi.Tests.V2.E2ETests
             return gen;
         }
 
-        private async Task ValidateCreationAndCompletion(object request, string endpoint)
-        {
-            var client = CreateClient();
-
-            var serializedContent = JsonConvert.SerializeObject(request);
-            StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
-
-            await ValidateWorkOrderCreation(client, content, null, endpoint);
-
-            var response = await client.GetAsync(new Uri("/api/v2/repairs", UriKind.Relative));
-            string responseContent = await response.Content.ReadAsStringAsync();
-            var workOrders = JsonConvert.DeserializeObject<List<WorkOrderListItem>>(responseContent);
-
-            string workOrderId = workOrders.First().Reference.ToString();
-            HttpResponseMessage completeResponse = await CompleteWorkOrder(client, workOrderId);
-
-            completeResponse.StatusCode.Should().Be(HttpStatusCode.OK, await completeResponse.Content.ReadAsStringAsync());
-        }
-
-        private static async Task<HttpResponseMessage> CompleteWorkOrder(HttpClient client, string workOrderId)
-        {
-            Generator<WorkOrderComplete> generator = new Generator<WorkOrderComplete>()
-                .AddWorkOrderCompleteGenerators()
-                .AddValue(workOrderId, (WorkOrderComplete woc) => woc.WorkOrderReference.ID)
-                .AddValue(JobStatusUpdateTypeCode._0, (JobStatusUpdates jsu) => jsu.TypeCode)
-                .AddValue(CustomJobStatusUpdates.CANCELLED, (JobStatusUpdates jsu) => jsu.OtherType);
-
-            var completeRequest = generator.Generate();
-
-            var serializedCompleteContent = JsonConvert.SerializeObject(completeRequest);
-            StringContent completeContent = new StringContent(serializedCompleteContent, Encoding.UTF8, "application/json");
-            var completeResponse = await client.PostAsync(new Uri("/api/v2/workOrderComplete", UriKind.Relative), completeContent);
-            return completeResponse;
-        }
-
-        private async Task RaiseRepairAndValidate(HttpClient client, StringContent content, Action<WorkOrder> assertions = null)
-        {
-            const string uriString = "/api/v2/repairs";
-            await ValidateWorkOrderCreation(client, content, assertions, uriString);
-        }
-
-        private async Task<int> ScheduleRepairAndValidate(HttpClient client, StringContent content, Action<WorkOrder> assertions = null)
-        {
-            const string uriString = "/api/v2/repairs/schedule";
-            return await ValidateWorkOrderCreation(client, content, assertions, uriString);
-        }
-
         private async Task<int> ValidateWorkOrderCreation(HttpClient client, StringContent content, Action<WorkOrder> assertions, string uriString)
         {
             var response = await client.PostAsync(new Uri(uriString, UriKind.Relative), content);
@@ -366,51 +334,12 @@ namespace RepairsApi.Tests.V2.E2ETests
             return id;
         }
 
-        #region [Raise Repair]
-
-        [Test]
-        [Ignore("Raise repair is not currently supported as it does not provide the relevant data for hackneys use cases")]
-        public async Task CompleteRaiseRepairWorkOrder()
+        public WorkOrder GetWorkOrderFromDB(int id)
         {
-            string endpoint = "/api/v2/repairs";
-
-            Generator<RaiseRepair> requestGenerator = GenerateWorkOrder<RaiseRepair>();
-
-            var request = requestGenerator.Generate();
-
-            await ValidateCreationAndCompletion(request, endpoint);
+            using var ctx = GetContext();
+            var db = ctx.DB;
+            var repair = db.WorkOrders.Find(id);
+            return repair;
         }
-
-        [Test]
-        [Ignore("Raise repair is not currently supported as it does not provide the relevant data for hackneys use cases")]
-        public async Task CreateRepairFromFullRequest()
-        {
-            var client = CreateClient();
-
-            var request = GenerateWorkOrder<RaiseRepair>().Generate();
-            var serializedContent = JsonConvert.SerializeObject(request);
-            StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
-
-            await RaiseRepairAndValidate(client, content, repair =>
-            {
-                repair.WorkPriority.NumberOfDays.Should().Be(request.Priority.NumberOfDays);
-                repair.AgentName.Should().Be(TestUserInformation.NAME);
-            });
-        }
-
-        [Test]
-        [Ignore("Raise repair is not currently supported as it does not provide the relevant data for hackneys use cases")]
-        public async Task CreatesRepairFromJson()
-        {
-            var client = CreateClient();
-
-            // These request need to pulled from json to stop c sharp adding in default enum properties
-            string request = Requests.RaiseRepair;
-            StringContent content = new StringContent(request, Encoding.UTF8, "application/json");
-
-            await RaiseRepairAndValidate(client, content);
-        }
-        #endregion
-
     }
 }
