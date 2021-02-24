@@ -229,7 +229,7 @@ namespace RepairsApi.Tests.V2.Controllers
 
             response.AssertForEach(expected, (vm, domain) =>
             {
-                vm.Code.Should().Be(domain.Id);
+                vm.Code.Should().Be(domain.Code);
                 vm.Cost.Should().Be(domain.Cost);
                 vm.DateAdded.Should().Be(domain.DateAdded);
                 vm.Description.Should().Be(domain.Description);

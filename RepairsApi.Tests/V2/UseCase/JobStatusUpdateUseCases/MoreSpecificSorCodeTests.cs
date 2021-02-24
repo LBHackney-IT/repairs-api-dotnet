@@ -4,8 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.FeatureManagement;
 using Moq;
 using NUnit.Framework;
+using RepairsApi.Tests.Helpers;
 using RepairsApi.Tests.V2.Gateways;
 using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Factories;
@@ -23,6 +26,9 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         private Fixture _fixture;
 
         private MockRepairsGateway _repairsGatewayMock;
+        private Mock<IAuthorizationService> _authorisationMock;
+        private CurrentUserServiceMock _currentUserServiceMock;
+        private Mock<IFeatureManager> _featureManagerMock;
         private MoreSpecificSorUseCase _classUnderTest;
 
         [SetUp]
@@ -32,7 +38,11 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _fixture.Behaviors.Remove(new ThrowingRecursionBehavior());
             _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
             _repairsGatewayMock = new MockRepairsGateway();
-            _classUnderTest = new MoreSpecificSorUseCase(_repairsGatewayMock.Object, InMemoryDb.Instance);
+            _authorisationMock = new Mock<IAuthorizationService>();
+            _featureManagerMock = new Mock<IFeatureManager>();
+            _authorisationMock = new Mock<IAuthorizationService>();
+            _currentUserServiceMock = new CurrentUserServiceMock();
+            _classUnderTest = new MoreSpecificSorUseCase(_repairsGatewayMock.Object, _authorisationMock.Object, _featureManagerMock.Object, _currentUserServiceMock.Object);
         }
 
         [Test]
@@ -53,7 +63,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
 
             await _classUnderTest.Execute(request);
 
-            workOrder.WorkElements.Single().RateScheduleItem.Should().BeEquivalentTo(expectedNewCodes, options => options.Excluding(rsi => rsi.Id));
+            workOrder.WorkElements.Single().RateScheduleItem.Should().BeEquivalentTo(expectedNewCodes, options => options.Excluding(rsi => rsi.Id).Excluding(rsi => rsi.DateCreated));
         }
 
         [Test]
@@ -123,7 +133,8 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
                 },
                 CodeCost = toModify.CodeCost,
                 DateCreated = toModify.DateCreated,
-                M3NHFSORCode = toModify.M3NHFSORCode
+                M3NHFSORCode = toModify.M3NHFSORCode,
+                Id = toModify.Id
             };
             return expectedNewCodes;
         }
@@ -135,7 +146,8 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
                 CustomCode = rsi.CustomCode,
                 Quantity = rsi.Quantity.ToResponse(),
                 CustomName = rsi.CustomName,
-                M3NHFSORCode = rsi.M3NHFSORCode
+                M3NHFSORCode = rsi.M3NHFSORCode,
+                Id = rsi.Id.ToString()
             });
 
             return new Generated.JobStatusUpdate

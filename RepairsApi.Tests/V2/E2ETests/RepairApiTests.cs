@@ -21,6 +21,7 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 using Quantity = RepairsApi.V2.Generated.Quantity;
 using RateScheduleItem = RepairsApi.V2.Generated.RateScheduleItem;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
+using RepairsApi.V2.Factories;
 
 namespace RepairsApi.Tests.V2.E2ETests
 {
@@ -253,9 +254,12 @@ namespace RepairsApi.Tests.V2.E2ETests
             var serializedContent = JsonConvert.SerializeObject(request);
             StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
 
-            var workOrderId = await ValidateWorkOrderCreation(client, content, null, endpoint);
-
             var workElement = request.WorkElement.First();
+            var workOrderId = await ValidateWorkOrderCreation(client, content, wo =>
+            {
+                workElement.RateScheduleItem = wo.WorkElements.First().RateScheduleItem.Select(rsi => rsi.ToResponse()).ToList();
+            }, endpoint);
+
             var expectedNewCode = new RateScheduleItem
             {
                 CustomCode = expectedCode,

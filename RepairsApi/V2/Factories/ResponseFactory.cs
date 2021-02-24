@@ -215,7 +215,8 @@ namespace RepairsApi.V2.Factories
                 Quantity = rateScheduleItem.Quantity.ToResponse(),
                 CustomCode = rateScheduleItem.CustomCode,
                 CustomName = rateScheduleItem.CustomName,
-                M3NHFSORCode = rateScheduleItem.M3NHFSORCode
+                M3NHFSORCode = rateScheduleItem.M3NHFSORCode,
+                Id = rateScheduleItem.Id.ToString()
             };
         }
 
@@ -240,8 +241,9 @@ namespace RepairsApi.V2.Factories
         {
             return new WorkOrderItemViewModel
             {
+                Id = domain.Id.ToString(),
                 Quantity = domain.Quantity,
-                Code = domain.Id,
+                Code = domain.Code,
                 Cost = domain.Cost,
                 DateAdded = domain.DateAdded,
                 Description = domain.Description,
