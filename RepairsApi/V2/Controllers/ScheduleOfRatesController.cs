@@ -21,16 +21,19 @@ namespace RepairsApi.V2.Controllers
 
         private readonly IListScheduleOfRatesUseCase _listScheduleOfRates;
         private readonly ISorPriorityGateway _priorityGateway;
+        private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
         private readonly IListSorTradesUseCase _listSorTrades;
 
         public ScheduleOfRatesController(
             IListScheduleOfRatesUseCase listScheduleOfRates,
             IListSorTradesUseCase listSorTrades,
-            ISorPriorityGateway priorityGateway
+            ISorPriorityGateway priorityGateway,
+            IScheduleOfRatesGateway scheduleOfRatesGateway
             )
         {
             _listScheduleOfRates = listScheduleOfRates;
             _priorityGateway = priorityGateway;
+            _scheduleOfRatesGateway = scheduleOfRatesGateway;
             _listSorTrades = listSorTrades;
         }
 
@@ -44,15 +47,30 @@ namespace RepairsApi.V2.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = UserGroups.AGENT)]
-        public async Task<IActionResult> ListRecords([FromQuery] string tradeCode, [FromQuery] string propertyReference, [FromQuery] string contractorReference)
+        [Authorize(Roles = SecurityGroup.AGENT)]
+        public async Task<IActionResult> ListRecords([FromQuery][Required] string tradeCode, [FromQuery][Required] string propertyReference, [FromQuery][Required] string contractorReference)
         {
-            if (string.IsNullOrWhiteSpace(tradeCode) && string.IsNullOrWhiteSpace(propertyReference) && string.IsNullOrWhiteSpace(contractorReference))
-                return Ok(await _listScheduleOfRates.Execute());
-            else if (!string.IsNullOrWhiteSpace(tradeCode) && !string.IsNullOrWhiteSpace(propertyReference) && !string.IsNullOrWhiteSpace(contractorReference))
-                return Ok(await _listScheduleOfRates.Execute(tradeCode, propertyReference, contractorReference));
+            return Ok(await _listScheduleOfRates.Execute(tradeCode, propertyReference, contractorReference));
+        }
 
-            return BadRequest();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sorCode"></param>
+        /// <param name="propertyReference"></param>
+        /// <returns></returns>
+        [ProducesResponseType(typeof(IEnumerable<ScheduleOfRatesModel>), StatusCodes.Status200OK)]
+        [Route("codes/{sorCode}")]
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        [Authorize(Roles = SecurityGroup.CONTRACTOR)]
+        public async Task<IActionResult> GetSorCode([Required] string sorCode, [FromQuery][Required] string propertyReference)
+        {
+            var contractorReference = User.FindFirst(CustomClaimTypes.CONTRACTOR).Value;
+
+            return Ok(await _scheduleOfRatesGateway.GetCode(sorCode, propertyReference, contractorReference));
         }
 
         /// <summary>

@@ -9,6 +9,5 @@ namespace RepairsApi.V2.UseCase.Interfaces
     public interface IListScheduleOfRatesUseCase
     {
         Task<IEnumerable<ScheduleOfRatesModel>> Execute(string tradeCode, string propertyReference, string contractorReference);
-        Task<IEnumerable<ScheduleOfRatesModel>> Execute();
     }
 }

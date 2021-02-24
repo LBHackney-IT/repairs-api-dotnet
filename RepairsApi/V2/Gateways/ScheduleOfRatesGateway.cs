@@ -90,22 +90,6 @@ namespace RepairsApi.V2.Gateways
                 .Select(c => c.ContractReference).ToListAsync();
         }
 
-        public async Task<IEnumerable<ScheduleOfRatesModel>> GetSorCodes()
-        {
-            return await _context.SORCodes
-                .Select(sor => new ScheduleOfRatesModel
-                {
-                    Code = sor.Code,
-                    ShortDescription = sor.ShortDescription,
-                    LongDescription = sor.LongDescription,
-                    Priority = new Domain.SORPriority
-                    {
-                        Description = sor.Priority.Description,
-                        PriorityCode = sor.Priority.PriorityCode
-                    }
-                }).ToListAsync();
-        }
-
         public async Task<IEnumerable<Contractor>> GetContractors(string propertyRef, string tradeCode)
         {
             var contractors = _context.Contracts.Where(contract =>
@@ -123,6 +107,36 @@ namespace RepairsApi.V2.Gateways
             });
 
             return await contractors.ToListAsync();
+        }
+
+        public async Task<ScheduleOfRatesModel> GetCode(string sorCode, string propertyReference, string contractorReference)
+        {
+            var model = await
+            (
+                from sor in _context.SORCodes
+                join sorContract in _context.SORContracts on sor.Code equals sorContract.SorCodeCode
+                join contract in _context.Contracts on sorContract.ContractReference equals contract.ContractReference
+                where
+                sor.Code == sorCode &&
+                contract.PropertyMap.Any(pm => pm.PropRef == propertyReference) &&
+                contract.EffectiveDate < DateTime.UtcNow && DateTime.UtcNow < contract.TerminationDate &&
+                contract.ContractorReference == contractorReference
+                select new ScheduleOfRatesModel
+                {
+                    Code = sor.Code,
+                    ShortDescription = sor.ShortDescription,
+                    LongDescription = sor.LongDescription,
+                    Priority = new Domain.SORPriority
+                    {
+                        Description = sor.Priority.Description,
+                        PriorityCode = sor.Priority.PriorityCode
+                    }
+                }
+            ).SingleOrDefaultAsync();
+
+            if (model is null) throw new ResourceNotFoundException("Could not find SOR code");
+
+            return model;
         }
     }
 }
