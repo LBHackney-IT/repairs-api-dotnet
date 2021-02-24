@@ -67,7 +67,7 @@ namespace RepairsApi.V2.Infrastructure.Hackney
         [Required]
         public virtual ScheduleOfRates SorCode { get; set; }
         public string SorCodeCode { get; set; }
-        public double Cost { get; set; }
+        public double? Cost { get; set; }
 
         [Required]
         public virtual Contract Contract { get; set; }

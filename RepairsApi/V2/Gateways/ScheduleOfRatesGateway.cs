@@ -63,7 +63,8 @@ namespace RepairsApi.V2.Gateways
                     {
                         Description = sor.Priority.Description,
                         PriorityCode = sor.Priority.PriorityCode
-                    }
+                    },
+                    Cost = sorContract.Cost ?? sor.Cost
                 }
             ).ToListAsync();
         }
@@ -124,7 +125,8 @@ namespace RepairsApi.V2.Gateways
                     {
                         Description = sor.Priority.Description,
                         PriorityCode = sor.Priority.PriorityCode
-                    }
+                    },
+                    Cost = sorContract.Cost ?? sor.Cost
                 }
             ).SingleOrDefaultAsync();
 
