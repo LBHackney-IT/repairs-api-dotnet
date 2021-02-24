@@ -225,7 +225,8 @@ namespace RepairsApi.Tests.V2.Gateways
                 {
                     PriorityCode = sor.Priority?.PriorityCode,
                     Description = sor.Priority?.Description,
-                }
+                },
+                Cost = sor.Cost
             }).ToList();
             result.Should().BeEquivalentTo(expectedResult);
         }
@@ -317,7 +318,7 @@ namespace RepairsApi.Tests.V2.Gateways
             {
                 ContractReference = c.ContractReference,
                 SorCodeCode = sorCode.Code,
-                Cost = doubleGenerator.Generate()
+                Cost = null
             }).ToList();
 
             var propMaps = contracts.Select(c => new PropertyContract
