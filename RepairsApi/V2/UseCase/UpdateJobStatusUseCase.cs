@@ -35,11 +35,9 @@ namespace RepairsApi.V2.UseCase
 
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
 
-            var workElements = await _repairsGateway.GetWorkElementsForWorkOrder(workOrder);
-
             await _strategyFactory.ProcessActions(jobStatusUpdate);
 
-            await _jobStatusUpdateGateway.CreateJobStatusUpdate(jobStatusUpdate.ToDb(workElements, workOrder));
+            await _jobStatusUpdateGateway.CreateJobStatusUpdate(jobStatusUpdate.ToDb(workOrder));
         }
 
     }

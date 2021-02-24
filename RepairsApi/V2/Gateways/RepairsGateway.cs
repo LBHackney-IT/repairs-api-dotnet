@@ -92,6 +92,11 @@ namespace RepairsApi.V2.Gateways
             order.StatusCode = newCode;
             await _repairsContext.SaveChangesAsync();
         }
+
+        public Task SaveChangesAsync()
+        {
+            return _repairsContext.SaveChangesAsync();
+        }
     }
 
     public static class WorkOrderExtensions
