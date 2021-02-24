@@ -21,7 +21,6 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 using Quantity = RepairsApi.V2.Generated.Quantity;
 using RateScheduleItem = RepairsApi.V2.Generated.RateScheduleItem;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
-using RepairsApi.V2.Factories;
 
 namespace RepairsApi.Tests.V2.E2ETests
 {
@@ -82,7 +81,8 @@ namespace RepairsApi.Tests.V2.E2ETests
             var (code, response) = await Get<IEnumerable<WorkOrderItemViewModel>>($"/api/v2/repairs/{id}/tasks");
 
             code.Should().Be(HttpStatusCode.OK);
-            response.Should().NotBeEmpty(); // More precise check
+            response.Should().NotBeEmpty();
+            // TODO assert content
         }
 
         public async Task<IEnumerable<WorkOrderItemViewModel>> GetTasks(int workOrderId)
@@ -166,44 +166,47 @@ namespace RepairsApi.Tests.V2.E2ETests
         }
 
         [Test]
-        public async Task UpdateScheduleRepairWorkOrder()
+        public async Task UpdateSorCodes()
         {
+            // Arrange
             string expectedCode = "expectedCodeUpdateWorkOrder";
             AddTestCode(expectedCode);
             var workOrderId = await CreateWorkOrder();
             var tasks = await GetTasks(workOrderId);
 
-            var workElement = request.WorkElement.First();
-            var expectedNewCode = new RateScheduleItem
-            {
-                CustomCode = expectedCode,
-                Quantity = new Quantity
-                {
-                    Amount = new List<double>
-                    {
-                        quantity
-                    }
-                }
-            };
-            workElement.RateScheduleItem.Add(expectedNewCode);
+            RepairsApi.V2.Generated.WorkElement workElement = TransformTasksToWorkElement(tasks);
 
-            Generator<JobStatusUpdate> generator = new Generator<JobStatusUpdate>()
+            JobStatusUpdate request = new Generator<JobStatusUpdate>()
                 .AddJobStatusUpdateGenerators()
                 .AddValue(JobStatusUpdateTypeCode._80, (JobStatusUpdate jsu) => jsu.TypeCode)
                 .AddValue(workOrderId.ToString(), (JobStatusUpdate jsu) => jsu.RelatedWorkOrderReference.ID)
                 .AddValue(workElement, (JobStatusUpdate jsu) => jsu.MoreSpecificSORCode)
-                .AddValue("comments", (JobStatusUpdate jsu) => jsu.Comments);
+                .AddValue("comments", (JobStatusUpdate jsu) => jsu.Comments)
+                .Generate();
 
-            var updateRequest = generator.Generate();
+            // Act
+            var code = await Post("/api/v2/jobStatusUpdate", request);
 
+            // Assert
+            code.Should().Be(HttpStatusCode.OK);
+            // TODO Test change in work order
         }
 
-        [Test]
-        public async Task UpdateReturns401WhenLimitExceeded()
+        private static RepairsApi.V2.Generated.WorkElement TransformTasksToWorkElement(IEnumerable<WorkOrderItemViewModel> tasks)
         {
-            var expectedCode = TestDataSeeder.SorCode;
-            var (_, response) = await ScheduleAndUpdateWorkOrder(expectedCode, "comments", 1000);
-            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+            return new RepairsApi.V2.Generated.WorkElement
+            {
+                RateScheduleItem = tasks.Select(task => new RateScheduleItem
+                {
+                    Id = task.Id,
+                    CustomCode = task.Code,
+                    CustomName = task.Description,
+                    Quantity = new Quantity
+                    {
+                        Amount = new List<double>() { task.Quantity }
+                    }
+                }).ToList()
+            };
         }
 
         [Test]
@@ -224,6 +227,16 @@ namespace RepairsApi.Tests.V2.E2ETests
             var notes = JsonConvert.DeserializeObject<IList<NoteListItem>>(responseContent);
             notes.Should().ContainSingle(n => n.Note == expectedNote);
         }
+
+
+        [Test]
+        public async Task UpdateReturns401WhenLimitExceeded()
+        {
+            var expectedCode = TestDataSeeder.SorCode;
+            var (_, response) = await ScheduleAndUpdateWorkOrder(expectedCode, "comments", 1000);
+            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        }
+
 
         private void AddTestCode(string expectedCode)
         {
@@ -254,12 +267,9 @@ namespace RepairsApi.Tests.V2.E2ETests
             var serializedContent = JsonConvert.SerializeObject(request);
             StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
 
-            var workElement = request.WorkElement.First();
-            var workOrderId = await ValidateWorkOrderCreation(client, content, wo =>
-            {
-                workElement.RateScheduleItem = wo.WorkElements.First().RateScheduleItem.Select(rsi => rsi.ToResponse()).ToList();
-            }, endpoint);
+            var workOrderId = await ValidateWorkOrderCreation(client, content, null, endpoint);
 
+            var workElement = request.WorkElement.First();
             var expectedNewCode = new RateScheduleItem
             {
                 CustomCode = expectedCode,
