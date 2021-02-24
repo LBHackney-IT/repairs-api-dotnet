@@ -87,18 +87,26 @@ namespace RepairsApi.Tests.V2.Gateways
                 ContractorReference = "contractor",
                 ContractReference = "contract"
             };
+
+            ScheduleOfRates sor = new ScheduleOfRates
+            {
+                Code = "code",
+                Cost = 1,
+                Enabled = true,
+                LongDescription = "",
+            };
+
             generator
                 .AddDefaultGenerators()
-                .AddValue(null, (SORContract c) => c.SorCode)
+                .AddValue(sor, (SORContract c) => c.SorCode)
                 .AddValue(contract, (SORContract c) => c.Contract);
             var expectedContract = generator.Generate();
 
             await InMemoryDb.Instance.SORContracts.AddAsync(expectedContract);
-            await InMemoryDb.Instance.SORContracts.AddRangeAsync(generator.GenerateList(10));
             await InMemoryDb.Instance.SaveChangesAsync();
 
             // act
-            var result = await _classUnderTest.GetCost(contract.ContractorReference, expectedContract.SorCodeCode);
+            var result = await _classUnderTest.GetCost(contract.ContractorReference, sor.Code);
 
             // assert
             result.Should().Be(expectedContract.Cost);

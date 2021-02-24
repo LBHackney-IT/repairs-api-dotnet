@@ -33,7 +33,7 @@ namespace RepairsApi.V2.Infrastructure
 
     public class Transaction : ITransaction
     {
-        private IDbContextTransaction _transaction;
+        private readonly IDbContextTransaction _transaction;
         private bool _commited;
 
         public Transaction(IDbContextTransaction transaction)

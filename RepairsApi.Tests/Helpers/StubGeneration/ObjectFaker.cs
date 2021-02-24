@@ -47,6 +47,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                 if (accessor.Body.NodeType != ExpressionType.MemberAccess) throw new Exception("accessor must be simple property accessor eg obj.prop");
                 MemberExpression casted = accessor.Body as MemberExpression;
 
+                if (_propertyGenerators.ContainsKey(casted.Member)) _propertyGenerators.Remove(casted.Member);
                 _propertyGenerators.TryAdd(casted.Member, generator);
             }
 
@@ -88,8 +89,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
 
             _typeStack.Push(actualType);
 
-            IValueGenerator gen;
-            if (_generators.TryGetValue(actualType, out gen))
+            if (_generators.TryGetValue(actualType, out IValueGenerator gen))
             {
                 _typeStack.Pop();
                 return gen.Create();

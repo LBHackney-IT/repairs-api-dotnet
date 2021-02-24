@@ -14,12 +14,15 @@ using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using RepairsApi.V2.Controllers.Parameters;
 using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 using RepairsApi.V2.Domain;
 using RepairsApi.Tests.Helpers;
+using Microsoft.FeatureManagement;
 
 namespace RepairsApi.Tests.V2.Controllers
 {
@@ -34,11 +37,16 @@ namespace RepairsApi.Tests.V2.Controllers
         private Mock<IGetWorkOrderUseCase> _getWorkOrderUseCase;
         private Mock<IListWorkOrderTasksUseCase> _listWorkOrderTasksUseCase;
         private Mock<IListWorkOrderNotesUseCase> _listWorkOrderNotesUseCase;
+        private Mock<IFeatureManager> _featureManager;
+        private Mock<IAuthorizationService> _authMock;
 
         [SetUp]
         public void SetUp()
         {
             ConfigureGenerator();
+            _authMock = new Mock<IAuthorizationService>();
+            _authMock.Setup(a => a.AuthorizeAsync(It.IsAny<ClaimsPrincipal>(), It.IsAny<object>(), It.IsAny<string>()))
+                .ReturnsAsync(AuthorizationResult.Success());
             _createWorkOrderUseCaseMock = new Mock<ICreateWorkOrderUseCase>();
             _listWorkOrdersUseCase = new Mock<IListWorkOrdersUseCase>();
             _completeWorkOrderUseCase = new Mock<ICompleteWorkOrderUseCase>();
@@ -46,14 +54,17 @@ namespace RepairsApi.Tests.V2.Controllers
             _getWorkOrderUseCase = new Mock<IGetWorkOrderUseCase>();
             _listWorkOrderTasksUseCase = new Mock<IListWorkOrderTasksUseCase>();
             _listWorkOrderNotesUseCase = new Mock<IListWorkOrderNotesUseCase>();
+            _featureManager = new Mock<IFeatureManager>();
             _classUnderTest = new RepairsController(
+                _authMock.Object,
                 _createWorkOrderUseCaseMock.Object,
                 _listWorkOrdersUseCase.Object,
                 _completeWorkOrderUseCase.Object,
                 _updateJobStatusUseCase.Object,
                 _getWorkOrderUseCase.Object,
                 _listWorkOrderTasksUseCase.Object,
-                _listWorkOrderNotesUseCase.Object
+                _listWorkOrderNotesUseCase.Object,
+                _featureManager.Object
             );
         }
 
@@ -64,14 +75,15 @@ namespace RepairsApi.Tests.V2.Controllers
         }
 
         [Test]
-        public async Task RaiseRepairReturnsOkWithInt()
+        [Ignore("Raise repair is not currently supported as it does not provide the relevant data for hackneys use cases")]
+        public void RaiseRepairReturnsOkWithInt()
         {
             // arrange
             const int newId = 2;
             _createWorkOrderUseCaseMock.Setup(m => m.Execute(It.IsAny<WorkOrder>())).ReturnsAsync(newId);
 
             // act
-            var result = await _classUnderTest.RaiseRepair(GenerateRaiseRepairRequest());
+            var result = _classUnderTest.RaiseRepair(GenerateRaiseRepairRequest());
 
             // assert
             result.Should().BeOfType<OkObjectResult>();
@@ -91,7 +103,8 @@ namespace RepairsApi.Tests.V2.Controllers
         }
 
         [Test]
-        public async Task RaiseRepairReturnsBadRequestWhenNotSupportedThrown()
+        [Ignore("Raise repair is not currently supported as it does not provide the relevant data for hackneys use cases")]
+        public void RaiseRepairReturnsBadRequestWhenNotSupportedThrown()
         {
             // arrange
             string expectedMessage = "message";
@@ -99,7 +112,7 @@ namespace RepairsApi.Tests.V2.Controllers
                 .ThrowsAsync(new NotSupportedException(expectedMessage));
 
             // act
-            var result = await _classUnderTest.RaiseRepair(GenerateRaiseRepairRequest());
+            var result = _classUnderTest.RaiseRepair(GenerateRaiseRepairRequest());
 
             // assert
             result.Should().BeOfType<BadRequestObjectResult>();

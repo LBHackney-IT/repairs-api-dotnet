@@ -69,8 +69,10 @@ namespace RepairsApi.Tests.ApiMocking
                     return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
                 }
 
-                HttpResponseMessage httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK);
-                httpResponseMessage.Content = new StringContent(JsonConvert.SerializeObject(result));
+                HttpResponseMessage httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(JsonConvert.SerializeObject(result))
+                };
                 return Task.FromResult(httpResponseMessage);
             }
 
@@ -103,11 +105,11 @@ namespace RepairsApi.Tests.ApiMocking
 
     public class MockRouteHandler
     {
-        private static Regex _pathMatcher = new Regex(@"^{(.+)}\/?$");
-        private string[] _segments;
+        private static readonly Regex _pathMatcher = new Regex(@"^{(.+)}\/?$");
+        private readonly string[] _segments;
         private readonly object _methodObject;
-        private NameValueCollection _variables;
-        private MethodInfo _method;
+        private readonly NameValueCollection _variables;
+        private readonly MethodInfo _method;
 
         public MockRouteHandler(MethodInfo method, object methodObject = null)
         {

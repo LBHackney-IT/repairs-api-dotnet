@@ -16,7 +16,8 @@
       "environmentVariables": {
         "CONNECTION_STRING": "Host=127.0.0.1;Port=5432;Username=postgres;Password=mypassword;Database=testdb",
         "GROUPS": "{ \"GroupOptions\": { \"SecurityGroups\": { \"agent\": { \"SecurityGroup\": \"agent\", \"ContractorReference\": \"\" }, \"contractor-test\": { \"SecurityGroup\": \"contractor\", \"ContractorReference\": \"contractor\" } } } }",
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "FeatureManagement__SpendLimits": "true"
       },
       "applicationUrl": "http://localhost:5000"
     }

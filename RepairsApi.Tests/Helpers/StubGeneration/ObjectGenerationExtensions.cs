@@ -2,6 +2,7 @@ using Bogus;
 using RepairsApi.V2.Generated;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using JobStatusUpdate = RepairsApi.V2.Infrastructure.JobStatusUpdate;
 
@@ -64,6 +65,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                 .AddValue(GetSitePropertyUnitGenerator(), (RaiseRepair rr) => rr.SitePropertyUnit)
                 .AddValue(new List<double> { 2.0 }, (Quantity q) => q.Amount)
                 .AddValue(contractorReference, (Organization o) => o.Reference)
+                .AddValue(TestDataSeeder.SorCode, (RateScheduleItem rsi) => rsi.CustomCode)
                 .AddValue(new string[] { "2.0" },
                     (GeographicalLocation q) => q.Latitude,
                     (GeographicalLocation q) => q.Longitude,
@@ -77,8 +79,10 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
         public static Generator<T> WithSorCodes<T>(this Generator<T> generator, params string[] sorCodes)
         {
             Random rand = new Random();
+            var sorCode = sorCodes[rand.Next(sorCodes.Length)];
 
-            return generator.AddGenerator(() => sorCodes[rand.Next(sorCodes.Length)], (RateScheduleItem rsi) => rsi.CustomCode);
+            return generator
+                .AddGenerator(() => sorCode, (RateScheduleItem rsi) => rsi.CustomCode);
         }
 
         public static Generator<T> AddInfrastructureWorkOrderGenerators<T>(this Generator<T> generator)
@@ -114,7 +118,9 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
             return generator
                 .AddDefaultGenerators()
                 .AddWorkOrderGenerators()
-                .AddValue(null, (RepairsApi.V2.Generated.JobStatusUpdate jsu) => jsu.AdditionalWork);
+                .AddValue(null, (RepairsApi.V2.Generated.JobStatusUpdate jsu) => jsu.AdditionalWork)
+                .SetListLength<WorkElement>(1)
+                .SetListLength<RateScheduleItem>(1);
         }
     }
 }

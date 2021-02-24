@@ -33,7 +33,7 @@ namespace RepairsApi.Tests.V2.UseCase
             ConfigureGenerator();
             _repairsGatewayMock = new Mock<IRepairsGateway>();
             _currentUserServiceMock = new CurrentUserServiceMock();
-            _currentUserServiceMock.SetSecurityGroup(SecurityGroup.AGENT, true);
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.AGENT, true);
             _workOrderCompletionGatewayMock = new MockWorkOrderCompletionGateway();
             _classUnderTest = new CompleteWorkOrderUseCase(
                 _repairsGatewayMock.Object,
@@ -68,7 +68,7 @@ namespace RepairsApi.Tests.V2.UseCase
         {
             // arrange
             var expectedWorkOrder = CreateWorkOrder();
-            _currentUserServiceMock.SetSecurityGroup(SecurityGroup.CONTRACTOR, true);
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.CONTRACTOR, true);
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
             workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
             {
@@ -207,7 +207,7 @@ namespace RepairsApi.Tests.V2.UseCase
             // arrange
             string customUpdateType = CustomJobStatusUpdates.COMPLETED;
             WorkStatusCode expectedNewStatus = WorkStatusCode.Complete;
-            _currentUserServiceMock.SetSecurityGroup(SecurityGroup.CONTRACTOR, true);
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.CONTRACTOR, true);
             var expectedWorkOrder = CreateWorkOrder();
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
             workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
@@ -231,7 +231,7 @@ namespace RepairsApi.Tests.V2.UseCase
             // arrange
             const Generated.JobStatusUpdateTypeCode NO_ACCESS = Generated.JobStatusUpdateTypeCode._70;
             WorkStatusCode expectedNewStatus = WorkStatusCode.NoAccess;
-            _currentUserServiceMock.SetSecurityGroup(SecurityGroup.CONTRACTOR, true);
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.CONTRACTOR, true);
             var expectedWorkOrder = CreateWorkOrder();
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
             workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
