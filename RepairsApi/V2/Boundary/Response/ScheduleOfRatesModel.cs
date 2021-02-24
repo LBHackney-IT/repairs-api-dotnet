@@ -8,6 +8,7 @@ namespace RepairsApi.V2.Boundary.Response
         public string ShortDescription { get; set; }
         public string LongDescription { get; set; }
         public SORPriority Priority { get; set; }
+        public double? Cost { get; set; }
     }
 
     public class SorTradeResponse

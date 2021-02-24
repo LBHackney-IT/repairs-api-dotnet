@@ -6,12 +6,14 @@ using RepairsApi.V2.Generated;
 using RepairsApi.V2.UseCase.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Controllers.Parameters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using RepairsApi.V2.Authorisation;
+using Microsoft.FeatureManagement;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -21,6 +23,7 @@ namespace RepairsApi.V2.Controllers
     [ApiVersion("2.0")]
     public class RepairsController : Controller
     {
+        private readonly IAuthorizationService _authorizationService;
         private readonly ICreateWorkOrderUseCase _createWorkOrderUseCase;
         private readonly IListWorkOrdersUseCase _listWorkOrdersUseCase;
         private readonly ICompleteWorkOrderUseCase _completeWorkOrderUseCase;
@@ -28,16 +31,20 @@ namespace RepairsApi.V2.Controllers
         private readonly IGetWorkOrderUseCase _getWorkOrderUseCase;
         private readonly IListWorkOrderTasksUseCase _listWorkOrderTasksUseCase;
         private readonly IListWorkOrderNotesUseCase _listWorkOrderNotesUseCase;
+        private readonly IFeatureManager _featureManager;
 
         public RepairsController(
+            IAuthorizationService authorizationService,
             ICreateWorkOrderUseCase createWorkOrderUseCase,
             IListWorkOrdersUseCase listWorkOrdersUseCase,
             ICompleteWorkOrderUseCase completeWorkOrderUseCase,
             IUpdateJobStatusUseCase updateJobStatusUseCase,
             IGetWorkOrderUseCase getWorkOrderUseCase,
             IListWorkOrderTasksUseCase listWorkOrderTasksUseCase,
-            IListWorkOrderNotesUseCase listWorkOrderNotesUseCase)
+            IListWorkOrderNotesUseCase listWorkOrderNotesUseCase,
+            IFeatureManager featureManager)
         {
+            _authorizationService = authorizationService;
             _createWorkOrderUseCase = createWorkOrderUseCase;
             _listWorkOrdersUseCase = listWorkOrdersUseCase;
             _completeWorkOrderUseCase = completeWorkOrderUseCase;
@@ -45,10 +52,11 @@ namespace RepairsApi.V2.Controllers
             _getWorkOrderUseCase = getWorkOrderUseCase;
             _listWorkOrderTasksUseCase = listWorkOrderTasksUseCase;
             _listWorkOrderNotesUseCase = listWorkOrderNotesUseCase;
+            _featureManager = featureManager;
         }
 
         /// <summary>
-        /// Raise a repair (creates a work order)
+        /// Raise a repair (creates a work order) [CURRENTLY UNSUPPORTED]
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
@@ -56,18 +64,19 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = SecurityGroup.AGENT)]
-        public async Task<IActionResult> RaiseRepair([FromBody] RaiseRepair request)
+        [Authorize(Roles = UserGroups.AGENT)]
+        public IActionResult RaiseRepair([FromBody] RaiseRepair request)
         {
-            try
-            {
-                var result = await _createWorkOrderUseCase.Execute(request.ToDb());
-                return Ok(result);
-            }
-            catch (NotSupportedException e)
-            {
-                return BadRequest(e.Message);
-            }
+            throw new NotSupportedException("migrate to schedule repair");
+            //try
+            //{
+            //    var result = await _createWorkOrderUseCase.Execute(request.ToDb());
+            //    return Ok(result);
+            //}
+            //catch (NotSupportedException e)
+            //{
+            //    return BadRequest(e.Message);
+            //}
         }
 
 
@@ -81,11 +90,14 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = SecurityGroup.AGENT)]
+        [Authorize(Roles = UserGroups.AGENT)]
         public async Task<IActionResult> ScheduleRepair([FromBody] ScheduleRepair request)
         {
             try
             {
+                var authorised = await _authorizationService.AuthorizeAsync(User, request, "RaiseSpendLimit");
+                if (await _featureManager.IsEnabledAsync(FeatureFlags.SPENDLIMITS) && !authorised.Succeeded) return Unauthorized("Request Work Order is above Spend Limit");
+
                 var result = await _createWorkOrderUseCase.Execute(request.ToDb());
                 return Ok(result);
             }
@@ -160,10 +172,13 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = SecurityGroup.CONTRACTOR)]
+        [Authorize(Roles = UserGroups.CONTRACTOR)]
 
         public async Task<IActionResult> JobStatusUpdate([FromBody] JobStatusUpdate request)
         {
+            var authorised = await _authorizationService.AuthorizeAsync(User, request, "VarySpendLimit");
+            if (await _featureManager.IsEnabledAsync(FeatureFlags.SPENDLIMITS) && !authorised.Succeeded) return Unauthorized("Resulting Work Order is above Spend Limit");
+
             await _updateJobStatusUseCase.Execute(request);
             return Ok();
         }

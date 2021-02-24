@@ -30,6 +30,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="2.2.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.4.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="5.4.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.4.1" />
