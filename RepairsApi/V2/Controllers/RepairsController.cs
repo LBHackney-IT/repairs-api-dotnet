@@ -172,13 +172,9 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = UserGroups.CONTRACTOR)]
 
         public async Task<IActionResult> JobStatusUpdate([FromBody] JobStatusUpdate request)
         {
-            var authorised = await _authorizationService.AuthorizeAsync(User, request, "VarySpendLimit");
-            if (await _featureManager.IsEnabledAsync(FeatureFlags.SPENDLIMITS) && !authorised.Succeeded) return Unauthorized("Resulting Work Order is above Spend Limit");
-
             await _updateJobStatusUseCase.Execute(request);
             return Ok();
         }
