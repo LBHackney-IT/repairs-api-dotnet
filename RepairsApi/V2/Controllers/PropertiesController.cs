@@ -51,7 +51,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(List<PropertyListItem>), 200)]
         [ProducesResponseType(typeof(string), StatusCodes.Status502BadGateway)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = SecurityGroup.AGENT)]
+        [Authorize(Roles = UserGroups.AGENT)]
         public async Task<IActionResult> ListProperties([FromQuery] string address, [FromQuery] string postcode, [FromQuery] string q)
         {
             PropertySearchModel searchModel = new PropertySearchModel
@@ -82,7 +82,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(NotFoundResult), 404)]
         [ProducesResponseType(typeof(string), StatusCodes.Status502BadGateway)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = SecurityGroup.AGENT)]
+        [Authorize(Roles = UserGroups.AGENT)]
         public async Task<IActionResult> GetProperty([FromRoute][Required] string propertyReference)
         {
             var property = await _getPropertyUseCase.ExecuteAsync(propertyReference);
@@ -101,7 +101,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(CautionaryAlertResponseList), 200)]
         [ProducesResponseType(typeof(string), StatusCodes.Status502BadGateway)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = SecurityGroup.AGENT)]
+        [Authorize(Roles = UserGroups.AGENT)]
         public async Task<IActionResult> ListCautionaryAlerts([FromRoute][Required] string propertyReference)
         {
             var alerts = await _listAlertsUseCase.ExecuteAsync(propertyReference);

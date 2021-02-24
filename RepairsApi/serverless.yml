@@ -33,7 +33,7 @@ functions:
       GatewayOptions__TenancyApiKey: ${ssm:/${self:service}/${self:provider.stage}/tenancy-api-token}
       GatewayOptions__HousingResidentInformationApi: ${ssm:/${self:service}/${self:provider.stage}/housing-resident-information-api-url}
       GatewayOptions__HousingResidentInformationApiKey: ${ssm:/${self:service}/${self:provider.stage}/housing-resident-information-api-token}
-      GROUPS: ${ssm:/${self:service}/${self:provider.stage}/groups-json}
+      FeatureManagement__SpendLimits: ${ssm:/${self:service}/${self:provider.stage}/spend-limits-flag}
     events:
       - http:
           path: /{proxy+}

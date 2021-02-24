@@ -52,14 +52,15 @@ namespace RepairsApi.Tests.V2.E2ETests
         private int AddWorkOrder()
         {
             int woRef = 0;
-            WithContext(ctx =>
+            using (var ctx = GetContext())
             {
-                var entry = ctx.WorkOrders.Add(new RepairsApi.V2.Infrastructure.WorkOrder());
+                var db = ctx.DB;
+                var entry = db.WorkOrders.Add(new RepairsApi.V2.Infrastructure.WorkOrder());
 
-                ctx.SaveChanges();
+                db.SaveChanges();
 
                 woRef = entry.Entity.Id;
-            });
+            };
             return woRef;
         }
 

@@ -1,7 +1,9 @@
+using System.Threading.Tasks;
+
 namespace RepairsApi.V2.Services
 {
     public interface ICurrentUserLoader
     {
-        void LoadUser(string jwt);
+        Task LoadUser(string jwt);
     }
 }

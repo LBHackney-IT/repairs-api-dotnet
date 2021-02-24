@@ -20,7 +20,7 @@ namespace RepairsApi.V2.MiddleWare
 
         public async Task Invoke(HttpContext httpContext, CurrentUserService userService)
         {
-            userService.LoadUser(httpContext.Request.Headers[HEADER]);
+            await userService.LoadUser(httpContext.Request.Headers[HEADER]);
             httpContext.User = userService.GetUser();
             await _next(httpContext);
         }
