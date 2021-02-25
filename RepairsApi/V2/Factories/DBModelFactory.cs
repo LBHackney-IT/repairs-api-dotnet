@@ -237,25 +237,33 @@ namespace RepairsApi.V2.Factories
             };
         }
 
-        public static WorkElement ToDb(this Generated.WorkElement raiseRepair)
+        public static WorkElement ToDb(this Generated.WorkElement raiseRepair, bool mapIds = false)
         {
             return new WorkElement
             {
                 ContainsCapitalWork = raiseRepair.ContainsCapitalWork,
                 ServiceChargeSubject = raiseRepair.ServiceChargeSubject,
                 Trade = raiseRepair.Trade.MapList(t => t.ToDb()),
-                RateScheduleItem = raiseRepair.RateScheduleItem.MapList(rsi => rsi.ToDb())
+                RateScheduleItem = raiseRepair.RateScheduleItem.MapList(rsi => rsi.ToDb(mapIds))
             };
         }
 
-        public static RateScheduleItem ToDb(this Generated.RateScheduleItem raiseRepair)
+        public static RateScheduleItem ToDb(this Generated.RateScheduleItem raiseRepair, bool mapIds = false)
         {
-            return new RateScheduleItem
+            RateScheduleItem rateScheduleItem = new RateScheduleItem
             {
                 CustomCode = raiseRepair.CustomCode,
                 CustomName = raiseRepair.CustomName,
                 Quantity = raiseRepair.Quantity?.ToDb(),
+                DateCreated = DateTime.UtcNow
             };
+
+            if (mapIds && Guid.TryParse(raiseRepair.Id, out var id))
+            {
+                rateScheduleItem.Id = id;
+            }
+
+            return rateScheduleItem;
         }
 
         public static Quantity ToDb(this Generated.Quantity raiseRepair)
@@ -492,12 +500,10 @@ namespace RepairsApi.V2.Factories
 
         public static JobStatusUpdate ToDb(
             this Generated.JobStatusUpdate jobStatusUpdate,
-            IEnumerable<WorkElement> workElements,
             WorkOrder workOrder)
         {
             return new JobStatusUpdate
             {
-                RelatedWorkElement = workElements.ToList(),
                 EventTime = DateTime.Now,
                 TypeCode = jobStatusUpdate.TypeCode,
                 AdditionalWork = jobStatusUpdate.AdditionalWork?.ToDb(),

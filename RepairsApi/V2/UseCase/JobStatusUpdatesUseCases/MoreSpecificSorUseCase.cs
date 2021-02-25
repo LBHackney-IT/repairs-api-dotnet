@@ -2,10 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.FeatureManagement;
 using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Services;
 using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
 
 namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
@@ -13,28 +16,38 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
     public class MoreSpecificSorUseCase : IMoreSpecificSorUseCase, IJobStatusUpdateStrategy
     {
         private readonly IRepairsGateway _repairsGateway;
-        private readonly RepairsContext _repairsContext;
+        private readonly IAuthorizationService _authorizationService;
+        private readonly IFeatureManager _featureManager;
+        private readonly ICurrentUserService _currentUserService;
 
-        public MoreSpecificSorUseCase(IRepairsGateway repairsGateway, RepairsContext repairsContext)
+        public MoreSpecificSorUseCase(IRepairsGateway repairsGateway,
+            IAuthorizationService authorizationService,
+            IFeatureManager featureManager,
+            ICurrentUserService currentUserService)
         {
             _repairsGateway = repairsGateway;
-            _repairsContext = repairsContext;
+            _authorizationService = authorizationService;
+            _featureManager = featureManager;
+            _currentUserService = currentUserService;
         }
 
         public async Task Execute(JobStatusUpdate jobStatusUpdate)
         {
             var workOrderId = int.Parse(jobStatusUpdate.RelatedWorkOrderReference.ID);
-            var workElement = jobStatusUpdate.MoreSpecificSORCode.ToDb();
+            var workElement = jobStatusUpdate.MoreSpecificSORCode.ToDb(mapIds: true);
 
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
 
+            var authorised = await _authorizationService.AuthorizeAsync(_currentUserService.GetUser(), jobStatusUpdate, "VarySpendLimit");
+            if (await _featureManager.IsEnabledAsync(FeatureFlags.SPENDLIMITS) && !authorised.Succeeded) throw new UnauthorizedAccessException("Resulting Work Order is above Spend Limit");
+
             var existingCodes = workOrder.WorkElements.SelectMany(we => we.RateScheduleItem);
-            var newCodes = workElement.RateScheduleItem.Where(rsi => !existingCodes.Any(ec => ec.CustomCode == rsi.CustomCode));
+            var newCodes = workElement.RateScheduleItem.Where(rsi => !existingCodes.Any(ec => ec.Id == rsi.Id));
 
             UpdateExistingCodes(existingCodes, workElement);
             AddNewCodes(newCodes, workOrder);
 
-            await _repairsContext.SaveChangesAsync();
+            await _repairsGateway.SaveChangesAsync();
         }
 
         private static void AddNewCodes(IEnumerable<RateScheduleItem> newCodes, WorkOrder workOrder)
@@ -51,7 +64,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
             foreach (var existingCode in existingCodes)
             {
-                var updatedCode = workElement.RateScheduleItem.SingleOrDefault(rsi => rsi.CustomCode == existingCode.CustomCode);
+                var updatedCode = workElement.RateScheduleItem.SingleOrDefault(rsi => rsi.Id == existingCode.Id);
                 if (updatedCode == null)
                 {
                     throw new NotSupportedException($"Deleting SOR codes not supported, missing {existingCode.CustomCode}");
