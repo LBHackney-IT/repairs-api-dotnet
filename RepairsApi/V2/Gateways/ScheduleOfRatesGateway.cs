@@ -74,9 +74,14 @@ namespace RepairsApi.V2.Gateways
             if (contractorReference is null) throw new ArgumentNullException(nameof(contractorReference));
             if (sorCode is null) throw new ArgumentNullException(nameof(sorCode));
 
+            //use today
+            var theDate = DateTime.Now.Date;
+
             var costs = await _context.SORContracts
                             .Where(c => c.Contract.ContractorReference == contractorReference && c.SorCodeCode == sorCode)
-                            .Select(c => new { ContractCost = c.Cost, CodeCost = c.SorCode.Cost }).SingleOrDefaultAsync();
+                            .Where(c => c.Contract.TerminationDate > theDate && c.Contract.EffectiveDate <= theDate)
+                            .Where(c => c.SorCode.Enabled == true)
+                            .Select(c => new { ContractCost = c.Cost, CodeCost = c.SorCode.Cost }).FirstOrDefaultAsync();
             double? finalCost = costs?.ContractCost ?? costs?.CodeCost;
 
             if (!finalCost.HasValue) throw new ResourceNotFoundException($"Cannot find cost for code {sorCode}");
