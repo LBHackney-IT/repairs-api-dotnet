@@ -33,21 +33,21 @@ namespace RepairsApi.Tests.V2.Controllers
             {
                 new AppointmentDayViewModel
                 {
-                    Date = DateTime.UtcNow,
+                    Date = DateTime.UtcNow.ToDate(),
                     Slots = new List<AppointmentSlot>
                     {
                         new AppointmentSlot
                         {
                             Description = "desc",
-                            End = new DateTime().AddHours(8),
-                            Start = new DateTime().AddHours(12),
+                            End = new DateTime().AddHours(8).ToTime(),
+                            Start = new DateTime().AddHours(12).ToTime(),
                             Reference = "117"
                         }
                     }
                 }
             };
             _listAppointmentsMock.Setup(lam => lam.Execute(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(list);
-            var result = await _classUnderTest.ListAppointments(1, DateTime.UtcNow.AddDays(-1).ToString(DateConstants.DATEFORMAT), DateTime.UtcNow.AddDays(1).ToString(DateConstants.DATEFORMAT));
+            var result = await _classUnderTest.ListAppointments(1, DateTime.UtcNow.AddDays(-1).ToDate(), DateTime.UtcNow.AddDays(1).ToDate());
 
             GetStatusCode(result).Should().Be(200);
             GetResultData<IEnumerable<AppointmentDayViewModel>>(result).Should().BeEquivalentTo(list);

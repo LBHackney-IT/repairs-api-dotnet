@@ -63,7 +63,7 @@ namespace RepairsApi.V2.Controllers
         {
             if (string.IsNullOrWhiteSpace(dateString)) return null;
 
-            return DateTime.ParseExact(dateString, DateConstants.DATEFORMAT, null);
+            return DateTime.ParseExact(dateString, DateExtensions.DATEFORMAT, null);
         }
 
         /// <summary>

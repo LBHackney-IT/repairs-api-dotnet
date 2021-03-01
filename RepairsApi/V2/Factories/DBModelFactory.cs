@@ -504,7 +504,7 @@ namespace RepairsApi.V2.Factories
         {
             return new JobStatusUpdate
             {
-                EventTime = DateTime.Now,
+                EventTime = DateTime.UtcNow,
                 TypeCode = jobStatusUpdate.TypeCode,
                 AdditionalWork = jobStatusUpdate.AdditionalWork?.ToDb(),
                 Comments = jobStatusUpdate.Comments,
