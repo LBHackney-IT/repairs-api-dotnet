@@ -5,6 +5,7 @@ using RepairsApi.V2.Factories;
 using RepairsApi.V2.Infrastructure;
 using System.Linq;
 using RepairsApi.V2;
+using System;
 
 namespace RepairsApi.Tests.V2.Factories
 {
@@ -17,7 +18,14 @@ namespace RepairsApi.Tests.V2.Factories
                 .AddDefaultGenerators()
                 .Generate();
 
-            var response = workOrder.ToResponse();
+            AppointmentDetails appointment = new AppointmentDetails
+            {
+                Date = DateTime.UtcNow,
+                Description = "test",
+                End = DateTime.UtcNow,
+                Start = DateTime.UtcNow
+            };
+            var response = workOrder.ToResponse(appointment);
 
             PropertyClass propertyClass = workOrder.Site?.PropertyClass.FirstOrDefault();
             string addressLine = propertyClass?.Address?.AddressLine;
