@@ -1,9 +1,12 @@
+using System;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Moq;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers.StubGeneration;
 using RepairsApi.Tests.V2.Gateways;
 using RepairsApi.V2.Factories;
+using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase;
 
@@ -12,6 +15,7 @@ namespace RepairsApi.Tests.V2.UseCase
     public class GetWorkOrderUseCaseTests
     {
         private MockRepairsGateway _repairsGatewayMock;
+        private Mock<IAppointmentsGateway> _appointmentsGatewayMock;
         private GetWorkOrderUseCase _classUnderTest;
         private Generator<WorkOrder> _generator;
 
@@ -19,7 +23,8 @@ namespace RepairsApi.Tests.V2.UseCase
         public void Setup()
         {
             _repairsGatewayMock = new MockRepairsGateway();
-            _classUnderTest = new GetWorkOrderUseCase(_repairsGatewayMock.Object);
+            _appointmentsGatewayMock = new Mock<IAppointmentsGateway>();
+            _classUnderTest = new GetWorkOrderUseCase(_repairsGatewayMock.Object, _appointmentsGatewayMock.Object);
             configureGenerator();
         }
 
@@ -31,13 +36,40 @@ namespace RepairsApi.Tests.V2.UseCase
             var expectedWorkOrder = _generator.Generate();
             expectedWorkOrder.Id = 7;
             generatedWorkOrders.Add(expectedWorkOrder);
+            AppointmentDetails appointment = new AppointmentDetails
+            {
+                Date = DateTime.UtcNow,
+                Description = "test",
+                End = DateTime.UtcNow,
+                Start = DateTime.UtcNow
+            };
             _repairsGatewayMock.ReturnsWorkOrders(generatedWorkOrders);
+            _appointmentsGatewayMock.Setup(a => a.GetAppointment(It.IsAny<int>())).ReturnsAsync(appointment);
 
             // act
             var response = await _classUnderTest.Execute(expectedWorkOrder.Id);
 
             // assert
-            response.Should().BeEquivalentTo(expectedWorkOrder.ToResponse());
+            response.Should().BeEquivalentTo(expectedWorkOrder.ToResponse(appointment));
+        }
+
+
+        [Test]
+        public async Task MapsNullAppointment()
+        {
+            // arrange
+            var generatedWorkOrders = _generator.GenerateList(5);
+            var expectedWorkOrder = _generator.Generate();
+            expectedWorkOrder.Id = 7;
+            generatedWorkOrders.Add(expectedWorkOrder);
+            _repairsGatewayMock.ReturnsWorkOrders(generatedWorkOrders);
+            _appointmentsGatewayMock.Setup(a => a.GetAppointment(It.IsAny<int>())).ReturnsAsync((AppointmentDetails)null);
+
+            // act
+            var response = await _classUnderTest.Execute(expectedWorkOrder.Id);
+
+            // assert
+            response.Should().BeEquivalentTo(expectedWorkOrder.ToResponse(null));
         }
 
         private void configureGenerator()

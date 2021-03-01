@@ -124,7 +124,7 @@ namespace RepairsApi.Tests.V2.Gateways
 
         private static string GenerateAppointmentRef(int id, DateTime date)
         {
-            return $"{id.ToString()}/{date:yyyy-MM-dd}";
+            return $"{id}/{date:yyyy-MM-dd}";
         }
 
         [Test]
@@ -151,6 +151,32 @@ namespace RepairsApi.Tests.V2.Gateways
             Func<Task> testFunc = async () => await _classUnderTest.Create("1/2020-01-01", 100001);
 
             await testFunc.Should().ThrowAsync<ResourceNotFoundException>();
+        }
+
+        [Test]
+        public async Task GetAppointment()
+        {
+            var date = DateTime.UtcNow.Date;
+            var start = new DateTime().AddHours(8);
+            var end = new DateTime().AddHours(12);
+            var description = "AM";
+            var workOrderRef = 100001;
+
+            var ids = SeedData("contractor", new DaySeedModel[]
+            {
+                new DaySeedModel(date.DayOfWeek, 1),
+            }, new AppointmentSeedModel[]
+            {
+                new AppointmentSeedModel(description, start, end)
+            });
+            await _classUnderTest.Create(GenerateAppointmentRef(ids.First(), date), workOrderRef);
+
+            var appointment = await _classUnderTest.GetAppointment(workOrderRef);
+
+            appointment.Description.Should().Be(description);
+            appointment.Start.Should().Be(start);
+            appointment.End.Should().Be(end);
+            appointment.Date.Should().Be(date);
         }
 
         private static List<int> SeedData(string contractor, DaySeedModel[] days, AppointmentSeedModel[] appointments)
