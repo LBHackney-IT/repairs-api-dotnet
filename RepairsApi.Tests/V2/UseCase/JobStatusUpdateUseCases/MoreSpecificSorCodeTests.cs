@@ -72,10 +72,10 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
 
             await _classUnderTest.Execute(request);
 
-            List<RateScheduleItem> rateScheduleItem = workOrder.WorkElements.Single().RateScheduleItem;
-            rateScheduleItem.Should().BeEquivalentTo(expectedNewCodes,
+            List<RateScheduleItem> rateScheduleItems = workOrder.WorkElements.Single().RateScheduleItem;
+            rateScheduleItems.Should().BeEquivalentTo(expectedNewCodes,
                 options => options.Excluding(rsi => rsi.Id).Excluding(rsi => rsi.DateCreated).Excluding(rsi => rsi.CodeCost));
-            rateScheduleItem.First().CodeCost.Should().Be(cost);
+            rateScheduleItems.Last().CodeCost.Should().Be(cost);
         }
 
         [Test]
