@@ -10,17 +10,21 @@ namespace RepairsApi.V2.UseCase
     public class GetWorkOrderUseCase : IGetWorkOrderUseCase
     {
         private readonly IRepairsGateway _repairsGateway;
+        private readonly IAppointmentsGateway _appointmentGateway;
 
-        public GetWorkOrderUseCase(IRepairsGateway repairsGateway)
+        public GetWorkOrderUseCase(IRepairsGateway repairsGateway, IAppointmentsGateway appointmentGateway)
         {
             _repairsGateway = repairsGateway;
+            _appointmentGateway = appointmentGateway;
         }
 
         public async Task<WorkOrderResponse> Execute(int id)
         {
             WorkOrder workOrder = await _repairsGateway.GetWorkOrder(id);
 
-            return workOrder.ToResponse();
+            var appointment = await _appointmentGateway.GetAppointment(workOrder.Id);
+
+            return workOrder.ToResponse(appointment);
         }
     }
 }

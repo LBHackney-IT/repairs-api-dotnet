@@ -28,6 +28,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         private MockRepairsGateway _repairsGatewayMock;
         private Mock<IAuthorizationService> _authorisationMock;
         private CurrentUserServiceMock _currentUserServiceMock;
+        private Mock<IScheduleOfRatesGateway> _scheduleOfRatesGateway;
         private Mock<IFeatureManager> _featureManagerMock;
         private MoreSpecificSorUseCase _classUnderTest;
 
@@ -42,14 +43,22 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _featureManagerMock = new Mock<IFeatureManager>();
             _authorisationMock = new Mock<IAuthorizationService>();
             _currentUserServiceMock = new CurrentUserServiceMock();
-            _classUnderTest = new MoreSpecificSorUseCase(_repairsGatewayMock.Object, _authorisationMock.Object, _featureManagerMock.Object, _currentUserServiceMock.Object);
+            _scheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
+            _classUnderTest = new MoreSpecificSorUseCase(
+                _repairsGatewayMock.Object,
+                _authorisationMock.Object,
+                _featureManagerMock.Object,
+                _currentUserServiceMock.Object,
+                _scheduleOfRatesGateway.Object);
         }
 
         [Test]
         public async Task MoreSpecificSORCodeAddsSORCodeToWorkOrder()
         {
+            const int cost = 10;
             const int desiredWorkOrderId = 42;
             var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
+            _scheduleOfRatesGateway.Setup(s => s.GetCost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(cost);
             var expectedNewCodes = workOrder.WorkElements.SelectMany(we => we.RateScheduleItem).ToList();
             expectedNewCodes.Add(new RateScheduleItem
             {
@@ -63,7 +72,10 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
 
             await _classUnderTest.Execute(request);
 
-            workOrder.WorkElements.Single().RateScheduleItem.Should().BeEquivalentTo(expectedNewCodes, options => options.Excluding(rsi => rsi.Id).Excluding(rsi => rsi.DateCreated));
+            List<RateScheduleItem> rateScheduleItems = workOrder.WorkElements.Single().RateScheduleItem;
+            rateScheduleItems.Should().BeEquivalentTo(expectedNewCodes,
+                options => options.Excluding(rsi => rsi.Id).Excluding(rsi => rsi.DateCreated).Excluding(rsi => rsi.CodeCost));
+            rateScheduleItems.Last().CodeCost.Should().Be(cost);
         }
 
         [Test]
