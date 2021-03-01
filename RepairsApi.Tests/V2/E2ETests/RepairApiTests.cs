@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers.StubGeneration;
 using RepairsApi.V2.Boundary.Response;
@@ -7,17 +6,11 @@ using RepairsApi.V2.Generated;
 using RepairsApi.V2.Generated.CustomTypes;
 using RepairsApi.V2.Infrastructure;
 using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
-using Castle.Core.Internal;
 using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 using Quantity = RepairsApi.V2.Generated.Quantity;
 using RateScheduleItem = RepairsApi.V2.Generated.RateScheduleItem;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
@@ -210,6 +203,27 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             // Assert
             code.Should().Be(404);
+        }
+
+        [Test]
+        public async Task HoldAndResumeWorkOrder()
+        {
+            // Arrange
+            var workOrderId = await CreateWorkOrder();
+
+            // Act
+            await UpdateJob(workOrderId, req => req.TypeCode = JobStatusUpdateTypeCode._120);
+            var heldOrder = GetWorkOrderFromDB(workOrderId);
+            await UpdateJob(workOrderId, req =>
+            {
+                req.TypeCode = JobStatusUpdateTypeCode._0;
+                req.OtherType = CustomJobStatusUpdates.RESUME;
+            });
+            var resumedOrder = GetWorkOrderFromDB(workOrderId);
+
+            // Assert
+            heldOrder.StatusCode.Should().Be(WorkStatusCode.Hold);
+            resumedOrder.StatusCode.Should().Be(WorkStatusCode.Open);
         }
 
         private static RepairsApi.V2.Generated.WorkElement TransformTasksToWorkElement(IEnumerable<WorkOrderItemViewModel> tasks)
