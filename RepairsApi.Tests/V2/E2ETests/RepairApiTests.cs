@@ -63,13 +63,17 @@ namespace RepairsApi.Tests.V2.E2ETests
         [Test]
         public async Task ViewElements()
         {
-            var id = await CreateWorkOrder();
+            var expectedName = "Expected Name";
+            var id = await CreateWorkOrder(req =>
+            {
+                req.WorkElement.First().RateScheduleItem.First().CustomName = expectedName;
+            });
 
             var (code, response) = await Get<IEnumerable<WorkOrderItemViewModel>>($"/api/v2/repairs/{id}/tasks");
 
             code.Should().Be(HttpStatusCode.OK);
             response.Should().NotBeEmpty();
-            // TODO assert content
+            response.Should().Contain(item => item.Description == expectedName);
         }
 
         [Test]
@@ -101,7 +105,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         }
 
         [Test]
-        public async Task NewCompleteScheduleRepairWorkOrder()
+        public async Task CompleteWorkOrder()
         {
             // Arrange
             var id = await CreateWorkOrder();
@@ -114,9 +118,11 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             // Act
             var code = await Post("/api/v2/workOrderComplete", request);
+            var workOrder = GetWorkOrderFromDB(id);
 
             // Assert
             code.Should().Be(HttpStatusCode.OK);
+            workOrder.StatusCode.Should().Be(WorkStatusCode.Canceled);
         }
 
         [Test]
@@ -140,34 +146,38 @@ namespace RepairsApi.Tests.V2.E2ETests
             string expectedCode = "expectedCode_UpdateWorkOrder";
             AddTestCode(expectedCode);
             var workOrderId = await CreateWorkOrder();
-            var tasks = await GetTasks(workOrderId);
+            var originalTasks = await GetTasks(workOrderId);
 
-            RepairsApi.V2.Generated.WorkElement workElement = TransformTasksToWorkElement(tasks);
+            RepairsApi.V2.Generated.WorkElement workElement = TransformTasksToWorkElement(originalTasks);
             AddRateScheduleItem(workElement, expectedCode, 10);
             JobStatusUpdate request = CreateUpdateRequest(workOrderId, workElement);
 
             // Act
             var code = await Post("/api/v2/jobStatusUpdate", request);
+            var newTasks = await GetTasks(workOrderId);
 
             // Assert
             code.Should().Be(HttpStatusCode.OK);
-            // TODO Test a change has occured in the work order
+            newTasks.Count().Should().Be(originalTasks.Count() + 1);
         }
 
         [Test]
         public async Task CanViewNotes()
         {
             // Arrange
+            var expectedNote = "expectedComments";
             var workOrderId = await CreateWorkOrder();
-            await UpdateJob(workOrderId);
+            await UpdateJob(workOrderId, req =>
+            {
+                req.Comments = expectedNote;
+            });
 
             // Act
             var (code, notes) = await Get<IList<NoteListItem>>($"/api/v2/repairs/{workOrderId}/notes");
 
             // Assert
             code.Should().Be(HttpStatusCode.OK);
-            notes.Should().ContainSingle();
-            // TODO Test note contents
+            notes.Should().ContainSingle(note => note.Note == expectedNote);
         }
 
         [Test]
@@ -260,7 +270,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             return await Post("/api/v2/workOrderComplete", request);
         }
 
-        private async Task UpdateJob(int workOrderId)
+        private async Task UpdateJob(int workOrderId, Action<JobStatusUpdate> interceptor = null)
         {
             var tasks = await GetTasks(workOrderId);
             RepairsApi.V2.Generated.WorkElement workElement = TransformTasksToWorkElement(tasks);
@@ -273,14 +283,18 @@ namespace RepairsApi.Tests.V2.E2ETests
                 .AddValue("comments", (JobStatusUpdate jsu) => jsu.Comments)
                 .Generate();
 
+            interceptor?.Invoke(request);
+
             await Post("/api/v2/jobStatusUpdate", request);
         }
 
-        private async Task<int> CreateWorkOrder()
+        private async Task<int> CreateWorkOrder(Action<ScheduleRepair> interceptor = null)
         {
             var request = GenerateWorkOrder<ScheduleRepair>()
                 .AddValue(new List<double> { 1 }, (RateScheduleItem rsi) => rsi.Quantity.Amount)
                 .Generate();
+
+            interceptor?.Invoke(request);
 
             var (_, response) = await Post<int>("/api/v2/repairs/schedule", request);
 
