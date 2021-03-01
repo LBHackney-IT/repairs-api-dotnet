@@ -63,7 +63,7 @@ namespace RepairsApi.Tests.V2.UseCase
             expectedWorkOrder.Id = 7;
             generatedWorkOrders.Add(expectedWorkOrder);
             _repairsGatewayMock.ReturnsWorkOrders(generatedWorkOrders);
-            _appointmentsGatewayMock.Setup(a => a.GetAppointment(It.IsAny<int>())).ReturnsAsync((AppointmentDetails)null);
+            _appointmentsGatewayMock.Setup(a => a.GetAppointment(It.IsAny<int>())).ReturnsAsync((AppointmentDetails) null);
 
             // act
             var response = await _classUnderTest.Execute(expectedWorkOrder.Id);
