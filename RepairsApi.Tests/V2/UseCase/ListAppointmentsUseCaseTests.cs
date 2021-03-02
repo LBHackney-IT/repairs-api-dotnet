@@ -44,9 +44,9 @@ namespace RepairsApi.Tests.V2.UseCase
             DateTime fromDate = DateTime.UtcNow;
             int workOrder = 0;
             _repairGatewayMock.Setup(rgm => rgm.GetWorkOrder(It.IsAny<int>())).ReturnsAsync(new WorkOrder());
-            _appointmentsGatewayMock.Setup(rgm => rgm.ListAppointments(It.IsAny<string>(), toDate, fromDate)).ReturnsAsync(new List<AppointmentListResult>()
+            _appointmentsGatewayMock.Setup(rgm => rgm.ListAppointments(It.IsAny<string>(), toDate, fromDate)).ReturnsAsync(new List<AppointmentDetails>()
             {
-                new AppointmentListResult
+                new AppointmentDetails
                 {
                     Date = DateTime.UtcNow.Date,
                     Description = "description",
@@ -54,7 +54,7 @@ namespace RepairsApi.Tests.V2.UseCase
                     End = new DateTime().AddHours(12),
                     Id = 12
                 },
-                new AppointmentListResult
+                new AppointmentDetails
                 {
                     Date = DateTime.UtcNow.Date,
                     Description = "other description",
@@ -62,7 +62,7 @@ namespace RepairsApi.Tests.V2.UseCase
                     End = new DateTime().AddHours(17),
                     Id = 13
                 },
-                new AppointmentListResult
+                new AppointmentDetails
                 {
                     Date = DateTime.UtcNow.Date.AddDays(1),
                     Description = "other description",
@@ -85,7 +85,7 @@ namespace RepairsApi.Tests.V2.UseCase
             DateTime fromDate = DateTime.UtcNow;
             int workOrder = 0;
             _repairGatewayMock.Setup(rgm => rgm.GetWorkOrder(It.IsAny<int>())).ReturnsAsync(new WorkOrder());
-            var expectedAppointment = new AppointmentListResult
+            var expectedAppointment = new AppointmentDetails
             {
                 Date = DateTime.UtcNow.Date,
                 Description = "description",
@@ -94,7 +94,7 @@ namespace RepairsApi.Tests.V2.UseCase
                 Id = 12
             };
             _appointmentsGatewayMock.Setup(rgm => rgm.ListAppointments(It.IsAny<string>(), toDate, fromDate))
-                .ReturnsAsync(new List<AppointmentListResult> { expectedAppointment });
+                .ReturnsAsync(new List<AppointmentDetails> { expectedAppointment });
 
             var result = await _classUnderTest.Execute(workOrder, toDate, fromDate);
 
@@ -102,7 +102,7 @@ namespace RepairsApi.Tests.V2.UseCase
             var appointment = result.First();
             var refArray = appointment.Slots.First().Reference.Split('/', 2);
             var slotId = int.Parse(refArray[0]);
-            var slotDate = DateTime.ParseExact(refArray[1], DateConstants.DATEFORMAT, null);
+            var slotDate = DateTime.ParseExact(refArray[1], DateExtensions.DATEFORMAT, null);
             slotId.Should().Be(expectedAppointment.Id);
             slotDate.Should().Be(expectedAppointment.Date);
 

@@ -86,8 +86,8 @@ namespace RepairsApi.Tests.V2.Gateways
             {
                 ContractorReference = "contractor",
                 ContractReference = "contract",
-                TerminationDate = DateTime.Now.Date.AddYears(1),
-                EffectiveDate = DateTime.Now.Date.AddDays(-7)
+                TerminationDate = DateTime.UtcNow.Date.AddYears(1),
+                EffectiveDate = DateTime.UtcNow.Date.AddDays(-7)
             };
 
             ScheduleOfRates sor = new ScheduleOfRates

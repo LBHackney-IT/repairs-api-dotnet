@@ -6,13 +6,14 @@ namespace RepairsApi.V2.Infrastructure.Extensions
     {
         public static string GetStatus(this WorkOrder workOrder)
         {
-            switch (workOrder.StatusCode)
+            return workOrder.StatusCode switch
             {
-                case WorkStatusCode.Open: return WorkOrderStatus.InProgress;
-                case WorkStatusCode.Complete: return WorkOrderStatus.Complete;
-                case WorkStatusCode.Canceled: return WorkOrderStatus.Cancelled;
-                default: return WorkOrderStatus.Unknown;
-            }
+                WorkStatusCode.Open => WorkOrderStatus.InProgress,
+                WorkStatusCode.Complete => WorkOrderStatus.Complete,
+                WorkStatusCode.Canceled => WorkOrderStatus.Cancelled,
+                WorkStatusCode.Hold => WorkOrderStatus.Hold,
+                _ => WorkOrderStatus.Unknown,
+            };
         }
     }
 }

@@ -202,13 +202,15 @@ namespace RepairsApi.Tests
         {
             var generator = new Generator<SORPriority>()
                 .AddDefaultGenerators()
-                .AddGenerator(() => SeedCode(PriorityCodes), (SORPriority sp) => sp.PriorityCode);
+                .AddGenerator(() => SeedCode(PriorityCodes), (SORPriority sp) => sp.PriorityCode)
+                .AddValue(true, (SORPriority sp) => sp.Enabled);
 
             ctx.Set<SORPriority>().AddRange(generator.GenerateList(3));
             ctx.Set<SORPriority>().Add(new SORPriority
             {
                 Description = Priority,
-                PriorityCode = PriorityId
+                PriorityCode = PriorityId,
+                Enabled = true
             });
         }
 

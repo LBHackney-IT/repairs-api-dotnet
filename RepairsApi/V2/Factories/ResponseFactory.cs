@@ -126,7 +126,7 @@ namespace RepairsApi.V2.Factories
             return domainList.Select(domain => domain.ToResponseListItem()).ToList();
         }
 
-        public static WorkOrderResponse ToResponse(this Infrastructure.WorkOrder workOrder)
+        public static WorkOrderResponse ToResponse(this Infrastructure.WorkOrder workOrder, Infrastructure.AppointmentDetails appointment)
         {
             Infrastructure.PropertyClass propertyClass = workOrder.Site?.PropertyClass?.FirstOrDefault();
             string addressLine = propertyClass?.Address?.AddressLine;
@@ -147,7 +147,14 @@ namespace RepairsApi.V2.Factories
                 CallerNumber = workOrder.Customer?.Person?.Communication?.Where(cc => cc.Channel?.Medium == Generated.CommunicationMediumCode._20 /* Audio */).FirstOrDefault()
                     ?.Value,
                 Status = workOrder.GetStatus(),
-                ContractorReference = workOrder.AssignedToPrimary?.ContractorReference
+                ContractorReference = workOrder.AssignedToPrimary?.ContractorReference,
+                Appointment = appointment is null ? null : new AppointmentResponse
+                {
+                    Date = appointment.Date.Date.ToDate(),
+                    Description = appointment.Description,
+                    Start = appointment.Start.ToTime(),
+                    End = appointment.End.ToTime()
+                }
             };
         }
 

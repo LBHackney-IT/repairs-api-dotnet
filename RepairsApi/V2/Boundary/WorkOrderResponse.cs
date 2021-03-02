@@ -20,5 +20,6 @@ namespace RepairsApi.V2.Boundary
         public WorkPriorityCode? PriorityCode { get; internal set; }
         public string Status { get; internal set; }
         public string ContractorReference { get; set; }
+        public AppointmentResponse Appointment { get; set; }
     }
 }
