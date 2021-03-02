@@ -173,6 +173,7 @@ namespace RepairsApi.V2.Factories
                 LastUpdated = null,
                 PropertyReference = workOrder.Site?.PropertyClass?.FirstOrDefault()?.PropertyReference,
                 TradeCode = workOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomCode,
+                TradeDescription = workOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomName,
                 Status = workOrder.GetStatus()
             };
         }
