@@ -205,14 +205,15 @@ namespace RepairsApi.Tests.V2.E2ETests
             code.Should().Be(404);
         }
 
-        [Test]
-        public async Task HoldAndResumeWorkOrder()
+        [TestCase(JobStatusUpdateTypeCode._120, WorkStatusCode.Hold)]
+        [TestCase(JobStatusUpdateTypeCode._12020, WorkStatusCode.PendMaterial)]
+        public async Task HoldAndResumeWorkOrder(JobStatusUpdateTypeCode updateCode, WorkStatusCode workOrderHoldCode)
         {
             // Arrange
             var workOrderId = await CreateWorkOrder();
 
             // Act
-            await UpdateJob(workOrderId, req => req.TypeCode = JobStatusUpdateTypeCode._120);
+            await UpdateJob(workOrderId, req => req.TypeCode = updateCode);
             var heldOrder = GetWorkOrderFromDB(workOrderId);
             await UpdateJob(workOrderId, req =>
             {
@@ -222,7 +223,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             var resumedOrder = GetWorkOrderFromDB(workOrderId);
 
             // Assert
-            heldOrder.StatusCode.Should().Be(WorkStatusCode.Hold);
+            heldOrder.StatusCode.Should().Be(workOrderHoldCode);
             resumedOrder.StatusCode.Should().Be(WorkStatusCode.Open);
         }
 
