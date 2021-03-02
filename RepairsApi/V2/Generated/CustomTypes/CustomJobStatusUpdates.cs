@@ -4,5 +4,6 @@ namespace RepairsApi.V2.Generated.CustomTypes
     {
         public const string COMPLETED = "complete";
         public const string CANCELLED = "cancel";
+        public const string RESUME = "resume";
     }
 }

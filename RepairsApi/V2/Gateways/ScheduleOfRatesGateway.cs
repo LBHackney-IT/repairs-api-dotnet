@@ -75,7 +75,7 @@ namespace RepairsApi.V2.Gateways
             if (sorCode is null) throw new ArgumentNullException(nameof(sorCode));
 
             //use today
-            var theDate = DateTime.Now.Date;
+            var theDate = DateTime.UtcNow.Date;
 
             var costs = await _context.SORContracts
                             .Where(c => c.Contract.ContractorReference == contractorReference && c.SorCodeCode == sorCode)

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RepairsApi.V2.Infrastructure
 {
-    public class AppointmentListResult
+    public class AppointmentDetails
     {
         public DateTime Date { get; set; }
         public int Id { get; set; }

@@ -5,7 +5,7 @@ namespace RepairsApi.V2.Boundary.Response
 {
     public class AppointmentDayViewModel
     {
-        public DateTime Date { get; set; }
+        public string Date { get; set; }
         public IEnumerable<AppointmentSlot> Slots { get; set; }
     }
 
@@ -13,7 +13,7 @@ namespace RepairsApi.V2.Boundary.Response
     {
         public string Reference { get; set; }
         public string Description { get; set; }
-        public DateTime Start { get; set; }
-        public DateTime End { get; set; }
+        public string Start { get; set; }
+        public string End { get; set; }
     }
 }
