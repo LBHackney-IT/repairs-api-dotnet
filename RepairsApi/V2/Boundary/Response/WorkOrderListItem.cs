@@ -22,6 +22,7 @@ namespace RepairsApi.V2.Boundary.Response
         public string Description { get; set; }
         public string PropertyReference { get; set; }
         public string TradeCode { get; set; }
+        public string TradeDescription { get; set; }
         public string Status { get; set; }
     }
 }

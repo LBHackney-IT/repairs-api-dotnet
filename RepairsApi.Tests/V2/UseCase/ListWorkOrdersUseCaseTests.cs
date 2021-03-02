@@ -69,6 +69,7 @@ namespace RepairsApi.Tests.V2.UseCase
                 LastUpdated = null,
                 PropertyReference = expectedWorkOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference,
                 TradeCode = expectedWorkOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomCode,
+                TradeDescription = expectedWorkOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomName,
                 Status = WorkOrderStatus.InProgress
             };
 
