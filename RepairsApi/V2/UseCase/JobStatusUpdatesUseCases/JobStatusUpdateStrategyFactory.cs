@@ -24,6 +24,8 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
                 JobStatusUpdateTypeCode._80 => _activator.CreateInstance<MoreSpecificSorUseCase>(),
                 // Job Incomplete
                 JobStatusUpdateTypeCode._120 => _activator.CreateInstance<JobIncompleteStrategy>(),
+                // Job incomplete - need materials
+                JobStatusUpdateTypeCode._12020 => _activator.CreateInstance<JobIncompleteNeedMaterialsStrategy>(),
                 // Other
                 JobStatusUpdateTypeCode._0 => ProcessOtherCode(jobStatusUpdate),
                 _ => throw new NotSupportedException($"This type code is not supported: {jobStatusUpdate.TypeCode}"),
