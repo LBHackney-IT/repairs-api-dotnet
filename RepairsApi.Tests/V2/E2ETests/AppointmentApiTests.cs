@@ -70,8 +70,8 @@ namespace RepairsApi.Tests.V2.E2ETests
             var client = CreateClient();
 
             var woRef = AddWorkOrder();
-            var toDate = DateTime.UtcNow.AddDays(1).ToString(DateConstants.DATEFORMAT);
-            var fromDate = DateTime.UtcNow.AddDays(-1).ToString(DateConstants.DATEFORMAT);
+            var toDate = DateTime.UtcNow.AddDays(1).ToDate();
+            var fromDate = DateTime.UtcNow.AddDays(-1).ToDate();
             var result = await client.GetAsync(new Uri($"/api/v2/appointments?workOrderReference={woRef}&toDate={toDate}&fromDate={fromDate}", UriKind.Relative));
 
             result.StatusCode.Should().Be(200);
@@ -84,8 +84,8 @@ namespace RepairsApi.Tests.V2.E2ETests
             var client = CreateClient();
 
             var woRef = AddWorkOrder();
-            var toDate = DateTime.UtcNow.AddDays(-1).ToString(DateConstants.DATEFORMAT);
-            var fromDate = DateTime.UtcNow.AddDays(1).ToString(DateConstants.DATEFORMAT);
+            var toDate = DateTime.UtcNow.AddDays(-1).ToDate();
+            var fromDate = DateTime.UtcNow.AddDays(1).ToDate();
             var result = await client.GetAsync(new Uri($"/api/v2/appointments?workOrderReference={woRef}&toDate={toDate}&fromDate={fromDate}", UriKind.Relative));
 
             result.StatusCode.Should().Be(400);

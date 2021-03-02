@@ -150,10 +150,10 @@ namespace RepairsApi.V2.Factories
                 ContractorReference = workOrder.AssignedToPrimary?.ContractorReference,
                 Appointment = appointment is null ? null : new AppointmentResponse
                 {
-                    Date = appointment.Date.Date.ToISO(),
+                    Date = appointment.Date.Date.ToDate(),
                     Description = appointment.Description,
-                    Start = appointment.Start.ToISO(),
-                    End = appointment.End.ToISO()
+                    Start = appointment.Start.ToTime(),
+                    End = appointment.End.ToTime()
                 }
             };
         }

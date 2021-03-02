@@ -31,12 +31,12 @@ namespace RepairsApi.V2.UseCase
                 .GroupBy(a => a.Date)
                 .Select(a => new AppointmentDayViewModel
                 {
-                    Date = a.Key,
+                    Date = a.Key.ToDate(),
                     Slots = a.Select(slot => new AppointmentSlot
                     {
                         Description = slot.Description,
-                        End = slot.End,
-                        Start = slot.Start,
+                        End = slot.End.ToTime(),
+                        Start = slot.Start.ToTime(),
                         Reference = $"{slot.Id}/{slot.Date:yyyy-MM-dd}"
                     }).OrderBy(slot => slot.Start)
                 });
