@@ -143,13 +143,13 @@ namespace RepairsApi.V2.Factories
             {
                 FirstName = apiResponse.FirstName,
                 LastName = apiResponse.LastName,
-                PhoneNumbers = apiResponse.PhoneNumbers.Select(no => no.PhoneNumber).ToList()
+                PhoneNumbers = apiResponse.PhoneNumbers.MapList(no => no.PhoneNumber)
             };
         }
 
         public static List<ResidentContact> ToDomain(this HousingResidentInformationApiResponse apiResponse)
         {
-            return apiResponse.Residents.Select(res => res.ToDomain()).ToList();
+            return apiResponse.Residents.MapList(res => res.ToDomain());
         }
     }
 }
