@@ -35,7 +35,8 @@ namespace RepairsApi.V2.UseCase
                     Cost = rsi.CodeCost,
                     Code = rsi.CustomCode,
                     Status = "Unknown",
-                    DateAdded = rsi.DateCreated.GetValueOrDefault()
+                    DateAdded = rsi.DateCreated.GetValueOrDefault(),
+                    Original = rsi.Original
                 };
             });
         }

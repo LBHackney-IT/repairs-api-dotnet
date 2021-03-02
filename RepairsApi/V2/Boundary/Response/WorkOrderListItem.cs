@@ -8,6 +8,7 @@ namespace RepairsApi.V2.Boundary.Response
         public const string Complete = "Work Complete";
         public const string Cancelled = "Work Cancelled";
         public const string Hold = "On Hold";
+        public const string PendMaterial = "Materials Needed";
         public const string Unknown = "Unknown";
     }
 
@@ -22,6 +23,7 @@ namespace RepairsApi.V2.Boundary.Response
         public string Description { get; set; }
         public string PropertyReference { get; set; }
         public string TradeCode { get; set; }
+        public string TradeDescription { get; set; }
         public string Status { get; set; }
     }
 }
