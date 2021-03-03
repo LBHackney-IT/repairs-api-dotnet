@@ -12,6 +12,6 @@ namespace RepairsApi.V2.Domain
         public string Status { get; internal set; }
         public bool Original { get; set; }
         public Guid Id { get; set; }
-        public double? OriginalQuantity { get; internal set; }
+        public double? OriginalQuantity { get; set; }
     }
 }

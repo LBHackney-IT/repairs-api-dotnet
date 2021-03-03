@@ -67,6 +67,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             code.Should().Be(HttpStatusCode.OK);
             response.Should().NotBeEmpty();
             response.Should().Contain(item => item.Description == expectedName);
+            response.Should().Contain(item => item.OriginalQuantity.HasValue);
         }
 
         [Test]
