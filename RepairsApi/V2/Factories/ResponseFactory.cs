@@ -256,7 +256,8 @@ namespace RepairsApi.V2.Factories
                 DateAdded = domain.DateAdded,
                 Description = domain.Description,
                 Status = domain.Status,
-                Original = domain.Original
+                Original = domain.Original,
+                OriginalQuantity = domain.OriginalQuantity
             };
         }
 
