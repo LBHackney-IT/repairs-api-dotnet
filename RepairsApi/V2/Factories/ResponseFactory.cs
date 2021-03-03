@@ -95,7 +95,7 @@ namespace RepairsApi.V2.Factories
         {
             return new ResidentContactsViewModel
             {
-                Contacts = domain.Select(contact => contact.ToResponse()).ToList()
+                Contacts = domain.MapList(contact => contact.ToResponse())
             };
         }
 
@@ -148,6 +148,8 @@ namespace RepairsApi.V2.Factories
                     ?.Value,
                 Status = workOrder.GetStatus(),
                 ContractorReference = workOrder.AssignedToPrimary?.ContractorReference,
+                TradeCode = workOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomCode,
+                TradeDescription = workOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomName,
                 Appointment = appointment is null ? null : new AppointmentResponse
                 {
                     Date = appointment.Date.Date.ToDate(),
@@ -256,7 +258,8 @@ namespace RepairsApi.V2.Factories
                 DateAdded = domain.DateAdded,
                 Description = domain.Description,
                 Status = domain.Status,
-                Original = domain.Original
+                Original = domain.Original,
+                OriginalQuantity = domain.OriginalQuantity
             };
         }
 

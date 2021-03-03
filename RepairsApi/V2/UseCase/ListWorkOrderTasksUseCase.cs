@@ -36,7 +36,8 @@ namespace RepairsApi.V2.UseCase
                     Code = rsi.CustomCode,
                     Status = "Unknown",
                     DateAdded = rsi.DateCreated.GetValueOrDefault(),
-                    Original = rsi.Original
+                    Original = rsi.Original,
+                    OriginalQuantity = rsi.OriginalQuantity
                 };
             });
         }

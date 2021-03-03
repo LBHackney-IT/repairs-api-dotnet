@@ -67,6 +67,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             code.Should().Be(HttpStatusCode.OK);
             response.Should().NotBeEmpty();
             response.Should().Contain(item => item.Description == expectedName);
+            response.Should().Contain(item => item.OriginalQuantity.HasValue);
         }
 
         [Test]
@@ -95,6 +96,21 @@ namespace RepairsApi.Tests.V2.E2ETests
             // Assert
             code.Should().Be(HttpStatusCode.OK);
             response.Should().Contain(wo => wo.Reference == workOrderId);
+        }
+
+        [Test]
+        public async Task GetWorkOrder()
+        {
+            // Arrange
+            const string tradeName = "trade name";
+            var workOrderId = await CreateWorkOrder(req =>
+            {
+                req.WorkElement.First().Trade.First().CustomName = tradeName;
+            });
+
+            var (code, response) = await Get<RepairsApi.V2.Boundary.WorkOrderResponse>($"/api/v2/repairs/{workOrderId}");
+            code.Should().Be(HttpStatusCode.OK);
+            response.TradeDescription.Should().Be(tradeName);
         }
 
         [Test]
