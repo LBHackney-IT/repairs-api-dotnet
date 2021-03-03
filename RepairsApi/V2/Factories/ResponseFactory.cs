@@ -95,7 +95,7 @@ namespace RepairsApi.V2.Factories
         {
             return new ResidentContactsViewModel
             {
-                Contacts = domain.Select(contact => contact.ToResponse()).ToList()
+                Contacts = domain.MapList(contact => contact.ToResponse())
             };
         }
 
