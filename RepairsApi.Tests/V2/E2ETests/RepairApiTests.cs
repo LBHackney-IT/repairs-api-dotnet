@@ -99,6 +99,21 @@ namespace RepairsApi.Tests.V2.E2ETests
         }
 
         [Test]
+        public async Task GetWorkOrder()
+        {
+            // Arrange
+            const string tradeName = "trade name";
+            var workOrderId = await CreateWorkOrder(req =>
+            {
+                req.WorkElement.First().Trade.First().CustomName = tradeName;
+            });
+
+            var (code, response) = await Get<RepairsApi.V2.Boundary.WorkOrderResponse>($"/api/v2/repairs/{workOrderId}");
+            code.Should().Be(HttpStatusCode.OK);
+            response.TradeDescription.Should().Be(tradeName);
+        }
+
+        [Test]
         public async Task CompleteWorkOrder()
         {
             // Arrange
