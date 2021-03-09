@@ -82,7 +82,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(NotFoundResult), 404)]
         [ProducesResponseType(typeof(string), StatusCodes.Status502BadGateway)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = UserGroups.AGENT)]
+        [Authorize(Roles = UserGroups.AGENT + "," + UserGroups.CONTRACTOR)]
         public async Task<IActionResult> GetProperty([FromRoute][Required] string propertyReference)
         {
             var property = await _getPropertyUseCase.ExecuteAsync(propertyReference);
