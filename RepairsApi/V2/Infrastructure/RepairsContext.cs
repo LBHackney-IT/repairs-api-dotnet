@@ -30,6 +30,8 @@ namespace RepairsApi.V2.Infrastructure
         public DbSet<Hackney.Appointment> Appointments { get; set; }
         public DbSet<SecurityGroup> SecurityGroups { get; set; }
 
+        public DbSet<RepairsHubUser> RepairsHubUsers { get; set; }
+        public DbSet<VariationCostGroup> VariationCostGroups { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<WorkOrder>()
@@ -80,6 +82,9 @@ namespace RepairsApi.V2.Infrastructure
                 .HasOne(p => p.Contract)
                 .WithMany(c => c.PropertyMap)
                 .HasForeignKey(p => p.ContractReference);
+
+            modelBuilder.Entity<RepairsHubUser>()
+                .HasAlternateKey(u => u.EmailAddress);
 
             modelBuilder.Entity<Hackney.Appointment>()
                 .HasKey(a => new { a.DayId, a.WorkOrderId });
