@@ -218,7 +218,6 @@ namespace RepairsApi.Tests.V2.E2ETests
             response.Status.Should().Be(HttpStatusCode.OK);
         }
 
-        [TestCase("/api/v2/properties/100")]
         [TestCase("/api/v2/properties/100/alerts")]
         [TestCase("/api/v2/properties/?postcode=1111")]
         [TestCase("/api/v2/properties/?q=1111")]
