@@ -32,6 +32,8 @@ namespace RepairsApi.Tests.V2.Services
             user.Should().NotBeNull();
             user.Name().Should().Be(TestUserInformation.NAME);
             user.Email().Should().Be(TestUserInformation.EMAIL);
+            user.RaiseLimit().Should().Be("0");
+            user.VaryLimit().Should().Be("0");
         }
 
         [Test]

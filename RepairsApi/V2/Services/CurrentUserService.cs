@@ -7,6 +7,7 @@ using System;
 using System.Globalization;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace RepairsApi.V2.Services
 {
@@ -58,6 +59,25 @@ namespace RepairsApi.V2.Services
         {
             contractor = _user?.FindFirst(CustomClaimTypes.CONTRACTOR)?.Value ?? string.Empty;
             return !string.IsNullOrWhiteSpace(contractor);
+        }
+
+        public User GetHubUser()
+        {
+            var userClaims = _user?.Claims;
+            var hubUser = new User();
+
+            hubUser.Email = userClaims.Where(u => u.Type == ClaimTypes.Email).FirstOrDefault()?.Value;
+
+            double number = 0;
+            if (double.TryParse(userClaims.Where(u => u.Type == CustomClaimTypes.RAISELIMIT)
+                .FirstOrDefault()?.Value, out number))
+                hubUser.RaiseSpendLimit = number;
+
+            if (double.TryParse(userClaims.Where(u => u.Type == CustomClaimTypes.VARYLIMIT)
+               .FirstOrDefault()?.Value, out number))
+                hubUser.VarySpendLimit = number;
+
+            return hubUser;
         }
 
         private async Task<ClaimsPrincipal> MapUser(User user)
