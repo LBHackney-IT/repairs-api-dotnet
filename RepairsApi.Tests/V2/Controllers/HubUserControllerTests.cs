@@ -1,41 +1,45 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Controllers;
-using RepairsApi.V2.Domain;
-using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Services;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
 namespace RepairsApi.Tests.V2.Controllers
 {
     public class HubUserControllerTests : ControllerTests
     {
         private HubUserController _classUnderTest;
-        private Mock<ICurrentUserService> _currentUserService;
+        private Mock<ICurrentUserService> _mockCurrentUserService;
 
         [SetUp]
         public void SetUp()
         {
-            _currentUserService = new Mock<ICurrentUserService>();
-            _classUnderTest = new HubUserController(_currentUserService.Object);
+            _mockCurrentUserService = new Mock<ICurrentUserService>();
+            _classUnderTest = new HubUserController(_mockCurrentUserService.Object);
         }
 
         [Test]
-        [Ignore("wip")]
         public async Task GetHubUser()
         {
             // Arrange
-            // Act
-            var response = await _classUnderTest.GetHubUser();
-            //var contractors = GetResultData<List<Contractor>>(response);
-            var statusCode = GetStatusCode(response);
+            var hubUser = new HubUserModel
+            {
+                Sub = "222222",
+                Email = "repairs@hackney.gov.uk",
+                Name = "Bob Repairs",
+                VaryLimit = "250",
+                RaiseLimit = "250"
+            };
 
-            // Assert
-            statusCode.Should().Be(200);
-            //contractors.Should().HaveCount(contractorCount);
+            _mockCurrentUserService.Setup(x => x.GetHubUser()).Returns(hubUser);
+            var response = await _classUnderTest.GetHubUser() as OkObjectResult;
+
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(200);
+            response.Value.Should().BeEquivalentTo(hubUser);
         }
     }
 }

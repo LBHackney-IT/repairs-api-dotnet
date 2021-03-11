@@ -21,8 +21,8 @@ namespace RepairsApi.Tests.V2.E2ETests
             var convertedResponse = JsonConvert.DeserializeObject<HubUserModel>(stringContent);
 
             response.StatusCode.Should().Be(200);
-            convertedResponse.VaryLimit.Should().Be(150);
-            convertedResponse.RaiseLimit.Should().Be(150);
+            convertedResponse.VaryLimit.Should().Be("150");
+            convertedResponse.RaiseLimit.Should().Be("150");
         }
     }
 }

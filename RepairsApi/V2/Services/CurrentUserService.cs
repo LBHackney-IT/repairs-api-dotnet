@@ -71,10 +71,10 @@ namespace RepairsApi.V2.Services
 
             double number;
             if (double.TryParse(_user.FindFirstValue(CustomClaimTypes.RAISELIMIT), out number))
-                hubUser.RaiseLimit = number;
+                hubUser.RaiseLimit = number.ToString();
 
             if (double.TryParse(_user.FindFirstValue(CustomClaimTypes.VARYLIMIT), out number))
-                hubUser.VaryLimit = number;
+                hubUser.VaryLimit = number.ToString();
 
             return hubUser;
         }

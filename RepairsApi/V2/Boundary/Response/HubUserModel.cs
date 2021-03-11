@@ -6,7 +6,7 @@ namespace RepairsApi.V2.Boundary.Response
         public string Name { get; set; }
         public string Email { get; set; }
 
-        public double? VaryLimit { get; set; }
-        public double? RaiseLimit { get; set; }
+        public string VaryLimit { get; set; }
+        public string RaiseLimit { get; set; }
     }
 }
