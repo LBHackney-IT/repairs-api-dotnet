@@ -41,6 +41,22 @@ namespace RepairsApi.Tests
             });
         }
 
+        public static void SetAgent(this HttpClient client, string raiseLimit, string varyLimit)
+        {
+            client.SetUser(new RepairsApi.V2.Domain.User
+            {
+                Sub = TestUserInformation.SUB,
+                Name = TestUserInformation.NAME,
+                Email = TestUserInformation.EMAIL,
+                Groups = new List<string>()
+                {
+                    "agent",
+                    raiseLimit,
+                    varyLimit
+                }
+            });
+        }
+
         public static void SetGroup(this HttpClient client, string group)
         {
             client.SetUser(new RepairsApi.V2.Domain.User
