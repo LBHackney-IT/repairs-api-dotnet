@@ -28,5 +28,10 @@ namespace RepairsApi.V2.Authorisation
         {
             return claimsPrincipal.FindFirst(CustomClaimTypes.RAISELIMIT).Value;
         }
+
+        public static string Sub(this ClaimsPrincipal claimsPrincipal)
+        {
+            return claimsPrincipal.FindFirst(ClaimTypes.PrimarySid).Value;
+        }
     }
 }

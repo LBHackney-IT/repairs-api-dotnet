@@ -30,6 +30,7 @@ namespace RepairsApi.Tests.V2.Services
             var user = _classUnderTest.GetUser();
 
             user.Should().NotBeNull();
+            user.Sub().Should().Be(TestUserInformation.SUB);
             user.Name().Should().Be(TestUserInformation.NAME);
             user.Email().Should().Be(TestUserInformation.EMAIL);
             user.RaiseLimit().Should().Be("0");

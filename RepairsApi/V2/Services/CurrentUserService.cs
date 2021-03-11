@@ -7,7 +7,7 @@ using System;
 using System.Globalization;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using System.Linq;
+using RepairsApi.V2.Boundary.Response;
 
 namespace RepairsApi.V2.Services
 {
@@ -61,21 +61,20 @@ namespace RepairsApi.V2.Services
             return !string.IsNullOrWhiteSpace(contractor);
         }
 
-        public User GetHubUser()
+        public HubUserModel GetHubUser()
         {
-            var userClaims = _user?.Claims;
-            var hubUser = new User();
+            var hubUser = new HubUserModel();
 
-            hubUser.Email = userClaims.Where(u => u.Type == ClaimTypes.Email).FirstOrDefault()?.Value;
+            hubUser.Sub = _user.FindFirstValue(ClaimTypes.PrimarySid);
+            hubUser.Email = _user.FindFirstValue(ClaimTypes.Email);
+            hubUser.Name = _user.FindFirstValue(ClaimTypes.Name);
 
-            double number = 0;
-            if (double.TryParse(userClaims.Where(u => u.Type == CustomClaimTypes.RAISELIMIT)
-                .FirstOrDefault()?.Value, out number))
-                hubUser.RaiseSpendLimit = number;
+            double number;
+            if (double.TryParse(_user.FindFirstValue(CustomClaimTypes.RAISELIMIT), out number))
+                hubUser.RaiseLimit = number;
 
-            if (double.TryParse(userClaims.Where(u => u.Type == CustomClaimTypes.VARYLIMIT)
-               .FirstOrDefault()?.Value, out number))
-                hubUser.VarySpendLimit = number;
+            if (double.TryParse(_user.FindFirstValue(CustomClaimTypes.VARYLIMIT), out number))
+                hubUser.VaryLimit = number;
 
             return hubUser;
         }
@@ -86,6 +85,7 @@ namespace RepairsApi.V2.Services
 
             identity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
             identity.AddClaim(new Claim(ClaimTypes.Name, user.Name));
+            identity.AddClaim(new Claim(ClaimTypes.PrimarySid, user.Sub));
 
             double varyLimit = 0;
             double raiseLimit = 0;

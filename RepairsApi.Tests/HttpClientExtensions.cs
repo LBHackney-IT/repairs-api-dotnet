@@ -19,6 +19,7 @@ namespace RepairsApi.Tests
                 .AddClaim("email", user.Email)
                 .AddClaim("name", user.Name)
                 .AddClaim("groups", user.Groups)
+                .AddClaim("sub", user.Sub)
                 .Encode();
             client.DefaultRequestHeaders.Remove("X-Hackney-User");
             client.DefaultRequestHeaders.Add("X-Hackney-User", jwt);
@@ -28,6 +29,7 @@ namespace RepairsApi.Tests
         {
             client.SetUser(new RepairsApi.V2.Domain.User
             {
+                Sub = TestUserInformation.SUB,
                 Name = TestUserInformation.NAME,
                 Email = TestUserInformation.EMAIL,
                 Groups = new List<string>()
@@ -43,6 +45,7 @@ namespace RepairsApi.Tests
         {
             client.SetUser(new RepairsApi.V2.Domain.User
             {
+                Sub = TestUserInformation.SUB,
                 Name = TestUserInformation.NAME,
                 Email = TestUserInformation.EMAIL,
                 Groups = new List<string>()

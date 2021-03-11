@@ -1,5 +1,5 @@
-using RepairsApi.V2.Domain;
 using System.Security.Claims;
+using RepairsApi.V2.Boundary.Response;
 
 namespace RepairsApi.V2.Services
 {
@@ -9,6 +9,6 @@ namespace RepairsApi.V2.Services
         bool IsUserPresent();
         bool HasGroup(string groupName);
         bool TryGetContractor(out string contractor);
-        User GetHubUser();
+        HubUserModel GetHubUser();
     }
 }
