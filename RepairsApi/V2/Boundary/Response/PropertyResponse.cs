@@ -22,11 +22,6 @@ namespace RepairsApi.V2.Boundary.Response
         /// <summary>
         /// Gets or Sets Resident Contact Information
         /// </summary>
-        public ResidentContactsViewModel Contacts { get; set; }
-    }
-
-    public class ResidentContactsViewModel
-    {
         public IEnumerable<ResidentContactViewModel> Contacts { get; set; }
     }
 
