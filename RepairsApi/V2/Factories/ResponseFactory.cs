@@ -91,12 +91,9 @@ namespace RepairsApi.V2.Factories
             };
         }
 
-        public static ResidentContactsViewModel ToResponse(this IEnumerable<ResidentContact> domain)
+        public static IEnumerable<ResidentContactViewModel> ToResponse(this IEnumerable<ResidentContact> domain)
         {
-            return new ResidentContactsViewModel
-            {
-                Contacts = domain.MapList(contact => contact.ToResponse())
-            };
+            return new List<ResidentContactViewModel>(domain.Select(contact => contact.ToResponse()));
         }
 
         public static ResidentContactViewModel ToResponse(this ResidentContact domain)
