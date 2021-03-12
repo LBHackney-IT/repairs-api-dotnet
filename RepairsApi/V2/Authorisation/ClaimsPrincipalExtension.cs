@@ -33,5 +33,6 @@ namespace RepairsApi.V2.Authorisation
         {
             return claimsPrincipal.FindFirst(ClaimTypes.PrimarySid).Value;
         }
+
     }
 }

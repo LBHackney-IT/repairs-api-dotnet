@@ -1,8 +1,7 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RepairsApi.V2.Authorisation;
-using RepairsApi.V2.Services;
 using RepairsApi.V2.Boundary.Response;
+using RepairsApi.V2.Services;
 using System.Threading.Tasks;
 
 namespace RepairsApi.V2.Controllers
@@ -27,7 +26,6 @@ namespace RepairsApi.V2.Controllers
         [Produces("application/json")]
         [ProducesResponseType(typeof(HubUserModel), 200)]
         [HttpGet]
-        [Authorize(Roles = UserGroups.AGENT + "," + UserGroups.CONTRACTOR)]
         public async Task<ActionResult> GetHubUser()
         {
             return Ok(await Task.FromResult(_currentUserService.GetHubUser()));

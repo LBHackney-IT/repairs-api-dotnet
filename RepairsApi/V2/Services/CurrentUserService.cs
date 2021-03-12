@@ -61,24 +61,6 @@ namespace RepairsApi.V2.Services
             return !string.IsNullOrWhiteSpace(contractor);
         }
 
-        public HubUserModel GetHubUser()
-        {
-            var hubUser = new HubUserModel();
-
-            hubUser.Sub = _user.FindFirstValue(ClaimTypes.PrimarySid);
-            hubUser.Email = _user.FindFirstValue(ClaimTypes.Email);
-            hubUser.Name = _user.FindFirstValue(ClaimTypes.Name);
-
-            double number;
-            if (double.TryParse(_user.FindFirstValue(CustomClaimTypes.RAISELIMIT), out number))
-                hubUser.RaiseLimit = number.ToString();
-
-            if (double.TryParse(_user.FindFirstValue(CustomClaimTypes.VARYLIMIT), out number))
-                hubUser.VaryLimit = number.ToString();
-
-            return hubUser;
-        }
-
         private async Task<ClaimsPrincipal> MapUser(User user)
         {
             var identity = new ClaimsIdentity();
