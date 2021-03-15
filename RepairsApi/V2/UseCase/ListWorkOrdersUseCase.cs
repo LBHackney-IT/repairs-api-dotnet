@@ -48,7 +48,7 @@ namespace RepairsApi.V2.UseCase
                 result.Add(wo => wo.AssignedToPrimary.ContractorReference == searchParameters.ContractorReference);
             }
 
-            if(searchParameters.StatusCode > 0 && Enum.IsDefined(typeof(WorkStatusCode), searchParameters.StatusCode))
+            if (searchParameters.StatusCode > 0 && Enum.IsDefined(typeof(WorkStatusCode), searchParameters.StatusCode))
             {
                 result.Add(wo => wo.StatusCode == (WorkStatusCode) Enum.Parse(typeof(WorkStatusCode), searchParameters.StatusCode.ToString()));
             }

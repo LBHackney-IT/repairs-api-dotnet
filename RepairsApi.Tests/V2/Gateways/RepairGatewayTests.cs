@@ -105,7 +105,7 @@ namespace RepairsApi.Tests.V2.Gateways
 
             // act
             var workOrders = await _classUnderTest.GetWorkOrders(wo =>
-                wo.StatusCode  == WorkStatusCode.Hold);
+                wo.StatusCode == WorkStatusCode.Hold);
 
             // assert
             workOrders.Should().ContainSingle().Which.Should().BeEquivalentTo(expectedWorkOrder);
