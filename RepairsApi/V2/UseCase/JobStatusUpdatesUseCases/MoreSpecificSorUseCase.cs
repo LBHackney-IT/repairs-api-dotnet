@@ -41,7 +41,8 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
 
             var authorised = await _authorizationService.AuthorizeAsync(_currentUserService.GetUser(), jobStatusUpdate, "VarySpendLimit");
-            if (await _featureManager.IsEnabledAsync(FeatureFlags.SPENDLIMITS) && !authorised.Succeeded) throw new UnauthorizedAccessException("Resulting Work Order is above Spend Limit");
+            if (await _featureManager.IsEnabledAsync(FeatureFlags.SPENDLIMITS) && !authorised.Succeeded)
+                workOrder.StatusCode = WorkStatusCode.PendApp;
 
             var existingCodes = workOrder.WorkElements.SelectMany(we => we.RateScheduleItem);
             var newCodes = workElement.RateScheduleItem.Where(rsi => !existingCodes.Any(ec => ec.Id == rsi.Id));

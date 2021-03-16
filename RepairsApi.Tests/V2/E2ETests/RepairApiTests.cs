@@ -190,7 +190,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         }
 
         [Test]
-        public async Task UpdateReturns401WhenLimitExceeded()
+        public async Task UpdateCausesPendingApprovalOnWorkOrderWhenCostLimitExceeded()
         {
             // Arrange
             string expectedCode = "expectedCode_LimitExceededOnUpdate";
@@ -205,10 +205,11 @@ namespace RepairsApi.Tests.V2.E2ETests
             JobStatusUpdate request = CreateUpdateRequest(workOrderId, workElement);
 
             // Act
-            var code = await Post("/api/v2/jobStatusUpdate", request);
+            await Post("/api/v2/jobStatusUpdate", request);
+            var workOrder = GetWorkOrderFromDB(workOrderId);
 
             // Assert
-            code.Should().Be(HttpStatusCode.Unauthorized);
+            workOrder.StatusCode.Should().Be(WorkStatusCode.PendApp);
         }
 
         [Test]
