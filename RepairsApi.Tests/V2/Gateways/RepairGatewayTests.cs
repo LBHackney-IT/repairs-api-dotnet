@@ -95,6 +95,23 @@ namespace RepairsApi.Tests.V2.Gateways
         }
 
         [Test]
+        public async Task CanGetWorkOrdersFilteredByStatus()
+        {
+            // arrange
+            await InMemoryDb.Instance.WorkOrders.AddRangeAsync(CreateWorkOrders(25));
+            var expectedWorkOrder = CreateWorkOrderWithStatus(70);
+            await InMemoryDb.Instance.WorkOrders.AddAsync(expectedWorkOrder);
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            // act
+            var workOrders = await _classUnderTest.GetWorkOrders(wo =>
+                wo.StatusCode == WorkStatusCode.Hold);
+
+            // assert
+            workOrders.Should().ContainSingle().Which.Should().BeEquivalentTo(expectedWorkOrder);
+        }
+
+        [Test]
         public async Task CanGetWorkOrderById()
         {
             // arrange
@@ -192,6 +209,26 @@ namespace RepairsApi.Tests.V2.Gateways
                 {
                     ContractorReference = contractor
                 }
+            };
+            return expected;
+        }
+
+        private static WorkOrder CreateWorkOrderWithStatus(int statusCode = 0)
+        {
+            var expected = new WorkOrder
+            {
+                WorkPriority = new WorkPriority
+                {
+                    PriorityCode = RepairsApi.V2.Generated.WorkPriorityCode._1,
+                    RequiredCompletionDateTime = DateTime.UtcNow
+                },
+                WorkClass = new WorkClass
+                {
+                    WorkClassCode = RepairsApi.V2.Generated.WorkClassCode._0
+                },
+                WorkElements = new List<WorkElement>(),
+                DescriptionOfWork = "description",
+                StatusCode = (WorkStatusCode) Enum.Parse(typeof(WorkStatusCode), statusCode.ToString())
             };
             return expected;
         }
