@@ -132,13 +132,20 @@ namespace RepairsApi.Tests.V2.UseCase
                 PageNumber = 2,
                 PageSize = expectedPageSize
             };
+            var statusOrder = new[] {
+                WorkOrderStatus.InProgress,
+                WorkOrderStatus.PendApp,
+                WorkOrderStatus.Cancelled,
+                WorkOrderStatus.Complete,
+                WorkOrderStatus.Unknown
+            };
 
             //Act
             var workOrders = await _classUnderTest.Execute(workOrderSearchParameters);
 
             //Assert
             var expectedResult = generatedWorkOrders
-                .OrderBy(wo => wo.GetStatus())
+                .OrderBy(wo => Array.IndexOf(statusOrder, wo.GetStatus()))
                 .ThenByDescending(wo => wo.DateRaised)
                 .Skip((workOrderSearchParameters.PageNumber - 1) * workOrderSearchParameters.PageSize)
                 .Take(workOrderSearchParameters.PageSize)
