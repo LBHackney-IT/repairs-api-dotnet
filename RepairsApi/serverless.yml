@@ -96,8 +96,8 @@ custom:
       securityGroupIds:
         - sg-0835968e22d1f2a73
       subnetIds:
-        - subnet-0deabb5d8fb9c3446
-        - subnet-000b89c249f12a8ad
+        - subnet-0140d06fb84fdb547
+        - subnet-05ce390ba88c42bfd
     staging:
       securityGroupIds:
         - sg-011122be56aa0af9e
