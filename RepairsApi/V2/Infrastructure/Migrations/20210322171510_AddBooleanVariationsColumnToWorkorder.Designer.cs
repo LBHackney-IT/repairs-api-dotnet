@@ -10,7 +10,7 @@ using RepairsApi.V2.Infrastructure;
 namespace RepairsApi.V2.Infrastructure.Migrations
 {
     [DbContext(typeof(RepairsContext))]
-    [Migration("20210322161406_AddBooleanVariationsColumnToWorkorder")]
+    [Migration("20210322171510_AddBooleanVariationsColumnToWorkorder")]
     partial class AddBooleanVariationsColumnToWorkorder
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
