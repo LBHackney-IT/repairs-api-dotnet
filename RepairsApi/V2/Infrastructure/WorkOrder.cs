@@ -34,6 +34,7 @@ namespace RepairsApi.V2.Infrastructure
         // Extensions
         public string AgentName { get; set; }
         public WorkStatusCode StatusCode { get; set; } = WorkStatusCode.Open;
+        public VariationStatusCode HasVariation { get; set; } = VariationStatusCode.Outstanding;
     }
 
     public enum WorkStatusCode
@@ -54,6 +55,12 @@ namespace RepairsApi.V2.Infrastructure
 
         // Extensions
         NoAccess = 1000,
+    }
+
+    public enum VariationStatusCode
+    {
+        Resolved = 0,
+        Outstanding = 1
     }
 
     [Owned]
