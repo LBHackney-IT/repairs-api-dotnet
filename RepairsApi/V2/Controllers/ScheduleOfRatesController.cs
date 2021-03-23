@@ -65,7 +65,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = UserGroups.CONTRACTOR)]
+        [Authorize(Roles = UserGroups.CONTRACTOR + "," + UserGroups.CONTRACT_MANAGER)]
         public async Task<IActionResult> GetSorCode([Required] string sorCode, [FromQuery][Required] string propertyReference)
         {
             var contractorReference = User.FindFirst(CustomClaimTypes.CONTRACTOR).Value;
