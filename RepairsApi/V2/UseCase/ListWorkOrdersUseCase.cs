@@ -26,8 +26,16 @@ namespace RepairsApi.V2.UseCase
         {
             IEnumerable<WorkOrder> workOrders = await _repairsGateway.GetWorkOrders(GetConstraints(searchParameters));
 
+            var statusOrder = new[] {
+                WorkOrderStatus.InProgress,
+                WorkOrderStatus.PendApp,
+                WorkOrderStatus.Cancelled,
+                WorkOrderStatus.Complete,
+                WorkOrderStatus.Unknown
+            };
+
             return workOrders.Select(wo => wo.ToListItem())
-                .OrderBy(wo => wo.Status)
+                .OrderBy(wo => Array.IndexOf(statusOrder, wo.Status))
                 .ThenByDescending(wo => wo.DateRaised)
                 .Skip((searchParameters.PageNumber - 1) * searchParameters.PageSize)
                 .Take(searchParameters.PageSize)
