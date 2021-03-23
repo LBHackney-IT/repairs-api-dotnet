@@ -134,7 +134,6 @@ namespace RepairsApi.Tests.V2.UseCase
             };
             var statusOrder = new[] {
                 WorkOrderStatus.InProgress,
-                WorkOrderStatus.PendApp,
                 WorkOrderStatus.Cancelled,
                 WorkOrderStatus.Complete,
                 WorkOrderStatus.Unknown
