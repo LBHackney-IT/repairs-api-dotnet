@@ -1092,10 +1092,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasColumnType("double precision")
                         .HasColumnName("estimated_labor_hours");
 
-                    b.Property<bool>("HasVariation")
-                        .HasColumnType("boolean")
-                        .HasColumnName("has_variation");
-
                     b.Property<int?>("InstructedById")
                         .HasColumnType("integer")
                         .HasColumnName("instructed_by_id");
