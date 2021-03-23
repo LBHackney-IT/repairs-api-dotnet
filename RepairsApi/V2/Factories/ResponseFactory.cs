@@ -147,6 +147,7 @@ namespace RepairsApi.V2.Factories
                 ContractorReference = workOrder.AssignedToPrimary?.ContractorReference,
                 TradeCode = workOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomCode,
                 TradeDescription = workOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomName,
+                HasVariation = workOrder.HasVariation,
                 Appointment = appointment is null ? null : new AppointmentResponse
                 {
                     Date = appointment.Date.Date.ToDate(),
