@@ -2,16 +2,16 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace RepairsApi.V2.Infrastructure.Migrations
 {
-    public partial class AddVariationsColumnToWorkorder : Migration
+    public partial class AddBooleanVariationsColumnToWorkorder : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
+            migrationBuilder.AddColumn<bool>(
                 name: "has_variation",
                 table: "work_orders",
-                type: "integer",
+                type: "boolean",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: false);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
