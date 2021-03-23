@@ -6,12 +6,12 @@ namespace RepairsApi.V2.Infrastructure.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<bool>(
-                name: "has_variation",
-                table: "work_orders",
-                type: "boolean",
-                nullable: false,
-                defaultValue: false);
+            //migrationBuilder.AddColumn<bool>(
+            //    name: "has_variation",
+            //    table: "work_orders",
+            //    type: "boolean",
+            //    nullable: false,
+            //    defaultValue: false);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
