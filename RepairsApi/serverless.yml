@@ -94,7 +94,7 @@ custom:
   vpc:
     development:
       securityGroupIds:
-        - sg-0835968e22d1f2a73
+        - sg-08e28776da7918e4b
       subnetIds:
         - subnet-0140d06fb84fdb547
         - subnet-05ce390ba88c42bfd
