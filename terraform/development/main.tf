@@ -11,7 +11,7 @@ locals {
 
 terraform {
   backend "s3" {
-    bucket  = "terraform-state-development-apis"
+    bucket  = "terraform-state-housing-development"
     encrypt = true
     region  = "eu-west-2"
     key     = "services/repairs-api/state"
@@ -21,7 +21,7 @@ terraform {
 /*    POSTGRES SET UP    */
 data "aws_vpc" "development_vpc" {
   tags = {
-    Name = "vpc-development-apis-development"
+    Name = "vpc-housing-development"
   }
 }
 data "aws_subnet_ids" "development_private_subnets" {
@@ -49,13 +49,13 @@ module "postgres_db_development" {
     db_port  = 5829
     subnet_ids = data.aws_subnet_ids.development_private_subnets.ids
     db_engine = "postgres"
-    db_engine_version = "11.10" //DMS does not work well with v12
-    db_instance_class = "db.t2.micro"
+    db_engine_version = "12." //DMS does not work well with v12
+    db_instance_class = "db.t3.micro"
     db_allocated_storage = 20
     maintenance_window = "sun:10:00-sun:10:30"
     db_username = data.aws_ssm_parameter.repairs_postgres_username.value
     db_password = data.aws_ssm_parameter.repairs_postgres_db_password.value
-    storage_encrypted = false
+    storage_encrypted = true
     multi_az = false //only true if production deployment
     publicly_accessible = false
     project_name = "repairs hub"
