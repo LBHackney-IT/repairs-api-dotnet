@@ -216,7 +216,7 @@ workflows:
       - check-code-formatting
       - build-and-test
       - assume-role-development:
-          context: api-assume-role-development-context
+          context: api-assume-role-housing-development-context
           requires:
             - build-and-test
           filters:
