@@ -23,5 +23,6 @@ namespace RepairsApi.V2.Boundary
         public string TradeCode { get; set; }
         public string TradeDescription { get; set; }
         public AppointmentResponse Appointment { get; set; }
+        public bool HasVariation { get; set; }
     }
 }
