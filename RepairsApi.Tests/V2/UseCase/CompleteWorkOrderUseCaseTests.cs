@@ -202,7 +202,7 @@ namespace RepairsApi.Tests.V2.UseCase
         }
 
         [Test]
-        public async Task UpdatesWorkOrderStatusComplete()
+        public async Task ContractorUpdatesWorkOrderStatusComplete()
         {
             // arrange
             string customUpdateType = CustomJobStatusUpdates.COMPLETED;
@@ -226,12 +226,60 @@ namespace RepairsApi.Tests.V2.UseCase
         }
 
         [Test]
-        public async Task UpdatesWorkOrderStatusNoAccess()
+        public async Task ContractorUpdatesWorkOrderStatusNoAccess()
         {
             // arrange
             const Generated.JobStatusUpdateTypeCode NO_ACCESS = Generated.JobStatusUpdateTypeCode._70;
             WorkStatusCode expectedNewStatus = WorkStatusCode.NoAccess;
             _currentUserServiceMock.SetSecurityGroup(UserGroups.CONTRACTOR, true);
+            var expectedWorkOrder = CreateWorkOrder();
+            var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
+            workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
+            {
+                new Generated.JobStatusUpdates
+                {
+                    TypeCode = NO_ACCESS, Comments = "expectedComment"
+                }
+            };
+
+            // act
+            await _classUnderTest.Execute(workOrderCompleteRequest);
+
+            // assert
+            _repairsGatewayMock.Verify(rgm => rgm.UpdateWorkOrderStatus(expectedWorkOrder.Id, expectedNewStatus));
+        }
+
+        [Test]
+        public async Task ContractManagerUpdatesWorkOrderStatusComplete()
+        {
+            // arrange
+            string customUpdateType = CustomJobStatusUpdates.COMPLETED;
+            WorkStatusCode expectedNewStatus = WorkStatusCode.Complete;
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.CONTRACT_MANAGER, true);
+            var expectedWorkOrder = CreateWorkOrder();
+            var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
+            workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
+            {
+                new Generated.JobStatusUpdates
+                {
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = customUpdateType, Comments = "expectedComment"
+                }
+            };
+
+            // act
+            await _classUnderTest.Execute(workOrderCompleteRequest);
+
+            // assert
+            _repairsGatewayMock.Verify(rgm => rgm.UpdateWorkOrderStatus(expectedWorkOrder.Id, expectedNewStatus));
+        }
+
+        [Test]
+        public async Task ContractManagerUpdatesWorkOrderStatusNoAccess()
+        {
+            // arrange
+            const Generated.JobStatusUpdateTypeCode NO_ACCESS = Generated.JobStatusUpdateTypeCode._70;
+            WorkStatusCode expectedNewStatus = WorkStatusCode.NoAccess;
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.CONTRACT_MANAGER, true);
             var expectedWorkOrder = CreateWorkOrder();
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
             workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
