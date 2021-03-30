@@ -13,6 +13,12 @@ namespace RepairsApi.V2.Boundary.Response
         public const string Unknown = "Unknown";
     }
 
+    public static class WorkOrderReason
+    {
+        public const string Rejected = "Rejected";
+        public const string Unknown = "Unknown";
+    }
+
     public class WorkOrderListItem
     {
         public int Reference { get; set; }

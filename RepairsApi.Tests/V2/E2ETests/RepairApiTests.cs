@@ -209,7 +209,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             var workOrder = GetWorkOrderFromDB(workOrderId);
 
             // Assert
-            workOrder.StatusCode.Should().Be(WorkStatusCode.PendApp);
+            workOrder.StatusCode.Should().Be(WorkStatusCode.Hold);
         }
 
         [Test]

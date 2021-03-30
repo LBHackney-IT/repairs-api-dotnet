@@ -31,6 +31,7 @@ namespace RepairsApi.V2.UseCase
 
         public async Task Execute(JobStatusUpdate jobStatusUpdate)
         {
+            //reads jobstatus update
             var workOrderId = int.Parse(jobStatusUpdate.RelatedWorkOrderReference.ID);
 
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);

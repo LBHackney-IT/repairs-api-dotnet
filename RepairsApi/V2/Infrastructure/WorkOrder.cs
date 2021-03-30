@@ -34,7 +34,7 @@ namespace RepairsApi.V2.Infrastructure
         // Extensions
         public string AgentName { get; set; }
         public WorkStatusCode StatusCode { get; set; } = WorkStatusCode.Open;
-        public bool HasVariation { get; set; } = false;
+        public ReasonCode Reason { get; set; } = ReasonCode.FullyFunded;
     }
 
     public enum WorkStatusCode
@@ -55,6 +55,18 @@ namespace RepairsApi.V2.Infrastructure
 
         // Extensions
         NoAccess = 1000,
+    }
+
+    public enum ReasonCode
+    {
+        NoBudget = 10,	   //No Budget To Perform The Requested Work
+        LowPriority = 20,      //Low Priority: Work Considered A Low Priority
+        FullyFunded = 30,      //Fully Funded: Work Is Fully Funded And Ready For Next Step
+        PartiallyFunded = 40,      //Partially Funded: Work Is Partially Funded And On Hold Until Fully Funded
+        ScheduleConflict = 50,     //Schedule Conflict Exists With This Work Request
+        NoApproval = 60,    //No Approval: Work Was Not Approved
+        Approved = 70,      //Approved: All Required Approvals Are Present
+        Priority = 80,   //Change Priority Changed Either Escalated Or De-Escalated
     }
 
     [Owned]
