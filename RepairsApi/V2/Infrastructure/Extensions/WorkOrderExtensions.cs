@@ -17,5 +17,21 @@ namespace RepairsApi.V2.Infrastructure.Extensions
                 _ => WorkOrderStatus.Unknown,
             };
         }
+
+        public static string GetAction(this WorkOrder workOrder)
+        {
+            return workOrder.Reason switch
+            {
+                //ReasonCode.NoBudget  
+                //ReasonCode.LowPriority 
+                //ReasonCode.FullyFunded 
+                //ReasonCode.PartiallyFunded 
+                //ReasonCode.ScheduleConflict 
+                ReasonCode.NoApproval => WorkOrderReason.Rejected,
+                //ReasonCode.Approved
+                //ReasonCode.Priority 
+                _ => WorkOrderReason.Unknown,
+            };
+        }
     }
 }
