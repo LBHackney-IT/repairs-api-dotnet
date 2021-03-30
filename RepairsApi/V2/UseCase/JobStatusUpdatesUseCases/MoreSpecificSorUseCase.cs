@@ -42,7 +42,11 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
             var authorised = await _authorizationService.AuthorizeAsync(_currentUserService.GetUser(), jobStatusUpdate, "VarySpendLimit");
             if (await _featureManager.IsEnabledAsync(FeatureFlags.SPENDLIMITS) && !authorised.Succeeded)
-                workOrder.StatusCode = WorkStatusCode.PendApp; //change to on hold - reason code will be 60 (no approval)
+            {
+                workOrder.StatusCode = WorkStatusCode.Hold;
+                workOrder.Reason = ReasonCode.NoApproval;
+            }
+            //change workstatus to on hold - reason code will be 60 (no approval)
 
             var existingCodes = workOrder.WorkElements.SelectMany(we => we.RateScheduleItem);
             var newCodes = workElement.RateScheduleItem.Where(rsi => !existingCodes.Any(ec => ec.Id == rsi.Id));
