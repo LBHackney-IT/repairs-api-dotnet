@@ -44,7 +44,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             if (await _featureManager.IsEnabledAsync(FeatureFlags.SPENDLIMITS) && !authorised.Succeeded)
             {
                 workOrder.StatusCode = WorkStatusCode.Hold;
-                workOrder.Reason = ReasonCode.NoApproval;
+                workOrder.Reason = ReasonCode.PartiallyFunded; //pending authorisation: 40
             }
             //change workstatus to on hold - reason code will be 60 (no approval)
 
