@@ -23,6 +23,10 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
                 // More specific SOR Code - (probably means variation) Approval is 100 - JobstatustypeCode - 100,
                 //Reason code = Approved = 70, Workstatuscode = 80
                 JobStatusUpdateTypeCode._80 => _activator.CreateInstance<MoreSpecificSorUseCase>(),
+                //Variation approved
+                JobStatusUpdateTypeCode._10020 => _activator.CreateInstance<MoreSpecificSorUseCase>(),
+                //Variation acknowlwdged by contractor
+                JobStatusUpdateTypeCode._10010 => _activator.CreateInstance<MoreSpecificSorUseCase>(),
                 // Job Incomplete
                 JobStatusUpdateTypeCode._120 => _activator.CreateInstance<JobIncompleteStrategy>(),
                 // Job incomplete - need materials

@@ -38,6 +38,8 @@ namespace RepairsApi.V2.UseCase
 
             await _strategyFactory.ProcessActions(jobStatusUpdate);
 
+            //Jobstatus update changes based on user authorisatiuon
+            //Amend jobstatus update for attempted variations.
             await _jobStatusUpdateGateway.CreateJobStatusUpdate(jobStatusUpdate.ToDb(workOrder));
         }
 

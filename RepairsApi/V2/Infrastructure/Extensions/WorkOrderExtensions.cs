@@ -25,7 +25,7 @@ namespace RepairsApi.V2.Infrastructure.Extensions
                 //ReasonCode.NoBudget  
                 //ReasonCode.LowPriority 
                 //ReasonCode.FullyFunded 
-                ReasonCode.PartiallyFunded => WorkOrderReason.PendAuthorisation,
+                ReasonCode.PendingAuthorisation => WorkOrderReason.PendAuthorisation,
                 //ReasonCode.ScheduleConflict 
                 ReasonCode.NoApproval => WorkOrderReason.Rejected,
                 //ReasonCode.Approved
