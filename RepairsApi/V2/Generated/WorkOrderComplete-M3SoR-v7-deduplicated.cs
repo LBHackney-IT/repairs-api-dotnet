@@ -249,6 +249,8 @@ namespace RepairsApi.V2.Generated
         [System.Runtime.Serialization.EnumMember(Value = @"120-50")]
         _12050 = 19,
 
+        [System.Runtime.Serialization.EnumMember(Value = @"125")]
+        _125 = 20,
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.2.0 (Newtonsoft.Json v9.0.0.0)")]
