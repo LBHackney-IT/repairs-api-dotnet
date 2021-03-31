@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
 
 
-namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases 
+namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 {
     public class ApproveVariationUseCase : IMoreSpecificSorUseCase, IJobStatusUpdateStrategy
     {
