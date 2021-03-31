@@ -80,6 +80,7 @@ namespace RepairsApi.Tests
 
             if (_userGroup == UserGroups.AGENT) client.SetAgent();
             if (_userGroup == UserGroups.CONTRACTOR) client.SetGroup(GetGroup(TestDataSeeder.Contractor));
+            if (_userGroup == UserGroups.CONTRACT_MANAGER) client.SetGroup(_userGroup);
         }
 
         protected void SetUserRole(string userGroup)
@@ -152,9 +153,10 @@ namespace RepairsApi.Tests
             return (result.StatusCode, response);
         }
 
-        private async Task<HttpResponseMessage> InternalPost(string uri, object data)
+        private async Task<HttpResponseMessage> InternalPost(string uri, object data, string role = "agent")
         {
             var client = CreateClient();
+            if (!role.Equals("agent")) client.SetGroup("contract manager");
             var serializedContent = JsonConvert.SerializeObject(data);
             StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
 
@@ -162,9 +164,9 @@ namespace RepairsApi.Tests
             return result;
         }
 
-        public async Task<HttpStatusCode> Post(string uri, object data)
+        public async Task<HttpStatusCode> Post(string uri, object data, string role = "agent")
         {
-            HttpResponseMessage result = await InternalPost(uri, data);
+            HttpResponseMessage result = await InternalPost(uri, data, role);
             return result.StatusCode;
         }
     }

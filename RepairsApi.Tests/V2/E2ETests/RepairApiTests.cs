@@ -1,6 +1,8 @@
 using FluentAssertions;
 using NUnit.Framework;
+using RepairsApi.Tests.Helpers;
 using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Generated.CustomTypes;
@@ -19,7 +21,6 @@ namespace RepairsApi.Tests.V2.E2ETests
 {
     public class RepairApiTests : MockWebApplicationFactory
     {
-
         [Test]
         public async Task ScheduleRepair()
         {
@@ -210,6 +211,33 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             // Assert
             workOrder.StatusCode.Should().Be(WorkStatusCode.Hold);
+        }
+
+        [Test]
+        public async Task HoldWorkOrderRejectVariation()
+        {
+            // Arrange
+            string expectedCode = "expectedCode_LimitExceededOnUpdate2";
+            AddTestCode(expectedCode);
+            var workOrderId = await CreateWorkOrder();
+            var tasks = await GetTasks(workOrderId);
+
+            RepairsApi.V2.Generated.WorkElement workElement = TransformTasksToWorkElement(tasks);
+
+            AddRateScheduleItem(workElement, expectedCode, 100000);
+
+            JobStatusUpdate request = CreateUpdateRequest(workOrderId, workElement);
+            // Act
+            await Post("/api/v2/jobStatusUpdate", request);
+            var workOrder = GetWorkOrderFromDB(workOrderId);
+
+            request.TypeCode = JobStatusUpdateTypeCode._125;
+            await Post("/api/v2/jobStatusUpdate", request, "contract manager");
+            var rejectedOrder = GetWorkOrderFromDB(workOrderId);
+
+            // Assert
+            rejectedOrder.StatusCode.Should().Be(WorkStatusCode.Hold);
+            rejectedOrder.Reason.Should().Be(ReasonCode.NoApproval);
         }
 
         [Test]
