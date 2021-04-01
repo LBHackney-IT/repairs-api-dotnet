@@ -22,14 +22,9 @@ namespace RepairsApi.V2.Infrastructure.Extensions
         {
             return workOrder.Reason switch
             {
-                //ReasonCode.NoBudget  
-                //ReasonCode.LowPriority 
-                //ReasonCode.FullyFunded 
                 ReasonCode.PendingAuthorisation => WorkOrderReason.PendAuthorisation,
-                //ReasonCode.ScheduleConflict 
                 ReasonCode.NoApproval => WorkOrderReason.Rejected,
                 ReasonCode.Approved => WorkOrderReason.Approved,
-                //ReasonCode.Priority 
                 _ => WorkOrderReason.Unknown,
             };
         }

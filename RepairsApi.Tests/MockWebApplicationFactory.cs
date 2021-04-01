@@ -156,7 +156,7 @@ namespace RepairsApi.Tests
         private async Task<HttpResponseMessage> InternalPost(string uri, object data, string role = "agent")
         {
             var client = CreateClient();
-            if (!role.Equals("agent")) client.SetGroup("contract manager");
+            if (!role.Equals("agent")) client.SetGroup(role);
             var serializedContent = JsonConvert.SerializeObject(data);
             StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
 

@@ -27,14 +27,14 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
                 //Reason code = Approved = 70, Workstatuscode = 80
                 JobStatusUpdateTypeCode._80 => _activator.CreateInstance<MoreSpecificSorUseCase>(),
 
-                //Variation approved
+                //Variation approved, workorder on hold
                 JobStatusUpdateTypeCode._10020 => _activator.CreateInstance<ApproveVariationUseCase>(),
 
-                //Variation Rejected
+                //Variation Rejected, workorder on hold
                 JobStatusUpdateTypeCode._125 => _activator.CreateInstance<RejectVariationUseCase>(),
 
-                //Variation acknowledged by contractor
-                JobStatusUpdateTypeCode._10010 => _activator.CreateInstance<MoreSpecificSorUseCase>(),
+                //Variation acknowledged by contractor, workorder set to in progress
+                JobStatusUpdateTypeCode._10010 => _activator.CreateInstance<ContractorAcceptApprovedVariationUseCase>(),
 
                 // Job Incomplete
                 JobStatusUpdateTypeCode._120 => _activator.CreateInstance<JobIncompleteStrategy>(),
