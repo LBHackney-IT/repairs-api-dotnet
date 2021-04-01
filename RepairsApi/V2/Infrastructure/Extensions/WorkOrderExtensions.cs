@@ -28,7 +28,7 @@ namespace RepairsApi.V2.Infrastructure.Extensions
                 ReasonCode.PendingAuthorisation => WorkOrderReason.PendAuthorisation,
                 //ReasonCode.ScheduleConflict 
                 ReasonCode.NoApproval => WorkOrderReason.Rejected,
-                //ReasonCode.Approved
+                ReasonCode.Approved => WorkOrderReason.Approved,
                 //ReasonCode.Priority 
                 _ => WorkOrderReason.Unknown,
             };

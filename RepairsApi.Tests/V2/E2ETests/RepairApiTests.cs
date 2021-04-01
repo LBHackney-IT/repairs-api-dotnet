@@ -241,6 +241,33 @@ namespace RepairsApi.Tests.V2.E2ETests
         }
 
         [Test]
+        public async Task HoldWorkOrderApproveVariation()
+        {
+            // Arrange
+            string expectedCode = "expectedCode_LimitExceededOnUpdate3";
+            AddTestCode(expectedCode);
+            var workOrderId = await CreateWorkOrder();
+            var tasks = await GetTasks(workOrderId);
+
+            RepairsApi.V2.Generated.WorkElement workElement = TransformTasksToWorkElement(tasks);
+
+            AddRateScheduleItem(workElement, expectedCode, 100000);
+
+            JobStatusUpdate request = CreateUpdateRequest(workOrderId, workElement);
+            // Act
+            await Post("/api/v2/jobStatusUpdate", request);
+            var workOrder = GetWorkOrderFromDB(workOrderId);
+
+            request.TypeCode = JobStatusUpdateTypeCode._10020;
+            await Post("/api/v2/jobStatusUpdate", request, "contract manager");
+            var approvedOrder = GetWorkOrderFromDB(workOrderId);
+
+            // Assert
+            approvedOrder.StatusCode.Should().Be(WorkStatusCode.Hold);
+            approvedOrder.Reason.Should().Be(ReasonCode.Approved);
+        }
+
+        [Test]
         public async Task GetMissingWorkOrder()
         {
             // Act

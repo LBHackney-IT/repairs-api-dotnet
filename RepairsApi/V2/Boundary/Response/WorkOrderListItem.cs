@@ -15,6 +15,7 @@ namespace RepairsApi.V2.Boundary.Response
 
     public static class WorkOrderReason
     {
+        public const string Approved = "Variation Approved";
         public const string Rejected = "Variation Rejected";
         public const string PendAuthorisation = "Pending Authorisation";
         public const string Unknown = "Unknown";

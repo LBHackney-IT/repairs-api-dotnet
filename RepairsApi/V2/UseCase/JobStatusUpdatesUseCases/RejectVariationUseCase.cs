@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
