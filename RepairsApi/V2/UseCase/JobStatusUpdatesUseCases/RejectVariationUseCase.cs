@@ -8,7 +8,7 @@ using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
 
 namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 {
-    public class RejectVariationUseCase : IMoreSpecificSorUseCase, IJobStatusUpdateStrategy
+    public class RejectVariationUseCase : IJobStatusUpdateStrategy
     {
         private readonly IRepairsGateway _repairsGateway;
         private readonly ICurrentUserService _currentUserService;
