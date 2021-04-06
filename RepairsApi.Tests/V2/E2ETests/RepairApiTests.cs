@@ -260,10 +260,11 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             request.TypeCode = JobStatusUpdateTypeCode._10020;
             await Post("/api/v2/jobStatusUpdate", request, "contract manager");
-            var approvedOrder = GetWorkOrderFromDB(workOrderId);
+            var approvedOrder = GetWorkOrderWithJobStatusUpdatesFromDB(workOrderId);
 
             // Assert
             approvedOrder.StatusCode.Should().Be(WorkStatusCode.VariationApproved);
+            approvedOrder.JobStatusUpdates[1].Comments.Should().Contain("Approved");
         }
 
         [Test]

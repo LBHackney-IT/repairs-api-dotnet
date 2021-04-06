@@ -30,6 +30,8 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             if (!_currentUserService.HasGroup(UserGroups.CONTRACT_MANAGER))
                 throw new UnauthorizedAccessException("You do not have the correct permissions for this action");
 
+            jobStatusUpdate.Comments = $"Approved By: {_currentUserService.GetHubUser().Name}";
+
             workOrder.StatusCode = WorkStatusCode.VariationApproved;
             await _repairsGateway.SaveChangesAsync();
         }
