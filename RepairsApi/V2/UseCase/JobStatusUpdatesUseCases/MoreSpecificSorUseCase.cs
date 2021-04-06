@@ -43,10 +43,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             var authorised = await _authorizationService.AuthorizeAsync(_currentUserService.GetUser(), jobStatusUpdate, "VarySpendLimit");
 
             if (await _featureManager.IsEnabledAsync(FeatureFlags.SPENDLIMITS) && !authorised.Succeeded)
-            {
-                workOrder.StatusCode = WorkStatusCode.Hold;
-                workOrder.Reason = ReasonCode.PendingAuthorisation;
-            }
+                workOrder.StatusCode = WorkStatusCode.PendApp;
 
             var existingCodes = workOrder.WorkElements.SelectMany(we => we.RateScheduleItem);
             var newCodes = workElement.RateScheduleItem.Where(rsi => !existingCodes.Any(ec => ec.Id == rsi.Id));

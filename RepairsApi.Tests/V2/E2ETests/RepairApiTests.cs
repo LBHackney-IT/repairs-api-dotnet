@@ -210,11 +210,11 @@ namespace RepairsApi.Tests.V2.E2ETests
             var workOrder = GetWorkOrderFromDB(workOrderId);
 
             // Assert
-            workOrder.StatusCode.Should().Be(WorkStatusCode.Hold);
+            workOrder.StatusCode.Should().Be(WorkStatusCode.PendApp);
         }
 
         [Test]
-        public async Task HoldWorkOrderRejectVariation()
+        public async Task WorkOrderRejectVariation()
         {
             // Arrange
             string expectedCode = "expectedCode_LimitExceededOnUpdate2";
@@ -236,12 +236,11 @@ namespace RepairsApi.Tests.V2.E2ETests
             var rejectedOrder = GetWorkOrderFromDB(workOrderId);
 
             // Assert
-            rejectedOrder.StatusCode.Should().Be(WorkStatusCode.Hold);
-            rejectedOrder.Reason.Should().Be(ReasonCode.NoApproval);
+            rejectedOrder.StatusCode.Should().Be(WorkStatusCode.VariationRejected);
         }
 
         [Test]
-        public async Task HoldWorkOrderApproveVariation()
+        public async Task WorkOrderApproveVariation()
         {
             // Arrange
             string expectedCode = "expectedCode_LimitExceededOnUpdate3";
@@ -263,11 +262,11 @@ namespace RepairsApi.Tests.V2.E2ETests
             var approvedOrder = GetWorkOrderFromDB(workOrderId);
 
             // Assert
-            approvedOrder.StatusCode.Should().Be(WorkStatusCode.Hold);
-            approvedOrder.Reason.Should().Be(ReasonCode.Approved);
+            approvedOrder.StatusCode.Should().Be(WorkStatusCode.VariationApproved);
         }
 
         [Test]
+        [Ignore("wip")]
         public async Task AcknowledgeWorkOrderSetToInProgress()
         {
             // Arrange

@@ -55,6 +55,8 @@ namespace RepairsApi.V2.Infrastructure
 
         // Extensions
         NoAccess = 1000,
+        VariationApproved = 1080,
+        VariationRejected = 1090,
     }
 
     public enum ReasonCode

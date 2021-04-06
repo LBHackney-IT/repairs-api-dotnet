@@ -28,8 +28,8 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
             if (!_currentUserService.HasGroup(UserGroups.CONTRACT_MANAGER))
                 throw new UnauthorizedAccessException("You do not have the correct permissions for this action");
-            workOrder.StatusCode = WorkStatusCode.Hold;
-            workOrder.Reason = ReasonCode.NoApproval;
+
+            workOrder.StatusCode = WorkStatusCode.VariationRejected;
             await _repairsGateway.SaveChangesAsync();
         }
     }
