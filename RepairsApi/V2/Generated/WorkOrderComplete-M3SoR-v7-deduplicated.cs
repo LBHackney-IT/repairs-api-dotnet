@@ -251,6 +251,10 @@ namespace RepairsApi.V2.Generated
 
         [System.Runtime.Serialization.EnumMember(Value = @"125")]
         _125 = 20,
+
+        //Variation attempted contract manager approval required
+        [System.Runtime.Serialization.EnumMember(Value = @"180")]
+        _180 = 21,
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.2.0 (Newtonsoft.Json v9.0.0.0)")]

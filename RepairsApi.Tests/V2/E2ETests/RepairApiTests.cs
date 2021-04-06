@@ -207,10 +207,11 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             // Act
             await Post("/api/v2/jobStatusUpdate", request);
-            var workOrder = GetWorkOrderFromDB(workOrderId);
+            var workOrder = GetWorkOrderWithJobStatusUpdatesFromDB(workOrderId);
 
             // Assert
             workOrder.StatusCode.Should().Be(WorkStatusCode.PendApp);
+            workOrder.JobStatusUpdates[0].TypeCode.Should().Be(JobStatusUpdateTypeCode._180);
         }
 
         [Test]
@@ -266,7 +267,6 @@ namespace RepairsApi.Tests.V2.E2ETests
         }
 
         [Test]
-        [Ignore("wip")]
         public async Task AcknowledgeWorkOrderSetToInProgress()
         {
             // Arrange
@@ -295,7 +295,6 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             // Assert
             acknowledgedWorkorder.StatusCode.Should().Be(WorkStatusCode.Open);
-            acknowledgedWorkorder.Reason.Should().Be(ReasonCode.Approved);
         }
 
         [Test]
@@ -373,6 +372,15 @@ namespace RepairsApi.Tests.V2.E2ETests
             using var ctx = GetContext();
             var db = ctx.DB;
             var repair = db.WorkOrders.Find(id);
+            return repair;
+        }
+
+        public WorkOrder GetWorkOrderWithJobStatusUpdatesFromDB(int id)
+        {
+            using var ctx = GetContext();
+            var db = ctx.DB;
+            var repair = db.WorkOrders.Find(id);
+            db.Entry(repair).Collection(r => r.JobStatusUpdates).Load();
             return repair;
         }
 

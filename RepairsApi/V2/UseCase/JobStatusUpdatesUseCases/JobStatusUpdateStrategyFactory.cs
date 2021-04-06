@@ -23,8 +23,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             */
             IJobStatusUpdateStrategy strategy = jobStatusUpdate.TypeCode switch
             {
-                // More specific SOR Code - (probably means variation) Approval is 100 - JobstatustypeCode - 100,
-                //Reason code = Approved = 70, Workstatuscode = 80
+                // More specific SOR Code - (means variation) 
                 JobStatusUpdateTypeCode._80 => _activator.CreateInstance<MoreSpecificSorUseCase>(),
 
                 //Variation approved 

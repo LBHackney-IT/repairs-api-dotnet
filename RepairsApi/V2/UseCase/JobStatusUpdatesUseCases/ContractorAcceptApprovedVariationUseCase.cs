@@ -26,17 +26,12 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
 
-            if (!_currentUserService.HasGroup(UserGroups.CONTRACTOR))
+            if (!_currentUserService.HasGroup(UserGroups.CONTRACTOR) && workOrder.StatusCode != WorkStatusCode.VariationApproved)
                 throw new UnauthorizedAccessException("You do not have the correct permissions for this action");
 
-            if (workOrder.StatusCode == WorkStatusCode.Hold && workOrder.Reason == ReasonCode.Approved)
-            {
-                workOrder.StatusCode = WorkStatusCode.Open;
-                workOrder.Reason = ReasonCode.Approved;
-                await _repairsGateway.SaveChangesAsync();
-            }
-            else
-                throw new InvalidOperationException("This action is not permitted");
+            workOrder.StatusCode = WorkStatusCode.Open;
+            await _repairsGateway.SaveChangesAsync();
+
         }
     }
 }
