@@ -43,6 +43,11 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
             var authorised = await _authorizationService.AuthorizeAsync(_currentUserService.GetUser(), jobStatusUpdate, "VarySpendLimit");
 
+            //The workorder already has a variation
+            if (workOrder.StatusCode == WorkStatusCode.PendApp)
+                throw new InvalidOperationException("This action is not permitted");
+
+
             if (await _featureManager.IsEnabledAsync(FeatureFlags.SPENDLIMITS) && !authorised.Succeeded)
             {
                 workOrder.StatusCode = WorkStatusCode.PendApp;
