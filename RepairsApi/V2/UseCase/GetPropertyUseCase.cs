@@ -1,6 +1,7 @@
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.UseCase.Interfaces;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace RepairsApi.V2.UseCase
@@ -27,8 +28,9 @@ namespace RepairsApi.V2.UseCase
             var locationAlertList = await _alertsGateway.GetLocationAlertsAsync(propertyReference);
             var tenureInformation = await _tenancyGateway.GetTenancyInformationAsync(propertyReference);
             var personAlertList = await _alertsGateway.GetPersonAlertsAsync(tenureInformation?.TenancyAgreementReference);
-            var residentContactList = await _residentContactGateway.GetByHouseholdReferenceAsync(tenureInformation?.HouseholdReference);
 
+            var residentContactList = (tenureInformation == null) ? Enumerable.Empty<ResidentContact>() :
+                await _residentContactGateway.GetByHouseholdReferenceAsync(tenureInformation?.HouseholdReference);
             return new PropertyWithAlerts
             {
                 PropertyModel = property,
