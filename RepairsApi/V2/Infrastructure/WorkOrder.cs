@@ -55,6 +55,8 @@ namespace RepairsApi.V2.Infrastructure
 
         // Extensions
         NoAccess = 1000,
+        VariationApproved = 1080,
+        VariationRejected = 1090,
     }
 
     public enum ReasonCode
@@ -67,6 +69,7 @@ namespace RepairsApi.V2.Infrastructure
         NoApproval = 60,    //No Approval: Work Was Not Approved
         Approved = 70,      //Approved: All Required Approvals Are Present
         Priority = 80,   //Change Priority Changed Either Escalated Or De-Escalated
+        PendingAuthorisation = 90 //Pending authorisation
     }
 
     [Owned]
