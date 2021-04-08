@@ -26,7 +26,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
 
-            if (!_currentUserService.HasGroup(UserGroups.CONTRACTOR) && workOrder.StatusCode != WorkStatusCode.VariationApproved)
+            if (!_currentUserService.HasGroup(UserGroups.CONTRACTOR) && !(workOrder.StatusCode != WorkStatusCode.VariationApproved))
                 throw new UnauthorizedAccessException("You do not have the correct permissions for this action");
 
             workOrder.StatusCode = WorkStatusCode.Open;
