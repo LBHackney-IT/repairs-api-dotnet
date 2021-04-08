@@ -40,6 +40,33 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         }
 
         [Test]
+        public async Task ExecutesApproveVariationUseCase()
+        {
+            await ValidateStrategyResolution<ApproveVariationUseCase>(new JobStatusUpdate
+            {
+                TypeCode = JobStatusUpdateTypeCode._10020
+            });
+        }
+
+        [Test]
+        public async Task ExecutesRejectVariationUseCase()
+        {
+            await ValidateStrategyResolution<RejectVariationUseCase>(new JobStatusUpdate
+            {
+                TypeCode = JobStatusUpdateTypeCode._125
+            });
+        }
+
+        [Test]
+        public async Task ExecutesContractorAcceptApprovedVariationUseCase()
+        {
+            await ValidateStrategyResolution<ContractorAcceptApprovedVariationUseCase>(new JobStatusUpdate
+            {
+                TypeCode = JobStatusUpdateTypeCode._10010
+            });
+        }
+
+        [Test]
         public async Task JobIncomplete()
         {
             await ValidateStrategyResolution<JobIncompleteStrategy>(new JobStatusUpdate
