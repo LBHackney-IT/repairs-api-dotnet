@@ -1,6 +1,8 @@
 using FluentAssertions;
 using NUnit.Framework;
+using RepairsApi.Tests.Helpers;
 using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Generated.CustomTypes;
@@ -19,7 +21,6 @@ namespace RepairsApi.Tests.V2.E2ETests
 {
     public class RepairApiTests : MockWebApplicationFactory
     {
-
         [Test]
         public async Task ScheduleRepair()
         {
@@ -206,10 +207,95 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             // Act
             await Post("/api/v2/jobStatusUpdate", request);
-            var workOrder = GetWorkOrderFromDB(workOrderId);
+            var workOrder = GetWorkOrderWithJobStatusUpdatesFromDB(workOrderId);
 
             // Assert
-            workOrder.StatusCode.Should().Be(WorkStatusCode.Hold);
+            workOrder.StatusCode.Should().Be(WorkStatusCode.PendApp);
+            workOrder.JobStatusUpdates[0].TypeCode.Should().Be(JobStatusUpdateTypeCode._180);
+        }
+
+        [Test]
+        public async Task WorkOrderRejectVariation()
+        {
+            // Arrange
+            string expectedCode = "expectedCode_LimitExceededOnUpdate2";
+            AddTestCode(expectedCode);
+            var workOrderId = await CreateWorkOrder();
+            var tasks = await GetTasks(workOrderId);
+
+            RepairsApi.V2.Generated.WorkElement workElement = TransformTasksToWorkElement(tasks);
+
+            AddRateScheduleItem(workElement, expectedCode, 100000);
+
+            JobStatusUpdate request = CreateUpdateRequest(workOrderId, workElement);
+            // Act
+            await Post("/api/v2/jobStatusUpdate", request);
+            var workOrder = GetWorkOrderFromDB(workOrderId);
+
+            request.TypeCode = JobStatusUpdateTypeCode._125;
+            await Post("/api/v2/jobStatusUpdate", request, "contract manager");
+            var rejectedOrder = GetWorkOrderFromDB(workOrderId);
+
+            // Assert
+            rejectedOrder.StatusCode.Should().Be(WorkStatusCode.VariationRejected);
+        }
+
+        [Test]
+        public async Task WorkOrderApproveVariation()
+        {
+            // Arrange
+            string expectedCode = "expectedCode_LimitExceededOnUpdate3";
+            AddTestCode(expectedCode);
+            var workOrderId = await CreateWorkOrder();
+            var tasks = await GetTasks(workOrderId);
+
+            RepairsApi.V2.Generated.WorkElement workElement = TransformTasksToWorkElement(tasks);
+
+            AddRateScheduleItem(workElement, expectedCode, 100000);
+
+            JobStatusUpdate request = CreateUpdateRequest(workOrderId, workElement);
+            // Act
+            await Post("/api/v2/jobStatusUpdate", request);
+            var workOrder = GetWorkOrderFromDB(workOrderId);
+
+            request.TypeCode = JobStatusUpdateTypeCode._10020;
+            await Post("/api/v2/jobStatusUpdate", request, "contract manager");
+            var approvedOrder = GetWorkOrderWithJobStatusUpdatesFromDB(workOrderId);
+
+            // Assert
+            approvedOrder.StatusCode.Should().Be(WorkStatusCode.VariationApproved);
+            approvedOrder.JobStatusUpdates[1].Comments.Should().Contain("Approved");
+        }
+
+        [Test]
+        public async Task AcknowledgeWorkOrderSetToInProgress()
+        {
+            // Arrange
+            string expectedCode = "expectedCode_LimitExceededOnUpdate4";
+            AddTestCode(expectedCode);
+            var workOrderId = await CreateWorkOrder();
+            var tasks = await GetTasks(workOrderId);
+
+            RepairsApi.V2.Generated.WorkElement workElement = TransformTasksToWorkElement(tasks);
+
+            AddRateScheduleItem(workElement, expectedCode, 100000);
+
+            JobStatusUpdate request = CreateUpdateRequest(workOrderId, workElement);
+            // Act
+            await Post("/api/v2/jobStatusUpdate", request);
+            var workOrder = GetWorkOrderFromDB(workOrderId);
+
+            //approve variation
+            request.TypeCode = JobStatusUpdateTypeCode._10020;
+            await Post("/api/v2/jobStatusUpdate", request, "contract manager");
+
+            //acknowledge approved variation
+            request.TypeCode = JobStatusUpdateTypeCode._10010;
+            await Post("/api/v2/jobStatusUpdate", request, "contractor");
+            var acknowledgedWorkorder = GetWorkOrderFromDB(workOrderId);
+
+            // Assert
+            acknowledgedWorkorder.StatusCode.Should().Be(WorkStatusCode.Open);
         }
 
         [Test]
@@ -287,6 +373,15 @@ namespace RepairsApi.Tests.V2.E2ETests
             using var ctx = GetContext();
             var db = ctx.DB;
             var repair = db.WorkOrders.Find(id);
+            return repair;
+        }
+
+        public WorkOrder GetWorkOrderWithJobStatusUpdatesFromDB(int id)
+        {
+            using var ctx = GetContext();
+            var db = ctx.DB;
+            var repair = db.WorkOrders.Find(id);
+            db.Entry(repair).Collection(r => r.JobStatusUpdates).Load();
             return repair;
         }
 
