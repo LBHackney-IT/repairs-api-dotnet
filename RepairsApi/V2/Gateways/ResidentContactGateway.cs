@@ -7,6 +7,7 @@ using System.Net;
 using System.Threading.Tasks;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.Gateways.Models;
+using System.Linq;
 
 namespace RepairsApi.V2.Gateways
 {
@@ -24,6 +25,9 @@ namespace RepairsApi.V2.Gateways
 
         public async Task<IEnumerable<ResidentContact>> GetByHouseholdReferenceAsync(string householdReference)
         {
+            if (string.IsNullOrEmpty(householdReference))
+                return Enumerable.Empty<ResidentContact>();
+
             Uri url = new Uri($"households?house_reference={householdReference}&active_tenancies_only=true", UriKind.Relative);
             var response = await _apiGateway.ExecuteRequest<HousingResidentInformationApiResponse>(HttpClientNames.Contacts, url);
 
