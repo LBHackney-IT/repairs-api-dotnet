@@ -4,6 +4,7 @@ using Moq;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers;
 using RepairsApi.Tests.V2.Gateways;
+using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
 using System;
@@ -36,12 +37,28 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         }
 
         [Test]
-        public void ThrowWhenUnauthorizedGroup()
+        public void ThrowAccessExceptionWhenUnauthorizedGroup()
         {
             const int desiredWorkOrderId = 42;
             var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
             var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
                 Generated.JobStatusUpdateTypeCode._10020);
+
+            Func<Task> fn = () => _classUnderTest.Execute(request);
+            fn.Should().ThrowAsync<UnauthorizedAccessException>();
+        }
+
+        [Test]
+        [Ignore("wip")]
+        public void SetWorkOrderWhenAuthorizedGroup()
+        {
+            const int desiredWorkOrderId = 42;
+            var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
+            var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
+                Generated.JobStatusUpdateTypeCode._10020);
+
+            _currentUserServiceMock.Setup(currentUser => currentUser.HasGroup(UserGroups.CONTRACT_MANAGER))
+                .Returns(true);
 
             Func<Task> fn = () => _classUnderTest.Execute(request);
             fn.Should().ThrowAsync<UnauthorizedAccessException>();
