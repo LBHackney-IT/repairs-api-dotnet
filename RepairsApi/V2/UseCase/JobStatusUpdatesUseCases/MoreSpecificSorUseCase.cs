@@ -44,23 +44,29 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             var authorised = await _authorizationService.AuthorizeAsync(_currentUserService.GetUser(), jobStatusUpdate, "VarySpendLimit");
 
             //The workorder already has a variation
-            if (workOrder.StatusCode == WorkStatusCode.PendApp)
+            if (workOrder.StatusCode == WorkStatusCode.PendApp &&
+                jobStatusUpdate.TypeCode == JobStatusUpdateTypeCode._80)
                 throw new InvalidOperationException("This action is not permitted");
-
 
             if (await _featureManager.IsEnabledAsync(FeatureFlags.SPENDLIMITS) && !authorised.Succeeded)
             {
                 workOrder.StatusCode = WorkStatusCode.PendApp;
                 jobStatusUpdate.TypeCode = JobStatusUpdateTypeCode._180;
             }
+            //User authorised, patch SOR codes
+            else
+                await Execute(workElement, workOrder);
 
+            await _repairsGateway.SaveChangesAsync();
+        }
+
+        public async Task Execute(WorkElement workElement, WorkOrder workOrder)
+        {
             var existingCodes = workOrder.WorkElements.SelectMany(we => we.RateScheduleItem);
             var newCodes = workElement.RateScheduleItem.Where(rsi => !existingCodes.Any(ec => ec.Id == rsi.Id));
 
             UpdateExistingCodes(existingCodes, workElement);
             await AddNewCodes(newCodes, workOrder);
-
-            await _repairsGateway.SaveChangesAsync();
         }
 
         private async Task AddNewCodes(IEnumerable<RateScheduleItem> newCodes, WorkOrder workOrder)
@@ -78,7 +84,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
             foreach (var existingCode in existingCodes)
             {
-                var updatedCode = workElement.RateScheduleItem.SingleOrDefault(rsi => rsi.Id == existingCode.Id);
+                var updatedCode = workElement.RateScheduleItem.SingleOrDefault(rsi => rsi.OriginalId == Convert.ToString(existingCode.Id));
                 if (updatedCode == null)
                 {
                     throw new NotSupportedException($"Deleting SOR codes not supported, missing {existingCode.CustomCode}");

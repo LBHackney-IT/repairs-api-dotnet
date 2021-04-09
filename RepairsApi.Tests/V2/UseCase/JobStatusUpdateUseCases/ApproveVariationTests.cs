@@ -5,6 +5,7 @@ using NUnit.Framework;
 using RepairsApi.Tests.Helpers;
 using RepairsApi.Tests.V2.Gateways;
 using RepairsApi.V2.Authorisation;
+using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
 using System;
@@ -22,6 +23,8 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         private MockRepairsGateway _repairsGatewayMock;
         private CurrentUserServiceMock _currentUserServiceMock;
         private ApproveVariationUseCase _classUnderTest;
+        private Mock<IJobStatusUpdateGateway> _jobStatusUpdateGateway;
+        private Mock<IMoreSpecificSorUseCase> _moreSpecificSorUseCase;
 
         [SetUp]
         public void Setup()
@@ -31,9 +34,12 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
             _repairsGatewayMock = new MockRepairsGateway();
             _currentUserServiceMock = new CurrentUserServiceMock();
+            _jobStatusUpdateGateway = new Mock<IJobStatusUpdateGateway>();
+            _moreSpecificSorUseCase = new Mock<IMoreSpecificSorUseCase>();
+
             _classUnderTest = new ApproveVariationUseCase(
-                _repairsGatewayMock.Object,
-                _currentUserServiceMock.Object);
+                _repairsGatewayMock.Object, _jobStatusUpdateGateway.Object,
+                _currentUserServiceMock.Object, _moreSpecificSorUseCase.Object);
         }
 
         [Test]

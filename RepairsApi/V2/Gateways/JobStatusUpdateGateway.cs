@@ -1,7 +1,12 @@
+using System.Linq;
 using System.Threading.Tasks;
 using RepairsApi.V2.Authorisation;
+using JobStatusUpdate = RepairsApi.V2.Infrastructure.JobStatusUpdate;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
+using RepairsApi.V2.Generated;
+using Microsoft.EntityFrameworkCore;
+using RepairsApi.V2.Exceptions;
 
 namespace RepairsApi.V2.Gateways
 {
@@ -24,6 +29,20 @@ namespace RepairsApi.V2.Gateways
             await _repairsContext.SaveChangesAsync();
 
             return update.Id;
+        }
+
+        public async Task<JobStatusUpdate> SelectLastJobStatusUpdate(JobStatusUpdateTypeCode typeCode, int workOrderId)
+        {
+            var jobStatusUpdate = await _repairsContext.JobStatusUpdates.Where(s => (int) s.TypeCode == (int) typeCode)
+                .Where(s => s.RelatedWorkOrder.Id == workOrderId)
+                .LastOrDefaultAsync();
+
+            if (jobStatusUpdate is null)
+            {
+                throw new ResourceNotFoundException($"Unable to locate jobstatus update for work order {workOrderId} with {typeCode}");
+            }
+
+            return jobStatusUpdate;
         }
     }
 }

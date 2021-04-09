@@ -74,11 +74,13 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
 
             List<RateScheduleItem> rateScheduleItems = workOrder.WorkElements.Single().RateScheduleItem;
             rateScheduleItems.Should().BeEquivalentTo(expectedNewCodes,
-                options => options.Excluding(rsi => rsi.Id).Excluding(rsi => rsi.DateCreated).Excluding(rsi => rsi.CodeCost));
+                options => options.Excluding(rsi => rsi.Id).Excluding(rsi => rsi.DateCreated).Excluding(rsi => rsi.CodeCost)
+                .Excluding(rsi => rsi.OriginalId));
             rateScheduleItems.Last().CodeCost.Should().Be(cost);
         }
 
         [Test]
+        //[Ignore("wip")]
         public async Task UpdateQuantityOfExistingCodes()
         {
             const int desiredWorkOrderId = 42;
@@ -91,7 +93,8 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             await _classUnderTest.Execute(request);
 
             codeToModify.Should().BeEquivalentTo(expectedNewCode,
-                option => option.Excluding(x => x.Id).Excluding(x => x.Original).Excluding(x => x.OriginalQuantity));
+                option => option.Excluding(x => x.Id).Excluding(x => x.Original)
+                .Excluding(x => x.OriginalQuantity).Excluding(x => x.OriginalId));
         }
 
         [Test]

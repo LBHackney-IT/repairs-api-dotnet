@@ -26,7 +26,6 @@ namespace RepairsApi.V2.Gateways
         {
             var entry = _repairsContext.WorkOrders.Add(raiseRepair);
             await _repairsContext.SaveChangesAsync();
-
             return entry.Entity.Id;
         }
 

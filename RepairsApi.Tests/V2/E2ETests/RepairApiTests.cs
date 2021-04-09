@@ -252,12 +252,11 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             RepairsApi.V2.Generated.WorkElement workElement = TransformTasksToWorkElement(tasks);
 
-            AddRateScheduleItem(workElement, expectedCode, 100000);
+            AddRateScheduleItem(workElement, expectedCode, 100000, "3");
 
             JobStatusUpdate request = CreateUpdateRequest(workOrderId, workElement);
             // Act
             await Post("/api/v2/jobStatusUpdate", request);
-            var workOrder = GetWorkOrderFromDB(workOrderId);
 
             request.TypeCode = JobStatusUpdateTypeCode._10020;
             await Post("/api/v2/jobStatusUpdate", request, "contract manager");
@@ -315,7 +314,6 @@ namespace RepairsApi.Tests.V2.E2ETests
             JobStatusUpdate request = CreateUpdateRequest(workOrderId, workElement);
             // Act
             await Post("/api/v2/jobStatusUpdate", request);
-            var workOrder = GetWorkOrderFromDB(workOrderId);
 
             //approve variation
             request.TypeCode = JobStatusUpdateTypeCode._10020;
@@ -340,7 +338,6 @@ namespace RepairsApi.Tests.V2.E2ETests
             JobStatusUpdate request = CreateUpdateRequest(workOrderId, workElement);
             // Act
             await Post("/api/v2/jobStatusUpdate", request);
-            var workOrder = GetWorkOrderFromDB(workOrderId);
 
             //approve variation
             request.TypeCode = JobStatusUpdateTypeCode._10020;
@@ -365,7 +362,6 @@ namespace RepairsApi.Tests.V2.E2ETests
             JobStatusUpdate request = CreateUpdateRequest(workOrderId, workElement);
             // Act
             await Post("/api/v2/jobStatusUpdate", request);
-            var workOrder = GetWorkOrderFromDB(workOrderId);
 
             //reject variation
             request.TypeCode = JobStatusUpdateTypeCode._125;
@@ -460,8 +456,6 @@ namespace RepairsApi.Tests.V2.E2ETests
             // Assert
             response.Should().Be(HttpStatusCode.Unauthorized);
         }
-
-
 
         [Test]
         public async Task GetMissingWorkOrder()
@@ -611,10 +605,11 @@ namespace RepairsApi.Tests.V2.E2ETests
                 .Generate();
         }
 
-        private static void AddRateScheduleItem(RepairsApi.V2.Generated.WorkElement workElement, string code, int quantity)
+        private static void AddRateScheduleItem(RepairsApi.V2.Generated.WorkElement workElement, string code, int quantity, string id = null)
         {
             workElement.RateScheduleItem.Add(new RateScheduleItem
             {
+                Id = id,
                 CustomCode = code,
                 CustomName = "test code",
                 Quantity = new Quantity

@@ -255,7 +255,8 @@ namespace RepairsApi.V2.Factories
                 CustomCode = raiseRepair.CustomCode,
                 CustomName = raiseRepair.CustomName,
                 Quantity = raiseRepair.Quantity?.ToDb(),
-                DateCreated = DateTime.UtcNow
+                DateCreated = DateTime.UtcNow,
+                OriginalId = raiseRepair.Id
             };
 
             if (mapIds && Guid.TryParse(raiseRepair.Id, out var id))
