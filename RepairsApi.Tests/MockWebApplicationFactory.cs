@@ -78,9 +78,9 @@ namespace RepairsApi.Tests
                 {
                     var mock = new Mock<SOAP>();
                     mock.Setup(x => x.openSessionAsync(It.IsAny<openSession>()))
-                        .ReturnsAsync(new openSessionResponse{@return = new xmbOpenSessionResponse{status = responseStatus.success}});
+                        .ReturnsAsync(new openSessionResponse { @return = new xmbOpenSessionResponse { status = responseStatus.success } });
                     mock.Setup(x => x.createOrderAsync(It.IsAny<createOrder>()))
-                        .ReturnsAsync(new createOrderResponse{@return = new xmbCreateOrderResponse{status = responseStatus.success}});
+                        .ReturnsAsync(new createOrderResponse { @return = new xmbCreateOrderResponse { status = responseStatus.success } });
                     return mock.Object;
                 });
             })

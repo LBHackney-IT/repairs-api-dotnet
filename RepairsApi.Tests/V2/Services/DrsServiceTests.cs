@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -30,7 +30,8 @@ namespace RepairsApi.Tests.V2.Services
             _drsSoapMock = new MockDrsSoap();
             _drsOptions = Options.Create<DrsOptions>(new DrsOptions
             {
-                Login = "login", Password = "password"
+                Login = "login",
+                Password = "password"
             });
 
             _classUnderTest = new DrsService(_drsSoapMock.Object, _drsOptions, _loggerMock.Object);
