@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -34,7 +34,7 @@ namespace RepairsApi.V2.Services
                 login = _drsOptions.Value.Login,
                 password = _drsOptions.Value.Password
             };
-            var response = await _drsSoap.openSessionAsync(new openSession{openSession1 = xmbOpenSession});
+            var response = await _drsSoap.openSessionAsync(new openSession { openSession1 = xmbOpenSession });
             if (response.@return.status != responseStatus.success)
             {
                 _logger.LogError(response.@return.errorMsg);

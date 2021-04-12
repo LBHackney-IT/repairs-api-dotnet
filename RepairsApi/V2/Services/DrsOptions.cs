@@ -1,4 +1,4 @@
-﻿namespace RepairsApi.V2.Services
+namespace RepairsApi.V2.Services
 {
     public class DrsOptions
     {
