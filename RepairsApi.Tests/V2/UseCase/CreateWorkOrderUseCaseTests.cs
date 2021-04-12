@@ -24,6 +24,7 @@ namespace RepairsApi.Tests.V2.UseCase
         private MockRepairsGateway _repairsGatewayMock;
         private Mock<IScheduleOfRatesGateway> _scheduleOfRatesGateway;
         private Mock<ICurrentUserService> _currentUserServiceMock;
+        private Mock<IDrsService> _drsServiceMock;
         private CreateWorkOrderUseCase _classUnderTest;
 
         [SetUp]
@@ -32,11 +33,13 @@ namespace RepairsApi.Tests.V2.UseCase
             _repairsGatewayMock = new MockRepairsGateway();
             _scheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
             _currentUserServiceMock = new Mock<ICurrentUserService>();
+            _drsServiceMock = new Mock<IDrsService>();
             _classUnderTest = new CreateWorkOrderUseCase(
                 _repairsGatewayMock.Object,
                 _scheduleOfRatesGateway.Object,
                 new NullLogger<CreateWorkOrderUseCase>(),
-                _currentUserServiceMock.Object
+                _currentUserServiceMock.Object,
+                _drsServiceMock.Object
                 );
         }
 
@@ -108,6 +111,19 @@ namespace RepairsApi.Tests.V2.UseCase
 
             _repairsGatewayMock.LastWorkOrder.WorkElements.All(we => we.RateScheduleItem.All(rsi => rsi.Original))
                 .Should().BeTrue();
+        }
+
+        [Test]
+        public async Task CreatesDRSOrder()
+        {
+            var generator = new Generator<WorkOrder>()
+                .AddInfrastructureWorkOrderGenerators()
+                .AddValue(new List<Trade> { new Trade { Code = TradeCode.B2 } }, (WorkElement we) => we.Trade);
+            var workOrder = generator.Generate();
+
+            await _classUnderTest.Execute(workOrder);
+
+            _drsServiceMock.Verify(x => x.CreateOrder(workOrder));
         }
 
         private void VerifyRaiseRepairIsCloseToNow()

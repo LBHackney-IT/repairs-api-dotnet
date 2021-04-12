@@ -18,17 +18,21 @@ namespace RepairsApi.V2.UseCase
         private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
         private readonly ILogger<CreateWorkOrderUseCase> _logger;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IDrsService _drsService;
 
         public CreateWorkOrderUseCase(
             IRepairsGateway repairsGateway,
             IScheduleOfRatesGateway scheduleOfRatesGateway,
             ILogger<CreateWorkOrderUseCase> logger,
-            ICurrentUserService currentUserService)
+            ICurrentUserService currentUserService,
+            IDrsService drsService
+            )
         {
             _repairsGateway = repairsGateway;
             _scheduleOfRatesGateway = scheduleOfRatesGateway;
             _logger = logger;
             _currentUserService = currentUserService;
+            _drsService = drsService;
         }
 
         public async Task<int> Execute(WorkOrder workOrder)
@@ -37,9 +41,13 @@ namespace RepairsApi.V2.UseCase
             AttachUserInformation(workOrder);
             workOrder.DateRaised = DateTime.UtcNow;
             workOrder.StatusCode = WorkStatusCode.Open;
+
             await PopulateRateScheduleItems(workOrder);
             var id = await _repairsGateway.CreateWorkOrder(workOrder);
             _logger.LogInformation(Resources.CreatedWorkOrder);
+
+            await _drsService.CreateOrder(workOrder);
+
             return id;
         }
 

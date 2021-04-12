@@ -16,6 +16,9 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Moq;
+using Npgsql;
+using V2_Generated_DRS;
 
 namespace RepairsApi.Tests
 {
@@ -25,10 +28,10 @@ namespace RepairsApi.Tests
     public class MockWebApplicationFactory
         : WebApplicationFactory<Startup>
     {
-        private readonly DbConnection _connection = null;
+        private readonly string _connection = null;
         private string _userGroup = UserGroups.AGENT;
 
-        public MockWebApplicationFactory(DbConnection connection)
+        public MockWebApplicationFactory(string connection)
         {
             _connection = connection;
         }
@@ -70,6 +73,16 @@ namespace RepairsApi.Tests
 
                 services.RemoveAll<IApiGateway>();
                 services.AddTransient<IApiGateway, MockApiGateway>();
+                services.RemoveAll<SOAP>();
+                services.AddTransient<SOAP>(sp =>
+                {
+                    var mock = new Mock<SOAP>();
+                    mock.Setup(x => x.openSessionAsync(It.IsAny<openSession>()))
+                        .ReturnsAsync(new openSessionResponse{@return = new xmbOpenSessionResponse{status = responseStatus.success}});
+                    mock.Setup(x => x.createOrderAsync(It.IsAny<createOrder>()))
+                        .ReturnsAsync(new createOrderResponse{@return = new xmbCreateOrderResponse{status = responseStatus.success}});
+                    return mock.Object;
+                });
             })
             .UseEnvironment("IntegrationTests");
         }
