@@ -35,7 +35,8 @@ namespace RepairsApi.V2.Gateways
         {
             var jobStatusUpdate = await _repairsContext.JobStatusUpdates.Where(s => (int) s.TypeCode == (int) typeCode)
                 .Where(s => s.RelatedWorkOrder.Id == workOrderId)
-                .LastOrDefaultAsync();
+                .OrderByDescending(s => s.EventTime)
+                .FirstOrDefaultAsync();
 
             if (jobStatusUpdate is null)
             {
