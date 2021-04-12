@@ -34,6 +34,9 @@ functions:
       GatewayOptions__HousingResidentInformationApi: ${ssm:/${self:service}/${self:provider.stage}/housing-resident-information-api-url}
       GatewayOptions__HousingResidentInformationApiKey: ${ssm:/${self:service}/${self:provider.stage}/housing-resident-information-api-token}
       FeatureManagement__SpendLimits: ${ssm:/${self:service}/${self:provider.stage}/spend-limits-flag}
+      DrsOptions__Address: ${ssm:/${self:service}/${self:provider.stage}/drs-address}
+      DrsOptions__Login: ${ssm:/${self:service}/${self:provider.stage}/drs-login}
+      DrsOptions__Password: ${ssm:/${self:service}/${self:provider.stage}/drs-password}
     events:
       - http:
           path: /{proxy+}
