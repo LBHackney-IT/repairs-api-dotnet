@@ -44,13 +44,6 @@ namespace RepairsApi.Tests.V2.Services
             VerifyOpenSession(_drsSoapMock.lastOpen).Should().BeTrue();
         }
 
-        private bool VerifyOpenSession(openSession openSession)
-        {
-            return
-                openSession.openSession1.login == _drsOptions.Value.Login &&
-                openSession.openSession1.password == _drsOptions.Value.Password;
-        }
-
         [Test]
         public async Task CreateOrder()
         {
@@ -72,13 +65,13 @@ namespace RepairsApi.Tests.V2.Services
             _drsSoapMock.Verify(x => x.createOrderAsync(It.Is<createOrder>(o => VerifyCreateOrder(o, workOrder))));
         }
 
-        private bool VerifyCreateOrder(createOrder createOrder, WorkOrder workOrder)
-        {
-            return
-                createOrder.createOrder1.sessionId == _drsSoapMock.sessionId &&
-                createOrder.createOrder1.theOrder.primaryOrderNumber == workOrder.Id.ToString();
-        }
+        private bool VerifyOpenSession(openSession openSession) =>
+            openSession.openSession1.login == _drsOptions.Value.Login &&
+            openSession.openSession1.password == _drsOptions.Value.Password;
 
+        private bool VerifyCreateOrder(createOrder createOrder, WorkOrder workOrder) =>
+            createOrder.createOrder1.sessionId == _drsSoapMock.sessionId &&
+            createOrder.createOrder1.theOrder.primaryOrderNumber == workOrder.Id.ToString();
 
     }
 
