@@ -459,11 +459,14 @@ namespace RepairsApi.Tests.V2.E2ETests
         [Test]
         public async Task GetMissingWorkOrder()
         {
+            // Arrange
+            var expectedId = 1000;
             // Act
-            var code = await Get($"/api/v2/repairs/1000");
+            var (code, response) = await Get<string>($"/api/v2/repairs/{expectedId}");
 
             // Assert
             code.Should().Be(404);
+            response.Should().Be($"Unable to locate work order {expectedId}");
         }
 
         [TestCase(JobStatusUpdateTypeCode._120, WorkStatusCode.Hold)]
