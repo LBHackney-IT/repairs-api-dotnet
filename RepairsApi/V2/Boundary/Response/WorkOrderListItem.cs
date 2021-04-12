@@ -10,6 +10,8 @@ namespace RepairsApi.V2.Boundary.Response
         public const string Hold = "On Hold";
         public const string PendApp = "Pending Approval";
         public const string PendMaterial = "Materials Needed";
+        public const string VariationApproved = "Variation Approved";
+        public const string VariationRejected = "Variation Rejected";
         public const string Unknown = "Unknown";
     }
 
