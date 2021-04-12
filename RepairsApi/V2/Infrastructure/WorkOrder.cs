@@ -33,6 +33,7 @@ namespace RepairsApi.V2.Infrastructure
 
         // Extensions
         public string AgentName { get; set; }
+        public string AgentEmail { get; set; }
         public WorkStatusCode StatusCode { get; set; } = WorkStatusCode.Open;
         public ReasonCode Reason { get; set; } = ReasonCode.FullyFunded;
     }
