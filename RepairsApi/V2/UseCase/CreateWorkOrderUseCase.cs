@@ -57,6 +57,7 @@ namespace RepairsApi.V2.UseCase
             {
                 var user = _currentUserService.GetUser();
                 workOrder.AgentName = user.Name();
+                workOrder.AgentEmail = user.Email();
             }
         }
 

@@ -52,21 +52,20 @@ namespace RepairsApi.V2.Services
                     sessionId = _sessionId,
                     theOrder = new order
                     {
-                        status = orderStatus.undefined,
+                        status = orderStatus.PLANNED,
                         primaryOrderNumber = workOrder.Id.ToString(),
                         orderComments = "Work Order Created",
                         contract = workOrder.AssignedToPrimary.ContractorReference,
                         locationID = workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference,
                         priority = workOrder.WorkPriority.PriorityDescription,
-                        targetDate = DateTime.UtcNow,
-                        userId = "createARepair",
+                        targetDate = workOrder.WorkPriority.RequiredCompletionDateTime ?? DateTime.UtcNow,
+                        userId = workOrder.AgentEmail ?? workOrder.AgentName,
                         theLocation = new location
                         {
                             locationId = workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference,
                             name = workOrder.Site.Name,
                             address1 = workOrder.Site.PropertyClass.FirstOrDefault()?.Address.AddressLine,
                             postCode = workOrder.Site.PropertyClass.FirstOrDefault()?.Address.PostalCode,
-                            workflowType = "unknown",
                             contract = workOrder.AssignedToPrimary.ContractorReference
                         }
                     }
