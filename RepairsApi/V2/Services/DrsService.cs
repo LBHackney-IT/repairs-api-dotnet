@@ -33,7 +33,8 @@ namespace RepairsApi.V2.Services
         {
             var xmbOpenSession = new xmbOpenSession
             {
-                login = _drsOptions.Value.Login, password = _drsOptions.Value.Password
+                login = _drsOptions.Value.Login,
+                password = _drsOptions.Value.Password
             };
             var response = await _drsSoap.openSessionAsync(new openSession
             {
