@@ -33,10 +33,12 @@ namespace RepairsApi.V2.Services
         {
             var xmbOpenSession = new xmbOpenSession
             {
-                login = _drsOptions.Value.Login,
-                password = _drsOptions.Value.Password
+                login = _drsOptions.Value.Login, password = _drsOptions.Value.Password
             };
-            var response = await _drsSoap.openSessionAsync(new openSession { openSession1 = xmbOpenSession });
+            var response = await _drsSoap.openSessionAsync(new openSession
+            {
+                openSession1 = xmbOpenSession
+            });
             if (response.@return.status != responseStatus.success)
             {
                 _logger.LogError(response.@return.errorMsg);
@@ -90,22 +92,15 @@ namespace RepairsApi.V2.Services
             }
         }
 
-        private static string MapPriority(WorkPriority workOrderWorkPriority)
-        {
-            switch (workOrderWorkPriority.PriorityCode)
+        private static string MapPriority(WorkPriority workOrderWorkPriority) =>
+            workOrderWorkPriority.PriorityCode switch
             {
-                case WorkPriorityCode._1:
-                case WorkPriorityCode._2:
-                    return "I";
-                case WorkPriorityCode._3:
-                    return "E";
-                case WorkPriorityCode._4:
-                    return "U";
-                case WorkPriorityCode._5:
-                    return "N";
-                default:
-                    return "N";
-            }
-        }
+                WorkPriorityCode._1 => "I",
+                WorkPriorityCode._2 => "I",
+                WorkPriorityCode._3 => "E",
+                WorkPriorityCode._4 => "U",
+                WorkPriorityCode._5 => "N",
+                _ => throw new NotSupportedException("No WorkPriorityCode provided")
+            };
     }
 }

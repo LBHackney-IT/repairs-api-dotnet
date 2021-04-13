@@ -91,12 +91,12 @@ namespace RepairsApi.Tests.V2.Services
         [TestCase(WorkPriorityCode._3, "E")]
         [TestCase(WorkPriorityCode._4, "U")]
         [TestCase(WorkPriorityCode._5, "N")]
-        public async Task MapsPriorityCorrectly(WorkPriorityCode incommingCode, string expectedDrsCode)
+        public async Task MapsPriorityCorrectly(WorkPriorityCode incomingCode, string expectedDrsCode)
         {
             var generator = new Helpers.StubGeneration.Generator<WorkOrder>()
                 .AddInfrastructureWorkOrderGenerators();
             var workOrder = generator.Generate();
-            workOrder.WorkPriority.PriorityCode = incommingCode;
+            workOrder.WorkPriority.PriorityCode = incomingCode;
             _drsSoapMock.Setup(x => x.createOrderAsync(It.IsAny<createOrder>()))
                 .ReturnsAsync(new createOrderResponse
                 {
