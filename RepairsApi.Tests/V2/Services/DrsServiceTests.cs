@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.ServiceModel;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
@@ -13,6 +14,8 @@ using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 using V2_Generated_DRS;
 using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.V2;
+using RepairsApi.V2.Exceptions;
 
 namespace RepairsApi.Tests.V2.Services
 {
@@ -44,6 +47,29 @@ namespace RepairsApi.Tests.V2.Services
             VerifyOpenSession(_drsSoapMock.lastOpen).Should().BeTrue();
         }
 
+
+        [TestCase(responseStatus.failure)]
+        [TestCase(responseStatus.error)]
+        [TestCase(responseStatus.undefined)]
+        public async Task ThrowsApiError_When_SessionFailsToOpen(responseStatus drsResponse)
+        {
+            string message = "error";
+            _drsSoapMock.Setup(x => x.openSessionAsync(It.IsAny<openSession>()))
+                .ReturnsAsync(new openSessionResponse(new xmbOpenSessionResponse
+                {
+                    status = drsResponse,
+                    errorMsg = message
+                }));
+
+            Func<Task> act = async () =>
+            {
+                await _classUnderTest.OpenSession();
+            };
+
+            await act.Should().ThrowAsync<ApiException>()
+                    .WithMessage(message);
+        }
+
         [Test]
         public async Task CreateOrder()
         {
@@ -63,6 +89,36 @@ namespace RepairsApi.Tests.V2.Services
 
             VerifyOpenSession(_drsSoapMock.lastOpen).Should().BeTrue();
             _drsSoapMock.Verify(x => x.createOrderAsync(It.Is<createOrder>(o => VerifyCreateOrder(o, workOrder))));
+        }
+
+        [TestCase(responseStatus.failure)]
+        [TestCase(responseStatus.error)]
+        [TestCase(responseStatus.undefined)]
+        public async Task ThrowsApiError_When_DrsError(responseStatus drsResponse)
+        {
+            var generator = new Helpers.StubGeneration.Generator<WorkOrder>()
+                .AddInfrastructureWorkOrderGenerators();
+            var workOrder = generator.Generate();
+            var errorMsg = "message";
+            _drsSoapMock.Setup(x => x.createOrderAsync(It.IsAny<createOrder>()))
+                .ReturnsAsync(new createOrderResponse
+                {
+                    @return = new xmbCreateOrderResponse
+                    {
+                        status = drsResponse,
+                        errorMsg = errorMsg
+                    }
+                });
+
+            Func<Task> act = async () =>
+            {
+                await _classUnderTest.CreateOrder(workOrder);
+            };
+
+            (await act.Should().ThrowAsync<ApiException>()
+                .WithMessage(errorMsg))
+                .Which.StatusCode.Should().Be((int) drsResponse);
+
         }
 
         private bool VerifyOpenSession(openSession openSession) =>
@@ -89,10 +145,10 @@ namespace RepairsApi.Tests.V2.Services
                 {
                     @return = new xmbOpenSessionResponse
                     {
-                        sessionId = sessionId
+                        sessionId = sessionId,
+                        status = responseStatus.success
                     }
                 });
         }
-
     }
 }

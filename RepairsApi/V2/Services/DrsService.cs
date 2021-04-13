@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Infrastructure;
 using V2_Generated_DRS;
 
@@ -38,6 +39,7 @@ namespace RepairsApi.V2.Services
             if (response.@return.status != responseStatus.success)
             {
                 _logger.LogError(response.@return.errorMsg);
+                throw new ApiException((int) response.@return.status, response.@return.errorMsg);
             }
             _sessionId = response.@return.sessionId;
         }
@@ -75,6 +77,7 @@ namespace RepairsApi.V2.Services
             if (response.@return.status != responseStatus.success)
             {
                 _logger.LogError(response.@return.errorMsg);
+                throw new ApiException((int) response.@return.status, response.@return.errorMsg);
             }
         }
 

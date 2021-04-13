@@ -5,6 +5,7 @@ using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase.Interfaces;
 using System.Threading.Tasks;
+using Microsoft.FeatureManagement;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.MiddleWare;
 using RepairsApi.V2.Services;
@@ -19,13 +20,15 @@ namespace RepairsApi.V2.UseCase
         private readonly ILogger<CreateWorkOrderUseCase> _logger;
         private readonly ICurrentUserService _currentUserService;
         private readonly IDrsService _drsService;
+        private readonly IFeatureManager _featureManager;
 
         public CreateWorkOrderUseCase(
             IRepairsGateway repairsGateway,
             IScheduleOfRatesGateway scheduleOfRatesGateway,
             ILogger<CreateWorkOrderUseCase> logger,
             ICurrentUserService currentUserService,
-            IDrsService drsService
+            IDrsService drsService,
+            IFeatureManager featureManager
             )
         {
             _repairsGateway = repairsGateway;
@@ -33,6 +36,7 @@ namespace RepairsApi.V2.UseCase
             _logger = logger;
             _currentUserService = currentUserService;
             _drsService = drsService;
+            _featureManager = featureManager;
         }
 
         public async Task<int> Execute(WorkOrder workOrder)
@@ -46,8 +50,10 @@ namespace RepairsApi.V2.UseCase
             var id = await _repairsGateway.CreateWorkOrder(workOrder);
             _logger.LogInformation(Resources.CreatedWorkOrder);
 
-            await _drsService.CreateOrder(workOrder);
-
+            if (await _featureManager.IsEnabledAsync(FeatureFlags.DRSINTEGRATION))
+            {
+                await _drsService.CreateOrder(workOrder);
+            }
             return id;
         }
 
