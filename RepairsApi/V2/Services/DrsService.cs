@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RepairsApi.V2.Exceptions;
+using RepairsApi.V2.Generated;
 using RepairsApi.V2.Infrastructure;
 using V2_Generated_DRS;
 
@@ -35,7 +36,10 @@ namespace RepairsApi.V2.Services
                 login = _drsOptions.Value.Login,
                 password = _drsOptions.Value.Password
             };
-            var response = await _drsSoap.openSessionAsync(new openSession { openSession1 = xmbOpenSession });
+            var response = await _drsSoap.openSessionAsync(new openSession
+            {
+                openSession1 = xmbOpenSession
+            });
             if (response.@return.status != responseStatus.success)
             {
                 _logger.LogError(response.@return.errorMsg);
@@ -59,7 +63,7 @@ namespace RepairsApi.V2.Services
                         orderComments = "Work Order Created",
                         contract = workOrder.AssignedToPrimary.ContractorReference,
                         locationID = workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference,
-                        priority = workOrder.WorkPriority.PriorityDescription,
+                        priority = MapPriority(workOrder.WorkPriority),
                         targetDate = workOrder.WorkPriority.RequiredCompletionDateTime ?? DateTime.UtcNow,
                         userId = workOrder.AgentEmail ?? workOrder.AgentName,
                         theLocation = new location
@@ -88,5 +92,16 @@ namespace RepairsApi.V2.Services
                 await OpenSession();
             }
         }
+
+        private static string MapPriority(WorkPriority workOrderWorkPriority) =>
+            workOrderWorkPriority.PriorityCode switch
+            {
+                WorkPriorityCode._1 => "I",
+                WorkPriorityCode._2 => "I",
+                WorkPriorityCode._3 => "E",
+                WorkPriorityCode._4 => "U",
+                WorkPriorityCode._5 => "N",
+                _ => throw new NotSupportedException("No WorkPriorityCode provided")
+            };
     }
 }

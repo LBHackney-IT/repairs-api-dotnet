@@ -1,21 +1,16 @@
 using System;
-using System.Linq;
-using System.Linq.Expressions;
-using System.ServiceModel;
 using System.Threading.Tasks;
-using AutoFixture;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
-using RepairsApi.Tests.Helpers;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 using V2_Generated_DRS;
 using RepairsApi.Tests.Helpers.StubGeneration;
-using RepairsApi.V2;
 using RepairsApi.V2.Exceptions;
+using RepairsApi.V2.Generated;
 
 namespace RepairsApi.Tests.V2.Services
 {
@@ -67,7 +62,7 @@ namespace RepairsApi.Tests.V2.Services
             };
 
             await act.Should().ThrowAsync<ApiException>()
-                    .WithMessage(message);
+                .WithMessage(message);
         }
 
         [Test]
@@ -89,6 +84,32 @@ namespace RepairsApi.Tests.V2.Services
 
             VerifyOpenSession(_drsSoapMock.lastOpen).Should().BeTrue();
             _drsSoapMock.Verify(x => x.createOrderAsync(It.Is<createOrder>(o => VerifyCreateOrder(o, workOrder))));
+        }
+
+        [TestCase(WorkPriorityCode._1, "I")]
+        [TestCase(WorkPriorityCode._2, "I")]
+        [TestCase(WorkPriorityCode._3, "E")]
+        [TestCase(WorkPriorityCode._4, "U")]
+        [TestCase(WorkPriorityCode._5, "N")]
+        public async Task MapsPriorityCorrectly(WorkPriorityCode incomingCode, string expectedDrsCode)
+        {
+            var generator = new Helpers.StubGeneration.Generator<WorkOrder>()
+                .AddInfrastructureWorkOrderGenerators();
+            var workOrder = generator.Generate();
+            workOrder.WorkPriority.PriorityCode = incomingCode;
+            _drsSoapMock.Setup(x => x.createOrderAsync(It.IsAny<createOrder>()))
+                .ReturnsAsync(new createOrderResponse
+                {
+                    @return = new xmbCreateOrderResponse
+                    {
+                        status = responseStatus.success
+                    }
+                });
+
+            await _classUnderTest.CreateOrder(workOrder);
+
+            VerifyOpenSession(_drsSoapMock.lastOpen).Should().BeTrue();
+            _drsSoapMock.Verify(x => x.createOrderAsync(It.Is<createOrder>(o => o.createOrder1.theOrder.priority == expectedDrsCode)));
         }
 
         [TestCase(responseStatus.failure)]
@@ -116,7 +137,7 @@ namespace RepairsApi.Tests.V2.Services
             };
 
             (await act.Should().ThrowAsync<ApiException>()
-                .WithMessage(errorMsg))
+                    .WithMessage(errorMsg))
                 .Which.StatusCode.Should().Be((int) drsResponse);
 
         }
@@ -128,6 +149,7 @@ namespace RepairsApi.Tests.V2.Services
         private bool VerifyCreateOrder(createOrder createOrder, WorkOrder workOrder) =>
             createOrder.createOrder1.sessionId == _drsSoapMock.sessionId &&
             createOrder.createOrder1.theOrder.primaryOrderNumber == workOrder.Id.ToString();
+
 
     }
 
