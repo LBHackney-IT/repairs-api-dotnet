@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Amazon.XRay.Recorder.Handlers.AwsSdk;
 
 namespace RepairsApi
 {
@@ -40,6 +41,7 @@ namespace RepairsApi
         {
             _env = env;
             Configuration = configuration;
+            AWSSDKHandler.RegisterXRayForAllServices();
         }
 
         public IConfiguration Configuration { get; }
@@ -230,7 +232,8 @@ namespace RepairsApi
                     .UseLazyLoadingProxies()
                     .UseNpgsql(connectionString)
                     .UseSnakeCaseNamingConvention()
-                );
+                    .AddXRayInterceptor(true)
+            );
         }
 
         public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -243,6 +246,8 @@ namespace RepairsApi
             {
                 app.UseHsts();
             }
+
+            app.UseXRay("repairs-api");
 
             //Get All ApiVersions,
             var api = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();
