@@ -52,6 +52,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         }
 
         [Test]
+        [Ignore("Using wrong use case class")]
         public async Task SetWorkOrderStatusWhenAuthorizedGroup()
         {
             const int desiredWorkOrderId = 42;

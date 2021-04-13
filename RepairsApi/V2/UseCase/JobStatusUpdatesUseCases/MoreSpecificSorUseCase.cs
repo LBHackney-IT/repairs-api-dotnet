@@ -63,7 +63,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
         public async Task Execute(WorkElement workElement, WorkOrder workOrder)
         {
             var existingCodes = workOrder.WorkElements.SelectMany(we => we.RateScheduleItem);
-            var newCodes = workElement.RateScheduleItem.Where(rsi => !existingCodes.Any(ec => ec.Id == rsi.Id));
+            var newCodes = workElement.RateScheduleItem.Where(rsi => !existingCodes.Any(ec => ec.Id == rsi.OriginalId));
 
             UpdateExistingCodes(existingCodes, workElement);
             await AddNewCodes(newCodes, workOrder);
@@ -84,7 +84,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
             foreach (var existingCode in existingCodes)
             {
-                var updatedCode = workElement.RateScheduleItem.SingleOrDefault(rsi => rsi.OriginalId == Convert.ToString(existingCode.Id));
+                var updatedCode = workElement.RateScheduleItem.SingleOrDefault(rsi => rsi.OriginalId == existingCode.Id);
                 if (updatedCode == null)
                 {
                     throw new NotSupportedException($"Deleting SOR codes not supported, missing {existingCode.CustomCode}");

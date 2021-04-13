@@ -256,14 +256,14 @@ namespace RepairsApi.V2.Factories
                 CustomName = raiseRepair.CustomName,
                 Quantity = raiseRepair.Quantity?.ToDb(),
                 DateCreated = DateTime.UtcNow,
-                OriginalId = raiseRepair.Id
             };
 
-            if (mapIds && Guid.TryParse(raiseRepair.Id, out var id))
+            if (!string.IsNullOrWhiteSpace(raiseRepair.Id) && Guid.TryParse(raiseRepair.Id, out var id))
             {
-                rateScheduleItem.Id = id;
+                rateScheduleItem.OriginalId = id;
             }
 
+            mapIds = true;
             return rateScheduleItem;
         }
 

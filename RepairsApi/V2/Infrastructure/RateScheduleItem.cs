@@ -18,6 +18,6 @@ namespace RepairsApi.V2.Infrastructure
         public bool Original { get; set; } = false;
         public double? OriginalQuantity { get; set; } = null;
 
-        public string OriginalId { get; set; }
+        public Guid OriginalId { get; set; }
     }
 }

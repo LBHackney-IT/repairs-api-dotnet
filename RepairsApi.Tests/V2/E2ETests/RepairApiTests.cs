@@ -259,7 +259,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             await Post("/api/v2/jobStatusUpdate", request);
 
             request.TypeCode = JobStatusUpdateTypeCode._10020;
-            await Post("/api/v2/jobStatusUpdate", request, "contract manager");
+            var r = await Post("/api/v2/jobStatusUpdate", request, "contract manager");
             var approvedOrder = GetWorkOrderWithJobStatusUpdatesFromDB(workOrderId);
 
             // Assert
@@ -283,7 +283,6 @@ namespace RepairsApi.Tests.V2.E2ETests
             JobStatusUpdate request = CreateUpdateRequest(workOrderId, workElement);
             // Act
             await Post("/api/v2/jobStatusUpdate", request);
-            var workOrder = GetWorkOrderFromDB(workOrderId);
 
             //approve variation
             request.TypeCode = JobStatusUpdateTypeCode._10020;

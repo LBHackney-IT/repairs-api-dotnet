@@ -16,6 +16,5 @@ namespace RepairsApi.V2.Generated
     {
         [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
-        public string OriginalId { get; set; }
     }
 }
