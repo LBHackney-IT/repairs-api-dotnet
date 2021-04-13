@@ -29,12 +29,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.ServiceModel;
+using V2_Generated_DRS;
 
 namespace RepairsApi
 {
     public class Startup
     {
         private readonly IWebHostEnvironment _env;
+
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             _env = env;
@@ -151,12 +154,15 @@ namespace RepairsApi
 
             AddHttpClients(services);
             services.Configure<GatewayOptions>(Configuration.GetSection(nameof(GatewayOptions)));
+            services.Configure<DrsOptions>(Configuration.GetSection(nameof(DrsOptions)));
 
             RegisterGateways(services);
             RegisterUseCases(services);
             services.AddTransient<IJobStatusUpdateStrategyFactory, JobStatusUpdateStrategyFactory>();
             services.AddTransient(typeof(IActivatorWrapper<>), typeof(ActivatorWrapper<>));
             services.AddScoped<CurrentUserService>();
+            services.AddScoped<IDrsService, DrsService>();
+            services.AddScoped<SOAP>(sp => new SOAPClient(sp.GetRequiredService<IOptions<DrsOptions>>()));
             services.AddScoped<ICurrentUserService>(sp => sp.GetService<CurrentUserService>());
             services.AddScoped<ICurrentUserLoader>(sp => sp.GetService<CurrentUserService>());
             services.AddTransient<ITransactionManager, TransactionManager>();
@@ -229,7 +235,7 @@ namespace RepairsApi
                     .UseLazyLoadingProxies()
                     .UseNpgsql(connectionString)
                     .UseSnakeCaseNamingConvention()
-                );
+            );
         }
 
         public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
