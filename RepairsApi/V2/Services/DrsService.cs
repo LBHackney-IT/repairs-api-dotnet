@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RepairsApi.V2.Exceptions;
+using RepairsApi.V2.Generated;
 using RepairsApi.V2.Infrastructure;
 using V2_Generated_DRS;
 
@@ -59,7 +60,7 @@ namespace RepairsApi.V2.Services
                         orderComments = "Work Order Created",
                         contract = workOrder.AssignedToPrimary.ContractorReference,
                         locationID = workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference,
-                        priority = workOrder.WorkPriority.PriorityDescription,
+                        priority = MapPriority(workOrder.WorkPriority),
                         targetDate = workOrder.WorkPriority.RequiredCompletionDateTime ?? DateTime.UtcNow,
                         userId = workOrder.AgentEmail ?? workOrder.AgentName,
                         theLocation = new location
@@ -86,6 +87,25 @@ namespace RepairsApi.V2.Services
             if (_sessionId is null)
             {
                 await OpenSession();
+            }
+        }
+
+        private static string MapPriority(WorkPriority workOrderWorkPriority)
+        {
+            switch (workOrderWorkPriority.PriorityCode)
+            {
+                case WorkPriorityCode._1:
+                    return "I";
+                case WorkPriorityCode._2:
+                    return "I";
+                case WorkPriorityCode._3:
+                    return "E";
+                case WorkPriorityCode._4:
+                    return "U";
+                case WorkPriorityCode._5:
+                    return "N";
+                default:
+                    return "N";
             }
         }
     }

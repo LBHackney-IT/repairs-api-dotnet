@@ -1,21 +1,16 @@
 using System;
-using System.Linq;
-using System.Linq.Expressions;
-using System.ServiceModel;
 using System.Threading.Tasks;
-using AutoFixture;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
-using RepairsApi.Tests.Helpers;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 using V2_Generated_DRS;
 using RepairsApi.Tests.Helpers.StubGeneration;
-using RepairsApi.V2;
 using RepairsApi.V2.Exceptions;
+using RepairsApi.V2.Generated;
 
 namespace RepairsApi.Tests.V2.Services
 {
@@ -127,7 +122,27 @@ namespace RepairsApi.Tests.V2.Services
 
         private bool VerifyCreateOrder(createOrder createOrder, WorkOrder workOrder) =>
             createOrder.createOrder1.sessionId == _drsSoapMock.sessionId &&
-            createOrder.createOrder1.theOrder.primaryOrderNumber == workOrder.Id.ToString();
+            createOrder.createOrder1.theOrder.primaryOrderNumber == workOrder.Id.ToString() &&
+            createOrder.createOrder1.theOrder.priority == MapPriority(workOrder.WorkPriority);
+
+        private static string MapPriority(WorkPriority workOrderWorkPriority)
+        {
+            switch (workOrderWorkPriority.PriorityCode)
+            {
+                case WorkPriorityCode._1:
+                    return "I";
+                case WorkPriorityCode._2:
+                    return "I";
+                case WorkPriorityCode._3:
+                    return "E";
+                case WorkPriorityCode._4:
+                    return "U";
+                case WorkPriorityCode._5:
+                    return "N";
+                default:
+                    return "N";
+            }
+        }
 
     }
 
