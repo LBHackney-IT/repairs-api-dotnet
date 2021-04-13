@@ -95,7 +95,6 @@ namespace RepairsApi.V2.Services
             switch (workOrderWorkPriority.PriorityCode)
             {
                 case WorkPriorityCode._1:
-                    return "I";
                 case WorkPriorityCode._2:
                     return "I";
                 case WorkPriorityCode._3:

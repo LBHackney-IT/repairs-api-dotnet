@@ -28,8 +28,7 @@ namespace RepairsApi.Tests.V2.Services
             _drsSoapMock = new MockDrsSoap();
             _drsOptions = Options.Create<DrsOptions>(new DrsOptions
             {
-                Login = "login",
-                Password = "password"
+                Login = "login", Password = "password"
             });
 
             _classUnderTest = new DrsService(_drsSoapMock.Object, _drsOptions, _loggerMock.Object);
@@ -52,8 +51,7 @@ namespace RepairsApi.Tests.V2.Services
             _drsSoapMock.Setup(x => x.openSessionAsync(It.IsAny<openSession>()))
                 .ReturnsAsync(new openSessionResponse(new xmbOpenSessionResponse
                 {
-                    status = drsResponse,
-                    errorMsg = message
+                    status = drsResponse, errorMsg = message
                 }));
 
             Func<Task> act = async () =>
@@ -62,7 +60,7 @@ namespace RepairsApi.Tests.V2.Services
             };
 
             await act.Should().ThrowAsync<ApiException>()
-                    .WithMessage(message);
+                .WithMessage(message);
         }
 
         [Test]
@@ -86,6 +84,32 @@ namespace RepairsApi.Tests.V2.Services
             _drsSoapMock.Verify(x => x.createOrderAsync(It.Is<createOrder>(o => VerifyCreateOrder(o, workOrder))));
         }
 
+        [TestCase(WorkPriorityCode._1, "I")]
+        [TestCase(WorkPriorityCode._2, "I")]
+        [TestCase(WorkPriorityCode._3, "E")]
+        [TestCase(WorkPriorityCode._4, "U")]
+        [TestCase(WorkPriorityCode._5, "N")]
+        public async Task MapsPriorityCorrectly(WorkPriorityCode incommingCode, string expectedDrsCode)
+        {
+            var generator = new Helpers.StubGeneration.Generator<WorkOrder>()
+                .AddInfrastructureWorkOrderGenerators();
+            var workOrder = generator.Generate();
+            workOrder.WorkPriority.PriorityCode = incommingCode;
+            _drsSoapMock.Setup(x => x.createOrderAsync(It.IsAny<createOrder>()))
+                .ReturnsAsync(new createOrderResponse
+                {
+                    @return = new xmbCreateOrderResponse
+                    {
+                        status = responseStatus.success
+                    }
+                });
+
+            await _classUnderTest.CreateOrder(workOrder);
+
+            VerifyOpenSession(_drsSoapMock.lastOpen).Should().BeTrue();
+            _drsSoapMock.Verify(x => x.createOrderAsync(It.Is<createOrder>(o => o.createOrder1.theOrder.priority == expectedDrsCode)));
+        }
+
         [TestCase(responseStatus.failure)]
         [TestCase(responseStatus.error)]
         [TestCase(responseStatus.undefined)]
@@ -100,8 +124,7 @@ namespace RepairsApi.Tests.V2.Services
                 {
                     @return = new xmbCreateOrderResponse
                     {
-                        status = drsResponse,
-                        errorMsg = errorMsg
+                        status = drsResponse, errorMsg = errorMsg
                     }
                 });
 
@@ -111,7 +134,7 @@ namespace RepairsApi.Tests.V2.Services
             };
 
             (await act.Should().ThrowAsync<ApiException>()
-                .WithMessage(errorMsg))
+                    .WithMessage(errorMsg))
                 .Which.StatusCode.Should().Be((int) drsResponse);
 
         }
@@ -122,27 +145,8 @@ namespace RepairsApi.Tests.V2.Services
 
         private bool VerifyCreateOrder(createOrder createOrder, WorkOrder workOrder) =>
             createOrder.createOrder1.sessionId == _drsSoapMock.sessionId &&
-            createOrder.createOrder1.theOrder.primaryOrderNumber == workOrder.Id.ToString() &&
-            createOrder.createOrder1.theOrder.priority == MapPriority(workOrder.WorkPriority);
+            createOrder.createOrder1.theOrder.primaryOrderNumber == workOrder.Id.ToString();
 
-        private static string MapPriority(WorkPriority workOrderWorkPriority)
-        {
-            switch (workOrderWorkPriority.PriorityCode)
-            {
-                case WorkPriorityCode._1:
-                    return "I";
-                case WorkPriorityCode._2:
-                    return "I";
-                case WorkPriorityCode._3:
-                    return "E";
-                case WorkPriorityCode._4:
-                    return "U";
-                case WorkPriorityCode._5:
-                    return "N";
-                default:
-                    return "N";
-            }
-        }
 
     }
 
@@ -160,8 +164,7 @@ namespace RepairsApi.Tests.V2.Services
                 {
                     @return = new xmbOpenSessionResponse
                     {
-                        sessionId = sessionId,
-                        status = responseStatus.success
+                        sessionId = sessionId, status = responseStatus.success
                     }
                 });
         }
