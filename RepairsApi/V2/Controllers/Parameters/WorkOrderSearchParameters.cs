@@ -8,7 +8,7 @@ namespace RepairsApi.V2.Controllers.Parameters
         public static int MaxPageSize { get; } = 50;
         public string PropertyReference { get; set; }
         public string ContractorReference { get; set; }
-        public List<int> StatusCodes { get; set; }
+        public List<int> StatusCode { get; set; }
         public int PageNumber { get; set; } = 1;
         private int _pageSize = 10;
         public int PageSize

@@ -100,6 +100,28 @@ namespace RepairsApi.Tests.V2.E2ETests
         }
 
         [Test]
+        public async Task GetFilteredListOfWorkOrders()
+        {
+            // Arrange
+            var workOrderId = await CreateWorkOrder();
+
+            // Act
+            var (openCode, openResponse) = await Get<List<WorkOrderListItem>>("/api/v2/repairs?StatusCode=80");
+            var (closedCode, closedResponse) = await Get<List<WorkOrderListItem>>("/api/v2/repairs?StatusCode=40");
+            var (multiCode, multiResponse) = await Get<List<WorkOrderListItem>>("/api/v2/repairs?StatusCode=40&StatusCode=80");
+
+            // Assert
+            openCode.Should().Be(HttpStatusCode.OK);
+            openResponse.Should().Contain(wo => wo.Reference == workOrderId);
+
+            closedCode.Should().Be(HttpStatusCode.OK);
+            closedResponse.Should().BeEmpty();
+
+            multiCode.Should().Be(HttpStatusCode.OK);
+            multiResponse.Should().Contain(wo => wo.Reference == workOrderId);
+        }
+
+        [Test]
         public async Task GetWorkOrder()
         {
             // Arrange
