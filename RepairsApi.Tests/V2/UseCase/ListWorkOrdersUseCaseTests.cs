@@ -46,9 +46,9 @@ namespace RepairsApi.Tests.V2.UseCase
                     p => wo => wo.Site.PropertyClass.Any(pc => pc.PropertyReference == p)
                 )
                 .AddFilter(
-                    searchParams => searchParams.StatusCode,
-                    code => code > 0 && Enum.IsDefined(typeof(WorkStatusCode), code),
-                    code => wo => wo.StatusCode == (WorkStatusCode) Enum.Parse(typeof(WorkStatusCode), code.ToString())
+                    searchParams => searchParams.StatusCodes,
+                    codes => codes?.All(code => code > 0 && Enum.IsDefined(typeof(WorkStatusCode), code)) ?? false,
+                    codes => wo => codes.Select(c => Enum.Parse<WorkStatusCode>(c.ToString())).Contains(wo.StatusCode)
                 );
         }
 
