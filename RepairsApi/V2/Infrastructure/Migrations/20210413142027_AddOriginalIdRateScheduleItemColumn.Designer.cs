@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RepairsApi.V2.Infrastructure;
@@ -9,9 +10,10 @@ using RepairsApi.V2.Infrastructure;
 namespace RepairsApi.V2.Infrastructure.Migrations
 {
     [DbContext(typeof(RepairsContext))]
-    partial class RepairsContextModelSnapshot : ModelSnapshot
+    [Migration("20210413142027_AddOriginalIdRateScheduleItemColumn")]
+    partial class AddOriginalIdRateScheduleItemColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1067,10 +1069,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasColumnName("id")
                         .UseIdentityByDefaultColumn()
                         .HasIdentityOptions(10000000L, null, null, null, null, null);
-
-                    b.Property<string>("AgentEmail")
-                        .HasColumnType("text")
-                        .HasColumnName("agent_email");
 
                     b.Property<string>("AgentName")
                         .HasColumnType("text")
