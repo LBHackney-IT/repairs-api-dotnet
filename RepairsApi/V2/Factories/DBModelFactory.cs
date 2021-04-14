@@ -237,18 +237,18 @@ namespace RepairsApi.V2.Factories
             };
         }
 
-        public static WorkElement ToDb(this Generated.WorkElement raiseRepair, bool mapIds = false)
+        public static WorkElement ToDb(this Generated.WorkElement raiseRepair)
         {
             return new WorkElement
             {
                 ContainsCapitalWork = raiseRepair.ContainsCapitalWork,
                 ServiceChargeSubject = raiseRepair.ServiceChargeSubject,
                 Trade = raiseRepair.Trade.MapList(t => t.ToDb()),
-                RateScheduleItem = raiseRepair.RateScheduleItem.MapList(rsi => rsi.ToDb(mapIds))
+                RateScheduleItem = raiseRepair.RateScheduleItem.MapList(rsi => rsi.ToDb())
             };
         }
 
-        public static RateScheduleItem ToDb(this Generated.RateScheduleItem raiseRepair, bool mapIds = false)
+        public static RateScheduleItem ToDb(this Generated.RateScheduleItem raiseRepair)
         {
             RateScheduleItem rateScheduleItem = new RateScheduleItem
             {
@@ -263,7 +263,6 @@ namespace RepairsApi.V2.Factories
                 rateScheduleItem.OriginalId = id;
             }
 
-            mapIds = true;
             return rateScheduleItem;
         }
 

@@ -80,7 +80,6 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         }
 
         [Test]
-        //[Ignore("wip")]
         public async Task UpdateQuantityOfExistingCodes()
         {
             const int desiredWorkOrderId = 42;

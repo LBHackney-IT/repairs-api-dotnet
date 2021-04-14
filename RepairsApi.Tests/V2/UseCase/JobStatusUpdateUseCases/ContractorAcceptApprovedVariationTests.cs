@@ -24,7 +24,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
 
         private MockRepairsGateway _repairsGatewayMock;
         private CurrentUserServiceMock _currentUserServiceMock;
-        private ContractorAcceptApprovedVariationUseCase _classUnderTest;
+        private ContractorAcknowledgeVariationUseCase _classUnderTest;
 
         [SetUp]
         public void Setup()
@@ -34,7 +34,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
             _repairsGatewayMock = new MockRepairsGateway();
             _currentUserServiceMock = new CurrentUserServiceMock();
-            _classUnderTest = new ContractorAcceptApprovedVariationUseCase(
+            _classUnderTest = new ContractorAcknowledgeVariationUseCase(
                 _repairsGatewayMock.Object,
                 _currentUserServiceMock.Object);
         }
@@ -52,19 +52,18 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         }
 
         [Test]
-        [Ignore("Using wrong use case class")]
-        public async Task SetWorkOrderStatusWhenAuthorizedGroup()
+        public void ThrowNotSupportedExceptionWhenWorkOrderNotApproved()
         {
             const int desiredWorkOrderId = 42;
             var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
             var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
-                Generated.JobStatusUpdateTypeCode._125);
+                Generated.JobStatusUpdateTypeCode._10010);
 
             _currentUserServiceMock.Setup(currentUser => currentUser.HasGroup(UserGroups.CONTRACTOR))
                 .Returns(true);
 
-            await _classUnderTest.Execute(request);
-            workOrder.StatusCode.Should().Be(WorkStatusCode.Open);
+            Func<Task> fn = () => _classUnderTest.Execute(request);
+            fn.Should().ThrowAsync<NotSupportedException>();
         }
 
         private static Generated.JobStatusUpdate CreateJobStatusUpdateRequest

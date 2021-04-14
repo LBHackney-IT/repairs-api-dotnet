@@ -37,7 +37,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
         public async Task Execute(JobStatusUpdate jobStatusUpdate)
         {
             var workOrderId = int.Parse(jobStatusUpdate.RelatedWorkOrderReference.ID);
-            var workElement = jobStatusUpdate.MoreSpecificSORCode.ToDb(mapIds: true);
+            var workElement = jobStatusUpdate.MoreSpecificSORCode.ToDb();
 
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
 

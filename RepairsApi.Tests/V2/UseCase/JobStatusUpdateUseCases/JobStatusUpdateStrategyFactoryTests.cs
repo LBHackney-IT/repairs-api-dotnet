@@ -60,7 +60,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         [Test]
         public async Task ExecutesContractorAcceptApprovedVariationUseCase()
         {
-            await ValidateStrategyResolution<ContractorAcceptApprovedVariationUseCase>(new JobStatusUpdate
+            await ValidateStrategyResolution<ContractorAcknowledgeVariationUseCase>(new JobStatusUpdate
             {
                 TypeCode = JobStatusUpdateTypeCode._10010
             });
