@@ -168,6 +168,7 @@ namespace RepairsApi
             services.AddTransient<ITransactionManager, TransactionManager>();
             services.AddSingleton<IAuthenticationService, ChallengeOnlyAuthenticationService>();
             services.AddFeatureManagement();
+            services.AddFilteringConfig();
         }
 
         private static void RegisterGateways(IServiceCollection services)
