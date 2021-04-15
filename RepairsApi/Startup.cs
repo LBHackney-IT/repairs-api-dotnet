@@ -29,6 +29,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Amazon.XRay.Recorder.Core;
+using Amazon.XRay.Recorder.Core.Strategies;
+using Amazon.XRay.Recorder.Handlers.AspNetCore.Internal;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using Castle.Core.Internal;
 
@@ -37,14 +40,14 @@ namespace RepairsApi
     public class Startup
     {
         private readonly IWebHostEnvironment _env;
-        private static bool DidStartInLambda { get; set; }
 
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             _env = env;
             Configuration = configuration;
-            DidStartInLambda = !Environment.GetEnvironmentVariable("LAMBDA_TASK_ROOT").IsNullOrEmpty();
-            if (DidStartInLambda) AWSSDKHandler.RegisterXRayForAllServices();
+            AWSXRayRecorder.InitializeInstance(configuration);
+            AWSSDKHandler.RegisterXRayForAllServices();
+            AWSXRayRecorder.Instance.ContextMissingStrategy = ContextMissingStrategy.LOG_ERROR;
         }
 
         public IConfiguration Configuration { get; }
@@ -235,7 +238,7 @@ namespace RepairsApi
                     .UseLazyLoadingProxies()
                     .UseNpgsql(connectionString)
                     .UseSnakeCaseNamingConvention()
-                    .AddXRayInterceptor(DidStartInLambda)
+                    .AddXRayInterceptor(true)
             );
         }
 
@@ -247,10 +250,10 @@ namespace RepairsApi
             }
             else
             {
+                app.UseXRay("repairs-api");
                 app.UseHsts();
             }
 
-            if (DidStartInLambda) app.UseXRay("repairs-api");
 
             //Get All ApiVersions,
             var api = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();
