@@ -30,6 +30,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
+using Newtonsoft.Json;
 using V2_Generated_DRS;
 
 namespace RepairsApi
@@ -53,7 +54,12 @@ namespace RepairsApi
         {
             services
                 .AddMvc()
-                .AddNewtonsoftJson() // Required for the generated json attributes on hact models function as model validation
+                .AddNewtonsoftJson(
+                    options =>
+                    {
+                        options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+                    }
+                ) // Required for the generated json attributes on hact models function as model validation
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddApiVersioning(o =>
             {
@@ -79,19 +85,13 @@ namespace RepairsApi
                 c.AddSecurityDefinition("Token",
                     new OpenApiSecurityScheme
                     {
-                        In = ParameterLocation.Header,
-                        Description = "Your Hackney API Key",
-                        Name = "X-Api-Key",
-                        Type = SecuritySchemeType.ApiKey
+                        In = ParameterLocation.Header, Description = "Your Hackney API Key", Name = "X-Api-Key", Type = SecuritySchemeType.ApiKey
                     });
 
                 c.AddSecurityDefinition("UserHeader",
                     new OpenApiSecurityScheme
                     {
-                        In = ParameterLocation.Header,
-                        Description = "Hackney User JWT",
-                        Name = "X-Hackney-User",
-                        Type = SecuritySchemeType.ApiKey
+                        In = ParameterLocation.Header, Description = "Hackney User JWT", Name = "X-Hackney-User", Type = SecuritySchemeType.ApiKey
                     });
 
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -99,7 +99,10 @@ namespace RepairsApi
                     {
                         new OpenApiSecurityScheme
                         {
-                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Token" }
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme, Id = "Token"
+                            }
                         },
                         new List<string>()
                     }
@@ -110,7 +113,10 @@ namespace RepairsApi
                     {
                         new OpenApiSecurityScheme
                         {
-                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "UserHeader" }
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme, Id = "UserHeader"
+                            }
                         },
                         new List<string>()
                     }
@@ -137,9 +143,7 @@ namespace RepairsApi
                     var version = $"v{apiVersion.ApiVersion}";
                     c.SwaggerDoc(version, new OpenApiInfo
                     {
-                        Title = $"{ApiName}-api {version}",
-                        Version = version,
-                        Description = $"{ApiName} version {version}. Please check older versions for depreciated endpoints."
+                        Title = $"{ApiName}-api {version}", Version = version, Description = $"{ApiName} version {version}. Please check older versions for depreciated endpoints."
                     });
                 }
 
@@ -162,6 +166,7 @@ namespace RepairsApi
             services.AddTransient(typeof(IActivatorWrapper<>), typeof(ActivatorWrapper<>));
             services.AddScoped<CurrentUserService>();
             services.AddScoped<IDrsService, DrsService>();
+            services.AddScoped<IDrsMapping, DrsMapping>();
             services.AddScoped<SOAP>(sp => new SOAPClient(sp.GetRequiredService<IOptions<DrsOptions>>()));
             services.AddScoped<ICurrentUserService>(sp => sp.GetService<CurrentUserService>());
             services.AddScoped<ICurrentUserLoader>(sp => sp.GetService<CurrentUserService>());
