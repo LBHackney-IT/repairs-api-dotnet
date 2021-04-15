@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 using Microsoft.OpenApi.Models;
 using RepairsApi.V2.Authorisation;
+using RepairsApi.V2.Controllers;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Infrastructure;
@@ -155,6 +156,7 @@ namespace RepairsApi
             AddHttpClients(services);
             services.Configure<GatewayOptions>(Configuration.GetSection(nameof(GatewayOptions)));
             services.Configure<DrsOptions>(Configuration.GetSection(nameof(DrsOptions)));
+            services.Configure<FilterConfiguration>(Configuration.GetSection(nameof(FilterConfiguration)));
 
             RegisterGateways(services);
             RegisterUseCases(services);
