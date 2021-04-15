@@ -100,6 +100,33 @@ namespace RepairsApi.Tests.V2.E2ETests
         }
 
         [Test]
+        public async Task GetFilteredListOfWorkOrders()
+        {
+            // Arrange
+            var openWorkOrderId = await CreateWorkOrder();
+            var completedWorkOrderId = await CreateWorkOrder();
+            await CancelWorkOrder(completedWorkOrderId);
+
+            // Act
+            var (openCode, openResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/repairs?StatusCode={(int) WorkStatusCode.Open}");
+            var (closedCode, closedResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/repairs?StatusCode={(int) WorkStatusCode.Canceled}");
+            var (multiCode, multiResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/repairs?StatusCode={(int) WorkStatusCode.Open}&StatusCode={(int) WorkStatusCode.Canceled}");
+
+            // Assert
+            openCode.Should().Be(HttpStatusCode.OK);
+            openResponse.Should().ContainSingle(wo => wo.Reference == openWorkOrderId);
+            openResponse.Should().NotContain(wo => wo.Reference == completedWorkOrderId);
+
+            closedCode.Should().Be(HttpStatusCode.OK);
+            closedResponse.Should().ContainSingle(wo => wo.Reference == completedWorkOrderId);
+            closedResponse.Should().NotContain(wo => wo.Reference == openWorkOrderId);
+
+            multiCode.Should().Be(HttpStatusCode.OK);
+            multiResponse.Should().ContainSingle(wo => wo.Reference == openWorkOrderId);
+            multiResponse.Should().ContainSingle(wo => wo.Reference == completedWorkOrderId);
+        }
+
+        [Test]
         public async Task GetWorkOrder()
         {
             // Arrange
@@ -140,10 +167,10 @@ namespace RepairsApi.Tests.V2.E2ETests
         {
             // Arrange
             var woId = await CreateWorkOrder();
-            await CompleteWorkOrder(woId);
+            await CancelWorkOrder(woId);
 
             // Act
-            var secondResponseCode = await CompleteWorkOrder(woId);
+            var secondResponseCode = await CancelWorkOrder(woId);
 
             // Assert
             secondResponseCode.Should().Be(HttpStatusCode.BadRequest);
@@ -546,7 +573,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             return repair;
         }
 
-        public async Task<HttpStatusCode> CompleteWorkOrder(int id)
+        public async Task<HttpStatusCode> CancelWorkOrder(int id)
         {
             var request = new Generator<WorkOrderComplete>()
                 .AddWorkOrderCompleteGenerators()
