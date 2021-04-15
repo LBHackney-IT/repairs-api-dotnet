@@ -1,13 +1,11 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoFixture;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
-using RepairsApi.Tests.Helpers;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 using V2_Generated_DRS;
@@ -74,13 +72,13 @@ namespace RepairsApi.Tests.V2.Services
             };
 
             await act.Should().ThrowAsync<ApiException>()
-                    .WithMessage(message);
+                .WithMessage(message);
         }
 
         [Test]
         public async Task CreateOrder()
         {
-            var generator = new Helpers.StubGeneration.Generator<WorkOrder>()
+            var generator = new Generator<WorkOrder>()
                 .AddInfrastructureWorkOrderGenerators();
             var workOrder = generator.Generate();
 
@@ -104,10 +102,10 @@ namespace RepairsApi.Tests.V2.Services
         [TestCase(responseStatus.undefined)]
         public async Task ThrowsApiError_When_DrsError(responseStatus drsResponse)
         {
-            var generator = new Helpers.StubGeneration.Generator<WorkOrder>()
+            var generator = new Generator<WorkOrder>()
                 .AddInfrastructureWorkOrderGenerators();
             var workOrder = generator.Generate();
-            var errorMsg = "message";
+            const string errorMsg = "message";
             _drsSoapMock.Setup(x => x.createOrderAsync(It.IsAny<createOrder>()))
                 .ReturnsAsync(new createOrderResponse
                 {
@@ -124,7 +122,7 @@ namespace RepairsApi.Tests.V2.Services
             };
 
             (await act.Should().ThrowAsync<ApiException>()
-                .WithMessage(errorMsg))
+                    .WithMessage(errorMsg))
                 .Which.StatusCode.Should().Be((int) drsResponse);
 
         }
@@ -132,6 +130,7 @@ namespace RepairsApi.Tests.V2.Services
         private bool VerifyOpenSession(openSession openSession) =>
             openSession.openSession1.login == _drsOptions.Value.Login &&
             openSession.openSession1.password == _drsOptions.Value.Password;
+
 
 
     }

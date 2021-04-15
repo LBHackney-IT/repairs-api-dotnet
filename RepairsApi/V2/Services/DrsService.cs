@@ -1,9 +1,11 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Generated;
 using RepairsApi.V2.Infrastructure;
 using V2_Generated_DRS;
 using WorkElement = RepairsApi.V2.Infrastructure.WorkElement;
@@ -40,7 +42,10 @@ namespace RepairsApi.V2.Services
                 login = _drsOptions.Value.Login,
                 password = _drsOptions.Value.Password
             };
-            var response = await _drsSoap.openSessionAsync(new openSession { openSession1 = xmbOpenSession });
+            var response = await _drsSoap.openSessionAsync(new openSession
+            {
+                openSession1 = xmbOpenSession
+            });
             if (response.@return.status != responseStatus.success)
             {
                 _logger.LogError(response.@return.errorMsg);
@@ -69,5 +74,16 @@ namespace RepairsApi.V2.Services
                 await OpenSession();
             }
         }
+
+        private static string MapPriority(WorkPriority workOrderWorkPriority) =>
+            workOrderWorkPriority.PriorityCode switch
+            {
+                WorkPriorityCode._1 => "I",
+                WorkPriorityCode._2 => "I",
+                WorkPriorityCode._3 => "E",
+                WorkPriorityCode._4 => "U",
+                WorkPriorityCode._5 => "N",
+                _ => throw new NotSupportedException("No WorkPriorityCode provided")
+            };
     }
 }

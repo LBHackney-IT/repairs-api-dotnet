@@ -33,7 +33,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
                 JobStatusUpdateTypeCode._125 => _activator.CreateInstance<RejectVariationUseCase>(),
 
                 //Variation acknowledged by contractor, workorder set to in progress
-                JobStatusUpdateTypeCode._10010 => _activator.CreateInstance<ContractorAcceptApprovedVariationUseCase>(),
+                JobStatusUpdateTypeCode._10010 => _activator.CreateInstance<ContractorAcknowledgeVariationUseCase>(),
 
                 // Job Incomplete
                 JobStatusUpdateTypeCode._120 => _activator.CreateInstance<JobIncompleteStrategy>(),
