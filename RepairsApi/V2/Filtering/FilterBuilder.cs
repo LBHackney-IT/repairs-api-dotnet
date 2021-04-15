@@ -24,8 +24,8 @@ namespace RepairsApi.V2.Filtering
         /// <returns>The same filterbuilder to allow chaining</returns>
         public FilterBuilder<TSearch, TQuery> AddFilter<T>(Func<TSearch, T> searchValueFunction, Func<T, bool> searchValidator, Func<T, Expression<Func<TQuery, bool>>> filterFunction)
         {
-           _config.Add(new FilterItem<T, TSearch, TQuery>(searchValueFunction, searchValidator, filterFunction));
-           return this;
+            _config.Add(new FilterItem<T, TSearch, TQuery>(searchValueFunction, searchValidator, filterFunction));
+            return this;
         }
 
         public IFilter<TQuery> BuildFilter(TSearch searchParameter)
