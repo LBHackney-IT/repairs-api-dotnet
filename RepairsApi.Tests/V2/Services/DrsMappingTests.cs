@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -65,7 +65,9 @@ namespace RepairsApi.Tests.V2.Services
             var sorCodes = workOrder.WorkElements.FirstOrDefault()?.RateScheduleItem
                 .Select(rsi => new ScheduleOfRatesModel
                 {
-                    Code = rsi.CustomCode, ShortDescription = $"{rsi.CustomCode} short description", LongDescription = $"{rsi.CustomCode} long description"
+                    Code = rsi.CustomCode,
+                    ShortDescription = $"{rsi.CustomCode} short description",
+                    LongDescription = $"{rsi.CustomCode} long description"
                 }).ToList();
 
             if (sorCodes == null) return null;
@@ -142,7 +144,9 @@ namespace RepairsApi.Tests.V2.Services
             location.citizensName.Should().Be(workOrder.Customer.Name);
             location.theLocationLines.Should().BeEquivalentTo<locationLine>(locationAlerts.Alerts.Select(a => new locationLine
             {
-                citizensName = workOrder.Customer.Name, lineCode = a.AlertCode, lineDescription = a.Description
+                citizensName = workOrder.Customer.Name,
+                lineCode = a.AlertCode,
+                lineDescription = a.Description
             }).ToArray());
         }
     }

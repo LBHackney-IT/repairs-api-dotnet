@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.Infrastructure;
 using V2_Generated_DRS;
