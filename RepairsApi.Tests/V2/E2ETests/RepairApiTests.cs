@@ -103,7 +103,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         public async Task GetFilteredListOfWorkOrders()
         {
             // Arrange
-            var workOrderId = await CreateWorkOrder();
+            var openWorkOrderId = await CreateWorkOrder();
             var completedWorkOrderId = await CreateWorkOrder();
             await CancelWorkOrder(completedWorkOrderId);
 
@@ -114,13 +114,16 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             // Assert
             openCode.Should().Be(HttpStatusCode.OK);
-            openResponse.Should().ContainSingle(wo => wo.Reference == workOrderId);
+            openResponse.Should().ContainSingle(wo => wo.Reference == openWorkOrderId);
+            openResponse.Should().NotContain(wo => wo.Reference == completedWorkOrderId);
 
             closedCode.Should().Be(HttpStatusCode.OK);
             closedResponse.Should().ContainSingle(wo => wo.Reference == completedWorkOrderId);
+            closedResponse.Should().NotContain(wo => wo.Reference == openWorkOrderId);
 
             multiCode.Should().Be(HttpStatusCode.OK);
-            multiResponse.Should().HaveCount(2);
+            multiResponse.Should().ContainSingle(wo => wo.Reference == openWorkOrderId);
+            multiResponse.Should().ContainSingle(wo => wo.Reference == completedWorkOrderId);
         }
 
         [Test]
