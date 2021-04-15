@@ -12,6 +12,7 @@ using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Infrastructure.Extensions;
 using RepairsApi.V2.Services;
 using V2_Generated_DRS;
 using RateScheduleItem = RepairsApi.V2.Infrastructure.RateScheduleItem;
@@ -98,7 +99,7 @@ namespace RepairsApi.Tests.V2.Services
             order.targetDate.Should().Be(workOrder.WorkPriority.RequiredCompletionDateTime!.Value);
             order.userId.Should().Be(workOrder.AgentEmail);
             order.contactName.Should().Be(workOrder.Customer.Name);
-            order.phone.Should().Be(workOrder.Customer.Person.GetPhoneNumber());
+            order.phone.Should().Be(workOrder.Customer.Person.Communication.GetPhoneNumber());
 
             ValidateLocation(workOrder, locationAlerts, order.theLocation);
 

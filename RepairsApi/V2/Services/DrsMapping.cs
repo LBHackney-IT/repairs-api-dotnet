@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated;
+using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Infrastructure.Extensions;
 using V2_Generated_DRS;
 using RateScheduleItem = RepairsApi.V2.Infrastructure.RateScheduleItem;
 
@@ -42,11 +44,11 @@ namespace RepairsApi.V2.Services
                         orderComments = workOrder.DescriptionOfWork,
                         contract = workOrder.AssignedToPrimary.ContractorReference,
                         locationID = workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference,
-                        priority = MapPriority(workOrder.WorkPriority),
+                        priority = workOrder.WorkPriority.ToLegacyPriority(),
                         targetDate = workOrder.WorkPriority.RequiredCompletionDateTime ?? DateTime.UtcNow,
                         userId = workOrder.AgentEmail ?? workOrder.AgentName,
                         contactName = workOrder.Customer.Name,
-                        phone = workOrder.Customer.Person.GetPhoneNumber(),
+                        phone = workOrder.Customer.Person.Communication.GetPhoneNumber(),
                         theLocation = new location
                         {
                             locationId = workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference,
@@ -99,16 +101,5 @@ namespace RepairsApi.V2.Services
                 trade = sorCode.TradeCode
             };
         }
-
-        private static string MapPriority(WorkPriority workOrderWorkPriority) =>
-            workOrderWorkPriority.PriorityCode switch
-            {
-                WorkPriorityCode._1 => "I",
-                WorkPriorityCode._2 => "I",
-                WorkPriorityCode._3 => "E",
-                WorkPriorityCode._4 => "U",
-                WorkPriorityCode._5 => "N",
-                _ => throw new NotSupportedException(Resources.WorkPriorityCodeMissing)
-            };
     }
 }

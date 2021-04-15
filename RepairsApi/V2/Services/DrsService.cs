@@ -74,16 +74,5 @@ namespace RepairsApi.V2.Services
                 await OpenSession();
             }
         }
-
-        private static string MapPriority(WorkPriority workOrderWorkPriority) =>
-            workOrderWorkPriority.PriorityCode switch
-            {
-                WorkPriorityCode._1 => "I",
-                WorkPriorityCode._2 => "I",
-                WorkPriorityCode._3 => "E",
-                WorkPriorityCode._4 => "U",
-                WorkPriorityCode._5 => "N",
-                _ => throw new NotSupportedException("No WorkPriorityCode provided")
-            };
     }
 }
