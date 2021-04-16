@@ -147,4 +147,7 @@
   <data name="ContactsFailure" xml:space="preserve">
     <value>Unable to fetch contacts</value>
   </data>
+  <data name="WorkPriorityCodeMissing" xml:space="preserve">
+      <value>No WorkPriorityCode provided</value>
+  </data>
 </root>

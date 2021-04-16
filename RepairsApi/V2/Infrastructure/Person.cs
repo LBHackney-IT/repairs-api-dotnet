@@ -1,5 +1,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using RepairsApi.V2.Generated;
+using RepairsApi.V2.Helpers;
+using RepairsApi.V2.Infrastructure.Extensions;
 
 namespace RepairsApi.V2.Infrastructure
 {

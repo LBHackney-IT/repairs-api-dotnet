@@ -16,6 +16,10 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="5.1.1" />
+    <PackageReference Include="AWSXRayRecorder.Core" Version="2.10.0" />
+    <PackageReference Include="AWSXRayRecorder.Handlers.AspNetCore" Version="2.7.2" />
+    <PackageReference Include="AWSXRayRecorder.Handlers.AwsSdk" Version="2.8.2" />
+    <PackageReference Include="AWSXRayRecorder.Handlers.EntityFramework" Version="1.1.0" />
     <PackageReference Include="EFCore.NamingConventions" Version="5.0.1" />
     <PackageReference Include="JWT" Version="8.0.0" />
     <PackageReference Include="Mapster" Version="7.0.1" />

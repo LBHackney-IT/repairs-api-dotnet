@@ -93,7 +93,8 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                 .AddValue(null, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.WorkOrderComplete)
                 .AddValue(null, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.JobStatusUpdates)
                 .AddValue(false, (RepairsApi.V2.Infrastructure.RateScheduleItem rsi) => rsi.Original)
-                .AddValue(WorkPriorityCode._1, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.WorkPriority.PriorityCode);
+                .AddValue(WorkPriorityCode._1, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.WorkPriority.PriorityCode)
+                .AddValue(DateTime.UtcNow, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.WorkPriority.RequiredCompletionDateTime);
         }
 
         private static ICollection<SitePropertyUnit> GetSitePropertyUnitGenerator()
