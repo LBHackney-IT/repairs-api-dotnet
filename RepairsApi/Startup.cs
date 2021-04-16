@@ -31,6 +31,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Amazon.XRay.Recorder.Core;
+using Amazon.XRay.Recorder.Core.Strategies;
+using Amazon.XRay.Recorder.Handlers.AspNetCore.Internal;
+using Amazon.XRay.Recorder.Handlers.AwsSdk;
+using Castle.Core.Internal;
 using System.ServiceModel;
 using Newtonsoft.Json;
 using V2_Generated_DRS;
@@ -45,6 +50,9 @@ namespace RepairsApi
         {
             _env = env;
             Configuration = configuration;
+            AWSXRayRecorder.InitializeInstance(configuration);
+            AWSSDKHandler.RegisterXRayForAllServices();
+            AWSXRayRecorder.Instance.ContextMissingStrategy = ContextMissingStrategy.LOG_ERROR;
         }
 
         public IConfiguration Configuration { get; }
@@ -252,6 +260,7 @@ namespace RepairsApi
                     .UseLazyLoadingProxies()
                     .UseNpgsql(connectionString)
                     .UseSnakeCaseNamingConvention()
+                    .AddXRayInterceptor(true)
             );
         }
 
@@ -263,8 +272,10 @@ namespace RepairsApi
             }
             else
             {
+                app.UseXRay("repairs-api");
                 app.UseHsts();
             }
+
 
             //Get All ApiVersions,
             var api = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();
