@@ -37,6 +37,22 @@ namespace RepairsApi.Tests.V2.Controllers
             filters.Should().ContainSingle(option => option.Key == FilterOptionKey && option.Description == FilterOptionValue);
         }
 
+        [Test]
+        public void NotFoundWhenSendingInvalidModelName()
+        {
+            const string ModelName = "testModel";
+            const string FilterName = "testFilter";
+            const string FilterOptionKey = "1";
+            const string FilterOptionValue = "Option1";
+
+            IOptions<FilterConfiguration> options = CreateFilterConfiguration(ModelName, FilterName, FilterOptionKey, FilterOptionValue);
+            var sut = new FilterController(options);
+
+            var result = sut.GetFilterInformation("OtherModelName");
+
+            GetStatusCode(result).Should().Be(404);
+        }
+
         private static IOptions<FilterConfiguration> CreateFilterConfiguration(
             string modelName,
             string filterName,
