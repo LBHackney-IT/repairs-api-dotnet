@@ -1,12 +1,9 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using RepairsApi.V2.Domain;
-using System;
+using RepairsApi.V2.Configuration;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -39,16 +36,5 @@ namespace RepairsApi.V2.Controllers
                 return NotFound($"No filter configuration set up for {modelName}");
             }
         }
-    }
-
-    public class FilterConfiguration : Dictionary<string, Dictionary<string, List<FilterOption>>>
-    {
-
-    }
-
-    public class FilterOption
-    {
-        public string Key { get; set; }
-        public string Description { get; set; }
     }
 }

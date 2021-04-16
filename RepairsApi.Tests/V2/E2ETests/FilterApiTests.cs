@@ -1,5 +1,6 @@
 using FluentAssertions;
 using NUnit.Framework;
+using RepairsApi.V2.Configuration;
 using RepairsApi.V2.Controllers;
 using System;
 using System.Collections.Generic;

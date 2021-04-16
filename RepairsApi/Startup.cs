@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 using Microsoft.OpenApi.Models;
 using RepairsApi.V2.Authorisation;
+using RepairsApi.V2.Configuration;
 using RepairsApi.V2.Controllers;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Helpers;
