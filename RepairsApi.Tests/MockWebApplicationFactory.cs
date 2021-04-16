@@ -16,6 +16,9 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Moq;
+using Npgsql;
+using V2_Generated_DRS;
 
 namespace RepairsApi.Tests
 {
@@ -25,10 +28,10 @@ namespace RepairsApi.Tests
     public class MockWebApplicationFactory
         : WebApplicationFactory<Startup>
     {
-        private readonly DbConnection _connection = null;
+        private readonly string _connection = null;
         private string _userGroup = UserGroups.AGENT;
 
-        public MockWebApplicationFactory(DbConnection connection)
+        public MockWebApplicationFactory(string connection)
         {
             _connection = connection;
         }
@@ -70,6 +73,16 @@ namespace RepairsApi.Tests
 
                 services.RemoveAll<IApiGateway>();
                 services.AddTransient<IApiGateway, MockApiGateway>();
+                services.RemoveAll<SOAP>();
+                services.AddTransient<SOAP>(sp =>
+                {
+                    var mock = new Mock<SOAP>();
+                    mock.Setup(x => x.openSessionAsync(It.IsAny<openSession>()))
+                        .ReturnsAsync(new openSessionResponse { @return = new xmbOpenSessionResponse { status = responseStatus.success } });
+                    mock.Setup(x => x.createOrderAsync(It.IsAny<createOrder>()))
+                        .ReturnsAsync(new createOrderResponse { @return = new xmbCreateOrderResponse { status = responseStatus.success } });
+                    return mock.Object;
+                });
             })
             .UseEnvironment("IntegrationTests");
         }
@@ -80,6 +93,7 @@ namespace RepairsApi.Tests
 
             if (_userGroup == UserGroups.AGENT) client.SetAgent();
             if (_userGroup == UserGroups.CONTRACTOR) client.SetGroup(GetGroup(TestDataSeeder.Contractor));
+            if (_userGroup == UserGroups.CONTRACT_MANAGER) client.SetGroup(_userGroup);
         }
 
         protected void SetUserRole(string userGroup)
@@ -152,9 +166,10 @@ namespace RepairsApi.Tests
             return (result.StatusCode, response);
         }
 
-        private async Task<HttpResponseMessage> InternalPost(string uri, object data)
+        private async Task<HttpResponseMessage> InternalPost(string uri, object data, string role = "agent")
         {
             var client = CreateClient();
+            if (!role.Equals("agent")) client.SetGroup(role);
             var serializedContent = JsonConvert.SerializeObject(data);
             StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
 
@@ -162,9 +177,9 @@ namespace RepairsApi.Tests
             return result;
         }
 
-        public async Task<HttpStatusCode> Post(string uri, object data)
+        public async Task<HttpStatusCode> Post(string uri, object data, string role = "agent")
         {
-            HttpResponseMessage result = await InternalPost(uri, data);
+            HttpResponseMessage result = await InternalPost(uri, data, role);
             return result.StatusCode;
         }
     }

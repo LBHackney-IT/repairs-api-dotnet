@@ -237,30 +237,30 @@ namespace RepairsApi.V2.Factories
             };
         }
 
-        public static WorkElement ToDb(this Generated.WorkElement raiseRepair, bool mapIds = false)
+        public static WorkElement ToDb(this Generated.WorkElement raiseRepair)
         {
             return new WorkElement
             {
                 ContainsCapitalWork = raiseRepair.ContainsCapitalWork,
                 ServiceChargeSubject = raiseRepair.ServiceChargeSubject,
                 Trade = raiseRepair.Trade.MapList(t => t.ToDb()),
-                RateScheduleItem = raiseRepair.RateScheduleItem.MapList(rsi => rsi.ToDb(mapIds))
+                RateScheduleItem = raiseRepair.RateScheduleItem.MapList(rsi => rsi.ToDb())
             };
         }
 
-        public static RateScheduleItem ToDb(this Generated.RateScheduleItem raiseRepair, bool mapIds = false)
+        public static RateScheduleItem ToDb(this Generated.RateScheduleItem raiseRepair)
         {
             RateScheduleItem rateScheduleItem = new RateScheduleItem
             {
                 CustomCode = raiseRepair.CustomCode,
                 CustomName = raiseRepair.CustomName,
                 Quantity = raiseRepair.Quantity?.ToDb(),
-                DateCreated = DateTime.UtcNow
+                DateCreated = DateTime.UtcNow,
             };
 
-            if (mapIds && Guid.TryParse(raiseRepair.Id, out var id))
+            if (!string.IsNullOrWhiteSpace(raiseRepair.Id) && Guid.TryParse(raiseRepair.Id, out var id))
             {
-                rateScheduleItem.Id = id;
+                rateScheduleItem.OriginalId = id;
             }
 
             return rateScheduleItem;

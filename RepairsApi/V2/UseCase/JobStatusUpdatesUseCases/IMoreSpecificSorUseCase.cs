@@ -1,10 +1,10 @@
 using System.Threading.Tasks;
-using RepairsApi.V2.Generated;
+using RepairsApi.V2.Infrastructure;
 
 namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 {
     public interface IMoreSpecificSorUseCase
     {
-        Task Execute(JobStatusUpdate jobStatusUpdate);
+        Task Execute(WorkElement workElement, WorkOrder workOrder);
     }
 }

@@ -38,6 +38,10 @@ functions:
       GatewayOptions__HousingResidentInformationApi: ${ssm:/${self:service}/${self:provider.stage}/housing-resident-information-api-url}
       GatewayOptions__HousingResidentInformationApiKey: ${ssm:/${self:service}/${self:provider.stage}/housing-resident-information-api-token}
       FeatureManagement__SpendLimits: ${ssm:/${self:service}/${self:provider.stage}/spend-limits-flag}
+      FeatureManagement__DrsIntegration: ${ssm:/${self:service}/${self:provider.stage}/drs-enabled}
+      DrsOptions__Address: ${ssm:/${self:service}/${self:provider.stage}/drs-address}
+      DrsOptions__Login: ${ssm:/${self:service}/${self:provider.stage}/drs-login}
+      DrsOptions__Password: ${ssm:/${self:service}/${self:provider.stage}/drs-password}
     events:
       - http:
           path: /{proxy+}
@@ -99,7 +103,7 @@ custom:
   vpc:
     development:
       securityGroupIds:
-        - sg-0835968e22d1f2a73
+        - sg-08e28776da7918e4b
       subnetIds:
         - subnet-0140d06fb84fdb547
         - subnet-05ce390ba88c42bfd
