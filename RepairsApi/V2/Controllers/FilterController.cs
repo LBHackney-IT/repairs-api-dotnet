@@ -25,7 +25,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ModelFilterConfiguration), StatusCodes.Status200OK)]
         [ProducesDefaultResponseType]
-        public IActionResult GetFilterInformation([Required]string modelName)
+        public IActionResult GetFilterInformation([Required] string modelName)
         {
             if (_options.TryGetValue(modelName, out var config))
             {

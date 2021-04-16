@@ -1,4 +1,4 @@
-﻿namespace RepairsApi.V2.Configuration
+namespace RepairsApi.V2.Configuration
 {
     public class FilterOption
     {
