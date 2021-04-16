@@ -23,7 +23,7 @@ namespace RepairsApi.V2.Controllers
         [HttpGet]
         [Route("{modelName}")]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(Dictionary<string, List<FilterOption>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ModelFilterConfiguration), StatusCodes.Status200OK)]
         [ProducesDefaultResponseType]
         public IActionResult GetFilterInformation([Required]string modelName)
         {
