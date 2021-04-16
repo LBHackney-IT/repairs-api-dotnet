@@ -6,7 +6,6 @@ using RepairsApi.V2.Generated;
 using RepairsApi.V2.UseCase.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Controllers.Parameters;
@@ -19,9 +18,10 @@ namespace RepairsApi.V2.Controllers
 {
     [ApiController]
     [Route("/api/v2/repairs")]
+    [Route("/api/v2/workOrders")]
     [Produces("application/json")]
     [ApiVersion("2.0")]
-    public class RepairsController : Controller
+    public class WorkOrdersController : Controller
     {
         private readonly IAuthorizationService _authorizationService;
         private readonly ICreateWorkOrderUseCase _createWorkOrderUseCase;
@@ -33,7 +33,7 @@ namespace RepairsApi.V2.Controllers
         private readonly IListWorkOrderNotesUseCase _listWorkOrderNotesUseCase;
         private readonly IFeatureManager _featureManager;
 
-        public RepairsController(
+        public WorkOrdersController(
             IAuthorizationService authorizationService,
             ICreateWorkOrderUseCase createWorkOrderUseCase,
             IListWorkOrdersUseCase listWorkOrdersUseCase,
@@ -56,38 +56,13 @@ namespace RepairsApi.V2.Controllers
         }
 
         /// <summary>
-        /// Raise a repair (creates a work order) [CURRENTLY UNSUPPORTED]
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        [ProducesDefaultResponseType]
-        [Authorize(Roles = UserGroups.AGENT + "," + UserGroups.CONTRACT_MANAGER)]
-        public IActionResult RaiseRepair([FromBody] RaiseRepair request)
-        {
-            throw new NotSupportedException("migrate to schedule repair");
-            //try
-            //{
-            //    var result = await _createWorkOrderUseCase.Execute(request.ToDb());
-            //    return Ok(result);
-            //}
-            //catch (NotSupportedException e)
-            //{
-            //    return BadRequest(e.Message);
-            //}
-        }
-
-
-        /// <summary>
         /// Schedule a repair (creates a work order)
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("schedule")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
         [Authorize(Roles = UserGroups.AGENT + "," + UserGroups.CONTRACT_MANAGER)]

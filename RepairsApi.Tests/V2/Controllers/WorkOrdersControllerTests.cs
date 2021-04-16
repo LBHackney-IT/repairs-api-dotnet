@@ -26,9 +26,9 @@ using Microsoft.FeatureManagement;
 
 namespace RepairsApi.Tests.V2.Controllers
 {
-    public class RepairsControllerTests : ControllerTests
+    public class WorkOrdersControllerTests : ControllerTests
     {
-        private RepairsController _classUnderTest;
+        private WorkOrdersController _classUnderTest;
         private Mock<ICreateWorkOrderUseCase> _createWorkOrderUseCaseMock;
         private Mock<IListWorkOrdersUseCase> _listWorkOrdersUseCase;
         private Generator<WorkOrder> _generator;
@@ -55,7 +55,7 @@ namespace RepairsApi.Tests.V2.Controllers
             _listWorkOrderTasksUseCase = new Mock<IListWorkOrderTasksUseCase>();
             _listWorkOrderNotesUseCase = new Mock<IListWorkOrderNotesUseCase>();
             _featureManager = new Mock<IFeatureManager>();
-            _classUnderTest = new RepairsController(
+            _classUnderTest = new WorkOrdersController(
                 _authMock.Object,
                 _createWorkOrderUseCaseMock.Object,
                 _listWorkOrdersUseCase.Object,
@@ -72,51 +72,6 @@ namespace RepairsApi.Tests.V2.Controllers
         {
             _generator = new Generator<WorkOrder>()
                 .AddWorkOrderGenerators();
-        }
-
-        [Test]
-        [Ignore("Raise repair is not currently supported as it does not provide the relevant data for hackneys use cases")]
-        public void RaiseRepairReturnsOkWithInt()
-        {
-            // arrange
-            const int newId = 2;
-            _createWorkOrderUseCaseMock.Setup(m => m.Execute(It.IsAny<WorkOrder>())).ReturnsAsync(newId);
-
-            // act
-            var result = _classUnderTest.RaiseRepair(GenerateRaiseRepairRequest());
-
-            // assert
-            result.Should().BeOfType<OkObjectResult>();
-            GetResultData<int>(result).Should().Be(newId);
-        }
-
-        private static RaiseRepair GenerateRaiseRepairRequest()
-        {
-
-            return new RaiseRepair
-            {
-                SitePropertyUnit = new List<SitePropertyUnit>
-                {
-                    new SitePropertyUnit()
-                }
-            };
-        }
-
-        [Test]
-        [Ignore("Raise repair is not currently supported as it does not provide the relevant data for hackneys use cases")]
-        public void RaiseRepairReturnsBadRequestWhenNotSupportedThrown()
-        {
-            // arrange
-            string expectedMessage = "message";
-            _createWorkOrderUseCaseMock.Setup(m => m.Execute(It.IsAny<WorkOrder>()))
-                .ThrowsAsync(new NotSupportedException(expectedMessage));
-
-            // act
-            var result = _classUnderTest.RaiseRepair(GenerateRaiseRepairRequest());
-
-            // assert
-            result.Should().BeOfType<BadRequestObjectResult>();
-            GetResultData<string>(result).Should().Be(expectedMessage);
         }
 
         [Test]
