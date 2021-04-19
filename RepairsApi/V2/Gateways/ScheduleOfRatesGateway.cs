@@ -136,7 +136,8 @@ namespace RepairsApi.V2.Gateways
                         PriorityCode = sor.Priority.PriorityCode
                     },
                     Cost = sorContract.Cost ?? sor.Cost,
-                    TradeCode = sor.TradeCode
+                    TradeCode = sor.TradeCode,
+                    StandardMinuteValue = sor.StandardMinuteValue
                 }
             ).ToListAsync();
 

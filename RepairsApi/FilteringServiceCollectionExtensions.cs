@@ -1,7 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using RepairsApi.V2.Controllers.Parameters;
+using RepairsApi.V2.Enums;
 using RepairsApi.V2.Filtering;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Infrastructure.Extensions;
 using System;
 using System.Linq;
 
@@ -27,6 +29,15 @@ namespace RepairsApi
                     searchParams => searchParams.StatusCode,
                     codes => codes?.All(code => code > 0 && Enum.IsDefined(typeof(WorkStatusCode), code)) ?? false,
                     codes => wo => codes.Select(c => Enum.Parse<WorkStatusCode>(c.ToString())).Contains(wo.StatusCode)
+                )
+                .AddFilter(
+                    searchParams => searchParams.Priorities,
+                    codes => codes?.Count > 0,
+                    codes =>
+                    {
+                        var hactCodes = codes.GetHactCodes();
+                        return wo => wo.WorkPriority.PriorityCode.HasValue && hactCodes.Contains(wo.WorkPriority.PriorityCode.Value);
+                    }
                 );
             });
         }

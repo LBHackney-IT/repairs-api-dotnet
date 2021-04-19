@@ -10,6 +10,7 @@ namespace RepairsApi.V2.Boundary.Response
         public SORPriority Priority { get; set; }
         public double? Cost { get; set; }
         public string TradeCode { get; set; }
+        public int StandardMinuteValue { get; set; }
     }
 
     public class SorTradeResponse
