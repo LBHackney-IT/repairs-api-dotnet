@@ -92,7 +92,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             var workOrderId = await CreateWorkOrder();
 
             // Act
-            var (code, response) = await Get<List<WorkOrderListItem>>("/api/v2/repairs");
+            var (code, response) = await Get<List<WorkOrderListItem>>("/api/v2/workOrders");
 
             // Assert
             code.Should().Be(HttpStatusCode.OK);
@@ -108,9 +108,9 @@ namespace RepairsApi.Tests.V2.E2ETests
             await CancelWorkOrder(completedWorkOrderId);
 
             // Act
-            var (openCode, openResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/repairs?StatusCode={(int) WorkStatusCode.Open}");
-            var (closedCode, closedResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/repairs?StatusCode={(int) WorkStatusCode.Canceled}");
-            var (multiCode, multiResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/repairs?StatusCode={(int) WorkStatusCode.Open}&StatusCode={(int) WorkStatusCode.Canceled}");
+            var (openCode, openResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?StatusCode={(int) WorkStatusCode.Open}");
+            var (closedCode, closedResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?StatusCode={(int) WorkStatusCode.Canceled}");
+            var (multiCode, multiResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?StatusCode={(int) WorkStatusCode.Open}&StatusCode={(int) WorkStatusCode.Canceled}");
 
             // Assert
             openCode.Should().Be(HttpStatusCode.OK);
@@ -135,9 +135,9 @@ namespace RepairsApi.Tests.V2.E2ETests
             var immediateWorkOrderId = await CreateWorkOrder(sr => sr.Priority.PriorityCode = WorkPriorityCode._1);
 
             // Act
-            var (urgentCode, urgentResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/repairs?Priorities=U");
-            var (immediateCode, immediateResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/repairs?Priorities=I");
-            var (multiCode, multiResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/repairs?Priorities=U&Priorities=I");
+            var (urgentCode, urgentResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?Priorities=U");
+            var (immediateCode, immediateResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?Priorities=I");
+            var (multiCode, multiResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?Priorities=U&Priorities=I");
 
             // Assert
             urgentCode.Should().Be(HttpStatusCode.OK);
