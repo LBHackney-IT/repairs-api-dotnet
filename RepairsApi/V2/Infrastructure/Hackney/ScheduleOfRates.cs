@@ -21,7 +21,7 @@ namespace RepairsApi.V2.Infrastructure.Hackney
         public virtual List<SORContract> SorCodeMap { get; set; }
 
         [Required]
-        public virtual int StandardMinuteValue { get; set; } = 0;
+        public int StandardMinuteValue { get; set; } = 0;
         public bool Enabled { get; set; }
     }
 
