@@ -92,7 +92,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             var workOrderId = await CreateWorkOrder();
 
             // Act
-            var (code, response) = await Get<List<WorkOrderListItem>>("/api/v2/repairs");
+            var (code, response) = await Get<List<WorkOrderListItem>>("/api/v2/workOrders");
 
             // Assert
             code.Should().Be(HttpStatusCode.OK);
@@ -100,7 +100,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         }
 
         [Test]
-        public async Task GetFilteredListOfWorkOrders()
+        public async Task GetFilteredListOfWorkOrders_Status()
         {
             // Arrange
             var openWorkOrderId = await CreateWorkOrder();
@@ -108,9 +108,9 @@ namespace RepairsApi.Tests.V2.E2ETests
             await CancelWorkOrder(completedWorkOrderId);
 
             // Act
-            var (openCode, openResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/repairs?StatusCode={(int) WorkStatusCode.Open}");
-            var (closedCode, closedResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/repairs?StatusCode={(int) WorkStatusCode.Canceled}");
-            var (multiCode, multiResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/repairs?StatusCode={(int) WorkStatusCode.Open}&StatusCode={(int) WorkStatusCode.Canceled}");
+            var (openCode, openResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?StatusCode={(int) WorkStatusCode.Open}");
+            var (closedCode, closedResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?StatusCode={(int) WorkStatusCode.Canceled}");
+            var (multiCode, multiResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?StatusCode={(int) WorkStatusCode.Open}&StatusCode={(int) WorkStatusCode.Canceled}");
 
             // Assert
             openCode.Should().Be(HttpStatusCode.OK);
@@ -124,6 +124,33 @@ namespace RepairsApi.Tests.V2.E2ETests
             multiCode.Should().Be(HttpStatusCode.OK);
             multiResponse.Should().ContainSingle(wo => wo.Reference == openWorkOrderId);
             multiResponse.Should().ContainSingle(wo => wo.Reference == completedWorkOrderId);
+        }
+
+
+        [Test]
+        public async Task GetFilteredListOfWorkOrders_Priority()
+        {
+            // Arrange
+            var urgentWorkOrderId = await CreateWorkOrder(sr => sr.Priority.PriorityCode = WorkPriorityCode._4);
+            var immediateWorkOrderId = await CreateWorkOrder(sr => sr.Priority.PriorityCode = WorkPriorityCode._1);
+
+            // Act
+            var (urgentCode, urgentResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?Priorities=U");
+            var (immediateCode, immediateResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?Priorities=I");
+            var (multiCode, multiResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?Priorities=U&Priorities=I");
+
+            // Assert
+            urgentCode.Should().Be(HttpStatusCode.OK);
+            urgentResponse.Should().ContainSingle(wo => wo.Reference == urgentWorkOrderId);
+            urgentResponse.Should().NotContain(wo => wo.Reference == immediateWorkOrderId);
+
+            immediateCode.Should().Be(HttpStatusCode.OK);
+            immediateResponse.Should().ContainSingle(wo => wo.Reference == immediateWorkOrderId);
+            immediateResponse.Should().NotContain(wo => wo.Reference == urgentWorkOrderId);
+
+            multiCode.Should().Be(HttpStatusCode.OK);
+            multiResponse.Should().ContainSingle(wo => wo.Reference == immediateWorkOrderId);
+            multiResponse.Should().ContainSingle(wo => wo.Reference == urgentWorkOrderId);
         }
 
         [Test]
