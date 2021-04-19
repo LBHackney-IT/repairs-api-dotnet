@@ -171,6 +171,8 @@ namespace RepairsApi
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 if (File.Exists(xmlPath))
                     c.IncludeXmlComments(xmlPath);
+
+                c.OperationFilter<DeprecateRepairsFilter>();
             });
             ConfigureDbContext(services);
 
