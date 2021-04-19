@@ -408,6 +408,10 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("short_description");
 
+                    b.Property<int>("StandardMinuteValue")
+                        .HasColumnType("integer")
+                        .HasColumnName("standard_minute_value");
+
                     b.Property<string>("TradeCode")
                         .IsRequired()
                         .HasColumnType("text")
@@ -769,6 +773,10 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("original");
 
+                    b.Property<Guid>("OriginalId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("original_id");
+
                     b.Property<double?>("OriginalQuantity")
                         .HasColumnType("double precision")
                         .HasColumnName("original_quantity");
@@ -1064,6 +1072,10 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .UseIdentityByDefaultColumn()
                         .HasIdentityOptions(10000000L, null, null, null, null, null);
 
+                    b.Property<string>("AgentEmail")
+                        .HasColumnType("text")
+                        .HasColumnName("agent_email");
+
                     b.Property<string>("AgentName")
                         .HasColumnType("text")
                         .HasColumnName("agent_name");
@@ -1103,6 +1115,10 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.Property<string>("ParkingArrangements")
                         .HasColumnType("text")
                         .HasColumnName("parking_arrangements");
+
+                    b.Property<int>("Reason")
+                        .HasColumnType("integer")
+                        .HasColumnName("reason");
 
                     b.Property<int?>("SiteId")
                         .HasColumnType("integer")

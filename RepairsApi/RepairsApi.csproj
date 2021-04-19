@@ -1,21 +1,25 @@
+﻿
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UserSecretsId>a5b938bd-a00c-4464-8229-a62d36204910</UserSecretsId>
   </PropertyGroup>
-    <PropertyGroup>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <NoWarn>$(NoWarn);1591</NoWarn>
-        <NoWarn>$(NoWarn);CA2007</NoWarn>
-        <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
-        <NeutralLanguage>en-GB</NeutralLanguage>
-        <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
-    </PropertyGroup>
-
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <NoWarn>$(NoWarn);CA2007</NoWarn>
+    <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+    <NeutralLanguage>en-GB</NeutralLanguage>
+    <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="5.1.1" />
+    <PackageReference Include="AWSXRayRecorder.Core" Version="2.10.0" />
+    <PackageReference Include="AWSXRayRecorder.Handlers.AspNetCore" Version="2.7.2" />
+    <PackageReference Include="AWSXRayRecorder.Handlers.AwsSdk" Version="2.8.2" />
+    <PackageReference Include="AWSXRayRecorder.Handlers.EntityFramework" Version="1.1.0" />
     <PackageReference Include="EFCore.NamingConventions" Version="5.0.1" />
     <PackageReference Include="JWT" Version="8.0.0" />
     <PackageReference Include="Mapster" Version="7.0.1" />
@@ -37,7 +41,6 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.4.1" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.1" />
   </ItemGroup>
-
   <ItemGroup>
     <Compile Update="V2\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -45,12 +48,19 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
   </ItemGroup>
-
   <ItemGroup>
     <EmbeddedResource Update="V2\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-
+  <ItemGroup>
+    <PackageReference Include="System.ServiceModel.Duplex" Version="4.6.*" />
+    <PackageReference Include="System.ServiceModel.Http" Version="4.6.*" />
+    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.6.*" />
+    <PackageReference Include="System.ServiceModel.Security" Version="4.6.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="ServiceReference\dotnet-svcutil.params.json" />
+  </ItemGroup>
 </Project>

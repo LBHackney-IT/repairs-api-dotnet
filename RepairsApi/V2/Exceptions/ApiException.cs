@@ -8,6 +8,11 @@ namespace RepairsApi.V2.Exceptions
         public int StatusCode { get; }
 
         public ApiException(HttpStatusCode statusCode, string message)
+            : this((int) statusCode, message)
+        {
+        }
+
+        public ApiException(int statusCode, string message)
             : this(message)
         {
             this.StatusCode = (int) statusCode;

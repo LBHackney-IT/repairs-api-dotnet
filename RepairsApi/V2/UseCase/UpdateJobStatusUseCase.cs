@@ -31,12 +31,15 @@ namespace RepairsApi.V2.UseCase
 
         public async Task Execute(JobStatusUpdate jobStatusUpdate)
         {
+            //reads jobstatus update
             var workOrderId = int.Parse(jobStatusUpdate.RelatedWorkOrderReference.ID);
 
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
-
+            //await using var transaction = await _transactionManager.Start();
             await _strategyFactory.ProcessActions(jobStatusUpdate);
 
+            /*Jobstatus update changes based on user authorisatiuon -
+            record created for attempted variations.*/
             await _jobStatusUpdateGateway.CreateJobStatusUpdate(jobStatusUpdate.ToDb(workOrder));
         }
 

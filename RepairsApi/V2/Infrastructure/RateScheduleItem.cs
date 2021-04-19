@@ -17,5 +17,7 @@ namespace RepairsApi.V2.Infrastructure
         // extensions
         public bool Original { get; set; } = false;
         public double? OriginalQuantity { get; set; } = null;
+
+        public Guid OriginalId { get; set; }
     }
 }

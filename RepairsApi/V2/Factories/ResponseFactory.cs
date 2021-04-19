@@ -113,8 +113,7 @@ namespace RepairsApi.V2.Factories
             return new TenureViewModel
             {
                 TypeCode = domain.TypeCode,
-                TypeDescription = domain.TypeDescription,
-                CanRaiseRepair = domain.CanRaiseRepair
+                TypeDescription = domain.TypeDescription
             };
         }
 
@@ -144,6 +143,7 @@ namespace RepairsApi.V2.Factories
                 CallerNumber = workOrder.Customer?.Person?.Communication?.Where(cc => cc.Channel?.Medium == Generated.CommunicationMediumCode._20 /* Audio */).FirstOrDefault()
                     ?.Value,
                 Status = workOrder.GetStatus(),
+                Action = workOrder.GetAction(),
                 ContractorReference = workOrder.AssignedToPrimary?.ContractorReference,
                 TradeCode = workOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomCode,
                 TradeDescription = workOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomName,
@@ -277,5 +277,25 @@ namespace RepairsApi.V2.Factories
                 ContractorReference = contractor.Reference
             };
         }
+
+        //public static JobStatusUpdate ToResponse(
+        //   this Infrastructure.JobStatusUpdate jobStatusUpdate,
+        //   Infrastructure.WorkOrder workOrder)
+        //{
+        //    return new Generated.JobStatusUpdate
+        //    {
+        //        EventTime = DateTime.UtcNow,
+        //        TypeCode = jobStatusUpdate.TypeCode,
+        //        AdditionalWork = jobStatusUpdate.AdditionalWork?.ToDb(),
+        //        Comments = jobStatusUpdate.Comments,
+        //        CustomerCommunicationChannelAttempted = jobStatusUpdate.CustomerCommunicationChannelAttempted?.ToDb(),
+        //        CustomerFeedback = jobStatusUpdate.CustomerFeedback?.ToDb(),
+        //        MoreSpecificSORCode = jobStatusUpdate.MoreSpecificSORCode?.ToDb(),
+        //        OperativesAssigned = jobStatusUpdate.OperativesAssigned?.Select(oa => oa.ToDb()).ToList(),
+        //        OtherType = jobStatusUpdate.OtherType,
+        //        RefinedAppointmentWindow = jobStatusUpdate.RefinedAppointmentWindow?.ToDb(),
+        //        RelatedWorkOrder = workOrder
+        //    };
+        //}
     }
 }
