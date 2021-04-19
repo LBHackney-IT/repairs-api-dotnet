@@ -146,6 +146,26 @@ namespace RepairsApi.Tests.V2.Gateways
 
 
         [Test]
+        public async Task AllowsBookingsForDifferentDates()
+        {
+            var ids = SeedData("contractor", new DaySeedModel[]
+            {
+                    new DaySeedModel(DateTime.UtcNow.DayOfWeek, 1),
+            }, new AppointmentSeedModel[]
+            {
+                    new AppointmentSeedModel("AM", new DateTime().AddHours(8), new DateTime().AddHours(12))
+            });
+            await _classUnderTest.Create(GenerateAppointmentRef(ids.First(), DateTime.UtcNow), 100001);
+
+            Func<Task> testFunc = async () => await _classUnderTest.Create(GenerateAppointmentRef(ids.First(), DateTime.UtcNow), 100001);
+            Func<Task> nextWeekTestFunc = async () => await _classUnderTest.Create(GenerateAppointmentRef(ids.First(), DateTime.UtcNow.AddDays(7)), 100001);
+
+            await testFunc.Should().ThrowAsync<NotSupportedException>();
+            await nextWeekTestFunc.Should().NotThrowAsync<NotSupportedException>();
+        }
+
+
+        [Test]
         public async Task ThrowsWhenNoMatchingAppointment()
         {
             Func<Task> testFunc = async () => await _classUnderTest.Create("1/2020-01-01", 100001);

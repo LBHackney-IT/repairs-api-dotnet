@@ -31,7 +31,7 @@ namespace RepairsApi.V2.Gateways
                 .Select(a =>
                 new
                 {
-                    HasOpenSlots = a.ExistingAppointments.Count < a.AvailableCount
+                    HasOpenSlots = a.ExistingAppointments.Where(ea => ea.Date.Date == slotDate.Date).Count() < a.AvailableCount
                 }).SingleOrDefaultAsync();
 
             if (appoinment is null) throw new ResourceNotFoundException("No Appointment Exists");
