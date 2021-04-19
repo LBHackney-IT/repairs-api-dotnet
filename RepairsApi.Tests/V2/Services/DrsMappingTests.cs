@@ -133,6 +133,7 @@ namespace RepairsApi.Tests.V2.Services
             booking.itemValue.Should().Be(sorCode.Cost?.ToString(CultureInfo.InvariantCulture) ?? "0");
             booking.itemNumberWithinBooking.Should().Be((index + 1).ToString(CultureInfo.InvariantCulture));
             booking.trade.Should().Be(sorCode.TradeCode);
+            booking.standardMinuteValue.Should().Be(sorCode.StandardMinuteValue.ToString());
         }
 
         private static void ValidateLocation(WorkOrder workOrder, PropertyAlertList locationAlerts, location location)
