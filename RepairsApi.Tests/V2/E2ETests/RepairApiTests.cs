@@ -100,7 +100,7 @@ namespace RepairsApi.Tests.V2.E2ETests
         }
 
         [Test]
-        public async Task GetFilteredListOfWorkOrders()
+        public async Task GetFilteredListOfWorkOrders_Status()
         {
             // Arrange
             var openWorkOrderId = await CreateWorkOrder();
@@ -124,6 +124,33 @@ namespace RepairsApi.Tests.V2.E2ETests
             multiCode.Should().Be(HttpStatusCode.OK);
             multiResponse.Should().ContainSingle(wo => wo.Reference == openWorkOrderId);
             multiResponse.Should().ContainSingle(wo => wo.Reference == completedWorkOrderId);
+        }
+
+
+        [Test]
+        public async Task GetFilteredListOfWorkOrders_Priority()
+        {
+            // Arrange
+            var urgentWorkOrderId = await CreateWorkOrder(sr => sr.Priority.PriorityCode = WorkPriorityCode._4);
+            var immediateWorkOrderId = await CreateWorkOrder(sr => sr.Priority.PriorityCode = WorkPriorityCode._1);
+
+            // Act
+            var (urgentCode, urgentResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/repairs?Priorities=U");
+            var (immediateCode, immediateResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/repairs?Priorities=I");
+            var (multiCode, multiResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/repairs?Priorities=U&Priorities=I");
+
+            // Assert
+            urgentCode.Should().Be(HttpStatusCode.OK);
+            urgentResponse.Should().ContainSingle(wo => wo.Reference == urgentWorkOrderId);
+            urgentResponse.Should().NotContain(wo => wo.Reference == immediateWorkOrderId);
+
+            immediateCode.Should().Be(HttpStatusCode.OK);
+            immediateResponse.Should().ContainSingle(wo => wo.Reference == immediateWorkOrderId);
+            immediateResponse.Should().NotContain(wo => wo.Reference == urgentWorkOrderId);
+
+            multiCode.Should().Be(HttpStatusCode.OK);
+            multiResponse.Should().ContainSingle(wo => wo.Reference == immediateWorkOrderId);
+            multiResponse.Should().ContainSingle(wo => wo.Reference == urgentWorkOrderId);
         }
 
         [Test]
