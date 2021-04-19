@@ -30,7 +30,7 @@ namespace RepairsApi.Tests.V2.E2ETests
                 .Generate();
 
             // Act
-            var (code, response) = await Post<int>("/api/v2/repairs/schedule", request);
+            var (code, response) = await Post<int>("/api/v2/workOrders/schedule", request);
 
             // Assert
             code.Should().Be(HttpStatusCode.OK);
@@ -48,7 +48,7 @@ namespace RepairsApi.Tests.V2.E2ETests
                 .Generate();
 
             // Act
-            var (code, response) = await Post<string>("/api/v2/repairs/schedule", request);
+            var (code, response) = await Post<string>("/api/v2/workOrders/schedule", request);
 
             // Assert
             code.Should().Be(HttpStatusCode.Unauthorized);
@@ -63,7 +63,7 @@ namespace RepairsApi.Tests.V2.E2ETests
                 req.WorkElement.First().RateScheduleItem.First().CustomName = expectedName;
             });
 
-            var (code, response) = await Get<IEnumerable<WorkOrderItemViewModel>>($"/api/v2/repairs/{id}/tasks");
+            var (code, response) = await Get<IEnumerable<WorkOrderItemViewModel>>($"/api/v2/workOrders/{id}/tasks");
 
             code.Should().Be(HttpStatusCode.OK);
             response.Should().NotBeEmpty();
@@ -79,7 +79,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             request.WorkElement.First().RateScheduleItem.First().Quantity.Amount.Add(3.5);
 
             // Act
-            var code = await Post("/api/v2/repairs/schedule", request);
+            var code = await Post("/api/v2/workOrders/schedule", request);
 
             // Assert
             code.Should().Be(HttpStatusCode.BadRequest);
@@ -136,7 +136,7 @@ namespace RepairsApi.Tests.V2.E2ETests
                 req.WorkElement.First().Trade.First().CustomName = tradeName;
             });
 
-            var (code, response) = await Get<RepairsApi.V2.Boundary.WorkOrderResponse>($"/api/v2/repairs/{workOrderId}");
+            var (code, response) = await Get<RepairsApi.V2.Boundary.WorkOrderResponse>($"/api/v2/workOrders/{workOrderId}");
             code.Should().Be(HttpStatusCode.OK);
             response.TradeDescription.Should().Be(tradeName);
         }
@@ -210,7 +210,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             });
 
             // Act
-            var (code, notes) = await Get<IList<NoteListItem>>($"/api/v2/repairs/{workOrderId}/notes");
+            var (code, notes) = await Get<IList<NoteListItem>>($"/api/v2/workOrders/{workOrderId}/notes");
 
             // Assert
             code.Should().Be(HttpStatusCode.OK);
@@ -489,7 +489,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             // Arrange
             var expectedId = 1000;
             // Act
-            var (code, response) = await Get<string>($"/api/v2/repairs/{expectedId}");
+            var (code, response) = await Get<string>($"/api/v2/workOrders/{expectedId}");
 
             // Assert
             code.Should().Be(404);
@@ -611,14 +611,14 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             interceptor?.Invoke(request);
 
-            var (_, response) = await Post<int>("/api/v2/repairs/schedule", request);
+            var (_, response) = await Post<int>("/api/v2/workOrders/schedule", request);
 
             return response;
         }
 
         public async Task<IEnumerable<WorkOrderItemViewModel>> GetTasks(int workOrderId)
         {
-            var (_, response) = await Get<IEnumerable<WorkOrderItemViewModel>>($"/api/v2/repairs/{workOrderId}/tasks");
+            var (_, response) = await Get<IEnumerable<WorkOrderItemViewModel>>($"/api/v2/workOrders/{workOrderId}/tasks");
 
             return response;
         }
