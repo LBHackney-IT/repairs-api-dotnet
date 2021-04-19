@@ -98,7 +98,8 @@ namespace RepairsApi.V2.Services
                 bookingCodeDescription = sorCode.LongDescription ?? sorCode.ShortDescription,
                 itemValue = sorCode.Cost?.ToString(CultureInfo.InvariantCulture) ?? "0",
                 itemNumberWithinBooking = index.ToString(CultureInfo.InvariantCulture),
-                trade = sorCode.TradeCode
+                trade = sorCode.TradeCode,
+                standardMinuteValue = sorCode.StandardMinuteValue.ToString()
             };
         }
     }
