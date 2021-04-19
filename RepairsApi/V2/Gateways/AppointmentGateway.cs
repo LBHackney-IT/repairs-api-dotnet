@@ -24,14 +24,14 @@ namespace RepairsApi.V2.Gateways
         {
             var refArray = appointmentRef.Split('/', 2);
             var slotId = int.Parse(refArray[0]);
-            var slotDate = DateTime.ParseExact(refArray[1], DateConstants.DATEFORMAT, null);
+            var slotDate = DateTime.ParseExact(refArray[1], DateExtensions.DATEFORMAT, null);
 
             var appoinment = await _repairsContext.AvailableAppointmentDays
                 .Where(a => a.Id == slotId)
                 .Select(a =>
                 new
                 {
-                    HasOpenSlots = a.ExistingAppointments.Count < a.AvailableCount
+                    HasOpenSlots = a.ExistingAppointments.Where(ea => ea.Date.Date == slotDate.Date).Count() < a.AvailableCount
                 }).SingleOrDefaultAsync();
 
             if (appoinment is null) throw new ResourceNotFoundException("No Appointment Exists");
@@ -47,7 +47,20 @@ namespace RepairsApi.V2.Gateways
             await _repairsContext.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<AppointmentListResult>> ListAppointments(string contractorReference, DateTime from, DateTime to)
+        public Task<AppointmentDetails> GetAppointment(int id)
+        {
+            return _repairsContext.Appointments
+                .Where(a => a.WorkOrderId == id)
+                .Select(a => new AppointmentDetails
+                {
+                    Date = a.Date,
+                    Description = a.Day.AvailableAppointment.Description,
+                    Start = a.Day.AvailableAppointment.StartTime,
+                    End = a.Day.AvailableAppointment.EndTime
+                }).FirstOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<AppointmentDetails>> ListAppointments(string contractorReference, DateTime from, DateTime to)
         {
             if (to <= from) throw new NotSupportedException("Dates are in the incorrect order");
 
@@ -58,19 +71,19 @@ namespace RepairsApi.V2.Gateways
             return result;
         }
 
-        private static List<AppointmentListResult> BuildResult(DateTime from, DateTime to, List<AvailableAppointmentDay> availability, Dictionary<AppointmentInformation, int> counts)
+        private static List<AppointmentDetails> BuildResult(DateTime from, DateTime to, List<AvailableAppointmentDay> availability, Dictionary<AppointmentInformation, int> counts)
         {
             var fromDate = from.Date;
             var toDate = to.Date;
             var range = toDate - fromDate;
-            List<AppointmentListResult> result = new List<AppointmentListResult>();
+            List<AppointmentDetails> result = new List<AppointmentDetails>();
             for (int i = 0; i < range.Days + 1; i++)
             {
                 DateTime date = fromDate.AddDays(i);
                 var newAppointments = availability
                     .Where(aa => aa.Day == date.DayOfWeek)
                     .Where(aa => IsCapacityAvailable(counts, aa, date))
-                    .Select<AvailableAppointmentDay, AppointmentListResult>(av => new AppointmentListResult
+                    .Select<AvailableAppointmentDay, AppointmentDetails>(av => new AppointmentDetails
                     {
                         Date = date,
                         Description = av.AvailableAppointment.Description,

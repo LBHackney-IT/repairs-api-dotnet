@@ -6,13 +6,29 @@ namespace RepairsApi.V2.Infrastructure.Extensions
     {
         public static string GetStatus(this WorkOrder workOrder)
         {
-            switch (workOrder.StatusCode)
+            return workOrder.StatusCode switch
             {
-                case WorkStatusCode.Open: return WorkOrderStatus.InProgress;
-                case WorkStatusCode.Complete: return WorkOrderStatus.Complete;
-                case WorkStatusCode.Canceled: return WorkOrderStatus.Cancelled;
-                default: return WorkOrderStatus.Unknown;
-            }
+                WorkStatusCode.Open => WorkOrderStatus.InProgress,
+                WorkStatusCode.Complete => WorkOrderStatus.Complete,
+                WorkStatusCode.Canceled => WorkOrderStatus.Cancelled,
+                WorkStatusCode.Hold => WorkOrderStatus.Hold,
+                WorkStatusCode.PendApp => WorkOrderStatus.PendApp,
+                WorkStatusCode.PendMaterial => WorkOrderStatus.PendMaterial,
+                WorkStatusCode.VariationApproved => WorkOrderStatus.VariationApproved,
+                WorkStatusCode.VariationRejected => WorkOrderStatus.VariationRejected,
+                _ => WorkOrderStatus.Unknown,
+            };
+        }
+
+        public static string GetAction(this WorkOrder workOrder)
+        {
+            return workOrder.Reason switch
+            {
+                ReasonCode.PendingAuthorisation => WorkOrderReason.PendAuthorisation,
+                ReasonCode.NoApproval => WorkOrderReason.Rejected,
+                ReasonCode.Approved => WorkOrderReason.Approved,
+                _ => WorkOrderReason.Unknown,
+            };
         }
     }
 }

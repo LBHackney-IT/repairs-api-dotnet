@@ -29,12 +29,15 @@ namespace RepairsApi.V2.UseCase
 
                 return new WorkOrderTask
                 {
+                    Id = rsi.Id,
                     Description = rsi.CustomName,
                     Quantity = quantity,
                     Cost = rsi.CodeCost,
-                    Id = rsi.CustomCode,
+                    Code = rsi.CustomCode,
                     Status = "Unknown",
-                    DateAdded = rsi.DateCreated.GetValueOrDefault()
+                    DateAdded = rsi.DateCreated.GetValueOrDefault(),
+                    Original = rsi.Original,
+                    OriginalQuantity = rsi.OriginalQuantity
                 };
             });
         }

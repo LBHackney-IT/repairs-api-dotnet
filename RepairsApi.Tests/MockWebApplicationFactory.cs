@@ -5,22 +5,33 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
 using System;
 using System.Data.Common;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using Moq;
+using Npgsql;
+using V2_Generated_DRS;
 
 namespace RepairsApi.Tests
 {
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "tests")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1054:Uri parameters should not be strings", Justification = "tests")]
     public class MockWebApplicationFactory
         : WebApplicationFactory<Startup>
     {
-        private readonly DbConnection _connection = null;
+        private readonly string _connection = null;
+        private string _userGroup = UserGroups.AGENT;
 
-        public MockWebApplicationFactory(DbConnection connection)
+        public MockWebApplicationFactory(string connection)
         {
             _connection = connection;
         }
@@ -62,6 +73,16 @@ namespace RepairsApi.Tests
 
                 services.RemoveAll<IApiGateway>();
                 services.AddTransient<IApiGateway, MockApiGateway>();
+                services.RemoveAll<SOAP>();
+                services.AddTransient<SOAP>(sp =>
+                {
+                    var mock = new Mock<SOAP>();
+                    mock.Setup(x => x.openSessionAsync(It.IsAny<openSession>()))
+                        .ReturnsAsync(new openSessionResponse { @return = new xmbOpenSessionResponse { status = responseStatus.success } });
+                    mock.Setup(x => x.createOrderAsync(It.IsAny<createOrder>()))
+                        .ReturnsAsync(new createOrderResponse { @return = new xmbCreateOrderResponse { status = responseStatus.success } });
+                    return mock.Object;
+                });
             })
             .UseEnvironment("IntegrationTests");
         }
@@ -70,7 +91,14 @@ namespace RepairsApi.Tests
         {
             base.ConfigureClient(client);
 
-            client.SetAgent();
+            if (_userGroup == UserGroups.AGENT) client.SetAgent();
+            if (_userGroup == UserGroups.CONTRACTOR) client.SetGroup(GetGroup(TestDataSeeder.Contractor));
+            if (_userGroup == UserGroups.CONTRACT_MANAGER) client.SetGroup(_userGroup);
+        }
+
+        protected void SetUserRole(string userGroup)
+        {
+            _userGroup = userGroup;
         }
 
         private static void InitialiseDB(ServiceProvider serviceProvider)
@@ -94,6 +122,65 @@ namespace RepairsApi.Tests
         {
             using var ctx = GetContext();
             return ctx.DB.SecurityGroups.Where(sg => sg.ContractorReference == contractor).Select(sg => sg.GroupName).Single();
+        }
+
+        public async Task<(HttpStatusCode statusCode, TResponse response)> Get<TResponse>(string uri)
+        {
+            HttpResponseMessage result = await InternalGet(uri);
+
+            TResponse response = await ProcessResponse<TResponse>(result);
+
+            return (result.StatusCode, response);
+        }
+
+        public async Task<HttpStatusCode> Get(string uri)
+        {
+            HttpResponseMessage result = await InternalGet(uri);
+
+            return result.StatusCode;
+        }
+
+        private async Task<HttpResponseMessage> InternalGet(string uri)
+        {
+            var client = CreateClient();
+
+            var result = await client.GetAsync(new Uri(uri, UriKind.Relative));
+            return result;
+        }
+
+        private static async Task<TResponse> ProcessResponse<TResponse>(HttpResponseMessage result)
+        {
+            var responseContent = await result.Content.ReadAsStringAsync();
+
+            object parseResponse = JsonConvert.DeserializeObject(responseContent, typeof(TResponse));
+
+            TResponse castedResponse = parseResponse != null && typeof(TResponse).IsAssignableFrom(parseResponse.GetType()) ? (TResponse) parseResponse : default;
+            return castedResponse;
+        }
+
+        public async Task<(HttpStatusCode statusCode, TResponse response)> Post<TResponse>(string uri, object data)
+        {
+            HttpResponseMessage result = await InternalPost(uri, data);
+
+            TResponse response = await ProcessResponse<TResponse>(result);
+            return (result.StatusCode, response);
+        }
+
+        private async Task<HttpResponseMessage> InternalPost(string uri, object data, string role = "agent")
+        {
+            var client = CreateClient();
+            if (!role.Equals("agent")) client.SetGroup(role);
+            var serializedContent = JsonConvert.SerializeObject(data);
+            StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
+
+            var result = await client.PostAsync(new Uri(uri, UriKind.Relative), content);
+            return result;
+        }
+
+        public async Task<HttpStatusCode> Post(string uri, object data, string role = "agent")
+        {
+            HttpResponseMessage result = await InternalPost(uri, data, role);
+            return result.StatusCode;
         }
     }
 

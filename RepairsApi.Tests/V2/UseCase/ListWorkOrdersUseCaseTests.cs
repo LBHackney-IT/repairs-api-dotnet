@@ -6,6 +6,7 @@ using RepairsApi.Tests.V2.Gateways;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Controllers.Parameters;
 using RepairsApi.V2.Factories;
+using RepairsApi.V2.Filtering;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Infrastructure.Extensions;
 using RepairsApi.V2.UseCase;
@@ -28,7 +29,27 @@ namespace RepairsApi.Tests.V2.UseCase
         {
             configureGenerator();
             _repairsMock = new MockRepairsGateway();
-            _classUnderTest = new ListWorkOrdersUseCase(_repairsMock.Object);
+            _classUnderTest = new ListWorkOrdersUseCase(_repairsMock.Object, CreateFilterBuilder());
+        }
+
+        private static FilterBuilder<WorkOrderSearchParameters, WorkOrder> CreateFilterBuilder()
+        {
+            return new FilterBuilder<WorkOrderSearchParameters, WorkOrder>()
+                .AddFilter(
+                    searchParams => searchParams.ContractorReference,
+                    contractorReference => !string.IsNullOrWhiteSpace(contractorReference),
+                    contractorReference => wo => wo.AssignedToPrimary.ContractorReference == contractorReference
+                )
+                .AddFilter(
+                    searchParams => searchParams.PropertyReference,
+                    p => !string.IsNullOrWhiteSpace(p),
+                    p => wo => wo.Site.PropertyClass.Any(pc => pc.PropertyReference == p)
+                )
+                .AddFilter(
+                    searchParams => searchParams.StatusCode,
+                    codes => codes?.All(code => code > 0 && Enum.IsDefined(typeof(WorkStatusCode), code)) ?? false,
+                    codes => wo => codes.Select(c => Enum.Parse<WorkStatusCode>(c.ToString())).Contains(wo.StatusCode)
+                );
         }
 
         private void configureGenerator()
@@ -69,6 +90,7 @@ namespace RepairsApi.Tests.V2.UseCase
                 LastUpdated = null,
                 PropertyReference = expectedWorkOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference,
                 TradeCode = expectedWorkOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomCode,
+                TradeDescription = expectedWorkOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomName,
                 Status = WorkOrderStatus.InProgress
             };
 
@@ -131,13 +153,20 @@ namespace RepairsApi.Tests.V2.UseCase
                 PageNumber = 2,
                 PageSize = expectedPageSize
             };
+            var statusOrder = new[] {
+                WorkOrderStatus.InProgress,
+                WorkOrderStatus.PendApp,
+                WorkOrderStatus.Cancelled,
+                WorkOrderStatus.Complete,
+                WorkOrderStatus.Unknown
+            };
 
             //Act
             var workOrders = await _classUnderTest.Execute(workOrderSearchParameters);
 
             //Assert
             var expectedResult = generatedWorkOrders
-                .OrderBy(wo => wo.GetStatus())
+                .OrderBy(wo => Array.IndexOf(statusOrder, wo.GetStatus()))
                 .ThenByDescending(wo => wo.DateRaised)
                 .Skip((workOrderSearchParameters.PageNumber - 1) * workOrderSearchParameters.PageSize)
                 .Take(workOrderSearchParameters.PageSize)
@@ -150,7 +179,7 @@ namespace RepairsApi.Tests.V2.UseCase
 
             var generatedWorkOrders = _generator.GenerateList(workOrderCount);
 
-            _repairsMock.Setup(r => r.GetWorkOrders())
+            _repairsMock.Setup(r => r.GetWorkOrders(It.IsAny<IFilter<WorkOrder>>()))
                 .ReturnsAsync(generatedWorkOrders);
             return generatedWorkOrders;
         }
@@ -166,7 +195,7 @@ namespace RepairsApi.Tests.V2.UseCase
 
             var generatedWorkOrders = generator.GenerateList(workOrderCount);
 
-            _repairsMock.Setup(r => r.GetWorkOrders())
+            _repairsMock.Setup(r => r.GetWorkOrders(It.IsAny<IFilter<WorkOrder>>()))
                 .ReturnsAsync(generatedWorkOrders);
             return generatedWorkOrders;
         }

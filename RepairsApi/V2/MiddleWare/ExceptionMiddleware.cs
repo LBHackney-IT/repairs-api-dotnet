@@ -46,12 +46,10 @@ namespace RepairsApi.V2.MiddleWare
     {
         public static async Task SetResponse(this HttpContext httpContext, int code, string message)
         {
-            using (var writer = new StreamWriter(httpContext.Response.Body))
-            {
-                httpContext.Response.StatusCode = code;
-                await writer.WriteAsync(message);
-                await writer.FlushAsync();
-            }
+            await using var writer = new StreamWriter(httpContext.Response.Body);
+            httpContext.Response.StatusCode = code;
+            await writer.WriteAsync(message);
+            await writer.FlushAsync();
         }
     }
 }

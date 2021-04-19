@@ -1,8 +1,10 @@
 using System;
+using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using RepairsApi.V2.Generated;
+using RepairsApi.V2.Generated.CustomTypes;
 using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase;
@@ -29,16 +31,68 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         }
 
         [Test]
-        public void ExecutesMoreSpecificSORUseCase()
+        public async Task ExecutesMoreSpecificSORUseCase()
         {
-            var useCaseMock = new Mock<IJobStatusUpdateStrategy>();
-            _mockActivatorWrapper.Setup(x => x.CreateInstance<MoreSpecificSorUseCase>())
-                .Returns(useCaseMock.Object);
-
-            _classUnderTest.ProcessActions(new JobStatusUpdate
+            await ValidateStrategyResolution<MoreSpecificSorUseCase>(new JobStatusUpdate
             {
                 TypeCode = JobStatusUpdateTypeCode._80
             });
+        }
+
+        [Test]
+        public async Task ExecutesApproveVariationUseCase()
+        {
+            await ValidateStrategyResolution<ApproveVariationUseCase>(new JobStatusUpdate
+            {
+                TypeCode = JobStatusUpdateTypeCode._10020
+            });
+        }
+
+        [Test]
+        public async Task ExecutesRejectVariationUseCase()
+        {
+            await ValidateStrategyResolution<RejectVariationUseCase>(new JobStatusUpdate
+            {
+                TypeCode = JobStatusUpdateTypeCode._125
+            });
+        }
+
+        [Test]
+        public async Task ExecutesContractorAcceptApprovedVariationUseCase()
+        {
+            await ValidateStrategyResolution<ContractorAcknowledgeVariationUseCase>(new JobStatusUpdate
+            {
+                TypeCode = JobStatusUpdateTypeCode._10010
+            });
+        }
+
+        [Test]
+        public async Task JobIncomplete()
+        {
+            await ValidateStrategyResolution<JobIncompleteStrategy>(new JobStatusUpdate
+            {
+                TypeCode = JobStatusUpdateTypeCode._120
+            });
+        }
+
+        [Test]
+        public async Task ResumeJob()
+        {
+            await ValidateStrategyResolution<ResumeJobStrategy>(new JobStatusUpdate
+            {
+                TypeCode = JobStatusUpdateTypeCode._0,
+                OtherType = CustomJobStatusUpdates.RESUME
+            });
+        }
+
+        private async Task ValidateStrategyResolution<T>(JobStatusUpdate jobStatusUpdate)
+            where T : IJobStatusUpdateStrategy
+        {
+            var useCaseMock = new Mock<IJobStatusUpdateStrategy>();
+            _mockActivatorWrapper.Setup(x => x.CreateInstance<T>())
+                .Returns(useCaseMock.Object);
+
+            await _classUnderTest.ProcessActions(jobStatusUpdate);
 
             useCaseMock.Verify(x => x.Execute(It.IsAny<JobStatusUpdate>()));
         }

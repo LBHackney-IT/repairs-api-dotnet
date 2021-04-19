@@ -5,6 +5,7 @@ using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase.Interfaces;
 using System.Threading.Tasks;
+using Microsoft.FeatureManagement;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.MiddleWare;
 using RepairsApi.V2.Services;
@@ -18,17 +19,24 @@ namespace RepairsApi.V2.UseCase
         private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
         private readonly ILogger<CreateWorkOrderUseCase> _logger;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IDrsService _drsService;
+        private readonly IFeatureManager _featureManager;
 
         public CreateWorkOrderUseCase(
             IRepairsGateway repairsGateway,
             IScheduleOfRatesGateway scheduleOfRatesGateway,
             ILogger<CreateWorkOrderUseCase> logger,
-            ICurrentUserService currentUserService)
+            ICurrentUserService currentUserService,
+            IDrsService drsService,
+            IFeatureManager featureManager
+            )
         {
             _repairsGateway = repairsGateway;
             _scheduleOfRatesGateway = scheduleOfRatesGateway;
             _logger = logger;
             _currentUserService = currentUserService;
+            _drsService = drsService;
+            _featureManager = featureManager;
         }
 
         public async Task<int> Execute(WorkOrder workOrder)
@@ -37,9 +45,15 @@ namespace RepairsApi.V2.UseCase
             AttachUserInformation(workOrder);
             workOrder.DateRaised = DateTime.UtcNow;
             workOrder.StatusCode = WorkStatusCode.Open;
+
             await PopulateRateScheduleItems(workOrder);
             var id = await _repairsGateway.CreateWorkOrder(workOrder);
             _logger.LogInformation(Resources.CreatedWorkOrder);
+
+            if (await _featureManager.IsEnabledAsync(FeatureFlags.DRSINTEGRATION))
+            {
+                await _drsService.CreateOrder(workOrder);
+            }
             return id;
         }
 
@@ -49,6 +63,7 @@ namespace RepairsApi.V2.UseCase
             {
                 var user = _currentUserService.GetUser();
                 workOrder.AgentName = user.Name();
+                workOrder.AgentEmail = user.Email();
             }
         }
 
@@ -66,7 +81,6 @@ namespace RepairsApi.V2.UseCase
             {
                 await element.RateScheduleItem.ForEachAsync(async item =>
                 {
-                    item.DateCreated = DateTime.UtcNow;
                     item.CodeCost = await GetCost(workOrder.AssignedToPrimary?.ContractorReference, item.CustomCode);
                     item.Original = true;
                     item.OriginalQuantity = item.Quantity.Amount;

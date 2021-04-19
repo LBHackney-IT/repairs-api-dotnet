@@ -36,6 +36,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             var result = await GetResult<IEnumerable<SorTradeResponse>>(response);
             return result;
         }
+
         [Test]
         public async Task ListSORPriorities()
         {

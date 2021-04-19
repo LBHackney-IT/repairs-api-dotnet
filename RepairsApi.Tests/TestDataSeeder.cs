@@ -16,6 +16,7 @@ namespace RepairsApi.Tests
         public const string SorCode = "code";
         public const string PropRef = "propref";
         public const string Contractor = "contractor";
+        public const string Agent = "agent";
         public const string Trade = "trade";
         public const string Priority = "priority";
         private const int PriorityId = 1;
@@ -71,7 +72,8 @@ namespace RepairsApi.Tests
             ctx.SecurityGroups.AddRange(new List<SecurityGroup>
             {
                 new SecurityGroup { GroupName = "agent", UserType = UserGroups.AGENT },
-                new SecurityGroup { GroupName = "contractor-test", UserType = UserGroups.CONTRACTOR, ContractorReference = "contractor" },
+                new SecurityGroup { GroupName = "contract manager", UserType = UserGroups.CONTRACT_MANAGER },
+                new SecurityGroup { GroupName = "contractor", UserType = UserGroups.CONTRACTOR, ContractorReference = "contractor" },
 
                 new SecurityGroup { GroupName = "raise50", RaiseLimit = 50 },
                 new SecurityGroup { GroupName = "raise100", RaiseLimit = 100 },
@@ -202,13 +204,15 @@ namespace RepairsApi.Tests
         {
             var generator = new Generator<SORPriority>()
                 .AddDefaultGenerators()
-                .AddGenerator(() => SeedCode(PriorityCodes), (SORPriority sp) => sp.PriorityCode);
+                .AddGenerator(() => SeedCode(PriorityCodes), (SORPriority sp) => sp.PriorityCode)
+                .AddValue(true, (SORPriority sp) => sp.Enabled);
 
             ctx.Set<SORPriority>().AddRange(generator.GenerateList(3));
             ctx.Set<SORPriority>().Add(new SORPriority
             {
                 Description = Priority,
-                PriorityCode = PriorityId
+                PriorityCode = PriorityId,
+                Enabled = true
             });
         }
 

@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using RepairsApi.V2.Generated;
+using RepairsApi.V2.Generated.CustomTypes;
 using RepairsApi.V2.Helpers;
 
 namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
@@ -17,23 +18,45 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
         public async Task ProcessActions(JobStatusUpdate jobStatusUpdate)
         {
-            IJobStatusUpdateStrategy strategy = null;
-            switch (jobStatusUpdate.TypeCode)
+            /*
+            https://www.oscre.org/idm?content=entity/JobStatusUpdateTypeCode
+            */
+            IJobStatusUpdateStrategy strategy = jobStatusUpdate.TypeCode switch
             {
-                case JobStatusUpdateTypeCode._80: // More specific SOR Code
-                    strategy = _activator.CreateInstance<MoreSpecificSorUseCase>();
-                    break;
-                case JobStatusUpdateTypeCode._0:
-                    break;
-                default:
-                    throw new NotSupportedException($"This type code is not supported: {jobStatusUpdate.TypeCode}");
-            }
+                // More specific SOR Code - (means variation) 
+                JobStatusUpdateTypeCode._80 => _activator.CreateInstance<MoreSpecificSorUseCase>(),
 
+                //Variation approved 
+                JobStatusUpdateTypeCode._10020 => _activator.CreateInstance<ApproveVariationUseCase>(),
+
+                //Variation Rejected
+                JobStatusUpdateTypeCode._125 => _activator.CreateInstance<RejectVariationUseCase>(),
+
+                //Variation acknowledged by contractor, workorder set to in progress
+                JobStatusUpdateTypeCode._10010 => _activator.CreateInstance<ContractorAcknowledgeVariationUseCase>(),
+
+                // Job Incomplete
+                JobStatusUpdateTypeCode._120 => _activator.CreateInstance<JobIncompleteStrategy>(),
+
+                // Job incomplete - need materials
+                JobStatusUpdateTypeCode._12020 => _activator.CreateInstance<JobIncompleteNeedMaterialsStrategy>(),
+                // Other
+                JobStatusUpdateTypeCode._0 => ProcessOtherCode(jobStatusUpdate),
+                _ => throw new NotSupportedException($"This type code is not supported: {jobStatusUpdate.TypeCode}"),
+            };
             if (strategy != null)
             {
                 await strategy.Execute(jobStatusUpdate);
             }
         }
 
+        private IJobStatusUpdateStrategy ProcessOtherCode(JobStatusUpdate jobStatusUpdate)
+        {
+            return jobStatusUpdate.OtherType switch
+            {
+                CustomJobStatusUpdates.RESUME => _activator.CreateInstance<ResumeJobStrategy>(),
+                _ => null,
+            };
+        }
     }
 }

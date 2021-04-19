@@ -2,6 +2,7 @@ service: repairs-api
 provider:
   name: aws
   runtime: dotnetcore3.1
+  memorySize: 2048
   vpc: ${self:custom.vpc.${opt:stage}}
   stage: ${opt:stage}
   region: eu-west-2
@@ -14,6 +15,9 @@ provider:
         throttle:
           burstLimit: 200
           rateLimit: 100
+  tracing:
+    lambda: true
+    apiGateway: true
 
 package:
   artifact: ./bin/release/netcoreapp3.1/repairs-api.zip
@@ -34,6 +38,10 @@ functions:
       GatewayOptions__HousingResidentInformationApi: ${ssm:/${self:service}/${self:provider.stage}/housing-resident-information-api-url}
       GatewayOptions__HousingResidentInformationApiKey: ${ssm:/${self:service}/${self:provider.stage}/housing-resident-information-api-token}
       FeatureManagement__SpendLimits: ${ssm:/${self:service}/${self:provider.stage}/spend-limits-flag}
+      FeatureManagement__DrsIntegration: ${ssm:/${self:service}/${self:provider.stage}/drs-enabled}
+      DrsOptions__Address: ${ssm:/${self:service}/${self:provider.stage}/drs-address}
+      DrsOptions__Login: ${ssm:/${self:service}/${self:provider.stage}/drs-login}
+      DrsOptions__Password: ${ssm:/${self:service}/${self:provider.stage}/drs-password}
     events:
       - http:
           path: /{proxy+}
@@ -56,6 +64,7 @@ resources:
               Action: sts:AssumeRole
         ManagedPolicyArns:
           - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+          - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
         Policies:
           - PolicyName: manageLogs
             PolicyDocument:
@@ -94,10 +103,10 @@ custom:
   vpc:
     development:
       securityGroupIds:
-        - sg-0835968e22d1f2a73
+        - sg-08e28776da7918e4b
       subnetIds:
-        - subnet-0deabb5d8fb9c3446
-        - subnet-000b89c249f12a8ad
+        - subnet-0140d06fb84fdb547
+        - subnet-05ce390ba88c42bfd
     staging:
       securityGroupIds:
         - sg-011122be56aa0af9e

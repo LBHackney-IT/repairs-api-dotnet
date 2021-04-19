@@ -91,12 +91,9 @@ namespace RepairsApi.V2.Factories
             };
         }
 
-        public static ResidentContactsViewModel ToResponse(this IEnumerable<ResidentContact> domain)
+        public static IEnumerable<ResidentContactViewModel> ToResponse(this IEnumerable<ResidentContact> domain)
         {
-            return new ResidentContactsViewModel
-            {
-                Contacts = domain.Select(contact => contact.ToResponse()).ToList()
-            };
+            return new List<ResidentContactViewModel>(domain.Select(contact => contact.ToResponse()));
         }
 
         public static ResidentContactViewModel ToResponse(this ResidentContact domain)
@@ -116,8 +113,7 @@ namespace RepairsApi.V2.Factories
             return new TenureViewModel
             {
                 TypeCode = domain.TypeCode,
-                TypeDescription = domain.TypeDescription,
-                CanRaiseRepair = domain.CanRaiseRepair
+                TypeDescription = domain.TypeDescription
             };
         }
 
@@ -126,7 +122,7 @@ namespace RepairsApi.V2.Factories
             return domainList.Select(domain => domain.ToResponseListItem()).ToList();
         }
 
-        public static WorkOrderResponse ToResponse(this Infrastructure.WorkOrder workOrder)
+        public static WorkOrderResponse ToResponse(this Infrastructure.WorkOrder workOrder, Infrastructure.AppointmentDetails appointment)
         {
             Infrastructure.PropertyClass propertyClass = workOrder.Site?.PropertyClass?.FirstOrDefault();
             string addressLine = propertyClass?.Address?.AddressLine;
@@ -147,7 +143,17 @@ namespace RepairsApi.V2.Factories
                 CallerNumber = workOrder.Customer?.Person?.Communication?.Where(cc => cc.Channel?.Medium == Generated.CommunicationMediumCode._20 /* Audio */).FirstOrDefault()
                     ?.Value,
                 Status = workOrder.GetStatus(),
-                ContractorReference = workOrder.AssignedToPrimary?.ContractorReference
+                Action = workOrder.GetAction(),
+                ContractorReference = workOrder.AssignedToPrimary?.ContractorReference,
+                TradeCode = workOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomCode,
+                TradeDescription = workOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomName,
+                Appointment = appointment is null ? null : new AppointmentResponse
+                {
+                    Date = appointment.Date.Date.ToDate(),
+                    Description = appointment.Description,
+                    Start = appointment.Start.ToTime(),
+                    End = appointment.End.ToTime()
+                }
             };
         }
 
@@ -166,6 +172,7 @@ namespace RepairsApi.V2.Factories
                 LastUpdated = null,
                 PropertyReference = workOrder.Site?.PropertyClass?.FirstOrDefault()?.PropertyReference,
                 TradeCode = workOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomCode,
+                TradeDescription = workOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomName,
                 Status = workOrder.GetStatus()
             };
         }
@@ -215,7 +222,8 @@ namespace RepairsApi.V2.Factories
                 Quantity = rateScheduleItem.Quantity.ToResponse(),
                 CustomCode = rateScheduleItem.CustomCode,
                 CustomName = rateScheduleItem.CustomName,
-                M3NHFSORCode = rateScheduleItem.M3NHFSORCode
+                M3NHFSORCode = rateScheduleItem.M3NHFSORCode,
+                Id = rateScheduleItem.Id.ToString()
             };
         }
 
@@ -240,13 +248,15 @@ namespace RepairsApi.V2.Factories
         {
             return new WorkOrderItemViewModel
             {
+                Id = domain.Id.ToString(),
                 Quantity = domain.Quantity,
-                Code = domain.Id,
+                Code = domain.Code,
                 Cost = domain.Cost,
                 DateAdded = domain.DateAdded,
                 Description = domain.Description,
                 Status = domain.Status,
-                Original = domain.Original
+                Original = domain.Original,
+                OriginalQuantity = domain.OriginalQuantity
             };
         }
 
@@ -267,5 +277,25 @@ namespace RepairsApi.V2.Factories
                 ContractorReference = contractor.Reference
             };
         }
+
+        //public static JobStatusUpdate ToResponse(
+        //   this Infrastructure.JobStatusUpdate jobStatusUpdate,
+        //   Infrastructure.WorkOrder workOrder)
+        //{
+        //    return new Generated.JobStatusUpdate
+        //    {
+        //        EventTime = DateTime.UtcNow,
+        //        TypeCode = jobStatusUpdate.TypeCode,
+        //        AdditionalWork = jobStatusUpdate.AdditionalWork?.ToDb(),
+        //        Comments = jobStatusUpdate.Comments,
+        //        CustomerCommunicationChannelAttempted = jobStatusUpdate.CustomerCommunicationChannelAttempted?.ToDb(),
+        //        CustomerFeedback = jobStatusUpdate.CustomerFeedback?.ToDb(),
+        //        MoreSpecificSORCode = jobStatusUpdate.MoreSpecificSORCode?.ToDb(),
+        //        OperativesAssigned = jobStatusUpdate.OperativesAssigned?.Select(oa => oa.ToDb()).ToList(),
+        //        OtherType = jobStatusUpdate.OtherType,
+        //        RefinedAppointmentWindow = jobStatusUpdate.RefinedAppointmentWindow?.ToDb(),
+        //        RelatedWorkOrder = workOrder
+        //    };
+        //}
     }
 }

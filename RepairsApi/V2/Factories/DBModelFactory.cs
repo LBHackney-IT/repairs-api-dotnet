@@ -250,12 +250,20 @@ namespace RepairsApi.V2.Factories
 
         public static RateScheduleItem ToDb(this Generated.RateScheduleItem raiseRepair)
         {
-            return new RateScheduleItem
+            RateScheduleItem rateScheduleItem = new RateScheduleItem
             {
                 CustomCode = raiseRepair.CustomCode,
                 CustomName = raiseRepair.CustomName,
                 Quantity = raiseRepair.Quantity?.ToDb(),
+                DateCreated = DateTime.UtcNow,
             };
+
+            if (!string.IsNullOrWhiteSpace(raiseRepair.Id) && Guid.TryParse(raiseRepair.Id, out var id))
+            {
+                rateScheduleItem.OriginalId = id;
+            }
+
+            return rateScheduleItem;
         }
 
         public static Quantity ToDb(this Generated.Quantity raiseRepair)
@@ -492,13 +500,11 @@ namespace RepairsApi.V2.Factories
 
         public static JobStatusUpdate ToDb(
             this Generated.JobStatusUpdate jobStatusUpdate,
-            IEnumerable<WorkElement> workElements,
             WorkOrder workOrder)
         {
             return new JobStatusUpdate
             {
-                RelatedWorkElement = workElements.ToList(),
-                EventTime = DateTime.Now,
+                EventTime = DateTime.UtcNow,
                 TypeCode = jobStatusUpdate.TypeCode,
                 AdditionalWork = jobStatusUpdate.AdditionalWork?.ToDb(),
                 Comments = jobStatusUpdate.Comments,

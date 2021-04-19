@@ -9,6 +9,7 @@ namespace RepairsApi.V2.Gateways
     public interface IAppointmentsGateway
     {
         Task Create(string appointmentRef, int workOrderId);
-        Task<IEnumerable<AppointmentListResult>> ListAppointments(string contractorReference, DateTime from, DateTime toDate);
+        Task<IEnumerable<AppointmentDetails>> ListAppointments(string contractorReference, DateTime from, DateTime toDate);
+        Task<AppointmentDetails> GetAppointment(int id);
     }
 }

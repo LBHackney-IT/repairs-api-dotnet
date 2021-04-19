@@ -8,6 +8,8 @@ using System.Linq.Expressions;
 using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Services;
 using RepairsApi.V2.Authorisation;
+using RepairsApi.V2.UseCase;
+using RepairsApi.V2.Filtering;
 
 namespace RepairsApi.V2.Gateways
 {
@@ -26,19 +28,20 @@ namespace RepairsApi.V2.Gateways
         {
             var entry = _repairsContext.WorkOrders.Add(raiseRepair);
             await _repairsContext.SaveChangesAsync();
-
             return entry.Entity.Id;
         }
 
-        public async Task<IEnumerable<WorkOrder>> GetWorkOrders(params Expression<Func<WorkOrder, bool>>[] whereExpressions)
+        public Task<IEnumerable<WorkOrder>> GetWorkOrders(params Expression<Func<WorkOrder, bool>>[] whereExpressions)
+        {
+            return GetWorkOrders(new Filter<WorkOrder>(whereExpressions));
+        }
+
+        public async Task<IEnumerable<WorkOrder>> GetWorkOrders(IFilter<WorkOrder> filter)
         {
             IQueryable<WorkOrder> workOrders = _repairsContext.WorkOrders.RestrictContractor(_currentUserService)
                 .Include(wo => wo.AssignedToPrimary);
 
-            foreach (var whereExpression in whereExpressions)
-            {
-                workOrders = workOrders.Where(whereExpression);
-            }
+            workOrders = filter.Apply(workOrders);
 
             return await workOrders.ToListAsync();
         }
@@ -61,7 +64,8 @@ namespace RepairsApi.V2.Gateways
 
         private bool UserCanAccess(WorkOrder workOrder)
         {
-            if (_currentUserService.HasGroup(UserGroups.AGENT)) return true;
+            if (_currentUserService.HasGroup(UserGroups.AGENT) ||
+                _currentUserService.HasGroup(UserGroups.CONTRACT_MANAGER)) return true;
 
             if (_currentUserService.TryGetContractor(out string contractor))
             {
@@ -92,13 +96,19 @@ namespace RepairsApi.V2.Gateways
             order.StatusCode = newCode;
             await _repairsContext.SaveChangesAsync();
         }
+
+        public Task SaveChangesAsync()
+        {
+            return _repairsContext.SaveChangesAsync();
+        }
     }
 
     public static class WorkOrderExtensions
     {
         public static IQueryable<WorkOrder> RestrictContractor(this IQueryable<WorkOrder> source, ICurrentUserService userService)
         {
-            if (userService.HasGroup(UserGroups.AGENT)) return source;
+            if (userService.HasGroup(UserGroups.AGENT) ||
+                userService.HasGroup(UserGroups.CONTRACT_MANAGER)) return source;
 
             if (userService.TryGetContractor(out string contractor))
             {

@@ -7,6 +7,7 @@ using System;
 using System.Globalization;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using RepairsApi.V2.Boundary.Response;
 
 namespace RepairsApi.V2.Services
 {
@@ -66,6 +67,7 @@ namespace RepairsApi.V2.Services
 
             identity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
             identity.AddClaim(new Claim(ClaimTypes.Name, user.Name));
+            identity.AddClaim(new Claim(ClaimTypes.PrimarySid, user.Sub));
 
             double varyLimit = 0;
             double raiseLimit = 0;

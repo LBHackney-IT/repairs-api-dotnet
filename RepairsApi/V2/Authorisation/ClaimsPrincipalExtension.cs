@@ -18,5 +18,21 @@ namespace RepairsApi.V2.Authorisation
         {
             return claimsPrincipal.FindAll(CustomClaimTypes.CONTRACTOR).Select(c => c.Value).ToList();
         }
+
+        public static string VaryLimit(this ClaimsPrincipal claimsPrincipal)
+        {
+            return claimsPrincipal.FindFirst(CustomClaimTypes.VARYLIMIT).Value;
+        }
+
+        public static string RaiseLimit(this ClaimsPrincipal claimsPrincipal)
+        {
+            return claimsPrincipal.FindFirst(CustomClaimTypes.RAISELIMIT).Value;
+        }
+
+        public static string Sub(this ClaimsPrincipal claimsPrincipal)
+        {
+            return claimsPrincipal.FindFirst(ClaimTypes.PrimarySid).Value;
+        }
+
     }
 }
