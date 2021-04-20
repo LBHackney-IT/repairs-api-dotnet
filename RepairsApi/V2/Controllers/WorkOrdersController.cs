@@ -32,6 +32,7 @@ namespace RepairsApi.V2.Controllers
         private readonly IListWorkOrderTasksUseCase _listWorkOrderTasksUseCase;
         private readonly IListWorkOrderNotesUseCase _listWorkOrderNotesUseCase;
         private readonly IFeatureManager _featureManager;
+        private readonly IListVariationTasksUseCase _listVariationTasksUseCase;
 
         public WorkOrdersController(
             IAuthorizationService authorizationService,
@@ -42,7 +43,8 @@ namespace RepairsApi.V2.Controllers
             IGetWorkOrderUseCase getWorkOrderUseCase,
             IListWorkOrderTasksUseCase listWorkOrderTasksUseCase,
             IListWorkOrderNotesUseCase listWorkOrderNotesUseCase,
-            IFeatureManager featureManager)
+            IFeatureManager featureManager,
+            IListVariationTasksUseCase listVariationTasksUseCase)
         {
             _authorizationService = authorizationService;
             _createWorkOrderUseCase = createWorkOrderUseCase;
@@ -53,6 +55,7 @@ namespace RepairsApi.V2.Controllers
             _listWorkOrderTasksUseCase = listWorkOrderTasksUseCase;
             _listWorkOrderNotesUseCase = listWorkOrderNotesUseCase;
             _featureManager = featureManager;
+            _listVariationTasksUseCase = listVariationTasksUseCase;
         }
 
         /// <summary>

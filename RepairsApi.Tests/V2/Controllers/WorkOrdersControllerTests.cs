@@ -39,6 +39,7 @@ namespace RepairsApi.Tests.V2.Controllers
         private Mock<IListWorkOrderNotesUseCase> _listWorkOrderNotesUseCase;
         private Mock<IFeatureManager> _featureManager;
         private Mock<IAuthorizationService> _authMock;
+        private Mock<IListVariationTasksUseCase> _listVariationsTaskUseCase;
 
         [SetUp]
         public void SetUp()
@@ -54,6 +55,7 @@ namespace RepairsApi.Tests.V2.Controllers
             _getWorkOrderUseCase = new Mock<IGetWorkOrderUseCase>();
             _listWorkOrderTasksUseCase = new Mock<IListWorkOrderTasksUseCase>();
             _listWorkOrderNotesUseCase = new Mock<IListWorkOrderNotesUseCase>();
+            _listVariationsTaskUseCase = new Mock<IListVariationTasksUseCase>();
             _featureManager = new Mock<IFeatureManager>();
             _classUnderTest = new WorkOrdersController(
                 _authMock.Object,
@@ -64,7 +66,8 @@ namespace RepairsApi.Tests.V2.Controllers
                 _getWorkOrderUseCase.Object,
                 _listWorkOrderTasksUseCase.Object,
                 _listWorkOrderNotesUseCase.Object,
-                _featureManager.Object
+                _featureManager.Object,
+                _listVariationsTaskUseCase.Object
             );
         }
 

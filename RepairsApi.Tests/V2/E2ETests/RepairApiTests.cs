@@ -442,7 +442,7 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             //reject variation
             request.TypeCode = JobStatusUpdateTypeCode._125;
-            var response = await Post("/api/v2/jobStatusUpdate", request);//, "contractor");
+            var response = await Post("/api/v2/jobStatusUpdate", request);
 
             // Assert
             response.Should().Be(HttpStatusCode.Unauthorized);
@@ -504,6 +504,29 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             // Assert
             response.Should().Be(HttpStatusCode.Unauthorized);
+        }
+
+        [Test]
+        public async Task GetWorkOrderVariationTasks()
+        {
+            // Arrange
+            string expectedCode = "expectedCode_LimitExceededOnUpdate11";
+            AddTestCode(expectedCode);
+            var workOrderId = await CreateWorkOrder();
+            var tasks = await GetTasks(workOrderId);
+
+            RepairsApi.V2.Generated.WorkElement workElement = TransformTasksToWorkElement(tasks);
+
+            AddRateScheduleItem(workElement, expectedCode, 100000);
+            JobStatusUpdate request = CreateUpdateRequest(workOrderId, workElement);
+            // Act
+            await Post("/api/v2/jobStatusUpdate", request);
+
+            var (code, response) = await Get<List<VariationTasksModel>>($"/api/v2/workOrders/{workOrderId}/variations", "contract manager");
+
+            // Assert
+            response[1].NewQuantity.Should().Be(100000);
+            code.Should().Be(HttpStatusCode.OK);
         }
 
         [Test]

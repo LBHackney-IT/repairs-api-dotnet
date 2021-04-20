@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using Moq;
 using Npgsql;
 using V2_Generated_DRS;
+using RepairsApi.V2.Infrastructure.Migrations;
 
 namespace RepairsApi.Tests
 {
@@ -124,25 +125,26 @@ namespace RepairsApi.Tests
             return ctx.DB.SecurityGroups.Where(sg => sg.ContractorReference == contractor).Select(sg => sg.GroupName).Single();
         }
 
-        public async Task<(HttpStatusCode statusCode, TResponse response)> Get<TResponse>(string uri)
+        public async Task<(HttpStatusCode statusCode, TResponse response)> Get<TResponse>(string uri, string role = "agent")
         {
-            HttpResponseMessage result = await InternalGet(uri);
+            HttpResponseMessage result = await InternalGet(uri, role);
 
             TResponse response = await ProcessResponse<TResponse>(result);
 
             return (result.StatusCode, response);
         }
 
-        public async Task<HttpStatusCode> Get(string uri)
+        public async Task<HttpStatusCode> Get(string uri, string role = "agent")
         {
-            HttpResponseMessage result = await InternalGet(uri);
+            HttpResponseMessage result = await InternalGet(uri, role);
 
             return result.StatusCode;
         }
 
-        private async Task<HttpResponseMessage> InternalGet(string uri)
+        private async Task<HttpResponseMessage> InternalGet(string uri, string role = "agent")
         {
             var client = CreateClient();
+            if (!role.Equals("agent")) client.SetGroup(role);
 
             var result = await client.GetAsync(new Uri(uri, UriKind.Relative));
             return result;

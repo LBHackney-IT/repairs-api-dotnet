@@ -16,8 +16,8 @@ using Microsoft.FeatureManagement;
 
 namespace RepairsApi.V2.Controllers
 {
-    [Route("/api/v2/repairs")]
-    [Route("/api/v2/workOrders")]
+    //[Route("/api/v2/repairs")]
+    //[Route("/api/v2/workOrders")]
     [ApiVersion("2.0")]
     public partial class WorkOrdersController : Controller
     {
@@ -28,13 +28,12 @@ namespace RepairsApi.V2.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("{id}/variations")]
-        //[ProducesResponseType(typeof(IEnumerable<WorkOrderItemViewModel>), 200)]
-        //[ProducesResponseType(404)]
-        //[ProducesResponseType(400)]
-        [Authorize(Roles = UserGroups.AGENT + "," + UserGroups.CONTRACT_MANAGER)]
-        public IActionResult GetWorkOrderVariations(int id)
+        [ProducesResponseType(typeof(IEnumerable<VariationTasksModel>), 200)]
+        [ProducesResponseType(404)]
+        [Authorize(Roles = UserGroups.CONTRACT_MANAGER)]
+        public async Task<IActionResult> GetWorkOrderVariations(int id)
         {
-            return Ok(id);
+            return Ok(await _listVariationTasksUseCase.Execute(id));
         }
 
     }
