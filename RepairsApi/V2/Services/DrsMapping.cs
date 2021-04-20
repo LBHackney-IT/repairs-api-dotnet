@@ -44,7 +44,7 @@ namespace RepairsApi.V2.Services
                         orderComments = workOrder.DescriptionOfWork,
                         contract = workOrder.AssignedToPrimary.ContractorReference,
                         locationID = workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference,
-                        priority = workOrder.WorkPriority.ToLegacyPriority(),
+                        priority = workOrder.WorkPriority.ToLegacyPriority().ToString(),
                         targetDate = workOrder.WorkPriority.RequiredCompletionDateTime ?? DateTime.UtcNow,
                         userId = workOrder.AgentEmail ?? workOrder.AgentName,
                         contactName = workOrder.Customer.Name,
