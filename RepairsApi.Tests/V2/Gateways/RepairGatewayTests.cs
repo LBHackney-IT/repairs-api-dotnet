@@ -196,7 +196,7 @@ namespace RepairsApi.Tests.V2.Gateways
             {
                 WorkPriority = new WorkPriority
                 {
-                    PriorityCode = RepairsApi.V2.Generated.WorkPriorityCode._1,
+                    PriorityCode = 1,
                     RequiredCompletionDateTime = DateTime.UtcNow
                 },
                 WorkClass = new WorkClass
@@ -219,7 +219,7 @@ namespace RepairsApi.Tests.V2.Gateways
             {
                 WorkPriority = new WorkPriority
                 {
-                    PriorityCode = RepairsApi.V2.Generated.WorkPriorityCode._1,
+                    PriorityCode = 1,
                     RequiredCompletionDateTime = DateTime.UtcNow
                 },
                 WorkClass = new WorkClass

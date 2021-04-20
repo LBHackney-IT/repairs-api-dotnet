@@ -31,6 +31,8 @@ namespace RepairsApi.V2.Infrastructure.Hackney
 
         public string Description { get; set; }
 
+        public char PriorityCharacter { get; set; }
+
         public int? DaysToComplete { get; set; }
 
         public bool Enabled { get; set; }
