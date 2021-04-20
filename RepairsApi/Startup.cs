@@ -14,6 +14,8 @@ using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 using Microsoft.OpenApi.Models;
 using RepairsApi.V2.Authorisation;
+using RepairsApi.V2.Configuration;
+using RepairsApi.V2.Controllers;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Infrastructure;
@@ -29,7 +31,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Amazon.XRay.Recorder.Core;
+using Amazon.XRay.Recorder.Core.Strategies;
+using Amazon.XRay.Recorder.Handlers.AspNetCore.Internal;
+using Amazon.XRay.Recorder.Handlers.AwsSdk;
+using Castle.Core.Internal;
 using System.ServiceModel;
+using Newtonsoft.Json;
 using V2_Generated_DRS;
 
 namespace RepairsApi
@@ -42,6 +50,9 @@ namespace RepairsApi
         {
             _env = env;
             Configuration = configuration;
+            AWSXRayRecorder.InitializeInstance(configuration);
+            AWSSDKHandler.RegisterXRayForAllServices();
+            AWSXRayRecorder.Instance.ContextMissingStrategy = ContextMissingStrategy.LOG_ERROR;
         }
 
         public IConfiguration Configuration { get; }
@@ -53,7 +64,12 @@ namespace RepairsApi
         {
             services
                 .AddMvc()
-                .AddNewtonsoftJson() // Required for the generated json attributes on hact models function as model validation
+                .AddNewtonsoftJson(
+                    options =>
+                    {
+                        options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+                    }
+                ) // Required for the generated json attributes on hact models function as model validation
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddApiVersioning(o =>
             {
@@ -99,7 +115,10 @@ namespace RepairsApi
                     {
                         new OpenApiSecurityScheme
                         {
-                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Token" }
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme, Id = "Token"
+                            }
                         },
                         new List<string>()
                     }
@@ -110,7 +129,10 @@ namespace RepairsApi
                     {
                         new OpenApiSecurityScheme
                         {
-                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "UserHeader" }
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme, Id = "UserHeader"
+                            }
                         },
                         new List<string>()
                     }
@@ -149,12 +171,15 @@ namespace RepairsApi
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 if (File.Exists(xmlPath))
                     c.IncludeXmlComments(xmlPath);
+
+                c.OperationFilter<DeprecateRepairsFilter>();
             });
             ConfigureDbContext(services);
 
             AddHttpClients(services);
             services.Configure<GatewayOptions>(Configuration.GetSection(nameof(GatewayOptions)));
             services.Configure<DrsOptions>(Configuration.GetSection(nameof(DrsOptions)));
+            services.Configure<FilterConfiguration>(Configuration.GetSection(nameof(FilterConfiguration)));
 
             RegisterGateways(services);
             RegisterUseCases(services);
@@ -162,12 +187,14 @@ namespace RepairsApi
             services.AddTransient(typeof(IActivatorWrapper<>), typeof(ActivatorWrapper<>));
             services.AddScoped<CurrentUserService>();
             services.AddScoped<IDrsService, DrsService>();
+            services.AddScoped<IDrsMapping, DrsMapping>();
             services.AddScoped<SOAP>(sp => new SOAPClient(sp.GetRequiredService<IOptions<DrsOptions>>()));
             services.AddScoped<ICurrentUserService>(sp => sp.GetService<CurrentUserService>());
             services.AddScoped<ICurrentUserLoader>(sp => sp.GetService<CurrentUserService>());
             services.AddTransient<ITransactionManager, TransactionManager>();
             services.AddSingleton<IAuthenticationService, ChallengeOnlyAuthenticationService>();
             services.AddFeatureManagement();
+            services.AddFilteringConfig();
         }
 
         private static void RegisterGateways(IServiceCollection services)
@@ -235,6 +262,7 @@ namespace RepairsApi
                     .UseLazyLoadingProxies()
                     .UseNpgsql(connectionString)
                     .UseSnakeCaseNamingConvention()
+                    .AddXRayInterceptor(true)
             );
         }
 
@@ -246,8 +274,10 @@ namespace RepairsApi
             }
             else
             {
+                app.UseXRay("repairs-api");
                 app.UseHsts();
             }
+
 
             //Get All ApiVersions,
             var api = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();

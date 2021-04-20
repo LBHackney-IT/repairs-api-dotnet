@@ -8,6 +8,8 @@ using System.Linq.Expressions;
 using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Services;
 using RepairsApi.V2.Authorisation;
+using RepairsApi.V2.UseCase;
+using RepairsApi.V2.Filtering;
 
 namespace RepairsApi.V2.Gateways
 {
@@ -29,15 +31,17 @@ namespace RepairsApi.V2.Gateways
             return entry.Entity.Id;
         }
 
-        public async Task<IEnumerable<WorkOrder>> GetWorkOrders(params Expression<Func<WorkOrder, bool>>[] whereExpressions)
+        public Task<IEnumerable<WorkOrder>> GetWorkOrders(params Expression<Func<WorkOrder, bool>>[] whereExpressions)
+        {
+            return GetWorkOrders(new Filter<WorkOrder>(whereExpressions));
+        }
+
+        public async Task<IEnumerable<WorkOrder>> GetWorkOrders(IFilter<WorkOrder> filter)
         {
             IQueryable<WorkOrder> workOrders = _repairsContext.WorkOrders.RestrictContractor(_currentUserService)
                 .Include(wo => wo.AssignedToPrimary);
 
-            foreach (var whereExpression in whereExpressions)
-            {
-                workOrders = workOrders.Where(whereExpression);
-            }
+            workOrders = filter.Apply(workOrders);
 
             return await workOrders.ToListAsync();
         }

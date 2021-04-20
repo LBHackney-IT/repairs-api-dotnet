@@ -4,28 +4,34 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RepairsApi.V2.Exceptions;
+using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Infrastructure;
 using V2_Generated_DRS;
+using WorkElement = RepairsApi.V2.Infrastructure.WorkElement;
 
 namespace RepairsApi.V2.Services
 {
+
     public class DrsService : IDrsService
     {
         private readonly SOAP _drsSoap;
         private readonly IOptions<DrsOptions> _drsOptions;
         private readonly ILogger<DrsService> _logger;
+        private readonly IDrsMapping _drsMapping;
         private string _sessionId;
 
         public DrsService(
             V2_Generated_DRS.SOAP drsSoap,
             IOptions<DrsOptions> drsOptions,
-            ILogger<DrsService> logger
+            ILogger<DrsService> logger,
+            IDrsMapping drsMapping
         )
         {
             _drsSoap = drsSoap;
             _drsOptions = drsOptions;
             _logger = logger;
+            _drsMapping = drsMapping;
 
         }
 
@@ -51,32 +57,8 @@ namespace RepairsApi.V2.Services
         public async Task CreateOrder(WorkOrder workOrder)
         {
             await CheckSession();
-            var createOrder = new createOrder
-            {
-                createOrder1 = new xmbCreateOrder
-                {
-                    sessionId = _sessionId,
-                    theOrder = new order
-                    {
-                        status = orderStatus.PLANNED,
-                        primaryOrderNumber = workOrder.Id.ToString(),
-                        orderComments = "Work Order Created",
-                        contract = workOrder.AssignedToPrimary.ContractorReference,
-                        locationID = workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference,
-                        priority = MapPriority(workOrder.WorkPriority),
-                        targetDate = workOrder.WorkPriority.RequiredCompletionDateTime ?? DateTime.UtcNow,
-                        userId = workOrder.AgentEmail ?? workOrder.AgentName,
-                        theLocation = new location
-                        {
-                            locationId = workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference,
-                            name = workOrder.Site.Name,
-                            address1 = workOrder.Site.PropertyClass.FirstOrDefault()?.Address.AddressLine,
-                            postCode = workOrder.Site.PropertyClass.FirstOrDefault()?.Address.PostalCode,
-                            contract = workOrder.AssignedToPrimary.ContractorReference
-                        }
-                    }
-                }
-            };
+
+            var createOrder = await _drsMapping.BuildCreateOrderRequest(_sessionId, workOrder);
             var response = await _drsSoap.createOrderAsync(createOrder);
             if (response.@return.status != responseStatus.success)
             {
@@ -92,16 +74,5 @@ namespace RepairsApi.V2.Services
                 await OpenSession();
             }
         }
-
-        private static string MapPriority(WorkPriority workOrderWorkPriority) =>
-            workOrderWorkPriority.PriorityCode switch
-            {
-                WorkPriorityCode._1 => "I",
-                WorkPriorityCode._2 => "I",
-                WorkPriorityCode._3 => "E",
-                WorkPriorityCode._4 => "U",
-                WorkPriorityCode._5 => "N",
-                _ => throw new NotSupportedException("No WorkPriorityCode provided")
-            };
     }
 }

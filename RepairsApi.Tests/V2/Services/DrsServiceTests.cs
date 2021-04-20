@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
@@ -9,7 +10,9 @@ using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 using V2_Generated_DRS;
 using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Exceptions;
+using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated;
 
 namespace RepairsApi.Tests.V2.Services
@@ -20,19 +23,26 @@ namespace RepairsApi.Tests.V2.Services
         private MockDrsSoap _drsSoapMock;
         private IOptions<DrsOptions> _drsOptions;
         private Mock<ILogger<DrsService>> _loggerMock;
+        private Mock<IDrsMapping> _drsMappingMock;
 
         [SetUp]
         public void SetUp()
         {
             _loggerMock = new Mock<ILogger<DrsService>>();
             _drsSoapMock = new MockDrsSoap();
+            _drsMappingMock = new Mock<IDrsMapping>();
             _drsOptions = Options.Create<DrsOptions>(new DrsOptions
             {
                 Login = "login",
                 Password = "password"
             });
 
-            _classUnderTest = new DrsService(_drsSoapMock.Object, _drsOptions, _loggerMock.Object);
+            _classUnderTest = new DrsService(
+                _drsSoapMock.Object,
+                _drsOptions,
+                _loggerMock.Object,
+                _drsMappingMock.Object
+                );
         }
 
         [Test]
@@ -68,9 +78,10 @@ namespace RepairsApi.Tests.V2.Services
         [Test]
         public async Task CreateOrder()
         {
-            var generator = new Helpers.StubGeneration.Generator<WorkOrder>()
+            var generator = new Generator<WorkOrder>()
                 .AddInfrastructureWorkOrderGenerators();
             var workOrder = generator.Generate();
+
             _drsSoapMock.Setup(x => x.createOrderAsync(It.IsAny<createOrder>()))
                 .ReturnsAsync(new createOrderResponse
                 {
@@ -83,33 +94,7 @@ namespace RepairsApi.Tests.V2.Services
             await _classUnderTest.CreateOrder(workOrder);
 
             VerifyOpenSession(_drsSoapMock.lastOpen).Should().BeTrue();
-            _drsSoapMock.Verify(x => x.createOrderAsync(It.Is<createOrder>(o => VerifyCreateOrder(o, workOrder))));
-        }
-
-        [TestCase(WorkPriorityCode._1, "I")]
-        [TestCase(WorkPriorityCode._2, "I")]
-        [TestCase(WorkPriorityCode._3, "E")]
-        [TestCase(WorkPriorityCode._4, "U")]
-        [TestCase(WorkPriorityCode._5, "N")]
-        public async Task MapsPriorityCorrectly(WorkPriorityCode incomingCode, string expectedDrsCode)
-        {
-            var generator = new Helpers.StubGeneration.Generator<WorkOrder>()
-                .AddInfrastructureWorkOrderGenerators();
-            var workOrder = generator.Generate();
-            workOrder.WorkPriority.PriorityCode = incomingCode;
-            _drsSoapMock.Setup(x => x.createOrderAsync(It.IsAny<createOrder>()))
-                .ReturnsAsync(new createOrderResponse
-                {
-                    @return = new xmbCreateOrderResponse
-                    {
-                        status = responseStatus.success
-                    }
-                });
-
-            await _classUnderTest.CreateOrder(workOrder);
-
-            VerifyOpenSession(_drsSoapMock.lastOpen).Should().BeTrue();
-            _drsSoapMock.Verify(x => x.createOrderAsync(It.Is<createOrder>(o => o.createOrder1.theOrder.priority == expectedDrsCode)));
+            _drsSoapMock.Verify(x => x.createOrderAsync(It.IsAny<createOrder>()));
         }
 
         [TestCase(responseStatus.failure)]
@@ -117,10 +102,10 @@ namespace RepairsApi.Tests.V2.Services
         [TestCase(responseStatus.undefined)]
         public async Task ThrowsApiError_When_DrsError(responseStatus drsResponse)
         {
-            var generator = new Helpers.StubGeneration.Generator<WorkOrder>()
+            var generator = new Generator<WorkOrder>()
                 .AddInfrastructureWorkOrderGenerators();
             var workOrder = generator.Generate();
-            var errorMsg = "message";
+            const string errorMsg = "message";
             _drsSoapMock.Setup(x => x.createOrderAsync(It.IsAny<createOrder>()))
                 .ReturnsAsync(new createOrderResponse
                 {
@@ -146,9 +131,6 @@ namespace RepairsApi.Tests.V2.Services
             openSession.openSession1.login == _drsOptions.Value.Login &&
             openSession.openSession1.password == _drsOptions.Value.Password;
 
-        private bool VerifyCreateOrder(createOrder createOrder, WorkOrder workOrder) =>
-            createOrder.createOrder1.sessionId == _drsSoapMock.sessionId &&
-            createOrder.createOrder1.theOrder.primaryOrderNumber == workOrder.Id.ToString();
 
 
     }

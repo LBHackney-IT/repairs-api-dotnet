@@ -135,13 +135,16 @@ namespace RepairsApi.V2.Gateways
                         Description = sor.Priority.Description,
                         PriorityCode = sor.Priority.PriorityCode
                     },
-                    Cost = sorContract.Cost ?? sor.Cost
+                    Cost = sorContract.Cost ?? sor.Cost,
+                    TradeCode = sor.TradeCode,
+                    StandardMinuteValue = sor.StandardMinuteValue
                 }
-            ).SingleOrDefaultAsync();
+            ).ToListAsync();
 
-            if (model is null) throw new ResourceNotFoundException("Could not find SOR code");
+            if (model.Count == 0) throw new ResourceNotFoundException("Could not find SOR code");
+            if (model.Count > 1) throw new NotSupportedException("Multiple Valid Contracts found for code");
 
-            return model;
+            return model.First();
         }
     }
 }

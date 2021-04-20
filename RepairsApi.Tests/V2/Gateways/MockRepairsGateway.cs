@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Moq;
+using RepairsApi.V2.Filtering;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
 
@@ -23,11 +24,6 @@ namespace RepairsApi.Tests.V2.Gateways
             Setup(m => m.CreateWorkOrder(It.IsAny<WorkOrder>()))
                 .Callback<WorkOrder>(wo => LastWorkOrder = wo)
                 .ReturnsAsync(() => _workOrderId);
-        }
-
-        public void ReturnsWorkOrders(IEnumerable<WorkOrder> workOrders)
-        {
-            _workOrders = workOrders;
 
             Setup(g => g.GetWorkOrders(It.IsAny<Expression<Func<WorkOrder, bool>>[]>()))
                 .ReturnsAsync((Expression<Func<WorkOrder, bool>>[] expressions) =>
@@ -39,6 +35,21 @@ namespace RepairsApi.Tests.V2.Gateways
                     }
                     return tempWorkOrders;
                 });
+
+            Setup(g => g.GetWorkOrders(It.IsAny<IFilter<WorkOrder>>()))
+                .ReturnsAsync((IFilter<WorkOrder> filter) =>
+                {
+                    var tempWorkOrders = _workOrders;
+                    tempWorkOrders = filter.Apply(tempWorkOrders);
+                    return tempWorkOrders;
+                });
+        }
+
+        public void ReturnsWorkOrders(IEnumerable<WorkOrder> workOrders)
+        {
+            _workOrders = workOrders;
+
+
         }
 
         public void ReturnWOId(int newId)
