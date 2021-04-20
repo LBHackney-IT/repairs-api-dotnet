@@ -52,10 +52,26 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         }
 
         [Test]
+        public void ThrowNotSupportedExceptionWhenWorkStatusNotPendingApproval()
+        {
+            const int desiredWorkOrderId = 42;
+            var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
+            var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
+                Generated.JobStatusUpdateTypeCode._125);
+
+            _currentUserServiceMock.Setup(currentUser => currentUser.HasGroup(UserGroups.CONTRACT_MANAGER))
+                .Returns(true);
+
+            Func<Task> fn = () => _classUnderTest.Execute(request);
+            fn.Should().ThrowAsync<NotSupportedException>();
+        }
+
+        [Test]
         public async Task SetWorkOrderStatusWhenAuthorizedGroup()
         {
             const int desiredWorkOrderId = 42;
             var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
+            workOrder.StatusCode = WorkStatusCode.PendApp;
             var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
                 Generated.JobStatusUpdateTypeCode._125);
 
