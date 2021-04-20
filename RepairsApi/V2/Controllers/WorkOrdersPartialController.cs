@@ -21,38 +21,6 @@ namespace RepairsApi.V2.Controllers
     [ApiVersion("2.0")]
     public partial class WorkOrdersController : Controller
     {
-        //private readonly IAuthorizationService _authorizationService;
-        //private readonly ICreateWorkOrderUseCase _createWorkOrderUseCase;
-        //private readonly IListWorkOrdersUseCase _listWorkOrdersUseCase;
-        //private readonly ICompleteWorkOrderUseCase _completeWorkOrderUseCase;
-        //private readonly IUpdateJobStatusUseCase _updateJobStatusUseCase;
-        //private readonly IGetWorkOrderUseCase _getWorkOrderUseCase;
-        //private readonly IListWorkOrderTasksUseCase _listWorkOrderTasksUseCase;
-        //private readonly IListWorkOrderNotesUseCase _listWorkOrderNotesUseCase;
-        //private readonly IFeatureManager _featureManager;
-
-        //public WorkOrdersController(
-        //    IAuthorizationService authorizationService,
-        //    ICreateWorkOrderUseCase createWorkOrderUseCase,
-        //    IListWorkOrdersUseCase listWorkOrdersUseCase,
-        //    ICompleteWorkOrderUseCase completeWorkOrderUseCase,
-        //    IUpdateJobStatusUseCase updateJobStatusUseCase,
-        //    IGetWorkOrderUseCase getWorkOrderUseCase,
-        //    IListWorkOrderTasksUseCase listWorkOrderTasksUseCase,
-        //    IListWorkOrderNotesUseCase listWorkOrderNotesUseCase,
-        //    IFeatureManager featureManager)
-        //{
-        //    _authorizationService = authorizationService;
-        //    _createWorkOrderUseCase = createWorkOrderUseCase;
-        //    _listWorkOrdersUseCase = listWorkOrdersUseCase;
-        //    _completeWorkOrderUseCase = completeWorkOrderUseCase;
-        //    _updateJobStatusUseCase = updateJobStatusUseCase;
-        //    _getWorkOrderUseCase = getWorkOrderUseCase;
-        //    _listWorkOrderTasksUseCase = listWorkOrderTasksUseCase;
-        //    _listWorkOrderNotesUseCase = listWorkOrderNotesUseCase;
-        //    _featureManager = featureManager;
-        //}
-
         /// <summary>
         /// Returns a list of variations for work orders
         /// </summary>
