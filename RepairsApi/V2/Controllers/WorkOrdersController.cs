@@ -21,7 +21,7 @@ namespace RepairsApi.V2.Controllers
     [Route("/api/v2/workOrders")]
     [Produces("application/json")]
     [ApiVersion("2.0")]
-    public class WorkOrdersController : Controller
+    public partial class WorkOrdersController : Controller
     {
         private readonly IAuthorizationService _authorizationService;
         private readonly ICreateWorkOrderUseCase _createWorkOrderUseCase;
