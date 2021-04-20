@@ -42,23 +42,22 @@ namespace RepairsApi.Tests.V2.Services
                 .ReturnsAsync(_locationAlerts);
         }
 
-        [TestCase(WorkPriorityCode._1, "I")]
-        [TestCase(WorkPriorityCode._2, "I")]
-        [TestCase(WorkPriorityCode._3, "E")]
-        [TestCase(WorkPriorityCode._4, "U")]
-        [TestCase(WorkPriorityCode._5, "N")]
-        public async Task MapsPriorityCorrectly(WorkPriorityCode incomingCode, string expectedDrsCode)
+        [TestCase('I')]
+        [TestCase('E')]
+        [TestCase('U')]
+        [TestCase('N')]
+        public async Task MapsPriorityCorrectly(char expectedDrsCode)
         {
             var generator = new Generator<WorkOrder>()
                 .AddInfrastructureWorkOrderGenerators();
             var workOrder = generator.Generate();
-            workOrder.WorkPriority.PriorityCode = incomingCode;
+            workOrder.WorkPriority.Priority.PriorityCharacter = expectedDrsCode;
             var sorCodes = SetupSorCodes(workOrder);
 
             var request = await _classUnderTest.BuildCreateOrderRequest(_sessionId, workOrder);
 
             VerifyCreateOrder(request, workOrder, sorCodes);
-            request.createOrder1.theOrder.priority.Should().Be(expectedDrsCode);
+            request.createOrder1.theOrder.priority.Should().Be(expectedDrsCode.ToString());
         }
 
         private IList<ScheduleOfRatesModel> SetupSorCodes(WorkOrder workOrder)

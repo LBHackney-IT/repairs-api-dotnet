@@ -4153,9 +4153,7 @@ namespace RepairsApi.V2.Generated
     public partial class Priority 
     {
         [Newtonsoft.Json.JsonProperty("PriorityCode", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public WorkPriorityCode PriorityCode { get; set; }
+        public int PriorityCode { get; set; }
     
         [Newtonsoft.Json.JsonProperty("RequiredCompletionDateTime", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
