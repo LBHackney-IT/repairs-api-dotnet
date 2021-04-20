@@ -347,7 +347,7 @@ namespace RepairsApi.V2.Factories
         {
             return new WorkPriority
             {
-                PriorityCode = (int) raiseRepair.PriorityCode,
+                PriorityCode = raiseRepair.PriorityCode,
                 RequiredCompletionDateTime = raiseRepair.RequiredCompletionDateTime,
                 Comments = raiseRepair.Comments,
                 PriorityDescription = raiseRepair.PriorityDescription,
