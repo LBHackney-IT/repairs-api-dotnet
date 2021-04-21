@@ -37,8 +37,15 @@ using Amazon.XRay.Recorder.Handlers.AspNetCore.Internal;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using Castle.Core.Internal;
 using System.ServiceModel;
+using System.ServiceModel.Channels;
+using System.Text;
+using System.Xml;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Newtonsoft.Json;
+using RepairsApi.V2.Generated.DRS.BackgroundService;
+using SoapCore;
 using V2_Generated_DRS;
+using BackgroundService = Microsoft.Extensions.Hosting.BackgroundService;
 
 namespace RepairsApi
 {
@@ -95,19 +102,13 @@ namespace RepairsApi
                 c.AddSecurityDefinition("Token",
                     new OpenApiSecurityScheme
                     {
-                        In = ParameterLocation.Header,
-                        Description = "Your Hackney API Key",
-                        Name = "X-Api-Key",
-                        Type = SecuritySchemeType.ApiKey
+                        In = ParameterLocation.Header, Description = "Your Hackney API Key", Name = "X-Api-Key", Type = SecuritySchemeType.ApiKey
                     });
 
                 c.AddSecurityDefinition("UserHeader",
                     new OpenApiSecurityScheme
                     {
-                        In = ParameterLocation.Header,
-                        Description = "Hackney User JWT",
-                        Name = "X-Hackney-User",
-                        Type = SecuritySchemeType.ApiKey
+                        In = ParameterLocation.Header, Description = "Hackney User JWT", Name = "X-Hackney-User", Type = SecuritySchemeType.ApiKey
                     });
 
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -159,9 +160,7 @@ namespace RepairsApi
                     var version = $"v{apiVersion.ApiVersion}";
                     c.SwaggerDoc(version, new OpenApiInfo
                     {
-                        Title = $"{ApiName}-api {version}",
-                        Version = version,
-                        Description = $"{ApiName} version {version}. Please check older versions for depreciated endpoints."
+                        Title = $"{ApiName}-api {version}", Version = version, Description = $"{ApiName} version {version}. Please check older versions for depreciated endpoints."
                     });
                 }
 
@@ -195,6 +194,9 @@ namespace RepairsApi
             services.AddSingleton<IAuthenticationService, ChallengeOnlyAuthenticationService>();
             services.AddFeatureManagement();
             services.AddFilteringConfig();
+            services.AddSoapCore();
+            services.TryAddSingleton<IDrsBackgroundService, DrsBackgroundService>();
+            services.AddSoapExceptionTransformer((ex) => ex.Message);
         }
 
         private static void RegisterGateways(IServiceCollection services)
@@ -303,7 +305,7 @@ namespace RepairsApi
                 // SwaggerGen won't find controllers that are routed via this technique.
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
             });
+            app.UseSoapEndpoint<IDrsBackgroundService>("/Service.asmx", new BasicHttpsBinding(), SoapSerializer.XmlSerializer);
         }
     }
-
 }
