@@ -25,6 +25,7 @@ namespace RepairsApi.Tests.V2.Services
         private DrsMapping _classUnderTest;
         private string _sessionId;
         private Mock<IAlertsGateway> _alertsGatewayMock;
+        private Mock<ISorPriorityGateway> _sorPriorityGatewayMock;
         private PropertyAlertList _locationAlerts;
 
         [SetUp]
@@ -33,7 +34,8 @@ namespace RepairsApi.Tests.V2.Services
             _sessionId = "sessionId";
             _sorGatewayMock = new Mock<IScheduleOfRatesGateway>();
             _alertsGatewayMock = new Mock<IAlertsGateway>();
-            _classUnderTest = new DrsMapping(_sorGatewayMock.Object, _alertsGatewayMock.Object);
+            _sorPriorityGatewayMock = new Mock<ISorPriorityGateway>();
+            _classUnderTest = new DrsMapping(_sorGatewayMock.Object, _alertsGatewayMock.Object, _sorPriorityGatewayMock.Object);
 
             var generator = new Generator<PropertyAlertList>().AddDefaultGenerators();
             _locationAlerts = generator.Generate();
@@ -51,7 +53,7 @@ namespace RepairsApi.Tests.V2.Services
             var generator = new Generator<WorkOrder>()
                 .AddInfrastructureWorkOrderGenerators();
             var workOrder = generator.Generate();
-            workOrder.WorkPriority.Priority.PriorityCharacter = expectedDrsCode;
+            _sorPriorityGatewayMock.Setup(m => m.GetLegacyPriorityCode(It.IsAny<int>())).ReturnsAsync(expectedDrsCode);
             var sorCodes = SetupSorCodes(workOrder);
 
             var request = await _classUnderTest.BuildCreateOrderRequest(_sessionId, workOrder);
