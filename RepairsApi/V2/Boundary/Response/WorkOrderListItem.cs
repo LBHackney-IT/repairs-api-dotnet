@@ -8,7 +8,7 @@ namespace RepairsApi.V2.Boundary.Response
         public const string Complete = "Work Complete";
         public const string Cancelled = "Work Cancelled";
         public const string Hold = "On Hold";
-        public const string PendApp = "Pending Approval";
+        public const string PendApp = "Variation Pending Approval";
         public const string PendMaterial = "Materials Needed";
         public const string VariationApproved = "Variation Approved";
         public const string VariationRejected = "Variation Rejected";
@@ -19,7 +19,7 @@ namespace RepairsApi.V2.Boundary.Response
     {
         public const string Approved = "Variation Approved";
         public const string Rejected = "Variation Rejected";
-        public const string PendAuthorisation = "Pending Authorisation";
+        public const string PendAuthorisation = "Variation Pending Authorisation";
         public const string Unknown = "Unknown";
     }
 
