@@ -121,7 +121,7 @@ namespace RepairsApi.Tests.V2.UseCase
         [Test]
         public async Task CreatesDRSOrder()
         {
-            _featureManager.Setup(x => x.IsEnabledAsync(FeatureFlags.DRSINTEGRATION))
+            _featureManager.Setup(x => x.IsEnabledAsync(FeatureFlags.DRSIntegration))
                 .ReturnsAsync(true);
             var generator = new Generator<WorkOrder>()
                 .AddInfrastructureWorkOrderGenerators()
@@ -136,7 +136,7 @@ namespace RepairsApi.Tests.V2.UseCase
         [Test]
         public async Task DoesNotCreateDRSOrder_When_FeatureFlagFalse()
         {
-            _featureManager.Setup(x => x.IsEnabledAsync(FeatureFlags.DRSINTEGRATION))
+            _featureManager.Setup(x => x.IsEnabledAsync(FeatureFlags.DRSIntegration))
                 .ReturnsAsync(false);
             var generator = new Generator<WorkOrder>()
                 .AddInfrastructureWorkOrderGenerators()

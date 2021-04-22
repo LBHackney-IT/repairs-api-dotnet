@@ -49,7 +49,7 @@ namespace RepairsApi.Tests.V2.Services
         public async Task CreatesSession()
         {
             await _classUnderTest.OpenSession();
-            VerifyOpenSession(_drsSoapMock.lastOpen).Should().BeTrue();
+            VerifyOpenSession(_drsSoapMock.LastOpen).Should().BeTrue();
         }
 
 
@@ -93,7 +93,7 @@ namespace RepairsApi.Tests.V2.Services
 
             await _classUnderTest.CreateOrder(workOrder);
 
-            VerifyOpenSession(_drsSoapMock.lastOpen).Should().BeTrue();
+            VerifyOpenSession(_drsSoapMock.LastOpen).Should().BeTrue();
             _drsSoapMock.Verify(x => x.createOrderAsync(It.IsAny<createOrder>()));
         }
 
@@ -137,19 +137,19 @@ namespace RepairsApi.Tests.V2.Services
 
     internal class MockDrsSoap : Mock<SOAP>
     {
-        public openSession lastOpen { get; private set; }
-        public string sessionId { get; }
+        public openSession LastOpen { get; private set; }
+        public string SessionId { get; }
 
         public MockDrsSoap()
         {
-            sessionId = Guid.NewGuid().ToString();
+            SessionId = Guid.NewGuid().ToString();
             Setup(x => x.openSessionAsync(It.IsAny<openSession>()))
-                .Callback<openSession>(o => lastOpen = o)
+                .Callback<openSession>(o => LastOpen = o)
                 .ReturnsAsync(new openSessionResponse
                 {
                     @return = new xmbOpenSessionResponse
                     {
-                        sessionId = sessionId,
+                        sessionId = SessionId,
                         status = responseStatus.success
                     }
                 });

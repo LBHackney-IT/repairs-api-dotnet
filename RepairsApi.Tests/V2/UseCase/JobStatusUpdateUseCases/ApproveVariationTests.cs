@@ -63,7 +63,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
                 Generated.JobStatusUpdateTypeCode._10020);
 
-            _currentUserServiceMock.Setup(currentUser => currentUser.HasGroup(UserGroups.CONTRACT_MANAGER))
+            _currentUserServiceMock.Setup(currentUser => currentUser.HasGroup(UserGroups.ContractManager))
                 .Returns(true);
 
             Func<Task> fn = () => _classUnderTest.Execute(request);

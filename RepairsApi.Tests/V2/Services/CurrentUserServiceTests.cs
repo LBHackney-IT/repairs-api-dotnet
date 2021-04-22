@@ -24,15 +24,15 @@ namespace RepairsApi.Tests.V2.Services
         [Test]
         public async Task SetsUser()
         {
-            const string JWT = TestUserInformation.JWT;
-            await _classUnderTest.LoadUser(JWT);
+            const string Jwt = TestUserInformation.Jwt;
+            await _classUnderTest.LoadUser(Jwt);
 
             var user = _classUnderTest.GetUser();
 
             user.Should().NotBeNull();
-            user.Sub().Should().Be(TestUserInformation.SUB);
-            user.Name().Should().Be(TestUserInformation.NAME);
-            user.Email().Should().Be(TestUserInformation.EMAIL);
+            user.Sub().Should().Be(TestUserInformation.Sub);
+            user.Name().Should().Be(TestUserInformation.Name);
+            user.Email().Should().Be(TestUserInformation.Email);
             user.RaiseLimit().Should().Be("0");
             user.VaryLimit().Should().Be("0");
         }

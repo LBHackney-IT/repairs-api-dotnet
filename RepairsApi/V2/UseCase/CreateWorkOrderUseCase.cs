@@ -50,7 +50,7 @@ namespace RepairsApi.V2.UseCase
             var id = await _repairsGateway.CreateWorkOrder(workOrder);
             _logger.LogInformation(Resources.CreatedWorkOrder);
 
-            if (await _featureManager.IsEnabledAsync(FeatureFlags.DRSINTEGRATION))
+            if (await _featureManager.IsEnabledAsync(FeatureFlags.DRSIntegration))
             {
                 await _drsService.CreateOrder(workOrder);
             }
