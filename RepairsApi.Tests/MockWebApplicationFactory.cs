@@ -29,7 +29,7 @@ namespace RepairsApi.Tests
         : WebApplicationFactory<Startup>
     {
         private readonly string _connection = null;
-        private string _userGroup = UserGroups.AGENT;
+        private string _userGroup = UserGroups.Agent;
 
         public MockWebApplicationFactory(string connection)
         {
@@ -91,9 +91,9 @@ namespace RepairsApi.Tests
         {
             base.ConfigureClient(client);
 
-            if (_userGroup == UserGroups.AGENT) client.SetAgent();
-            if (_userGroup == UserGroups.CONTRACTOR) client.SetGroup(GetGroup(TestDataSeeder.Contractor));
-            if (_userGroup == UserGroups.CONTRACT_MANAGER) client.SetGroup(_userGroup);
+            if (_userGroup == UserGroups.Agent) client.SetAgent();
+            if (_userGroup == UserGroups.Contractor) client.SetGroup(GetGroup(TestDataSeeder.Contractor));
+            if (_userGroup == UserGroups.ContractManager) client.SetGroup(_userGroup);
         }
 
         protected void SetUserRole(string userGroup)

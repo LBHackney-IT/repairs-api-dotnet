@@ -177,7 +177,7 @@ namespace RepairsApi.Tests.V2.E2ETests
                             .AddWorkOrderCompleteGenerators()
                             .AddValue(id.ToString(), (WorkOrderComplete woc) => woc.WorkOrderReference.ID)
                             .AddValue(JobStatusUpdateTypeCode._0, (JobStatusUpdates jsu) => jsu.TypeCode)
-                            .AddValue(CustomJobStatusUpdates.CANCELLED, (JobStatusUpdates jsu) => jsu.OtherType)
+                            .AddValue(CustomJobStatusUpdates.Cancelled, (JobStatusUpdates jsu) => jsu.OtherType)
                             .Generate();
 
             // Act
@@ -532,7 +532,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             await UpdateJob(workOrderId, req =>
             {
                 req.TypeCode = JobStatusUpdateTypeCode._0;
-                req.OtherType = CustomJobStatusUpdates.RESUME;
+                req.OtherType = CustomJobStatusUpdates.Resume;
             });
             var resumedOrder = GetWorkOrderFromDB(workOrderId);
 
@@ -602,7 +602,7 @@ namespace RepairsApi.Tests.V2.E2ETests
                 .AddWorkOrderCompleteGenerators()
                 .AddValue(id.ToString(), (WorkOrderComplete woc) => woc.WorkOrderReference.ID)
                 .AddValue(JobStatusUpdateTypeCode._0, (JobStatusUpdates jsu) => jsu.TypeCode)
-                .AddValue(CustomJobStatusUpdates.CANCELLED, (JobStatusUpdates jsu) => jsu.OtherType)
+                .AddValue(CustomJobStatusUpdates.Cancelled, (JobStatusUpdates jsu) => jsu.OtherType)
                 .Generate();
 
             return await Post("/api/v2/workOrderComplete", request);

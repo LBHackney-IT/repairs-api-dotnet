@@ -256,14 +256,14 @@ namespace RepairsApi.Tests.V2.Gateways
                 .AddValue(expectedProperty, (PropertyContract pc) => pc.PropRef)
                 .AddValue(expectedTrade, (ScheduleOfRates sor) => sor.Trade)
                 .AddValue(enabled, (ScheduleOfRates sor) => sor.Enabled)
-                .AddGenerator(() => generateJoinEntry(expectedContract), (ScheduleOfRates sor) => sor.SorCodeMap);
+                .AddGenerator(() => GenerateJoinEntry(expectedContract), (ScheduleOfRates sor) => sor.SorCodeMap);
             var expectedCodes = expectedGenerator.GenerateList(10);
 
             await InMemoryDb.Instance.SORCodes.AddRangeAsync(expectedCodes);
             return expectedCodes;
         }
 
-        private static List<SORContract> generateJoinEntry(Contract expectedContract)
+        private static List<SORContract> GenerateJoinEntry(Contract expectedContract)
         {
             return new List<SORContract>
             {

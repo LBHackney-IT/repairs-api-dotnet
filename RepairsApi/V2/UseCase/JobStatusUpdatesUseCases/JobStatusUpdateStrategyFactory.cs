@@ -54,7 +54,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
         {
             return jobStatusUpdate.OtherType switch
             {
-                CustomJobStatusUpdates.RESUME => _activator.CreateInstance<ResumeJobStrategy>(),
+                CustomJobStatusUpdates.Resume => _activator.CreateInstance<ResumeJobStrategy>(),
                 _ => null,
             };
         }

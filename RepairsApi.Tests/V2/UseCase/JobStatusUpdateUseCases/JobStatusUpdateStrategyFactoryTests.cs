@@ -81,7 +81,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             await ValidateStrategyResolution<ResumeJobStrategy>(new JobStatusUpdate
             {
                 TypeCode = JobStatusUpdateTypeCode._0,
-                OtherType = CustomJobStatusUpdates.RESUME
+                OtherType = CustomJobStatusUpdates.Resume
             });
         }
 
