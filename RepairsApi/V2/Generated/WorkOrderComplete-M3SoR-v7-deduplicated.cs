@@ -278,6 +278,18 @@ namespace RepairsApi.V2.Generated
         /// </summary>
         [System.Runtime.Serialization.EnumMember(Value = @"180")]
         _180 = 21,
+
+        /// <summary>
+        /// Reject Work Order
+        /// </summary>
+        [System.Runtime.Serialization.EnumMember(Value = @"190")]
+        _190 = 22,
+
+        /// <summary>
+        /// Approve Work Order
+        /// </summary>
+        [System.Runtime.Serialization.EnumMember(Value = @"200")]
+        _200 = 23,
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.2.0 (Newtonsoft.Json v9.0.0.0)")]

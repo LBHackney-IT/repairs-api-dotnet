@@ -26,6 +26,8 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
                 JobStatusUpdateTypeCode._10010 => _activator.CreateInstance<ContractorAcknowledgeVariationUseCase>(),
                 JobStatusUpdateTypeCode._120 => _activator.CreateInstance<JobIncompleteStrategy>(),
                 JobStatusUpdateTypeCode._12020 => _activator.CreateInstance<JobIncompleteNeedMaterialsStrategy>(),
+                JobStatusUpdateTypeCode._190 => _activator.CreateInstance<RejectWorkOrderStrategy>(),
+                JobStatusUpdateTypeCode._200 => _activator.CreateInstance<ApproveWorkOrderStrategy>(),
                 JobStatusUpdateTypeCode._0 => ProcessOtherCode(jobStatusUpdate),
                 _ => throw new NotSupportedException($"This type code is not supported: {jobStatusUpdate.TypeCode}"),
             };
