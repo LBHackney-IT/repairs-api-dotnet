@@ -40,7 +40,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             var variationJobStatus = await _jobStatusUpdateGateway.SelectLastJobStatusUpdate
                 (Generated.JobStatusUpdateTypeCode._180, workOrderId);
 
-            await _specificSorUseCase.Execute(variationJobStatus.MoreSpecificSORCode, workOrder);
+            await _specificSorUseCase.PatchWorkOrder(variationJobStatus.MoreSpecificSORCode, workOrder);
             jobStatusUpdate.Comments = $"{jobStatusUpdate.Comments} Approved By: {_currentUserService.GetHubUser().Name}";
 
             workOrder.StatusCode = WorkStatusCode.VariationApproved;

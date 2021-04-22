@@ -14,6 +14,7 @@ namespace RepairsApi.V2.Infrastructure.Extensions
                 WorkStatusCode.Hold => WorkOrderStatus.Hold,
                 WorkStatusCode.PendApp => WorkOrderStatus.PendApp,
                 WorkStatusCode.PendMaterial => WorkOrderStatus.PendMaterial,
+                WorkStatusCode.PendingApproval => WorkOrderStatus.PendingApproval,
                 WorkStatusCode.VariationApproved => WorkOrderStatus.VariationApproved,
                 WorkStatusCode.VariationRejected => WorkOrderStatus.VariationRejected,
                 _ => WorkOrderStatus.Unknown,

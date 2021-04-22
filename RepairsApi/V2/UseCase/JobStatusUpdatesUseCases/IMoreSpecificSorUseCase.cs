@@ -5,6 +5,6 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 {
     public interface IMoreSpecificSorUseCase
     {
-        Task Execute(WorkElement workElement, WorkOrder workOrder);
+        Task PatchWorkOrder(WorkElement workElement, WorkOrder workOrder);
     }
 }

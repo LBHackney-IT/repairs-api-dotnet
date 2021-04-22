@@ -53,14 +53,15 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
                 workOrder.StatusCode = WorkStatusCode.PendApp;
                 jobStatusUpdate.TypeCode = JobStatusUpdateTypeCode._180;
             }
-            //User authorised, patch SOR codes
             else
-                await Execute(workElement, workOrder);
+            {
+                await PatchWorkOrder(workElement, workOrder);
+            }
 
             await _repairsGateway.SaveChangesAsync();
         }
 
-        public async Task Execute(WorkElement workElement, WorkOrder workOrder)
+        public async Task PatchWorkOrder(WorkElement workElement, WorkOrder workOrder)
         {
             var existingCodes = workOrder.WorkElements.SelectMany(we => we.RateScheduleItem);
             var newCodes = workElement.RateScheduleItem.Where(rsi => !existingCodes.Any(ec => ec.Id == rsi.OriginalId));

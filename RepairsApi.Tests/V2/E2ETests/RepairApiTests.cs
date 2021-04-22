@@ -35,23 +35,17 @@ namespace RepairsApi.Tests.V2.E2ETests
             // Assert
             code.Should().Be(HttpStatusCode.OK);
             var wo = GetWorkOrderFromDB(response);
+            wo.StatusCode.Should().Be(WorkStatusCode.Open);
             wo.WorkPriority.NumberOfDays.Should().Be(request.Priority.NumberOfDays);
         }
 
         [Test]
-        public async Task ScheduleReturns401WhenLimitExceeded()
+        public async Task ScheduledRepairStatusIsPendingIfAboveSpendLimit()
         {
-            // Arrange
-            var request = GenerateWorkOrder<ScheduleRepair>()
-                .AddValue(new List<double> { 1000 }, (RateScheduleItem rsi) => rsi.Quantity.Amount)
-                .AddValue(TestDataSeeder.SorCode, (RateScheduleItem rsi) => rsi.CustomCode)
-                .Generate();
+            var id = await CreateWorkOrder(r => r.WorkElement.Single().RateScheduleItem.Single().Quantity.Amount = new List<double> { 50000 });
+            var wo = GetWorkOrderFromDB(id);
 
-            // Act
-            var (code, response) = await Post<string>("/api/v2/workOrders/schedule", request);
-
-            // Assert
-            code.Should().Be(HttpStatusCode.Unauthorized);
+            wo.StatusCode.Should().Be(WorkStatusCode.PendingApproval);
         }
 
         [Test]

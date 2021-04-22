@@ -10,6 +10,8 @@ using RepairsApi.V2.Domain;
 using RepairsApi.V2.MiddleWare;
 using RepairsApi.V2.Services;
 using RepairsApi.V2.Authorisation;
+using Microsoft.AspNetCore.Authorization;
+using RepairsApi.V2.Infrastructure.Extensions;
 
 namespace RepairsApi.V2.UseCase
 {
@@ -21,6 +23,7 @@ namespace RepairsApi.V2.UseCase
         private readonly ICurrentUserService _currentUserService;
         private readonly IDrsService _drsService;
         private readonly IFeatureManager _featureManager;
+        private readonly IAuthorizationService _authorizationService;
 
         public CreateWorkOrderUseCase(
             IRepairsGateway repairsGateway,
@@ -28,7 +31,8 @@ namespace RepairsApi.V2.UseCase
             ILogger<CreateWorkOrderUseCase> logger,
             ICurrentUserService currentUserService,
             IDrsService drsService,
-            IFeatureManager featureManager
+            IFeatureManager featureManager,
+            IAuthorizationService authorizationService
             )
         {
             _repairsGateway = repairsGateway;
@@ -37,14 +41,16 @@ namespace RepairsApi.V2.UseCase
             _currentUserService = currentUserService;
             _drsService = drsService;
             _featureManager = featureManager;
+            _authorizationService = authorizationService;
         }
 
-        public async Task<int> Execute(WorkOrder workOrder)
+        public async Task<CreateOrderResult> Execute(WorkOrder workOrder)
         {
             ValidateRequest(workOrder);
             AttachUserInformation(workOrder);
             workOrder.DateRaised = DateTime.UtcNow;
-            workOrder.StatusCode = WorkStatusCode.Open;
+
+            await SetStatus(workOrder);
 
             await PopulateRateScheduleItems(workOrder);
             var id = await _repairsGateway.CreateWorkOrder(workOrder);
@@ -54,7 +60,21 @@ namespace RepairsApi.V2.UseCase
             {
                 await _drsService.CreateOrder(workOrder);
             }
-            return id;
+            return new CreateOrderResult(id, workOrder.StatusCode, workOrder.GetStatus());
+        }
+
+        private async Task SetStatus(WorkOrder workOrder)
+        {
+            var user = _currentUserService.GetUser();
+            var authorised = await _authorizationService.AuthorizeAsync(user, workOrder, "RaiseSpendLimit");
+            if (await _featureManager.IsEnabledAsync(FeatureFlags.SPENDLIMITS) && !authorised.Succeeded)
+            {
+                workOrder.StatusCode = WorkStatusCode.PendingApproval;
+            }
+            else
+            {
+                workOrder.StatusCode = WorkStatusCode.Open;
+            }
         }
 
         private void AttachUserInformation(WorkOrder workOrder)

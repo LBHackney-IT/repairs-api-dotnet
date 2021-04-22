@@ -18,12 +18,16 @@ using RepairsApi.V2;
 using RepairsApi.V2.Generated;
 using Trade = RepairsApi.V2.Infrastructure.Trade;
 using WorkElement = RepairsApi.V2.Infrastructure.WorkElement;
+using System.Linq.Expressions;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace RepairsApi.Tests.V2.UseCase
 {
     public class CreateWorkOrderUseCaseTests
     {
         private MockRepairsGateway _repairsGatewayMock;
+        private Mock<IAuthorizationService> _authMock;
         private Mock<IScheduleOfRatesGateway> _scheduleOfRatesGateway;
         private Mock<ICurrentUserService> _currentUserServiceMock;
         private Mock<IDrsService> _drsServiceMock;
@@ -34,28 +38,23 @@ namespace RepairsApi.Tests.V2.UseCase
         public void Setup()
         {
             _repairsGatewayMock = new MockRepairsGateway();
+            _authMock = new Mock<IAuthorizationService>();
+            _authMock.Setup(a => a.AuthorizeAsync(It.IsAny<ClaimsPrincipal>(), It.IsAny<object>(), It.IsAny<string>()))
+                .ReturnsAsync(AuthorizationResult.Success());
             _scheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
             _currentUserServiceMock = new Mock<ICurrentUserService>();
             _drsServiceMock = new Mock<IDrsService>();
             _featureManager = new Mock<IFeatureManager>();
+            _featureManager.Setup(fm => fm.IsEnabledAsync(It.IsAny<string>())).ReturnsAsync(true);
             _classUnderTest = new CreateWorkOrderUseCase(
                 _repairsGatewayMock.Object,
                 _scheduleOfRatesGateway.Object,
                 new NullLogger<CreateWorkOrderUseCase>(),
                 _currentUserServiceMock.Object,
                 _drsServiceMock.Object,
-                _featureManager.Object
+                _featureManager.Object,
+                _authMock.Object
                 );
-        }
-
-        [Test]
-        public async Task Runs()
-        {
-            int newId = 1;
-            _repairsGatewayMock.ReturnWOId(newId);
-            var result = await _classUnderTest.Execute(new WorkOrder());
-
-            result.Should().Be(newId);
         }
 
         [Test]
@@ -63,7 +62,7 @@ namespace RepairsApi.Tests.V2.UseCase
         {
             int newId = 1;
             _repairsGatewayMock.ReturnWOId(newId);
-            var result = await _classUnderTest.Execute(new WorkOrder());
+            await _classUnderTest.Execute(new WorkOrder());
 
             VerifyRaiseRepairIsCloseToNow();
         }
@@ -84,7 +83,29 @@ namespace RepairsApi.Tests.V2.UseCase
 
             var result = await _classUnderTest.Execute(workOrder);
 
-            result.Should().Be(newId);
+            result.Id.Should().Be(newId);
+        }
+
+        [Test]
+        public async Task InitialStatusIsOpen()
+        {
+            int newId = 1;
+            _repairsGatewayMock.ReturnWOId(newId);
+            await _classUnderTest.Execute(new WorkOrder());
+
+            VerifyPlacedOrder(wo => wo.StatusCode == WorkStatusCode.Open);
+        }
+
+        [Test]
+        public async Task InitialStatusIsPendingIfOverLimit()
+        {
+            _authMock.Setup(a => a.AuthorizeAsync(It.IsAny<ClaimsPrincipal>(), It.IsAny<object>(), It.IsAny<string>()))
+                .ReturnsAsync(AuthorizationResult.Failed());
+            int newId = 1;
+            _repairsGatewayMock.ReturnWOId(newId);
+            await _classUnderTest.Execute(new WorkOrder());
+
+            VerifyPlacedOrder(wo => wo.StatusCode == WorkStatusCode.PendingApproval);
         }
 
         [Test]
@@ -148,9 +169,14 @@ namespace RepairsApi.Tests.V2.UseCase
             _drsServiceMock.Verify(x => x.CreateOrder(workOrder), Times.Never);
         }
 
+        private void VerifyPlacedOrder(Expression<Func<WorkOrder, bool>> predicate)
+        {
+            _repairsGatewayMock.Verify(m => m.CreateWorkOrder(It.Is<WorkOrder>(predicate)));
+        }
+
         private void VerifyRaiseRepairIsCloseToNow()
         {
-            _repairsGatewayMock.Verify(m => m.CreateWorkOrder(It.Is<WorkOrder>(wo => AreDatesClose(DateTime.UtcNow, wo.DateRaised.Value, 60000))));
+            VerifyPlacedOrder(wo => AreDatesClose(DateTime.UtcNow, wo.DateRaised.Value, 60000));
         }
 
         private static bool AreDatesClose(DateTime d1, DateTime d2, int ms = 60000)
