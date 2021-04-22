@@ -56,7 +56,7 @@ namespace RepairsApi.V2.Gateways
 
             if (jobStatusUpdate is null)
             {
-                throw new ResourceNotFoundException($"Unable to locate jobstatus update for work order {workOrderId} with {JobStatusUpdateTypeCode._180}");
+                throw new ResourceNotFoundException($"Unable to locate jobstatus update for work order {workOrderId} with {JobStatusUpdateTypeCode._180}: Variation attempted");
             }
 
             return jobStatusUpdate.MoreSpecificSORCode.RateScheduleItem;

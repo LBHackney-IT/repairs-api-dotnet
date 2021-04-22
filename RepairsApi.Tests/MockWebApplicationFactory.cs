@@ -144,7 +144,7 @@ namespace RepairsApi.Tests
         private async Task<HttpResponseMessage> InternalGet(string uri, string role = "agent")
         {
             var client = CreateClient();
-            if (!role.Equals("agent")) client.SetGroup(role);
+            client.SetGroup(role);
 
             var result = await client.GetAsync(new Uri(uri, UriKind.Relative));
             return result;
@@ -171,7 +171,8 @@ namespace RepairsApi.Tests
         private async Task<HttpResponseMessage> InternalPost(string uri, object data, string role = "agent")
         {
             var client = CreateClient();
-            if (!role.Equals("agent")) client.SetGroup(role);
+            client.SetGroup(role);
+
             var serializedContent = JsonConvert.SerializeObject(data);
             StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
 

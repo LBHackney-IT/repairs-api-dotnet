@@ -519,10 +519,10 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             AddRateScheduleItem(workElement, expectedCode, 100000);
             JobStatusUpdate request = CreateUpdateRequest(workOrderId, workElement);
-            // Act
+
             await Post("/api/v2/jobStatusUpdate", request);
 
-            var (code, response) = await Get<List<VariationTasksModel>>($"/api/v2/workOrders/{workOrderId}/variations", "contract manager");
+            var (code, response) = await Get<List<VariationTasksModel>>($"/api/v2/workOrders/{workOrderId}/variation", "contract manager");
 
             // Assert
             response[1].NewQuantity.Should().Be(100000);

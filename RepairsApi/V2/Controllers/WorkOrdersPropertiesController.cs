@@ -16,9 +16,6 @@ using Microsoft.FeatureManagement;
 
 namespace RepairsApi.V2.Controllers
 {
-    //[Route("/api/v2/repairs")]
-    //[Route("/api/v2/workOrders")]
-    [ApiVersion("2.0")]
     public partial class WorkOrdersController : Controller
     {
         /// <summary>
@@ -27,7 +24,7 @@ namespace RepairsApi.V2.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("{id}/variations")]
+        [Route("{id}/variation")]
         [ProducesResponseType(typeof(IEnumerable<VariationTasksModel>), 200)]
         [ProducesResponseType(404)]
         [Authorize(Roles = UserGroups.CONTRACT_MANAGER)]
