@@ -24,7 +24,7 @@ namespace RepairsApi.V2.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("{id}/variation")]
+        [Route("{id}/variation-tasks")]
         [ProducesResponseType(typeof(IEnumerable<VariationTasksModel>), 200)]
         [ProducesResponseType(404)]
         [Authorize(Roles = UserGroups.CONTRACT_MANAGER)]

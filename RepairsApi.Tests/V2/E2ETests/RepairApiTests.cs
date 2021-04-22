@@ -522,7 +522,34 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             await Post("/api/v2/jobStatusUpdate", request);
 
-            var (code, response) = await Get<List<VariationTasksModel>>($"/api/v2/workOrders/{workOrderId}/variation", "contract manager");
+            var (code, response) = await Get<List<VariationTasksModel>>($"/api/v2/workOrders/{workOrderId}/variation-tasks", "contract manager");
+
+            // Assert
+            response[1].NewQuantity.Should().Be(100000);
+            code.Should().Be(HttpStatusCode.OK);
+        }
+
+
+        [Test]
+        [Ignore("wip")]
+        public async Task UpdateWorkOrderTaskQuantityWitVariation()
+        {
+            // Arrange
+            string expectedCode = "expectedCode_LimitExceededOnUpdate11";
+            AddTestCode(expectedCode);
+            var workOrderId = await CreateWorkOrder();
+            var tasks = await GetTasks(workOrderId);
+
+            RepairsApi.V2.Generated.WorkElement workElement = TransformTasksToWorkElement(tasks);
+
+
+            AddRateScheduleItem(workElement, expectedCode, 100000);
+            //workElement.RateScheduleItem.ToList()[0].Quantity
+            JobStatusUpdate request = CreateUpdateRequest(workOrderId, workElement);
+
+            await Post("/api/v2/jobStatusUpdate", request);
+
+            var (code, response) = await Get<List<VariationTasksModel>>($"/api/v2/workOrders/{workOrderId}/variation-tasks", "contract manager");
 
             // Assert
             response[1].NewQuantity.Should().Be(100000);
