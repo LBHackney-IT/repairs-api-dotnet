@@ -212,7 +212,8 @@ namespace RepairsApi.Tests
             {
                 Description = Priority,
                 PriorityCode = PriorityId,
-                Enabled = true
+                Enabled = true,
+                PriorityCharacter = 'A'
             });
         }
 

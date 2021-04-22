@@ -14,6 +14,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
         {
             return generator
                 .AddGenerator(new RandomStringGenerator(10))
+                .AddGenerator(new RandomCharGenerator())
                 .AddGenerator(new RandomDoubleGenerator(0, 50))
                 .AddGenerator(new RandomBoolGenerator());
         }
@@ -63,6 +64,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                 .AddValue(new string[] { "address", "line" }, (PropertyAddress addr) => addr.AddressLine)
                 .AddValue(new string[] { "address", "line" }, (Address addr) => addr.AddressLine)
                 .AddValue(GetSitePropertyUnitGenerator(), (RaiseRepair rr) => rr.SitePropertyUnit)
+                .AddValue("propref", (Property p) => p.PropertyReference)
                 .AddValue(new List<double> { 2.0 }, (Quantity q) => q.Amount)
                 .AddValue(contractorReference, (Organization o) => o.Reference)
                 .AddValue(TestDataSeeder.SorCode, (RateScheduleItem rsi) => rsi.CustomCode)

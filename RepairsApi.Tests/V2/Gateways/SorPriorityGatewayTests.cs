@@ -32,5 +32,22 @@ namespace RepairsApi.Tests.V2.Gateways
             // assert
             codes.Should().NotBeNullOrEmpty();
         }
+
+        [Test]
+        public async Task GetsLegacyCharacter()
+        {
+            InMemoryDb.Instance.SORPriorities.Add(new RepairsApi.V2.Infrastructure.Hackney.SORPriority
+            {
+                Description = "desc",
+                PriorityCode = 420,
+                Enabled = true,
+                PriorityCharacter = 'F'
+            });
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            var character = await _classUnderTest.GetLegacyPriorityCode(420);
+
+            character.Should().Be('F');
+        }
     }
 }
