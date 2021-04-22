@@ -25,6 +25,7 @@ namespace RepairsApi.Tests.V2.Services
         private DrsMapping _classUnderTest;
         private string _sessionId;
         private Mock<IAlertsGateway> _alertsGatewayMock;
+        private Mock<ISorPriorityGateway> _sorPriorityGatewayMock;
         private PropertyAlertList _locationAlerts;
 
         [SetUp]
@@ -33,7 +34,8 @@ namespace RepairsApi.Tests.V2.Services
             _sessionId = "sessionId";
             _sorGatewayMock = new Mock<IScheduleOfRatesGateway>();
             _alertsGatewayMock = new Mock<IAlertsGateway>();
-            _classUnderTest = new DrsMapping(_sorGatewayMock.Object, _alertsGatewayMock.Object);
+            _sorPriorityGatewayMock = new Mock<ISorPriorityGateway>();
+            _classUnderTest = new DrsMapping(_sorGatewayMock.Object, _alertsGatewayMock.Object, _sorPriorityGatewayMock.Object);
 
             var generator = new Generator<PropertyAlertList>().AddDefaultGenerators();
             _locationAlerts = generator.Generate();
@@ -42,23 +44,22 @@ namespace RepairsApi.Tests.V2.Services
                 .ReturnsAsync(_locationAlerts);
         }
 
-        [TestCase(WorkPriorityCode._1, "I")]
-        [TestCase(WorkPriorityCode._2, "I")]
-        [TestCase(WorkPriorityCode._3, "E")]
-        [TestCase(WorkPriorityCode._4, "U")]
-        [TestCase(WorkPriorityCode._5, "N")]
-        public async Task MapsPriorityCorrectly(WorkPriorityCode incomingCode, string expectedDrsCode)
+        [TestCase('I')]
+        [TestCase('E')]
+        [TestCase('U')]
+        [TestCase('N')]
+        public async Task MapsPriorityCorrectly(char expectedDrsCode)
         {
             var generator = new Generator<WorkOrder>()
                 .AddInfrastructureWorkOrderGenerators();
             var workOrder = generator.Generate();
-            workOrder.WorkPriority.PriorityCode = incomingCode;
+            _sorPriorityGatewayMock.Setup(m => m.GetLegacyPriorityCode(It.IsAny<int>())).ReturnsAsync(expectedDrsCode);
             var sorCodes = SetupSorCodes(workOrder);
 
             var request = await _classUnderTest.BuildCreateOrderRequest(_sessionId, workOrder);
 
             VerifyCreateOrder(request, workOrder, sorCodes);
-            request.createOrder1.theOrder.priority.Should().Be(expectedDrsCode);
+            request.createOrder1.theOrder.priority.Should().Be(expectedDrsCode.ToString());
         }
 
         private IList<ScheduleOfRatesModel> SetupSorCodes(WorkOrder workOrder)

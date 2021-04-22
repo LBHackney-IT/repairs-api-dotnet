@@ -131,13 +131,13 @@ namespace RepairsApi.Tests.V2.E2ETests
         public async Task GetFilteredListOfWorkOrders_Priority()
         {
             // Arrange
-            var urgentWorkOrderId = await CreateWorkOrder(sr => sr.Priority.PriorityCode = WorkPriorityCode._4);
-            var immediateWorkOrderId = await CreateWorkOrder(sr => sr.Priority.PriorityCode = WorkPriorityCode._1);
+            var urgentWorkOrderId = await CreateWorkOrder(sr => sr.Priority.PriorityCode = 3);
+            var immediateWorkOrderId = await CreateWorkOrder(sr => sr.Priority.PriorityCode = 0);
 
             // Act
-            var (urgentCode, urgentResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?Priorities=U");
-            var (immediateCode, immediateResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?Priorities=I");
-            var (multiCode, multiResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?Priorities=U&Priorities=I");
+            var (urgentCode, urgentResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?Priorities={3}");
+            var (immediateCode, immediateResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?Priorities={0}");
+            var (multiCode, multiResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?Priorities={3}&Priorities={0}");
 
             // Assert
             urgentCode.Should().Be(HttpStatusCode.OK);
@@ -284,7 +284,6 @@ namespace RepairsApi.Tests.V2.E2ETests
             JobStatusUpdate request = CreateUpdateRequest(workOrderId, workElement);
             // Act
             await Post("/api/v2/jobStatusUpdate", request);
-            var workOrder = GetWorkOrderFromDB(workOrderId);
 
             //reject variation
             request.TypeCode = JobStatusUpdateTypeCode._125;
@@ -313,7 +312,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             await Post("/api/v2/jobStatusUpdate", request);
 
             request.TypeCode = JobStatusUpdateTypeCode._10020;
-            var r = await Post("/api/v2/jobStatusUpdate", request, "contract manager");
+            await Post("/api/v2/jobStatusUpdate", request, "contract manager");
             var approvedOrder = GetWorkOrderWithJobStatusUpdatesFromDB(workOrderId);
 
             // Assert
@@ -440,7 +439,6 @@ namespace RepairsApi.Tests.V2.E2ETests
             JobStatusUpdate request = CreateUpdateRequest(workOrderId, workElement);
             // Act
             await Post("/api/v2/jobStatusUpdate", request);
-            var workOrder = GetWorkOrderFromDB(workOrderId);
 
             //reject variation
             request.TypeCode = JobStatusUpdateTypeCode._125;
@@ -466,7 +464,6 @@ namespace RepairsApi.Tests.V2.E2ETests
             JobStatusUpdate request = CreateUpdateRequest(workOrderId, workElement);
             // Act
             await Post("/api/v2/jobStatusUpdate", request);
-            var workOrder = GetWorkOrderFromDB(workOrderId);
 
             //approve variation
             request.TypeCode = JobStatusUpdateTypeCode._10020;
@@ -496,7 +493,6 @@ namespace RepairsApi.Tests.V2.E2ETests
             JobStatusUpdate request = CreateUpdateRequest(workOrderId, workElement);
             // Act
             await Post("/api/v2/jobStatusUpdate", request);
-            var workOrder = GetWorkOrderFromDB(workOrderId);
 
             //approve variation
             request.TypeCode = JobStatusUpdateTypeCode._10020;

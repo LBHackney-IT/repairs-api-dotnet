@@ -83,6 +83,13 @@ namespace RepairsApi.V2.Infrastructure
 
             modelBuilder.Entity<Hackney.Appointment>()
                 .HasKey(a => new { a.DayId, a.WorkOrderId });
+
+            modelBuilder.Entity<WorkOrder>()
+                .OwnsOne(wo => wo.WorkPriority)
+                    .HasOne(wp => wp.Priority)
+                    .WithMany()
+                    .HasForeignKey(wp => wp.PriorityCode);
+
         }
     }
 }

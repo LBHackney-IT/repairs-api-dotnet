@@ -34,6 +34,9 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             if (!_currentUserService.HasGroup(UserGroups.CONTRACT_MANAGER))
                 throw new UnauthorizedAccessException("You do not have the correct permissions for this action");
 
+            if (workOrder.StatusCode != WorkStatusCode.PendApp)
+                throw new NotSupportedException("This action is not permitted");
+
             var variationJobStatus = await _jobStatusUpdateGateway.SelectLastJobStatusUpdate
                 (Generated.JobStatusUpdateTypeCode._180, workOrderId);
 

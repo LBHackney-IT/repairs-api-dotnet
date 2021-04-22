@@ -17,20 +17,27 @@ namespace RepairsApi.V2.Services
     {
         private readonly IScheduleOfRatesGateway _sorGateway;
         private readonly IAlertsGateway _alertsGateway;
+        private readonly ISorPriorityGateway _sorPriorityGateway;
 
         public DrsMapping(
             IScheduleOfRatesGateway sorGateway,
-            IAlertsGateway alertsGateway
+            IAlertsGateway alertsGateway,
+            ISorPriorityGateway sorPriorityGateway
         )
         {
             _sorGateway = sorGateway;
             _alertsGateway = alertsGateway;
+            _sorPriorityGateway = sorPriorityGateway;
         }
 
         public async Task<createOrder> BuildCreateOrderRequest(string sessionId, WorkOrder workOrder)
         {
             var property = workOrder.Site.PropertyClass.FirstOrDefault();
             var locationAlerts = property != null ? await _alertsGateway.GetLocationAlertsAsync(property?.PropertyReference) : null;
+
+            char priorityCharacter = workOrder.WorkPriority.PriorityCode.HasValue
+                ? await _sorPriorityGateway.GetLegacyPriorityCode(workOrder.WorkPriority.PriorityCode.Value)
+                : ' ';
 
             var createOrder = new createOrder
             {
@@ -44,7 +51,7 @@ namespace RepairsApi.V2.Services
                         orderComments = workOrder.DescriptionOfWork,
                         contract = workOrder.AssignedToPrimary.ContractorReference,
                         locationID = workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference,
-                        priority = workOrder.WorkPriority.ToLegacyPriority(),
+                        priority = priorityCharacter.ToString(),
                         targetDate = workOrder.WorkPriority.RequiredCompletionDateTime ?? DateTime.UtcNow,
                         userId = workOrder.AgentEmail ?? workOrder.AgentName,
                         contactName = workOrder.Customer.Name,
@@ -62,7 +69,7 @@ namespace RepairsApi.V2.Services
                                 citizensName = workOrder.Customer.Name,
                                 lineCode = a.AlertCode,
                                 lineDescription = a.Description
-                            }).ToArray()
+                            }).ToArray<locationLine>()
                         },
                         theBookingCodes = await BuildBookingCodes(workOrder),
                     }
