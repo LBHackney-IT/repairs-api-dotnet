@@ -29,9 +29,9 @@ namespace RepairsApi.Tests
         {
             client.SetUser(new RepairsApi.V2.Domain.User
             {
-                Sub = TestUserInformation.SUB,
-                Name = TestUserInformation.NAME,
-                Email = TestUserInformation.EMAIL,
+                Sub = TestUserInformation.Sub,
+                Name = TestUserInformation.Name,
+                Email = TestUserInformation.Email,
                 Groups = new List<string>()
                 {
                     "agent",
@@ -45,9 +45,9 @@ namespace RepairsApi.Tests
         {
             client.SetUser(new RepairsApi.V2.Domain.User
             {
-                Sub = TestUserInformation.SUB,
-                Name = TestUserInformation.NAME,
-                Email = TestUserInformation.EMAIL,
+                Sub = TestUserInformation.Sub,
+                Name = TestUserInformation.Name,
+                Email = TestUserInformation.Email,
                 Groups = new List<string>()
                 {
                     "agent",
@@ -61,9 +61,9 @@ namespace RepairsApi.Tests
         {
             client.SetUser(new RepairsApi.V2.Domain.User
             {
-                Sub = TestUserInformation.SUB,
-                Name = TestUserInformation.NAME,
-                Email = TestUserInformation.EMAIL,
+                Sub = TestUserInformation.Sub,
+                Name = TestUserInformation.Name,
+                Email = TestUserInformation.Email,
                 Groups = new List<string>()
                 {
                     group,

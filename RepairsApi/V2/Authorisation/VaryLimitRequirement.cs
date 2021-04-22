@@ -49,7 +49,7 @@ namespace RepairsApi.V2.Authorisation
             double originalCost = 0;
             await originalCodes.ForEachAsync(async c => originalCost += c.OriginalQuantity.Value * await _sorGateway.GetCost(contractorRef, c.CustomCode));
 
-            var limit = double.Parse(context.User.FindFirst(CustomClaimTypes.VARYLIMIT).Value);
+            var limit = double.Parse(context.User.FindFirst(CustomClaimTypes.VaryLimit).Value);
 
             if (totalCost <= originalCost + limit)
             {

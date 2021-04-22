@@ -30,7 +30,7 @@ namespace RepairsApi.V2.Controllers
         /// <returns></returns>
         [ProducesResponseType(typeof(IEnumerable<Contractor>), 200)]
         [HttpGet]
-        [Authorize(Roles = UserGroups.AGENT + "," + UserGroups.CONTRACT_MANAGER)]
+        [Authorize(Roles = UserGroups.Agent + "," + UserGroups.ContractManager)]
         public async Task<IActionResult> ListContractors([FromQuery][Required] string propertyReference, [FromQuery][Required] string tradeCode)
         {
             var contractors = await _sorGateway.GetContractors(propertyReference, tradeCode);

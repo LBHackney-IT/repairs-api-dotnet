@@ -25,7 +25,7 @@ namespace RepairsApi.Tests.V2.UseCase
             _repairsGatewayMock = new MockRepairsGateway();
             _appointmentsGatewayMock = new Mock<IAppointmentsGateway>();
             _classUnderTest = new GetWorkOrderUseCase(_repairsGatewayMock.Object, _appointmentsGatewayMock.Object);
-            configureGenerator();
+            ConfigureGenerator();
         }
 
         [Test]
@@ -72,7 +72,7 @@ namespace RepairsApi.Tests.V2.UseCase
             response.Should().BeEquivalentTo(expectedWorkOrder.ToResponse(null));
         }
 
-        private void configureGenerator()
+        private void ConfigureGenerator()
         {
             _generator = new Generator<WorkOrder>()
                 .AddWorkOrderGenerators();

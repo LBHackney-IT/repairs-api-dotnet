@@ -71,9 +71,9 @@ namespace RepairsApi.Tests
         {
             ctx.SecurityGroups.AddRange(new List<SecurityGroup>
             {
-                new SecurityGroup { GroupName = "agent", UserType = UserGroups.AGENT },
-                new SecurityGroup { GroupName = "contract manager", UserType = UserGroups.CONTRACT_MANAGER },
-                new SecurityGroup { GroupName = "contractor", UserType = UserGroups.CONTRACTOR, ContractorReference = "contractor" },
+                new SecurityGroup { GroupName = "agent", UserType = UserGroups.Agent },
+                new SecurityGroup { GroupName = "contract manager", UserType = UserGroups.ContractManager },
+                new SecurityGroup { GroupName = "contractor", UserType = UserGroups.Contractor, ContractorReference = "contractor" },
 
                 new SecurityGroup { GroupName = "raise50", RaiseLimit = 50 },
                 new SecurityGroup { GroupName = "raise100", RaiseLimit = 100 },

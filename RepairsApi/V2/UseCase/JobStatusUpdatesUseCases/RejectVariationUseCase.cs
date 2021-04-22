@@ -26,7 +26,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
 
-            if (!_currentUserService.HasGroup(UserGroups.CONTRACT_MANAGER))
+            if (!_currentUserService.HasGroup(UserGroups.ContractManager))
                 throw new UnauthorizedAccessException("You do not have the correct permissions for this action");
 
             if (workOrder.StatusCode != WorkStatusCode.PendApp)
