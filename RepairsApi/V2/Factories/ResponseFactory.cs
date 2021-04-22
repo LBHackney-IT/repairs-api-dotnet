@@ -227,6 +227,19 @@ namespace RepairsApi.V2.Factories
             };
         }
 
+        public static VariationTasksModel ToVariationsResponse(this Infrastructure.RateScheduleItem rateScheduleItem)
+        {
+            return new VariationTasksModel
+            {
+                Id = rateScheduleItem.Id.ToString(),
+                Code = rateScheduleItem.CustomCode,
+                Description = rateScheduleItem.CustomName,
+                UnitCost = rateScheduleItem.CodeCost,
+                OldQuantity = rateScheduleItem.OriginalQuantity,
+                NewQuantity = rateScheduleItem.Quantity?.Amount
+            };
+        }
+
         public static Quantity ToResponse(this Infrastructure.Quantity quantity)
         {
             return new Quantity

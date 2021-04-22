@@ -33,6 +33,37 @@ namespace RepairsApi.V2.Controllers
             return Ok(await _listVariationTasksUseCase.Execute(id));
         }
 
+        /// <summary>
+        /// Gets a list of tasks for a given work order id
+        /// </summary>
+        /// <param name="id">work order id</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("{id}/tasks")]
+        [ProducesResponseType(typeof(IEnumerable<WorkOrderItemViewModel>), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> ListWorkOrderTasks(int id)
+        {
+            var result = await _listWorkOrderTasksUseCase.Execute(id);
+            return Ok(result.ToResponse());
+        }
+
+        /// <summary>
+        /// Gets a list of notes for a given work order id
+        /// </summary>
+        /// <param name="id">work order id</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("{id}/notes")]
+        [ProducesResponseType(typeof(IEnumerable<NoteListItem>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> ListWorkOrderNotes(int id)
+        {
+            var result = await _listWorkOrderNotesUseCase.Execute(id);
+            return Ok(result);
+        }
+
     }
 
 }
