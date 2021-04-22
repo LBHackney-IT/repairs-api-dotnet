@@ -11,7 +11,5 @@ namespace RepairsApi.V2.Infrastructure.Extensions
         {
             return commList.FirstOrDefault(c => c.Channel.Medium == CommunicationMediumCode._20)?.Value;
         }
-
-        public static char ToLegacyPriority(this WorkPriority priority) => priority.Priority.PriorityCharacter;
     }
 }
