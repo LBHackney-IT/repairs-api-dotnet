@@ -40,19 +40,70 @@ namespace RepairsApi.V2.Infrastructure
 
     public enum WorkStatusCode
     {
-        AcctHold = 10, // Acct Hold: Work Is On Accounting Hold - See Reason Code. Active.
-        Assigned = 20, // Assigned: Work Is Assigned To A Group Or Individual. Active.
-        Canceled = 30, // Canceled: Work Is Canceled After Work Began. Inactive.
-        Closed = 40, // Closed: Work Is Complete And Record Is Complete - Wo Is Closed. Inactive.
-        Complete = 50, // Complete: Work Is Complete But Record Needs To Be Updated. Inactive.
-        Estimating = 60, // Estimating: Work Is Being Estimated. Active.
-        Hold = 70, // Hold: Work Is On Hold - See Reason Code. Active
-        Open = 80, // Open: Work Order Is Open - Initial Status For All Work Orders. Active.
-        PendApp = 90, // Pend App: Work Order Is Pending Approval. Active.
-        PendDesign = 100, // Pend Design: Work Order Is Pending Design Or Design Documents. Active.
-        PendMaterial = 110, // Pend Material: Work Order Is Pending Materials. Active.
-        Scheduled = 120, // Scheduled: Work Is Scheduled Using A Scheduling Tool. Active.
-        Superceded = 130, // Superceded: Work Order Is Superceded By Another. Inactive.
+        /// <summary>
+        /// Acct Hold: Work Is On Accounting Hold - See Reason Code. Active.
+        /// </summary>
+        AcctHold = 10,
+
+        /// <summary>
+        /// Assigned: Work Is Assigned To A Group Or Individual. Active.
+        /// </summary>
+        Assigned = 20,
+
+        /// <summary>
+        /// Canceled: Work Is Canceled After Work Began. Inactive.
+        /// </summary>
+        Canceled = 30,
+
+        /// <summary>
+        /// Closed: Work Is Complete And Record Is Complete - Wo Is Closed. Inactive.
+        /// </summary>
+        Closed = 40,
+
+        /// <summary>
+        /// Complete: Work Is Complete But Record Needs To Be Updated. Inactive.
+        /// </summary>
+        Complete = 50,
+
+        /// <summary>
+        /// Estimating: Work Is Being Estimated. Active.
+        /// </summary>
+        Estimating = 60,
+
+        /// <summary>
+        /// Hold: Work Is On Hold - See Reason Code. Active
+        /// </summary>
+        Hold = 70,
+
+        /// <summary>
+        /// Open: Work Order Is Open - Initial Status For All Work Orders. Active.
+        /// </summary>
+        Open = 80,
+
+        /// <summary>
+        /// Pend App: Work Order Is Pending Approval. Active.
+        /// </summary>
+        PendApp = 90,
+
+        /// <summary>
+        /// Pend Design: Work Order Is Pending Design Or Design Documents. Active.
+        /// </summary>
+        PendDesign = 100,
+
+        /// <summary>
+        /// Pend Material: Work Order Is Pending Materials. Active.
+        /// </summary>
+        PendMaterial = 110,
+
+        /// <summary>
+        /// Scheduled: Work Is Scheduled Using A Scheduling Tool. Active.
+        /// </summary>
+        Scheduled = 120,
+
+        /// <summary>
+        /// Superceded: Work Order Is Superceded By Another. Inactive.
+        /// </summary>
+        Superceded = 130,
 
         // Extensions
         NoAccess = 1000,
@@ -63,15 +114,50 @@ namespace RepairsApi.V2.Infrastructure
 
     public enum ReasonCode
     {
-        NoBudget = 10,	   //No Budget To Perform The Requested Work
-        LowPriority = 20,      //Low Priority: Work Considered A Low Priority
-        FullyFunded = 30,      //Fully Funded: Work Is Fully Funded And Ready For Next Step
-        PartiallyFunded = 40,      //Partially Funded: Work Is Partially Funded And On Hold Until Fully Funded
-        ScheduleConflict = 50,     //Schedule Conflict Exists With This Work Request
-        NoApproval = 60,    //No Approval: Work Was Not Approved
-        Approved = 70,      //Approved: All Required Approvals Are Present
-        Priority = 80,   //Change Priority Changed Either Escalated Or De-Escalated
-        PendingAuthorisation = 90 //Pending authorisation
+        /// <summary>
+        /// No Budget To Perform The Requested Work
+        /// </summary>
+        NoBudget = 10,
+
+        /// <summary>
+        /// Low Priority: Work Considered A Low Priority
+        /// </summary>
+        LowPriority = 20,
+
+        /// <summary>
+        /// Fully Funded: Work Is Fully Funded And Ready For Next Step
+        /// </summary>
+        FullyFunded = 30,
+
+        /// <summary>
+        /// Partially Funded: Work Is Partially Funded And On Hold Until Fully Funded
+        /// </summary>
+        PartiallyFunded = 40,
+
+        /// <summary>
+        /// Schedule Conflict Exists With This Work Request
+        /// </summary>
+        ScheduleConflict = 50,
+
+        /// <summary>
+        /// No Approval: Work Was Not Approved
+        /// </summary>
+        NoApproval = 60,
+
+        /// <summary>
+        /// Approved: All Required Approvals Are Present
+        /// </summary>
+        Approved = 70,
+
+        /// <summary>
+        /// Change Priority Changed Either Escalated Or De-Escalated
+        /// </summary>
+        Priority = 80,
+
+        /// <summary>
+        /// Pending authorisation
+        /// </summary>
+        PendingAuthorisation = 90
     }
 
     [Owned]

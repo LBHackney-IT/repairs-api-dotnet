@@ -189,6 +189,9 @@ namespace RepairsApi.V2.Generated
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.2.0 (Newtonsoft.Json v9.0.0.0)")]
     public enum JobStatusUpdateTypeCode
     {
+        /// <summary>
+        /// Other
+        /// </summary>
         [System.Runtime.Serialization.EnumMember(Value = @"0")]
         _0 = 0,
 
@@ -213,6 +216,9 @@ namespace RepairsApi.V2.Generated
         [System.Runtime.Serialization.EnumMember(Value = @"70")]
         _70 = 7,
 
+        /// <summary>
+        /// More specific SOR Code - (means variation) 
+        /// </summary>
         [System.Runtime.Serialization.EnumMember(Value = @"80")]
         _80 = 8,
 
@@ -222,21 +228,33 @@ namespace RepairsApi.V2.Generated
         [System.Runtime.Serialization.EnumMember(Value = @"100")]
         _100 = 10,
 
+        /// <summary>
+        /// Variation acknowledged by contractor, workorder set to in progress
+        /// </summary>
         [System.Runtime.Serialization.EnumMember(Value = @"100-10")]
         _10010 = 11,
 
+        /// <summary>
+        /// Approve approval 
+        /// </summary>
         [System.Runtime.Serialization.EnumMember(Value = @"100-20")]
         _10020 = 12,
 
         [System.Runtime.Serialization.EnumMember(Value = @"110")]
         _110 = 13,
 
+        /// <summary>
+        /// Job Incomplete
+        /// </summary>
         [System.Runtime.Serialization.EnumMember(Value = @"120")]
         _120 = 14,
 
         [System.Runtime.Serialization.EnumMember(Value = @"120-10")]
         _12010 = 15,
 
+        /// <summary>
+        /// Job incomplete - need materials
+        /// </summary>
         [System.Runtime.Serialization.EnumMember(Value = @"120-20")]
         _12020 = 16,
 
@@ -249,10 +267,15 @@ namespace RepairsApi.V2.Generated
         [System.Runtime.Serialization.EnumMember(Value = @"120-50")]
         _12050 = 19,
 
+        /// <summary>
+        /// Reject Approval
+        /// </summary>
         [System.Runtime.Serialization.EnumMember(Value = @"125")]
         _125 = 20,
 
-        //Variation attempted contract manager approval required
+        /// <summary>
+        /// Variation attempted contract manager approval required
+        /// </summary>
         [System.Runtime.Serialization.EnumMember(Value = @"180")]
         _180 = 21,
     }
