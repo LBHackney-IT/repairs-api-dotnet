@@ -7,6 +7,7 @@ namespace RepairsApi.V2.Gateways
     public interface ISorPriorityGateway
     {
         Task<IEnumerable<SORPriority>> GetPriorities();
+        Task<char> GetLegacyPriorityCode(int priorityCode);
     }
 
 }
