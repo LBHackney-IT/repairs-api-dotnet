@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using RepairsApi.V2.Infrastructure;
 
 namespace RepairsApi.V2.UseCase
