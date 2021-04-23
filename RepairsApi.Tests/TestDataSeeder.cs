@@ -13,6 +13,7 @@ namespace RepairsApi.Tests
     public static class TestDataSeeder
     {
         public const string ContractReference = "contract";
+        public const string DRSContractReference = "DRScontract";
         public const string SorCode = "code";
         public const string PropRef = "propref";
         public const string Contractor = "contractor";
@@ -111,6 +112,12 @@ namespace RepairsApi.Tests
                 SorCodeCode = SorCode,
                 Cost = 1
             });
+            ctx.Set<SORContract>().Add(new SORContract
+            {
+                ContractReference = DRSContractReference,
+                SorCodeCode = SorCode,
+                Cost = 1
+            });
         }
 
         private static void SeedPropertyMap(RepairsContext ctx)
@@ -127,6 +134,11 @@ namespace RepairsApi.Tests
             ctx.Set<PropertyContract>().Add(new PropertyContract
             {
                 ContractReference = ContractReference,
+                PropRef = PropRef
+            });
+            ctx.Set<PropertyContract>().Add(new PropertyContract
+            {
+                ContractReference = DRSContractReference,
                 PropRef = PropRef
             });
         }
@@ -148,6 +160,13 @@ namespace RepairsApi.Tests
             {
                 ContractorReference = Contractor,
                 ContractReference = ContractReference,
+                EffectiveDate = DateTime.UtcNow.AddDays(-1),
+                TerminationDate = DateTime.UtcNow.AddDays(1),
+            });
+            ctx.Set<Contract>().Add(new Contract
+            {
+                ContractorReference = DRSContractor,
+                ContractReference = DRSContractReference,
                 EffectiveDate = DateTime.UtcNow.AddDays(-1),
                 TerminationDate = DateTime.UtcNow.AddDays(1),
             });
