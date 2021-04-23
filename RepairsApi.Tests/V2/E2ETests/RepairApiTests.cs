@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using RepairsApi.V2.UseCase;
 using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
 using Quantity = RepairsApi.V2.Generated.Quantity;
 using RateScheduleItem = RepairsApi.V2.Generated.RateScheduleItem;
@@ -30,11 +31,11 @@ namespace RepairsApi.Tests.V2.E2ETests
                 .Generate();
 
             // Act
-            var (code, response) = await Post<int>("/api/v2/workOrders/schedule", request);
+            var (code, response) = await Post<CreateOrderResult>("/api/v2/workOrders/schedule", request);
 
             // Assert
             code.Should().Be(HttpStatusCode.OK);
-            var wo = GetWorkOrderFromDB(response);
+            var wo = GetWorkOrderFromDB(response.Id);
             wo.WorkPriority.NumberOfDays.Should().Be(request.Priority.NumberOfDays);
         }
 
@@ -634,9 +635,9 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             interceptor?.Invoke(request);
 
-            var (_, response) = await Post<int>("/api/v2/workOrders/schedule", request);
+            var (_, response) = await Post<CreateOrderResult>("/api/v2/workOrders/schedule", request);
 
-            return response;
+            return response.Id;
         }
 
         public async Task<IEnumerable<WorkOrderItemViewModel>> GetTasks(int workOrderId)

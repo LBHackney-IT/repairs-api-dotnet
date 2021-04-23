@@ -83,12 +83,17 @@ namespace RepairsApi.Tests.V2.Services
         public async Task CreateOrder()
         {
             var workOrder = CreateWorkOrderWithContractor(true);
-            _drsSoapMock.CreateReturns(responseStatus.success);
+            _drsSoapMock.CreateReturns(responseStatus.success, order: new order
+            {
+                orderId = workOrder.Id
+            });
 
-            await _classUnderTest.CreateOrder(workOrder);
+            var result = await _classUnderTest.CreateOrder(workOrder);
 
             VerifyOpenSession(_drsSoapMock.LastOpen).Should().BeTrue();
             _drsSoapMock.Verify(x => x.createOrderAsync(It.IsAny<createOrder>()));
+            result.Should().BeOfType<order>();
+            result.orderId.Should().Be(workOrder.Id);
         }
 
         [TestCase(responseStatus.failure)]
@@ -187,7 +192,7 @@ namespace RepairsApi.Tests.V2.Services
                 });
         }
 
-        public void CreateReturns(responseStatus status, string errorMsg = null)
+        public void CreateReturns(responseStatus status, string errorMsg = null, order order = null)
         {
             Setup(x => x.createOrderAsync(It.IsAny<createOrder>()))
                 .ReturnsAsync(new createOrderResponse
@@ -195,7 +200,8 @@ namespace RepairsApi.Tests.V2.Services
                     @return = new xmbCreateOrderResponse
                     {
                         status = status,
-                        errorMsg = errorMsg
+                        errorMsg = errorMsg,
+                        theOrder = order
                     }
                 });
         }

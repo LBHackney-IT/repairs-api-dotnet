@@ -5,11 +5,13 @@ using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase.Interfaces;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.MiddleWare;
 using RepairsApi.V2.Services;
 using RepairsApi.V2.Authorisation;
+using RepairsApi.V2.Infrastructure.Extensions;
 
 namespace RepairsApi.V2.UseCase
 {
@@ -21,6 +23,7 @@ namespace RepairsApi.V2.UseCase
         private readonly ICurrentUserService _currentUserService;
         private readonly IDrsService _drsService;
         private readonly IFeatureManager _featureManager;
+        private readonly IOptions<DrsOptions> _drsOptions;
 
         public CreateWorkOrderUseCase(
             IRepairsGateway repairsGateway,
@@ -28,7 +31,8 @@ namespace RepairsApi.V2.UseCase
             ILogger<CreateWorkOrderUseCase> logger,
             ICurrentUserService currentUserService,
             IDrsService drsService,
-            IFeatureManager featureManager
+            IFeatureManager featureManager,
+            IOptions<DrsOptions> drsOptions
             )
         {
             _repairsGateway = repairsGateway;
@@ -37,9 +41,10 @@ namespace RepairsApi.V2.UseCase
             _currentUserService = currentUserService;
             _drsService = drsService;
             _featureManager = featureManager;
+            _drsOptions = drsOptions;
         }
 
-        public async Task<int> Execute(WorkOrder workOrder)
+        public async Task<CreateOrderResult> Execute(WorkOrder workOrder)
         {
             ValidateRequest(workOrder);
             AttachUserInformation(workOrder);
@@ -50,11 +55,19 @@ namespace RepairsApi.V2.UseCase
             var id = await _repairsGateway.CreateWorkOrder(workOrder);
             _logger.LogInformation(Resources.CreatedWorkOrder);
 
-            if (await _featureManager.IsEnabledAsync(FeatureFlags.DRSIntegration))
+            var result = new CreateOrderResult(id, workOrder.StatusCode, workOrder.GetStatus());
+            if (await _featureManager.IsEnabledAsync(FeatureFlags.DRSIntegration) &&
+                await _drsService.ContractorUsingDrs(workOrder.AssignedToPrimary.ContractorReference))
             {
-                await _drsService.CreateOrder(workOrder);
+                var order = await _drsService.CreateOrder(workOrder);
+                result.ExternallyManagedAppointment = true;
+                var managementUri = new UriBuilder(_drsOptions.Value.ManagementAddress);
+                managementUri.Port = -1;
+                managementUri.Query = $"tokenId={order.theBookings.Single().tokenId}";
+                result.ExternalAppointmentManagementUrl = managementUri.Uri;
             }
-            return id;
+
+            return result;
         }
 
         private void AttachUserInformation(WorkOrder workOrder)

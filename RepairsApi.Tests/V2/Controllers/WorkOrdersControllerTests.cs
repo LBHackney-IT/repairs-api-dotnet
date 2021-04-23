@@ -23,6 +23,7 @@ using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 using RepairsApi.V2.Domain;
 using RepairsApi.Tests.Helpers;
 using Microsoft.FeatureManagement;
+using RepairsApi.V2.UseCase;
 
 namespace RepairsApi.Tests.V2.Controllers
 {
@@ -75,34 +76,20 @@ namespace RepairsApi.Tests.V2.Controllers
         }
 
         [Test]
-        public async Task ScheduleRepairReturnsOkWithInt()
+        public async Task ScheduleRepairReturnsOkWithObject()
         {
             // arrange
             const int newId = 2;
-            _createWorkOrderUseCaseMock.Setup(m => m.Execute(It.IsAny<WorkOrder>())).ReturnsAsync(newId);
+            _createWorkOrderUseCaseMock.Setup(m => m.Execute(It.IsAny<WorkOrder>()))
+                .ReturnsAsync(new CreateOrderResult(newId, WorkStatusCode.Open, string.Empty));
 
             // act
             var result = await _classUnderTest.ScheduleRepair(new ScheduleRepair());
 
             // assert
             result.Should().BeOfType<OkObjectResult>();
-            GetResultData<int>(result).Should().Be(newId);
-        }
-
-        [Test]
-        public async Task ScheduleRepairReturnsBadRequestWhenNotSupportedThrown()
-        {
-            // arrange
-            string expectedMessage = "message";
-            _createWorkOrderUseCaseMock.Setup(m => m.Execute(It.IsAny<WorkOrder>()))
-                .ThrowsAsync(new NotSupportedException(expectedMessage));
-
-            // act
-            var result = await _classUnderTest.ScheduleRepair(new ScheduleRepair());
-
-            // assert
-            result.Should().BeOfType<BadRequestObjectResult>();
-            GetResultData<string>(result).Should().Be(expectedMessage);
+            var createResult = GetResultData<CreateOrderResult>(result);
+            createResult.Id.Should().Be(newId);
         }
 
         [Test]
@@ -141,7 +128,13 @@ namespace RepairsApi.Tests.V2.Controllers
                 .Setup(uc => uc.Execute(It.IsAny<JobStatusUpdate>())).Returns(Task.CompletedTask);
 
             var response = await _classUnderTest.JobStatusUpdate(
-                new JobStatusUpdate { RelatedWorkOrderReference = new Reference { ID = "42" } });
+                new JobStatusUpdate
+                {
+                    RelatedWorkOrderReference = new Reference
+                    {
+                        ID = "42"
+                    }
+                });
 
             response.Should().BeOfType<OkResult>();
         }
@@ -204,7 +197,10 @@ namespace RepairsApi.Tests.V2.Controllers
         {
             var request = new WorkOrderComplete
             {
-                WorkOrderReference = new Reference { ID = expectedWorkOrderId.ToString() }
+                WorkOrderReference = new Reference
+                {
+                    ID = expectedWorkOrderId.ToString()
+                }
             };
             return request;
         }

@@ -5,7 +5,7 @@ namespace RepairsApi.V2.UseCase.Interfaces
 {
     public interface ICreateWorkOrderUseCase
     {
-        Task<int> Execute(WorkOrder raiseRepair);
+        Task<CreateOrderResult> Execute(WorkOrder raiseRepair);
     }
 
 }

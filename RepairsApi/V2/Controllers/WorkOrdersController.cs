@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using RepairsApi.V2.Authorisation;
 using Microsoft.FeatureManagement;
+using RepairsApi.V2.UseCase;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -62,24 +63,17 @@ namespace RepairsApi.V2.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("schedule")]
-        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CreateOrderResult), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        [ProducesDefaultResponseType]
+        [ProducesDefaultResponseType(typeof(string))]
         [Authorize(Roles = UserGroups.Agent + "," + UserGroups.ContractManager)]
         public async Task<IActionResult> ScheduleRepair([FromBody] ScheduleRepair request)
         {
-            try
-            {
-                var authorised = await _authorizationService.AuthorizeAsync(User, request, "RaiseSpendLimit");
-                if (await _featureManager.IsEnabledAsync(FeatureFlags.SpendLimits) && !authorised.Succeeded) return Unauthorized("Request Work Order is above Spend Limit");
+            var authorised = await _authorizationService.AuthorizeAsync(User, request, "RaiseSpendLimit");
+            if (await _featureManager.IsEnabledAsync(FeatureFlags.SpendLimits) && !authorised.Succeeded) return Unauthorized("Request Work Order is above Spend Limit");
 
-                var result = await _createWorkOrderUseCase.Execute(request.ToDb());
-                return Ok(result);
-            }
-            catch (NotSupportedException e)
-            {
-                return BadRequest(e.Message);
-            }
+            var result = await _createWorkOrderUseCase.Execute(request.ToDb());
+            return Ok(result);
         }
 
         /// <summary>
@@ -147,7 +141,6 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-
         public async Task<IActionResult> JobStatusUpdate([FromBody] JobStatusUpdate request)
         {
             await _updateJobStatusUseCase.Execute(request);
