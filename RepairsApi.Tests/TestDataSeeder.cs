@@ -16,6 +16,7 @@ namespace RepairsApi.Tests
         public const string SorCode = "code";
         public const string PropRef = "propref";
         public const string Contractor = "contractor";
+        public const string DRSContractor = "DRScontractor";
         public const string Agent = "agent";
         public const string Trade = "trade";
         public const string Priority = "priority";
@@ -163,7 +164,14 @@ namespace RepairsApi.Tests
             ctx.Set<Contractor>().Add(new Contractor
             {
                 Name = Contractor,
-                Reference = Contractor
+                Reference = Contractor,
+                UseExternalScheduleManager = false
+            });
+            ctx.Set<Contractor>().Add(new Contractor
+            {
+                Name = DRSContractor,
+                Reference = DRSContractor,
+                UseExternalScheduleManager = true
             });
         }
 

@@ -11,6 +11,7 @@ using RepairsApi.V2.Services;
 using V2_Generated_DRS;
 using RepairsApi.Tests.Helpers.StubGeneration;
 using RepairsApi.V2.Boundary.Response;
+using RepairsApi.V2.Domain;
 using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated;
@@ -24,6 +25,7 @@ namespace RepairsApi.Tests.V2.Services
         private IOptions<DrsOptions> _drsOptions;
         private Mock<ILogger<DrsService>> _loggerMock;
         private Mock<IDrsMapping> _drsMappingMock;
+        private Mock<IScheduleOfRatesGateway> _sorGatewayMock;
 
         [SetUp]
         public void SetUp()
@@ -31,6 +33,7 @@ namespace RepairsApi.Tests.V2.Services
             _loggerMock = new Mock<ILogger<DrsService>>();
             _drsSoapMock = new MockDrsSoap();
             _drsMappingMock = new Mock<IDrsMapping>();
+            _sorGatewayMock = new Mock<IScheduleOfRatesGateway>();
             _drsOptions = Options.Create<DrsOptions>(new DrsOptions
             {
                 Login = "login",
@@ -41,8 +44,9 @@ namespace RepairsApi.Tests.V2.Services
                 _drsSoapMock.Object,
                 _drsOptions,
                 _loggerMock.Object,
-                _drsMappingMock.Object
-                );
+                _drsMappingMock.Object,
+                _sorGatewayMock.Object
+            );
         }
 
         [Test]
@@ -58,7 +62,7 @@ namespace RepairsApi.Tests.V2.Services
         [TestCase(responseStatus.undefined)]
         public async Task ThrowsApiError_When_SessionFailsToOpen(responseStatus drsResponse)
         {
-            string message = "error";
+            const string message = "error";
             _drsSoapMock.Setup(x => x.openSessionAsync(It.IsAny<openSession>()))
                 .ReturnsAsync(new openSessionResponse(new xmbOpenSessionResponse
                 {
@@ -78,18 +82,8 @@ namespace RepairsApi.Tests.V2.Services
         [Test]
         public async Task CreateOrder()
         {
-            var generator = new Generator<WorkOrder>()
-                .AddInfrastructureWorkOrderGenerators();
-            var workOrder = generator.Generate();
-
-            _drsSoapMock.Setup(x => x.createOrderAsync(It.IsAny<createOrder>()))
-                .ReturnsAsync(new createOrderResponse
-                {
-                    @return = new xmbCreateOrderResponse
-                    {
-                        status = responseStatus.success
-                    }
-                });
+            var workOrder = CreateWorkOrderWithContractor(true);
+            _drsSoapMock.CreateReturns(responseStatus.success);
 
             await _classUnderTest.CreateOrder(workOrder);
 
@@ -102,19 +96,9 @@ namespace RepairsApi.Tests.V2.Services
         [TestCase(responseStatus.undefined)]
         public async Task ThrowsApiError_When_DrsError(responseStatus drsResponse)
         {
-            var generator = new Generator<WorkOrder>()
-                .AddInfrastructureWorkOrderGenerators();
-            var workOrder = generator.Generate();
+            var workOrder = CreateWorkOrderWithContractor(true);
             const string errorMsg = "message";
-            _drsSoapMock.Setup(x => x.createOrderAsync(It.IsAny<createOrder>()))
-                .ReturnsAsync(new createOrderResponse
-                {
-                    @return = new xmbCreateOrderResponse
-                    {
-                        status = drsResponse,
-                        errorMsg = errorMsg
-                    }
-                });
+            _drsSoapMock.CreateReturns(drsResponse, errorMsg);
 
             Func<Task> act = async () =>
             {
@@ -127,10 +111,58 @@ namespace RepairsApi.Tests.V2.Services
 
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task ChecksDBFlagForDrsEnabled(bool useExternal)
+        {
+            var expectedContractor = WithContractor(useExternal);
+
+            var result = await _classUnderTest.ContractorUsingDrs(expectedContractor.ContractorReference);
+
+            result.Should().Be(expectedContractor.UseExternalScheduleManager);
+        }
+
+        [Test]
+        public async Task DontOpenSession_When_ContractorNotExternal()
+        {
+            var workOrder = CreateWorkOrderWithContractor(false);
+
+            await _classUnderTest.CreateOrder(workOrder);
+
+            _drsSoapMock.Verify(x => x.openSessionAsync(It.IsAny<openSession>()), Times.Never);
+        }
+
+        private WorkOrder CreateWorkOrderWithContractor(bool useExternal)
+        {
+            var expectedContractor = WithContractor(useExternal);
+
+            var generator = new Generator<WorkOrder>()
+                .AddInfrastructureWorkOrderGenerators();
+            var workOrder = generator.Generate();
+
+            if (expectedContractor != null)
+            {
+                workOrder.AssignedToPrimary.ContractorReference = expectedContractor.ContractorReference;
+            }
+
+            return workOrder;
+        }
+
+        private Contractor WithContractor(bool useExternal)
+        {
+            Contractor expectedContractor = new Contractor
+            {
+                ContractorReference = "contractorRef",
+                UseExternalScheduleManager = useExternal
+            };
+            _sorGatewayMock.Setup(x => x.GetContractor(It.IsAny<string>()))
+                .ReturnsAsync(expectedContractor);
+            return expectedContractor;
+        }
+
         private bool VerifyOpenSession(openSession openSession) =>
             openSession.openSession1.login == _drsOptions.Value.Login &&
             openSession.openSession1.password == _drsOptions.Value.Password;
-
 
 
     }
@@ -151,6 +183,19 @@ namespace RepairsApi.Tests.V2.Services
                     {
                         sessionId = SessionId,
                         status = responseStatus.success
+                    }
+                });
+        }
+
+        public void CreateReturns(responseStatus status, string errorMsg = null)
+        {
+            Setup(x => x.createOrderAsync(It.IsAny<createOrder>()))
+                .ReturnsAsync(new createOrderResponse
+                {
+                    @return = new xmbCreateOrderResponse
+                    {
+                        status = status,
+                        errorMsg = errorMsg
                     }
                 });
         }

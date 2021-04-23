@@ -16,6 +16,7 @@ namespace RepairsApi.V2.Gateways
         Task<double> GetCost(string contractReference, string sorCode);
         Task<IEnumerable<string>> GetContracts(string contractorReference);
         Task<IEnumerable<Contractor>> GetContractors(string propertyRef, string tradeCode);
+        Task<Contractor> GetContractor(string contractorReference);
         Task<ScheduleOfRatesModel> GetCode(string sorCode, string propertyReference, string contractorReference);
     }
 

@@ -62,7 +62,7 @@ namespace RepairsApi.V2.Infrastructure.Hackney
     {
         [Key] public string Reference { get; set; }
         public string Name { get; set; }
-
+        public bool UseExternalScheduleManager { get; set; }
         public virtual List<Contract> Contracts { get; set; }
     }
 
