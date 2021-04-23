@@ -39,6 +39,7 @@ using Castle.Core.Internal;
 using System.ServiceModel;
 using Newtonsoft.Json;
 using V2_Generated_DRS;
+using RepairsApi.V2.Notifications;
 
 namespace RepairsApi
 {
@@ -195,6 +196,13 @@ namespace RepairsApi
             services.AddSingleton<IAuthenticationService, ChallengeOnlyAuthenticationService>();
             services.AddFeatureManagement();
             services.AddFilteringConfig();
+
+            AddNotificationHandlers(services);
+        }
+
+        private static void AddNotificationHandlers(IServiceCollection services)
+        {
+            services.AddTransient<INotificationHandler<WorkOrderCreated>, DRSNotificationHandler>();
         }
 
         private static void RegisterGateways(IServiceCollection services)
