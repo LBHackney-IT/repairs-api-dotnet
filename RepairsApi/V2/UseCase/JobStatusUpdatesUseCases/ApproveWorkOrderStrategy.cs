@@ -25,7 +25,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
 
             if (!_currentUserService.HasGroup(UserGroups.ContractManager))
-                throw new UnauthorizedAccessException("You do not have the correct permissions for this action");
+                throw new UnauthorizedAccessException(Resources.InvalidPermissions);
 
             if (workOrder.StatusCode != Infrastructure.WorkStatusCode.PendingApproval)
                 throw new NotSupportedException("Work order is not pending approval");

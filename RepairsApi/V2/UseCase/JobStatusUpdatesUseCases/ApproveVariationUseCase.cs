@@ -13,39 +13,45 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
     {
         private readonly IRepairsGateway _repairsGateway;
         private readonly ICurrentUserService _currentUserService;
-        private readonly IMoreSpecificSorUseCase _specificSorUseCase;
+        private readonly IUpdateSorCodesUseCase _updateSorCodesUseCase;
         private readonly IJobStatusUpdateGateway _jobStatusUpdateGateway;
 
         public ApproveVariationUseCase(IRepairsGateway repairsGateway, IJobStatusUpdateGateway jobStatusUpdateGateway,
-            ICurrentUserService currentUserService, IMoreSpecificSorUseCase specificSorUseCase)
+            ICurrentUserService currentUserService, IUpdateSorCodesUseCase updateSorCodesUseCase)
         {
             _repairsGateway = repairsGateway;
             _currentUserService = currentUserService;
-            _specificSorUseCase = specificSorUseCase;
+            _updateSorCodesUseCase = updateSorCodesUseCase;
             _jobStatusUpdateGateway = jobStatusUpdateGateway;
         }
 
         public async Task Execute(JobStatusUpdate jobStatusUpdate)
         {
-            var workOrderId = int.Parse(jobStatusUpdate.RelatedWorkOrderReference.ID);
+            if (!_currentUserService.HasGroup(UserGroups.ContractManager)) throw new UnauthorizedAccessException(Resources.InvalidPermissions);
 
-            var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
+            WorkOrder workOrder = await GetWorkOrder(jobStatusUpdate);
 
-            if (!_currentUserService.HasGroup(UserGroups.ContractManager))
-                throw new UnauthorizedAccessException("You do not have the correct permissions for this action");
+            if (workOrder.StatusCode != WorkStatusCode.PendApp) throw new NotSupportedException(Resources.ActionUnsupported);
 
-            if (workOrder.StatusCode != WorkStatusCode.PendApp)
-                throw new NotSupportedException("This action is not permitted");
+            var variationJobStatus = await _jobStatusUpdateGateway.GetOutstandingVariation(workOrder.Id);
 
-            var variationJobStatus = await _jobStatusUpdateGateway.SelectLastJobStatusUpdate
-                (Generated.JobStatusUpdateTypeCode._180, workOrderId);
+            await VaryWorkOrder(workOrder, variationJobStatus);
 
-            await _specificSorUseCase.PatchWorkOrder(variationJobStatus.MoreSpecificSORCode, workOrder);
             jobStatusUpdate.Comments = $"{jobStatusUpdate.Comments} Approved By: {_currentUserService.GetHubUser().Name}";
-
-            workOrder.StatusCode = WorkStatusCode.VariationApproved;
             await _repairsGateway.SaveChangesAsync();
         }
 
+        private async Task<WorkOrder> GetWorkOrder(JobStatusUpdate jobStatusUpdate)
+        {
+            var workOrderId = int.Parse(jobStatusUpdate.RelatedWorkOrderReference.ID);
+            var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
+            return workOrder;
+        }
+
+        private async Task VaryWorkOrder(WorkOrder workOrder, Infrastructure.JobStatusUpdate variationJobStatus)
+        {
+            await _updateSorCodesUseCase.Execute(workOrder, variationJobStatus.MoreSpecificSORCode);
+            workOrder.StatusCode = WorkStatusCode.VariationApproved;
+        }
     }
 }
