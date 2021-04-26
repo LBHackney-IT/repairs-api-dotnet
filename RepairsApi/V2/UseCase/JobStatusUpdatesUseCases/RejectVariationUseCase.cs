@@ -29,7 +29,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             if (!_currentUserService.HasGroup(UserGroups.ContractManager))
                 throw new UnauthorizedAccessException(Resources.InvalidPermissions);
 
-            if (workOrder.StatusCode != WorkStatusCode.PendApp)
+            if (workOrder.StatusCode != WorkStatusCode.PendingVariation)
                 throw new NotSupportedException(Resources.ActionUnsupported);
 
             workOrder.StatusCode = WorkStatusCode.VariationRejected;

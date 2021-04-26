@@ -42,11 +42,11 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
             var authorised = await _authorizationService.AuthorizeAsync(_currentUserService.GetUser(), jobStatusUpdate, "VarySpendLimit");
 
-            if (workOrder.StatusCode == WorkStatusCode.PendApp) throw new InvalidOperationException(Resources.ActionUnsupported);
+            if (workOrder.StatusCode == WorkStatusCode.PendingVariation) throw new InvalidOperationException(Resources.ActionUnsupported);
 
             if (await _featureManager.IsEnabledAsync(FeatureFlags.SpendLimits) && !authorised.Succeeded)
             {
-                workOrder.StatusCode = WorkStatusCode.PendApp;
+                workOrder.StatusCode = WorkStatusCode.PendingVariation;
                 jobStatusUpdate.TypeCode = JobStatusUpdateTypeCode._180;
             }
             else

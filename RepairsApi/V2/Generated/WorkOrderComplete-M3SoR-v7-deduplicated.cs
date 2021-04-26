@@ -235,7 +235,7 @@ namespace RepairsApi.V2.Generated
         _10010 = 11,
 
         /// <summary>
-        /// Approve approval 
+        /// Approve Variation approval 
         /// </summary>
         [System.Runtime.Serialization.EnumMember(Value = @"100-20")]
         _10020 = 12,
@@ -268,7 +268,7 @@ namespace RepairsApi.V2.Generated
         _12050 = 19,
 
         /// <summary>
-        /// Reject Approval
+        /// Reject Variation Approval
         /// </summary>
         [System.Runtime.Serialization.EnumMember(Value = @"125")]
         _125 = 20,

@@ -17,9 +17,9 @@ using Quantity = RepairsApi.V2.Generated.Quantity;
 using RateScheduleItem = RepairsApi.V2.Generated.RateScheduleItem;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 
-namespace RepairsApi.Tests.V2.E2ETests
+namespace RepairsApi.Tests.V2.E2ETests.Repairs
 {
-    public class RepairApiTests : MockWebApplicationFactory
+    public partial class RepairApiTests : MockWebApplicationFactory
     {
         [Test]
         public async Task ScheduleRepair()
@@ -37,15 +37,6 @@ namespace RepairsApi.Tests.V2.E2ETests
             var wo = GetWorkOrderFromDB(response);
             wo.StatusCode.Should().Be(WorkStatusCode.Open);
             wo.WorkPriority.NumberOfDays.Should().Be(request.Priority.NumberOfDays);
-        }
-
-        [Test]
-        public async Task ScheduledRepairStatusIsPendingIfAboveSpendLimit()
-        {
-            var id = await CreateWorkOrder(r => r.WorkElement.Single().RateScheduleItem.Single().Quantity.Amount = new List<double> { 50000 });
-            var wo = GetWorkOrderFromDB(id);
-
-            wo.StatusCode.Should().Be(WorkStatusCode.PendingApproval);
         }
 
         [Test]
@@ -258,7 +249,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             var workOrder = GetWorkOrderWithJobStatusUpdatesFromDB(workOrderId);
 
             // Assert
-            workOrder.StatusCode.Should().Be(WorkStatusCode.PendApp);
+            workOrder.StatusCode.Should().Be(WorkStatusCode.PendingVariation);
             workOrder.JobStatusUpdates[0].TypeCode.Should().Be(JobStatusUpdateTypeCode._180);
         }
 
@@ -602,7 +593,12 @@ namespace RepairsApi.Tests.V2.E2ETests
             return await Post("/api/v2/workOrderComplete", request);
         }
 
-        private async Task UpdateJob(int workOrderId, Action<JobStatusUpdate> interceptor = null)
+        private Task<HttpStatusCode> UpdateJob(int workOrderId, JobStatusUpdateTypeCode typeCode)
+        {
+            return UpdateJob(workOrderId, jsu => jsu.TypeCode = typeCode);
+        }
+
+        private async Task<HttpStatusCode> UpdateJob(int workOrderId, Action<JobStatusUpdate> interceptor = null)
         {
             var tasks = await GetTasks(workOrderId);
             RepairsApi.V2.Generated.WorkElement workElement = TransformTasksToWorkElement(tasks);
@@ -617,7 +613,7 @@ namespace RepairsApi.Tests.V2.E2ETests
 
             interceptor?.Invoke(request);
 
-            await Post("/api/v2/jobStatusUpdate", request);
+            return await Post("/api/v2/jobStatusUpdate", request);
         }
 
         private async Task<int> CreateWorkOrder(Action<ScheduleRepair> interceptor = null)

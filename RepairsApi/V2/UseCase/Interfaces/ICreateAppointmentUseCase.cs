@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using RepairsApi.V2.Controllers;
 using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Helpers;
 
 namespace RepairsApi.V2.UseCase.Interfaces
 {
@@ -29,6 +30,8 @@ namespace RepairsApi.V2.UseCase.Interfaces
             {
                 throw new ResourceNotFoundException("work order does not exist");
             }
+
+            workOrder.VerifyCanBookAppointment();
 
             await _appointmentsGateway.Create(appointmentRef, workOrderId);
         }

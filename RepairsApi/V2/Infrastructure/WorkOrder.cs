@@ -81,9 +81,9 @@ namespace RepairsApi.V2.Infrastructure
         Open = 80,
 
         /// <summary>
-        /// Pend App: Work Order Is Pending Approval. Active.
+        /// Pend App: Work Order Has a paending Variation . Active.
         /// </summary>
-        PendApp = 90,
+        PendingVariation = 90,
 
         /// <summary>
         /// Pend Design: Work Order Is Pending Design Or Design Documents. Active.

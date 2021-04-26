@@ -32,7 +32,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             if (workOrder.StatusCode != Infrastructure.WorkStatusCode.PendingApproval)
                 throw new NotSupportedException("Work order is not pending approval");
 
-            workOrder.StatusCode = Infrastructure.WorkStatusCode.Open;
+            workOrder.StatusCode = Infrastructure.WorkStatusCode.Canceled;
         }
     }
 }

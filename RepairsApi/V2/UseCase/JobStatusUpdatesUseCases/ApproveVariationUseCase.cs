@@ -31,7 +31,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
             WorkOrder workOrder = await GetWorkOrder(jobStatusUpdate);
 
-            if (workOrder.StatusCode != WorkStatusCode.PendApp) throw new NotSupportedException(Resources.ActionUnsupported);
+            if (workOrder.StatusCode != WorkStatusCode.PendingVariation) throw new NotSupportedException(Resources.ActionUnsupported);
 
             var variationJobStatus = await _jobStatusUpdateGateway.GetOutstandingVariation(workOrder.Id);
 
