@@ -69,7 +69,9 @@ namespace RepairsApi.V2.Services
                             citizensName = workOrder.Customer.Name,
                             theLocationLines = locationAlerts?.Alerts.Select(a => new locationLine
                             {
-                                citizensName = workOrder.Customer.Name, lineCode = a.AlertCode, lineDescription = a.Description
+                                citizensName = workOrder.Customer.Name,
+                                lineCode = a.AlertCode,
+                                lineDescription = a.Description
                             }).ToArray<locationLine>()
                         },
                         theBookingCodes = await BuildBookingCodes(workOrder),
