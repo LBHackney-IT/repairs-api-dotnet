@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using NodaTime;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Helpers;
@@ -52,7 +53,10 @@ namespace RepairsApi.V2.Services
                         contract = workOrder.AssignedToPrimary.ContractorReference,
                         locationID = workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference,
                         priority = priorityCharacter.ToString(),
-                        targetDate = workOrder.WorkPriority.RequiredCompletionDateTime ?? DateTime.UtcNow,
+                        targetDate =
+                            workOrder.WorkPriority.RequiredCompletionDateTime.HasValue
+                                ? ConvertToDrsTimeZone(workOrder.WorkPriority.RequiredCompletionDateTime.Value)
+                                : DateTime.UtcNow,
                         userId = workOrder.AgentEmail ?? workOrder.AgentName,
                         contactName = workOrder.Customer.Name,
                         phone = workOrder.Customer.Person.Communication.GetPhoneNumber(),
@@ -92,7 +96,6 @@ namespace RepairsApi.V2.Services
 
         private async Task<bookingCode[]> BuildBookingCodes(WorkOrder workOrder)
         {
-
             var bookingIndex = 1;
             var workElement = workOrder.WorkElements.FirstOrDefault();
             var bookingTasks = workElement?
