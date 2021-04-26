@@ -7,6 +7,7 @@ using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Generated.CustomTypes;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.UseCase;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -624,9 +625,9 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
 
             interceptor?.Invoke(request);
 
-            var (_, response) = await Post<int>("/api/v2/workOrders/schedule", request);
+            var (_, response) = await Post<CreateOrderResult>("/api/v2/workOrders/schedule", request);
 
-            return response;
+            return response.Id;
         }
 
         public async Task<IEnumerable<WorkOrderItemViewModel>> GetTasks(int workOrderId)
