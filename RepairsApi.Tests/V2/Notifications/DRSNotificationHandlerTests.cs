@@ -58,5 +58,35 @@ namespace RepairsApi.Tests.V2.Notifications
 
             _drsServiceMock.Verify(x => x.CreateOrder(workOrder), Times.Never);
         }
+
+        [Test]
+        public async Task DeletesDRSOrder()
+        {
+            _featureManager.Setup(x => x.IsEnabledAsync(FeatureFlags.DRSIntegration))
+                .ReturnsAsync(true);
+            var generator = new Generator<WorkOrder>()
+                .AddInfrastructureWorkOrderGenerators()
+                .AddValue(new List<Trade> { new Trade { Code = RepairsApi.V2.Generated.TradeCode.B2 } }, (WorkElement we) => we.Trade);
+            var workOrder = generator.Generate();
+
+            await _classUnderTest.Notify(new WorkOrderCancelled(workOrder));
+
+            _drsServiceMock.Verify(x => x.CancelOrder(workOrder));
+        }
+
+        [Test]
+        public async Task DoesNotDeleteDRSOrder_When_FeatureFlagFalse()
+        {
+            _featureManager.Setup(x => x.IsEnabledAsync(FeatureFlags.DRSIntegration))
+                .ReturnsAsync(false);
+            var generator = new Generator<WorkOrder>()
+                .AddInfrastructureWorkOrderGenerators()
+                .AddValue(new List<Trade> { new Trade { Code = RepairsApi.V2.Generated.TradeCode.B2 } }, (WorkElement we) => we.Trade);
+            var workOrder = generator.Generate();
+
+            await _classUnderTest.Notify(new WorkOrderCancelled(workOrder));
+
+            _drsServiceMock.Verify(x => x.CancelOrder(workOrder), Times.Never);
+        }
     }
 }

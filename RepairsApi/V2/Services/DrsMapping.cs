@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
+using RepairsApi.V2.Domain;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Helpers;
@@ -33,64 +34,79 @@ namespace RepairsApi.V2.Services
 
         public async Task<createOrder> BuildCreateOrderRequest(string sessionId, WorkOrder workOrder)
         {
-            var property = workOrder.Site.PropertyClass.FirstOrDefault();
+            var createOrder = new createOrder
+            {
+                createOrder1 = new xmbCreateOrder
+                {
+                    sessionId = sessionId,
+                    theOrder = await CreateOrder(workOrder)
+                }
+            };
+            return createOrder;
+        }
+
+        private async Task<order> CreateOrder(WorkOrder workOrder)
+        {
+            var property = workOrder.Site?.PropertyClass.FirstOrDefault();
             var locationAlerts = property != null ? await _alertsGateway.GetLocationAlertsAsync(property?.PropertyReference) : null;
 
             char priorityCharacter = workOrder.WorkPriority.PriorityCode.HasValue
                 ? await _sorPriorityGateway.GetLegacyPriorityCode(workOrder.WorkPriority.PriorityCode.Value)
                 : ' ';
 
-            var createOrder = new createOrder
+
+            return new order
             {
-                createOrder1 = new xmbCreateOrder
+                status = orderStatus.PLANNED,
+                primaryOrderNumber = workOrder.Id.ToString(CultureInfo.InvariantCulture),
+                orderComments = workOrder.DescriptionOfWork,
+                contract = workOrder.AssignedToPrimary.ContractorReference,
+                locationID = workOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference,
+                priority = priorityCharacter.ToString(),
+                targetDate =
+                    workOrder.WorkPriority.RequiredCompletionDateTime.HasValue
+                        ? ConvertToDrsTimeZone(workOrder.WorkPriority.RequiredCompletionDateTime.Value)
+                        : DateTime.UtcNow,
+                userId = workOrder.AgentEmail ?? workOrder.AgentName,
+                contactName = workOrder.Customer.Name,
+                phone = workOrder.Customer.Person.Communication.GetPhoneNumber(),
+                theLocation = new location
                 {
-                    sessionId = sessionId,
-                    theOrder = new order
+                    locationId = workOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference,
+                    name = workOrder.Site?.Name,
+                    address1 = workOrder.Site?.PropertyClass.FirstOrDefault()?.Address.AddressLine,
+                    postCode = workOrder.Site?.PropertyClass.FirstOrDefault()?.Address.PostalCode,
+                    contract = workOrder.AssignedToPrimary.ContractorReference,
+                    citizensName = workOrder.Customer.Name,
+                    theLocationLines = locationAlerts?.Alerts.Select(a => new locationLine
                     {
-                        status = orderStatus.PLANNED,
-                        primaryOrderNumber = workOrder.Id.ToString(CultureInfo.InvariantCulture),
-                        orderComments = workOrder.DescriptionOfWork,
-                        contract = workOrder.AssignedToPrimary.ContractorReference,
-                        locationID = workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference,
-                        priority = priorityCharacter.ToString(),
-                        targetDate =
-                            workOrder.WorkPriority.RequiredCompletionDateTime.HasValue
-                                ? ConvertToDrsTimeZone(workOrder.WorkPriority.RequiredCompletionDateTime.Value)
-                                : DateTime.UtcNow,
-                        userId = workOrder.AgentEmail ?? workOrder.AgentName,
-                        contactName = workOrder.Customer.Name,
-                        phone = workOrder.Customer.Person.Communication.GetPhoneNumber(),
-                        theLocation = new location
-                        {
-                            locationId = workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference,
-                            name = workOrder.Site.Name,
-                            address1 = workOrder.Site.PropertyClass.FirstOrDefault()?.Address.AddressLine,
-                            postCode = workOrder.Site.PropertyClass.FirstOrDefault()?.Address.PostalCode,
-                            contract = workOrder.AssignedToPrimary.ContractorReference,
-                            citizensName = workOrder.Customer.Name,
-                            theLocationLines = locationAlerts?.Alerts.Select(a => new locationLine
-                            {
-                                citizensName = workOrder.Customer.Name,
-                                lineCode = a.AlertCode,
-                                lineDescription = a.Description
-                            }).ToArray<locationLine>()
-                        },
-                        theBookingCodes = await BuildBookingCodes(workOrder),
-                    }
-                }
+                        citizensName = workOrder.Customer.Name,
+                        lineCode = a.AlertCode,
+                        lineDescription = a.Description
+                    }).ToArray<locationLine>()
+                },
+                theBookingCodes = await BuildBookingCodes(workOrder),
             };
-            return createOrder;
         }
 
-        public Task<deleteOrder> BuildDeleteOrderRequest(string sessionId, WorkOrder workOrder)
+        public async Task<deleteOrder> BuildDeleteOrderRequest(string sessionId, WorkOrder workOrder)
         {
-            throw new NotImplementedException();
+            var deleteOrder = new deleteOrder
+            {
+                deleteOrder1 = new xmbDeleteOrder
+                {
+                    sessionId = sessionId,
+                    theOrder = await CreateOrder(workOrder)
+                }
+            };
+            return deleteOrder;
         }
 
         private static DateTime ConvertToDrsTimeZone(DateTime dateTime)
         {
             var london = DateTimeZoneProviders.Tzdb["Europe/London"];
-            var local = Instant.FromDateTimeUtc(dateTime).InUtc();
+            var utcDateTime = new DateTime(dateTime.Ticks, DateTimeKind.Utc);
+            var local = Instant.FromDateTimeUtc(utcDateTime).InUtc();
             return local.WithZone(london).ToDateTimeUnspecified();
         }
 

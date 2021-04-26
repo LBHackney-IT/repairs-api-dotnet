@@ -203,6 +203,7 @@ namespace RepairsApi
         private static void AddNotificationHandlers(IServiceCollection services)
         {
             services.AddTransient<INotificationHandler<WorkOrderCreated>, DRSNotificationHandler>();
+            services.AddTransient<INotificationHandler<WorkOrderCancelled>, DRSNotificationHandler>();
         }
 
         private static void RegisterGateways(IServiceCollection services)
