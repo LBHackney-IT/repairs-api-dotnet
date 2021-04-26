@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using NodaTime;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Helpers;
@@ -52,7 +53,10 @@ namespace RepairsApi.V2.Services
                         contract = workOrder.AssignedToPrimary.ContractorReference,
                         locationID = workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference,
                         priority = priorityCharacter.ToString(),
-                        targetDate = workOrder.WorkPriority.RequiredCompletionDateTime ?? DateTime.UtcNow,
+                        targetDate =
+                            workOrder.WorkPriority.RequiredCompletionDateTime.HasValue
+                                ? ConvertToDrsTimeZone(workOrder.WorkPriority.RequiredCompletionDateTime.Value)
+                                : DateTime.UtcNow,
                         userId = workOrder.AgentEmail ?? workOrder.AgentName,
                         contactName = workOrder.Customer.Name,
                         phone = workOrder.Customer.Person.Communication.GetPhoneNumber(),
@@ -76,6 +80,13 @@ namespace RepairsApi.V2.Services
                 }
             };
             return createOrder;
+        }
+
+        private static DateTime ConvertToDrsTimeZone(DateTime dateTime)
+        {
+            var london = DateTimeZoneProviders.Tzdb["Europe/London"];
+            var local = Instant.FromDateTimeUtc(dateTime).InUtc();
+            return local.WithZone(london).ToDateTimeUnspecified();
         }
 
         private async Task<bookingCode[]> BuildBookingCodes(WorkOrder workOrder)
