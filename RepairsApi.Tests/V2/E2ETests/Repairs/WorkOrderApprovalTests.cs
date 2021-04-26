@@ -24,9 +24,9 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         [TestCase(UserGroups.Contractor)]
         public async Task ApprovePendingWorkOrderShould401ForUnAuthorised(string userGroup)
         {
-            SetUserRole(userGroup);
             var id = await CreateWorkOrder(r => r.WorkElement.Single().RateScheduleItem.Single().Quantity.Amount = new List<double> { 50000 });
 
+            SetUserRole(userGroup);
             var code = await UpdateJob(id, RepairsApi.V2.Generated.JobStatusUpdateTypeCode._200);
 
             code.Should().Be(HttpStatusCode.Unauthorized);
@@ -36,9 +36,9 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         [TestCase(UserGroups.Contractor)]
         public async Task RejectPendingWorkOrderShould401ForUnAuthorised(string userGroup)
         {
-            SetUserRole(userGroup);
             var id = await CreateWorkOrder(r => r.WorkElement.Single().RateScheduleItem.Single().Quantity.Amount = new List<double> { 50000 });
 
+            SetUserRole(userGroup);
             var code = await UpdateJob(id, RepairsApi.V2.Generated.JobStatusUpdateTypeCode._190);
 
             code.Should().Be(HttpStatusCode.Unauthorized);

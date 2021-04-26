@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Moq;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers;
 using RepairsApi.Tests.Helpers.StubGeneration;
@@ -7,7 +8,6 @@ using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Generated.CustomTypes;
 using RepairsApi.V2.Infrastructure;
-using RepairsApi.V2.UseCase;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,8 +20,15 @@ using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 
 namespace RepairsApi.Tests.V2.E2ETests.Repairs
 {
+    [SingleThreaded]
     public partial class RepairApiTests : MockWebApplicationFactory
     {
+        [SetUp]
+        public void SetUp()
+        {
+            SetUserRole(UserGroups.Agent);
+        }
+
         [Test]
         public async Task ScheduleRepair()
         {
@@ -38,6 +45,14 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             var wo = GetWorkOrderFromDB(response);
             wo.StatusCode.Should().Be(WorkStatusCode.Open);
             wo.WorkPriority.NumberOfDays.Should().Be(request.Priority.NumberOfDays);
+        }
+
+        [Test]
+        public async Task ForwardedToDRS()
+        {
+            var id = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
+
+            SoapMock.Verify(s => s.createOrderAsync(It.IsAny<V2_Generated_DRS.createOrder>()));
         }
 
         [Test]
@@ -91,7 +106,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             // Arrange
             var openWorkOrderId = await CreateWorkOrder();
             var completedWorkOrderId = await CreateWorkOrder();
-            await CancelWorkOrder(completedWorkOrderId);
+            var code = await CancelWorkOrder(completedWorkOrderId);
 
             // Act
             var (openCode, openResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?StatusCode={(int) WorkStatusCode.Open}");
@@ -625,9 +640,9 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
 
             interceptor?.Invoke(request);
 
-            var (_, response) = await Post<CreateOrderResult>("/api/v2/workOrders/schedule", request);
+            var (code, response) = await Post<int>("/api/v2/workOrders/schedule", request);
 
-            return response.Id;
+            return response;
         }
 
         public async Task<IEnumerable<WorkOrderItemViewModel>> GetTasks(int workOrderId)

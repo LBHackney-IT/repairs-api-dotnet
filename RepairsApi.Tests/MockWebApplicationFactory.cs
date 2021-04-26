@@ -20,6 +20,7 @@ using Moq;
 using Npgsql;
 using V2_Generated_DRS;
 using RepairsApi.Tests.Helpers;
+using NUnit.Framework;
 
 namespace RepairsApi.Tests
 {
@@ -146,11 +147,18 @@ namespace RepairsApi.Tests
         private static async Task<TResponse> ProcessResponse<TResponse>(HttpResponseMessage result)
         {
             var responseContent = await result.Content.ReadAsStringAsync();
+            try
+            {
 
-            object parseResponse = JsonConvert.DeserializeObject(responseContent, typeof(TResponse));
+                object parseResponse = JsonConvert.DeserializeObject(responseContent, typeof(TResponse));
+                TResponse castedResponse = parseResponse != null && typeof(TResponse).IsAssignableFrom(parseResponse.GetType()) ? (TResponse) parseResponse : default;
+                return castedResponse;
+            } catch (JsonSerializationException e)
+            {
+                throw new Exception($"Result Serialisation Failed. Response Had Code {result.StatusCode}", e);
+            }
 
-            TResponse castedResponse = parseResponse != null && typeof(TResponse).IsAssignableFrom(parseResponse.GetType()) ? (TResponse) parseResponse : default;
-            return castedResponse;
+
         }
 
         public async Task<(HttpStatusCode statusCode, TResponse response)> Post<TResponse>(string uri, object data)
