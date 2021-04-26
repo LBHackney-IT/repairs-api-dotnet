@@ -32,7 +32,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
             WorkOrder workOrder = await GetWorkOrder(jobStatusUpdate);
             workOrder.VerifyCanApproveVariation();
-            
+
 
             var variationJobStatus = await _jobStatusUpdateGateway.GetOutstandingVariation(workOrder.Id);
 

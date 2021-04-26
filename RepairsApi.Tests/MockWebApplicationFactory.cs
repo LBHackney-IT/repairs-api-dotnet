@@ -153,7 +153,8 @@ namespace RepairsApi.Tests
                 object parseResponse = JsonConvert.DeserializeObject(responseContent, typeof(TResponse));
                 TResponse castedResponse = parseResponse != null && typeof(TResponse).IsAssignableFrom(parseResponse.GetType()) ? (TResponse) parseResponse : default;
                 return castedResponse;
-            } catch (JsonSerializationException e)
+            }
+            catch (JsonSerializationException e)
             {
                 throw new Exception($"Result Serialisation Failed. Response Had Code {result.StatusCode}", e);
             }
