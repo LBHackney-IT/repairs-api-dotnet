@@ -2,10 +2,6 @@ using Moq;
 using NUnit.Framework;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.UseCase;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace RepairsApi.Tests.V2.UseCase
 {
