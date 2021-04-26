@@ -33,7 +33,7 @@ namespace RepairsApi.V2.Gateways
 
         public async Task<JobStatusUpdate> GetOutstandingVariation(int workOrderId)
         {
-            var jobStatusUpdate = await _repairsContext.JobStatusUpdates.Where(s => (int) s.TypeCode == (int)JobStatusUpdateTypeCode._180)
+            var jobStatusUpdate = await _repairsContext.JobStatusUpdates.Where(s => (int) s.TypeCode == (int) JobStatusUpdateTypeCode._180)
                 .Where(s => s.RelatedWorkOrder.Id == workOrderId)
                 .OrderByDescending(s => s.EventTime)
                 .FirstOrDefaultAsync();
