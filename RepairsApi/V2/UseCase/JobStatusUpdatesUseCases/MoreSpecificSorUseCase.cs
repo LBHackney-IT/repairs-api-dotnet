@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using JobStatusUpdateTypeCode = RepairsApi.V2.Generated.JobStatusUpdateTypeCode;
 using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
+using RepairsApi.V2.Helpers;
 
 namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 {
@@ -39,10 +40,9 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             var workElement = jobStatusUpdate.MoreSpecificSORCode.ToDb();
 
             WorkOrder workOrder = await GetWorkOrder(jobStatusUpdate);
+            workOrder.VerifyCanVary();
 
             var authorised = await _authorizationService.AuthorizeAsync(_currentUserService.GetUser(), jobStatusUpdate, "VarySpendLimit");
-
-            if (workOrder.StatusCode == WorkStatusCode.PendingVariation) throw new InvalidOperationException(Resources.ActionUnsupported);
 
             if (await _featureManager.IsEnabledAsync(FeatureFlags.SpendLimits) && !authorised.Succeeded)
             {

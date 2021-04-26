@@ -1,5 +1,6 @@
 using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 using System;
@@ -30,8 +31,8 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             if (!_currentUserService.HasGroup(UserGroups.ContractManager)) throw new UnauthorizedAccessException(Resources.InvalidPermissions);
 
             WorkOrder workOrder = await GetWorkOrder(jobStatusUpdate);
-
-            if (workOrder.StatusCode != WorkStatusCode.PendingVariation) throw new NotSupportedException(Resources.ActionUnsupported);
+            workOrder.VerifyCanApproveVariation();
+            
 
             var variationJobStatus = await _jobStatusUpdateGateway.GetOutstandingVariation(workOrder.Id);
 

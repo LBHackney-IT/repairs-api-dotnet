@@ -1,6 +1,7 @@
 using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated;
+using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Services;
 using System;
 using System.Threading.Tasks;
@@ -23,12 +24,10 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             var workOrderId = int.Parse(jobStatusUpdate.RelatedWorkOrderReference.ID);
 
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
+            workOrder.VerifyCanApproveWorkOrder();
 
             if (!_currentUserService.HasGroup(UserGroups.ContractManager))
                 throw new UnauthorizedAccessException(Resources.InvalidPermissions);
-
-            if (workOrder.StatusCode != Infrastructure.WorkStatusCode.PendingApproval)
-                throw new NotSupportedException("Work order is not pending approval");
 
             workOrder.StatusCode = Infrastructure.WorkStatusCode.Open;
         }

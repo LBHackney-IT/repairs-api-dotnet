@@ -1,5 +1,6 @@
 using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 using System;
@@ -14,19 +15,12 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
     {
         private readonly IRepairsGateway _repairsGateway;
         private readonly ICurrentUserService _currentUserService;
-        private readonly IList<WorkStatusCode> _authorizedStatus;
 
         public ContractorAcknowledgeVariationUseCase(IRepairsGateway repairsGateway,
             ICurrentUserService currentUserService)
         {
             _repairsGateway = repairsGateway;
             _currentUserService = currentUserService;
-
-            _authorizedStatus = new List<WorkStatusCode>
-            {
-                WorkStatusCode.VariationApproved,
-                WorkStatusCode.VariationRejected
-            };
         }
 
         public async Task Execute(JobStatusUpdate jobStatusUpdate)
@@ -34,21 +28,14 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             var workOrderId = int.Parse(jobStatusUpdate.RelatedWorkOrderReference.ID);
 
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
+            workOrder.VerifyCanAcknowldgeVariation();
 
             if (!_currentUserService.HasGroup(UserGroups.Contractor))
                 throw new UnauthorizedAccessException(Resources.InvalidPermissions);
 
-            if (!IsValidState(workOrder))
-                throw new NotSupportedException(Resources.ActionUnsupported);
-
             workOrder.StatusCode = WorkStatusCode.Open;
             await _repairsGateway.SaveChangesAsync();
 
-        }
-
-        private bool IsValidState(WorkOrder workOrder)
-        {
-            return _authorizedStatus.Contains(workOrder.StatusCode);
         }
     }
 }

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.UseCase.Interfaces;
 using RepairsApi.V2;
+using RepairsApi.V2.UseCase;
 
 namespace RepairsApi.Tests.V2.Controllers
 {
@@ -16,13 +17,13 @@ namespace RepairsApi.Tests.V2.Controllers
     {
         private AppointmentsController _classUnderTest;
         private Mock<IListAppointmentsUseCase> _listAppointmentsMock;
-        private Mock<ICreateAppointmentUseCase> _createAppointmentMock;
+        private Mock<CreateAppointmentUseCase> _createAppointmentMock;
 
         [SetUp]
         public void Setup()
         {
             _listAppointmentsMock = new Mock<IListAppointmentsUseCase>();
-            _createAppointmentMock = new Mock<ICreateAppointmentUseCase>();
+            _createAppointmentMock = new Mock<CreateAppointmentUseCase>();
             _classUnderTest = new AppointmentsController(_listAppointmentsMock.Object, _createAppointmentMock.Object);
         }
 

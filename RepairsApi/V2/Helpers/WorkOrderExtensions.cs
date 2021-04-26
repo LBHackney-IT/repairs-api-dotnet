@@ -24,5 +24,47 @@ namespace RepairsApi.V2.Helpers
             )
                 throw new NotSupportedException("Cannot Resume Job");
         }
+
+        public static void VerifyCanVary(this WorkOrder wo)
+        {
+            if (wo.StatusCode == WorkStatusCode.PendingVariation ||
+                wo.StatusCode == WorkStatusCode.PendingApproval
+            )
+                throw new InvalidOperationException(Resources.ActionUnsupported);
+        }
+
+        public static void VerifyCanApproveVariation(this WorkOrder wo)
+        {
+            if (wo.StatusCode != WorkStatusCode.PendingVariation) throw new NotSupportedException(Resources.ActionUnsupported);
+        }
+
+        public static void VerifyCanRejectVariation(this WorkOrder wo)
+        {
+            if (wo.StatusCode != WorkStatusCode.PendingVariation) throw new NotSupportedException(Resources.ActionUnsupported);
+        }
+
+        public static void VerifyCanApproveWorkOrder(this WorkOrder wo)
+        {
+            if (wo.StatusCode != Infrastructure.WorkStatusCode.PendingApproval) throw new NotSupportedException("Work order is not pending approval");
+        }
+
+        public static void VerifyCanRejectWorkOrder(this WorkOrder wo)
+        {
+            if (wo.StatusCode != Infrastructure.WorkStatusCode.PendingApproval) throw new NotSupportedException("Work order is not pending approval");
+        }
+
+        public static void VerifyCanAcknowldgeVariation(this WorkOrder wo)
+        {
+            if (
+                wo.StatusCode != WorkStatusCode.VariationApproved &&
+                wo.StatusCode != WorkStatusCode.VariationRejected
+            )
+                throw new NotSupportedException("Cannot Acknowledge");
+        }
+
+        public static void VerifyCanMoveToJobIncomplete(this WorkOrder wo)
+        {
+            if (wo.StatusCode == WorkStatusCode.PendingApproval) throw new NotSupportedException(Resources.ActionUnsupported);
+        }
     }
 }

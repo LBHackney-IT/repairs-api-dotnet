@@ -237,7 +237,7 @@ namespace RepairsApi
             services.AddTransient<IListWorkOrderNotesUseCase, ListWorkOrderNotesUseCase>();
             services.AddTransient<IUpdateSorCodesUseCase, UpdateSorCodesUseCase>();
             services.AddTransient<IListAppointmentsUseCase, ListAppointmentsUseCase>();
-            services.AddTransient<ICreateAppointmentUseCase, CreateAppointmentUseCase>();
+            services.AddTransient<CreateAppointmentUseCase, CreateAppointmentUseCase>();
         }
 
         private void AddHttpClients(IServiceCollection services)
