@@ -91,7 +91,6 @@ namespace RepairsApi.V2.Services
 
         private async Task<bookingCode[]> BuildBookingCodes(WorkOrder workOrder)
         {
-
             var bookingIndex = 1;
             var workElement = workOrder.WorkElements.FirstOrDefault();
             var bookingTasks = workElement?

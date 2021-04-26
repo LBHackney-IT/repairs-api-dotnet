@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Moq;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers;
 using RepairsApi.Tests.Helpers.StubGeneration;
@@ -36,6 +37,14 @@ namespace RepairsApi.Tests.V2.E2ETests
             code.Should().Be(HttpStatusCode.OK);
             var wo = GetWorkOrderFromDB(response);
             wo.WorkPriority.NumberOfDays.Should().Be(request.Priority.NumberOfDays);
+        }
+
+        [Test]
+        public async Task ForwardedToDRS()
+        {
+            var id = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
+
+            SoapMock.Verify(s => s.createOrderAsync(It.IsAny<V2_Generated_DRS.createOrder>()));
         }
 
         [Test]
