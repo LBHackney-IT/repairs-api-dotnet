@@ -78,6 +78,18 @@ namespace RepairsApi.V2.Services
             return createOrder;
         }
 
+        public Task<deleteOrder> BuildDeleteOrderRequest(string sessionId, WorkOrder workOrder)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static DateTime ConvertToDrsTimeZone(DateTime dateTime)
+        {
+            var london = DateTimeZoneProviders.Tzdb["Europe/London"];
+            var local = Instant.FromDateTimeUtc(dateTime).InUtc();
+            return local.WithZone(london).ToDateTimeUnspecified();
+        }
+
         private async Task<bookingCode[]> BuildBookingCodes(WorkOrder workOrder)
         {
 

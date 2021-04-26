@@ -7,6 +7,7 @@ namespace RepairsApi.V2.Services
     {
         Task OpenSession();
         Task CreateOrder(WorkOrder workOrder);
+        Task CancelOrder(WorkOrder workOrder);
     }
 
 }
