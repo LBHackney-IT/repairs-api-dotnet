@@ -16,6 +16,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                 .AddGenerator(new RandomStringGenerator(10))
                 .AddGenerator(new RandomCharGenerator())
                 .AddGenerator(new RandomDoubleGenerator(0, 50))
+                .AddGenerator(new RandomDateGenerator(20))
                 .AddGenerator(new RandomBoolGenerator());
         }
 
