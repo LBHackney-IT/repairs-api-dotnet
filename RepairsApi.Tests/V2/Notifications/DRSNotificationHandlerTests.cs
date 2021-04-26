@@ -23,7 +23,7 @@ namespace RepairsApi.Tests.V2.Notifications
         {
             _featureManager = new Mock<IFeatureManager>();
             _drsServiceMock = new Mock<IDrsService>();
-            
+
             ServiceCollection services = new ServiceCollection();
             services.AddTransient(sp => _drsServiceMock.Object);
             _classUnderTest = new DRSNotificationHandler(services.BuildServiceProvider(), _featureManager.Object);
