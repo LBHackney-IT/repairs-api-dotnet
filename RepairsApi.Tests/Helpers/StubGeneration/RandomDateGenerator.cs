@@ -14,7 +14,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
 
         public override DateTime GenerateValue()
         {
-            return DateTime.UtcNow.AddDays(_random.Next(-_range/2, _range/2));
+            return DateTime.UtcNow.AddDays(_random.Next(-_range / 2, _range / 2));
         }
     }
 }
