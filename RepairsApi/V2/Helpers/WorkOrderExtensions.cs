@@ -19,8 +19,8 @@ namespace RepairsApi.V2.Helpers
         public static void VerifyCanResumeJob(this WorkOrder wo)
         {
             if (
-                wo.StatusCode != WorkStatusCode.VariationApproved &&
-                wo.StatusCode != WorkStatusCode.VariationRejected
+                wo.StatusCode != WorkStatusCode.PendMaterial &&
+                wo.StatusCode != WorkStatusCode.Hold
             )
                 throw new NotSupportedException("Cannot Resume Job");
         }

@@ -1,7 +1,14 @@
+using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using RepairsApi.Tests.Helpers;
 using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace RepairsApi.Tests.V2.UseCase
 {
@@ -14,103 +21,94 @@ namespace RepairsApi.Tests.V2.UseCase
         public void Setup()
         {
             _sheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
+            _sheduleOfRatesGateway.Setup(g => g.GetCost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(10.0);
             _classUnderTest = new UpdateSorCodesUseCase(_sheduleOfRatesGateway.Object);
         }
 
-        //[Test]
-        //public async Task MoreSpecificSORCodeAddsSORCodeToWorkOrder()
-        //{
-        //    const int cost = 10;
-        //    const int desiredWorkOrderId = 42;
-        //    var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
-        //    _updateSorCodesUseCaseMock.Setup(s => s.GetCost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(cost);
-        //    var expectedNewCodes = workOrder.WorkElements.SelectMany(we => we.RateScheduleItem).ToList();
-        //    expectedNewCodes.Add(new RateScheduleItem
-        //    {
-        //        CustomCode = "code",
-        //        Quantity = new Quantity
-        //        {
-        //            Amount = 4.5
-        //        }
-        //    });
-        //    var request = CreateMoreSpecificSORUpdateRequest(desiredWorkOrderId, workOrder, expectedNewCodes.ToArray());
+        [Test]
+        public async Task MoreSpecificSORCodeAddsSORCodeToWorkOrder()
+        {
+            Guid originalGuid = Guid.NewGuid();
+            Guid newGuid = Guid.NewGuid();
+            const int originalQuantity = 10;
+            const int newQuantity = 15;
 
-        //    await _classUnderTest.Execute(request);
+            var workOrder = BuildWorkOrder(originalGuid, originalQuantity);
 
-        //    List<RateScheduleItem> rateScheduleItems = workOrder.WorkElements.Single().RateScheduleItem;
-        //    rateScheduleItems.Should().BeEquivalentTo(expectedNewCodes,
-        //        options => options.Excluding(rsi => rsi.Id).Excluding(rsi => rsi.DateCreated).Excluding(rsi => rsi.CodeCost)
-        //        .Excluding(rsi => rsi.OriginalId));
-        //    rateScheduleItems.Last().CodeCost.Should().Be(cost);
-        //}
+            var workElement = CreateWorkElement(workOrder);
 
-        //[Test]
-        //public async Task UpdateQuantityOfExistingCodes()
-        //{
-        //    const int desiredWorkOrderId = 42;
-        //    var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
-        //    var codeToModify = workOrder.WorkElements.First().RateScheduleItem.First();
-        //    var expectedNewCode = CloneRateScheduleItem(codeToModify);
-        //    expectedNewCode.Quantity.Amount += 4;
-        //    var request = CreateMoreSpecificSORUpdateRequest(desiredWorkOrderId, workOrder, expectedNewCode);
+            workElement.RateScheduleItem.Add(new RateScheduleItem
+            {
+                Id = newGuid,
+                Quantity = new Quantity(newQuantity)
+            });
 
-        //    await _classUnderTest.Execute(request);
+            await _classUnderTest.Execute(workOrder, workElement);
 
-        //    codeToModify.Should().BeEquivalentTo(expectedNewCode,
-        //        option => option.Excluding(x => x.Id).Excluding(x => x.Original)
-        //        .Excluding(x => x.OriginalQuantity).Excluding(x => x.OriginalId));
-        //}
+            workOrder.WorkElements.Single().RateScheduleItem.Should().HaveCount(2);
+            workOrder.WorkElements.Single().RateScheduleItem.Should().ContainSingle(rsi => rsi.Quantity.Amount == originalQuantity);
+            workOrder.WorkElements.Single().RateScheduleItem.Should().ContainSingle(rsi => rsi.Quantity.Amount == newQuantity);
+        }
 
-        //[Test]
-        //public void ThrowUnsupportedWhenOriginalSorCodeNotPResent()
-        //{
-        //    const int desiredWorkOrderId = 42;
-        //    var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
-        //    var expectedNewCode = new RateScheduleItem
-        //    {
-        //        CustomCode = "code",
-        //        Quantity = new Quantity
-        //        {
-        //            Amount = 4.5
-        //        }
-        //    };
-        //    var request = CreateMoreSpecificSORUpdateRequest(desiredWorkOrderId, workOrder, expectedNewCode);
+        [Test]
+        public async Task UpdateQuantityOfExistingCodes()
+        {
+            const int newQuantity = 15;
 
-        //    Assert.ThrowsAsync<NotSupportedException>(() => _classUnderTest.Execute(request));
-        //}
+            WorkOrder workOrder = BuildWorkOrder(Guid.NewGuid(), 10);
 
-        //private static RateScheduleItem CloneRateScheduleItem(RateScheduleItem toModify)
-        //{
+            WorkElement workElement = CreateWorkElement(workOrder);
+            workElement.RateScheduleItem.First().Quantity.Amount = newQuantity;
 
-        //    var expectedNewCodes = new RateScheduleItem
-        //    {
-        //        CustomCode = toModify.CustomCode,
-        //        CustomName = toModify.CustomName,
-        //        Quantity = new Quantity
-        //        {
-        //            Amount = toModify.Quantity.Amount,
-        //            UnitOfMeasurementCode = toModify.Quantity.UnitOfMeasurementCode
-        //        },
-        //        CodeCost = toModify.CodeCost,
-        //        DateCreated = toModify.DateCreated,
-        //        M3NHFSORCode = toModify.M3NHFSORCode,
-        //        Id = toModify.Id
-        //    };
-        //    return expectedNewCodes;
-        //}
+            await _classUnderTest.Execute(workOrder, workElement);
 
+            workOrder.WorkElements.Single().RateScheduleItem.Should().HaveCount(1);
+            workOrder.WorkElements.Single().RateScheduleItem.Should().ContainSingle(rsi => rsi.Quantity.Amount == newQuantity);
+        }
 
+        private static WorkElement CreateWorkElement(WorkOrder workOrder)
+        {
+            var workElement = workOrder.WorkElements.First().DeepClone();
+            workElement.RateScheduleItem.ForEach(r => r.OriginalId = r.Id);
+            return workElement;
+        }
 
-        //private WorkOrder CreateReturnWorkOrder(int expectedId)
-        //{
-        //    var workOrder = BuildWorkOrder(expectedId);
+        [Test]
+        public async Task ThrowUnsupportedWhenOriginalSorCodeNotPresent()
+        {
+            Guid originalGuid = Guid.NewGuid();
+            Guid newGuid = Guid.NewGuid();
+            var workOrder = BuildWorkOrder(originalGuid, 10);
 
-        //    _repairsGatewayMock.Setup(gateway => gateway.GetWorkOrder(It.Is<int>(i => i == expectedId)))
-        //        .ReturnsAsync(workOrder);
-        //    _repairsGatewayMock.Setup(gateway => gateway.GetWorkElementsForWorkOrder(It.Is<WorkOrder>(wo => wo.Id == expectedId)))
-        //        .ReturnsAsync(_fixture.Create<List<WorkElement>>);
+            var workElement = new WorkElement()
+            {
+                RateScheduleItem = new List<RateScheduleItem>()
+            };
 
-        //    return workOrder;
-        //}
+            Func<Task> testFn = async () => await _classUnderTest.Execute(workOrder, workElement);
+
+            await testFn.Should().ThrowAsync<NotSupportedException>();
+        }
+
+        private static WorkOrder BuildWorkOrder(Guid originalGuid, int originalQuantity)
+        {
+            return new WorkOrder
+            {
+                WorkElements = new List<WorkElement>
+                {
+                    new WorkElement
+                    {
+                        RateScheduleItem = new List<RateScheduleItem>
+                        {
+                            new RateScheduleItem
+                            {
+                                Id = originalGuid,
+                                Quantity = new Quantity(originalQuantity)
+                            }
+                        }
+                    }
+                }
+            };
+        }
     }
 }
