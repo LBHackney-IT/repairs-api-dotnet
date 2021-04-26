@@ -62,7 +62,7 @@ namespace RepairsApi.V2.Controllers
         [Authorize(Roles = UserGroups.Agent + "," + UserGroups.ContractManager)]
         public async Task<IActionResult> ScheduleRepair([FromBody] ScheduleRepair request)
         {
-            var result = await _createWorkOrderUseCase.Execute(request.ToDb());
+             var result = await _createWorkOrderUseCase.Execute(request.ToDb());
             return Ok(result.Id);
         }
 
@@ -86,6 +86,7 @@ namespace RepairsApi.V2.Controllers
         [Route("{id}")]
         [HttpGet]
         [ProducesResponseType(typeof(WorkOrderResponse), 200)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Get(int id)
         {
