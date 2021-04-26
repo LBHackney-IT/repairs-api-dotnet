@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using NodaTime;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Helpers;
@@ -83,8 +84,9 @@ namespace RepairsApi.V2.Services
 
         private static DateTime ConvertToDrsTimeZone(DateTime dateTime)
         {
-            var gmt = TimeZoneInfo.FindSystemTimeZoneById("GMT Standard Time");
-            return TimeZoneInfo.ConvertTimeFromUtc(dateTime, gmt);
+            var london = DateTimeZoneProviders.Tzdb["Europe/London"];
+            var local = Instant.FromDateTimeUtc(dateTime).InUtc();
+            return local.WithZone(london).ToDateTimeUnspecified();
         }
 
         private async Task<bookingCode[]> BuildBookingCodes(WorkOrder workOrder)

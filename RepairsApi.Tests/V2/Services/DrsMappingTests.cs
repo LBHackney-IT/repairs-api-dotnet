@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
+using NodaTime;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers.StubGeneration;
 using RepairsApi.V2.Boundary.Response;
@@ -109,8 +110,9 @@ namespace RepairsApi.Tests.V2.Services
 
         private static void ValidateTargetDate(DateTime requiredCompletionDateTime, DateTime targetDate)
         {
-            var gmt = TimeZoneInfo.FindSystemTimeZoneById("GMT Standard Time");
-            targetDate.Should().Be(TimeZoneInfo.ConvertTimeFromUtc(requiredCompletionDateTime, gmt));
+            var london = DateTimeZoneProviders.Tzdb["Europe/London"];
+            var local = Instant.FromDateTimeUtc(requiredCompletionDateTime).InUtc();
+            targetDate.Should().Be(local.WithZone(london).ToDateTimeUnspecified());
         }
 
         private static void ValidateBookings(WorkOrder workOrder, IList<ScheduleOfRatesModel> sorCodes, bookingCode[] bookings)
