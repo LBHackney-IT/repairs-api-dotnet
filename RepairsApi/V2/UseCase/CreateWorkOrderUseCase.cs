@@ -10,8 +10,8 @@ using RepairsApi.V2.Domain;
 using RepairsApi.V2.MiddleWare;
 using RepairsApi.V2.Services;
 using RepairsApi.V2.Authorisation;
-using Microsoft.AspNetCore.Authorization;
-using RepairsApi.V2.Infrastructure.Extensions;
+using RepairsApi.V2.Notifications;
+using System.Collections.Generic;
 
 namespace RepairsApi.V2.UseCase
 {
@@ -21,27 +21,21 @@ namespace RepairsApi.V2.UseCase
         private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
         private readonly ILogger<CreateWorkOrderUseCase> _logger;
         private readonly ICurrentUserService _currentUserService;
-        private readonly IDrsService _drsService;
-        private readonly IFeatureManager _featureManager;
-        private readonly IAuthorizationService _authorizationService;
+        private readonly IEnumerable<INotificationHandler<WorkOrderCreated>> _handlers;
 
         public CreateWorkOrderUseCase(
             IRepairsGateway repairsGateway,
             IScheduleOfRatesGateway scheduleOfRatesGateway,
             ILogger<CreateWorkOrderUseCase> logger,
             ICurrentUserService currentUserService,
-            IDrsService drsService,
-            IFeatureManager featureManager,
-            IAuthorizationService authorizationService
+            IEnumerable<INotificationHandler<WorkOrderCreated>> handlers
             )
         {
             _repairsGateway = repairsGateway;
             _scheduleOfRatesGateway = scheduleOfRatesGateway;
             _logger = logger;
             _currentUserService = currentUserService;
-            _drsService = drsService;
-            _featureManager = featureManager;
-            _authorizationService = authorizationService;
+            _handlers = handlers;
         }
 
         public async Task<CreateOrderResult> Execute(WorkOrder workOrder)
@@ -56,9 +50,17 @@ namespace RepairsApi.V2.UseCase
             var id = await _repairsGateway.CreateWorkOrder(workOrder);
             _logger.LogInformation(Resources.CreatedWorkOrder);
 
-            if (await _featureManager.IsEnabledAsync(FeatureFlags.DRSIntegration))
+            await NotifyHandlers(workOrder);
+
+            return id;
+        }
+
+        private async Task NotifyHandlers(WorkOrder workOrder)
+        {
+            var notification = new WorkOrderCreated(workOrder);
+            foreach (var handler in _handlers)
             {
-                await _drsService.CreateOrder(workOrder);
+                await handler.Notify(notification);
             }
             return new CreateOrderResult(id, workOrder.StatusCode, workOrder.GetStatus());
         }
