@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -97,14 +98,19 @@ namespace RepairsApi.Tests.V2.Services
             order.orderComments.Should().Be(workOrder.DescriptionOfWork);
             order.contract.Should().Be(workOrder.AssignedToPrimary.ContractorReference);
             order.locationID.Should().Be(workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference);
-            order.targetDate.Should().Be(workOrder.WorkPriority.RequiredCompletionDateTime!.Value);
             order.userId.Should().Be(workOrder.AgentEmail);
             order.contactName.Should().Be(workOrder.Customer.Name);
             order.phone.Should().Be(workOrder.Customer.Person.Communication.GetPhoneNumber());
 
             ValidateLocation(workOrder, locationAlerts, order.theLocation);
-
             ValidateBookings(workOrder, sorCodes, order.theBookingCodes);
+            ValidateTargetDate(workOrder.WorkPriority.RequiredCompletionDateTime!.Value, order.targetDate);
+        }
+
+        private static void ValidateTargetDate(DateTime requiredCompletionDateTime, DateTime targetDate)
+        {
+            var gmt = TimeZoneInfo.FindSystemTimeZoneById("GMT Standard Time");
+            targetDate.Should().Be(TimeZoneInfo.ConvertTimeFromUtc(requiredCompletionDateTime, gmt));
         }
 
         private static void ValidateBookings(WorkOrder workOrder, IList<ScheduleOfRatesModel> sorCodes, bookingCode[] bookings)

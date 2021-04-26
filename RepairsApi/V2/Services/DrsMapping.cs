@@ -52,7 +52,10 @@ namespace RepairsApi.V2.Services
                         contract = workOrder.AssignedToPrimary.ContractorReference,
                         locationID = workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference,
                         priority = priorityCharacter.ToString(),
-                        targetDate = workOrder.WorkPriority.RequiredCompletionDateTime ?? DateTime.UtcNow,
+                        targetDate =
+                            workOrder.WorkPriority.RequiredCompletionDateTime.HasValue
+                                ? ConvertToDrsTimeZone(workOrder.WorkPriority.RequiredCompletionDateTime.Value)
+                                : DateTime.UtcNow,
                         userId = workOrder.AgentEmail ?? workOrder.AgentName,
                         contactName = workOrder.Customer.Name,
                         phone = workOrder.Customer.Person.Communication.GetPhoneNumber(),
@@ -66,9 +69,7 @@ namespace RepairsApi.V2.Services
                             citizensName = workOrder.Customer.Name,
                             theLocationLines = locationAlerts?.Alerts.Select(a => new locationLine
                             {
-                                citizensName = workOrder.Customer.Name,
-                                lineCode = a.AlertCode,
-                                lineDescription = a.Description
+                                citizensName = workOrder.Customer.Name, lineCode = a.AlertCode, lineDescription = a.Description
                             }).ToArray<locationLine>()
                         },
                         theBookingCodes = await BuildBookingCodes(workOrder),
@@ -76,6 +77,12 @@ namespace RepairsApi.V2.Services
                 }
             };
             return createOrder;
+        }
+
+        private static DateTime ConvertToDrsTimeZone(DateTime dateTime)
+        {
+            var gmt = TimeZoneInfo.FindSystemTimeZoneById("GMT Standard Time");
+            return TimeZoneInfo.ConvertTimeFromUtc(dateTime, gmt);
         }
 
         private async Task<bookingCode[]> BuildBookingCodes(WorkOrder workOrder)
