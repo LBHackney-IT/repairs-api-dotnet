@@ -19,19 +19,22 @@ namespace RepairsApi.V2.Services
         private readonly IOptions<DrsOptions> _drsOptions;
         private readonly ILogger<DrsService> _logger;
         private readonly IDrsMapping _drsMapping;
+        private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
         private string _sessionId;
 
         public DrsService(
             V2_Generated_DRS.SOAP drsSoap,
             IOptions<DrsOptions> drsOptions,
             ILogger<DrsService> logger,
-            IDrsMapping drsMapping
+            IDrsMapping drsMapping,
+            IScheduleOfRatesGateway scheduleOfRatesGateway
         )
         {
             _drsSoap = drsSoap;
             _drsOptions = drsOptions;
             _logger = logger;
             _drsMapping = drsMapping;
+            _scheduleOfRatesGateway = scheduleOfRatesGateway;
 
         }
 
@@ -56,6 +59,7 @@ namespace RepairsApi.V2.Services
 
         public async Task CreateOrder(WorkOrder workOrder)
         {
+            if (!await ContractorUsingDrs(workOrder.AssignedToPrimary.ContractorReference)) return;
             await CheckSession();
 
             var createOrder = await _drsMapping.BuildCreateOrderRequest(_sessionId, workOrder);
@@ -65,6 +69,12 @@ namespace RepairsApi.V2.Services
                 _logger.LogError(response.@return.errorMsg);
                 throw new ApiException((int) response.@return.status, response.@return.errorMsg);
             }
+        }
+
+        public async Task<bool> ContractorUsingDrs(string contractorRef)
+        {
+            var contractor = await _scheduleOfRatesGateway.GetContractor(contractorRef);
+            return contractor.UseExternalScheduleManager;
         }
 
         private async Task CheckSession()
