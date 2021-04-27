@@ -108,9 +108,9 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             var code = await CancelWorkOrder(completedWorkOrderId);
 
             // Act
-            var (openCode, openResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?StatusCode={(int) WorkStatusCode.Open}");
-            var (closedCode, closedResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?StatusCode={(int) WorkStatusCode.Canceled}");
-            var (multiCode, multiResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?StatusCode={(int) WorkStatusCode.Open}&StatusCode={(int) WorkStatusCode.Canceled}");
+            var (openCode, openResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?StatusCode={(int) WorkStatusCode.Open}&PageSize=50");
+            var (closedCode, closedResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?StatusCode={(int) WorkStatusCode.Canceled}&PageSize=50");
+            var (multiCode, multiResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?StatusCode={(int) WorkStatusCode.Open}&StatusCode={(int) WorkStatusCode.Canceled}&PageSize=50");
 
             // Assert
             openCode.Should().Be(HttpStatusCode.OK);
@@ -123,6 +123,9 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
 
             multiCode.Should().Be(HttpStatusCode.OK);
             multiResponse.Should().ContainSingle(wo => wo.Reference == openWorkOrderId);
+
+            var wo = GetWorkOrderFromDB(completedWorkOrderId);
+
             multiResponse.Should().ContainSingle(wo => wo.Reference == completedWorkOrderId);
         }
 
