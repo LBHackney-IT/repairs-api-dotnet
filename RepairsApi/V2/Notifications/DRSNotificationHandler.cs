@@ -4,6 +4,7 @@ using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 using System;
 using System.Threading.Tasks;
+using RepairsApi.V2.Gateways;
 
 namespace RepairsApi.V2.Notifications
 {
@@ -11,37 +12,46 @@ namespace RepairsApi.V2.Notifications
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IFeatureManager _featureManager;
+        private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
 
-        public DRSNotificationHandler(IServiceProvider serviceProvider, IFeatureManager featureManager)
+        // Creating here means we do not need to provide config etc if the feature is not turned on
+        // Not ideal but accessing feature flags in startup is not clean
+        private IDrsService DrsService => _serviceProvider.GetRequiredService<IDrsService>();
+
+        public DRSNotificationHandler(
+            IServiceProvider serviceProvider,
+            IFeatureManager featureManager,
+            IScheduleOfRatesGateway scheduleOfRatesGateway)
         {
             _serviceProvider = serviceProvider;
             _featureManager = featureManager;
+            _scheduleOfRatesGateway = scheduleOfRatesGateway;
         }
 
         public async Task Notify(WorkOrderCreated data)
         {
-            if (!await _featureManager.IsEnabledAsync(FeatureFlags.DRSIntegration))
+            if (!await _featureManager.IsEnabledAsync(FeatureFlags.DRSIntegration) ||
+                !await ContractorUsingDrs(data.WorkOrder.AssignedToPrimary.ContractorReference))
             {
                 return;
             }
-
-            // Creating here means we do not need to provide config etc if the feature is not turned on
-            // Not ideal but accessing feature flags in startup is not clean
-            var drsService = _serviceProvider.GetRequiredService<IDrsService>();
-            await drsService.CreateOrder(data.WorkOrder);
+            await DrsService.CreateOrder(data.WorkOrder);
         }
 
         public async Task Notify(WorkOrderCancelled data)
         {
-            if (!await _featureManager.IsEnabledAsync(FeatureFlags.DRSIntegration))
+            if (!await _featureManager.IsEnabledAsync(FeatureFlags.DRSIntegration) ||
+                !await ContractorUsingDrs(data.WorkOrder.AssignedToPrimary.ContractorReference))
             {
                 return;
             }
+            await DrsService.CancelOrder(data.WorkOrder);
+        }
 
-            // Creating here means we do not need to provide config etc if the feature is not turned on
-            // Not ideal but accessing feature flags in startup is not clean
-            var drsService = _serviceProvider.GetRequiredService<IDrsService>();
-            await drsService.CancelOrder(data.WorkOrder);
+        private async Task<bool> ContractorUsingDrs(string contractorRef)
+        {
+            var contractor = await _scheduleOfRatesGateway.GetContractor(contractorRef);
+            return contractor.UseExternalScheduleManager;
         }
     }
 
