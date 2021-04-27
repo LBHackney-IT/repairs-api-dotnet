@@ -48,7 +48,7 @@ namespace RepairsApi.V2.Infrastructure
         Estimating = 60, // Estimating: Work Is Being Estimated. Active.
         Hold = 70, // Hold: Work Is On Hold - See Reason Code. Active
         Open = 80, // Open: Work Order Is Open - Initial Status For All Work Orders. Active.
-        PendApp = 90, // Pend App: Work Order Is Pending Approval. Active.
+        VariationPendingApproval = 90, // Pend App: Work Order Is Pending Approval. Active.
         PendDesign = 100, // Pend Design: Work Order Is Pending Design Or Design Documents. Active.
         PendMaterial = 110, // Pend Material: Work Order Is Pending Materials. Active.
         Scheduled = 120, // Scheduled: Work Is Scheduled Using A Scheduling Tool. Active.
@@ -70,7 +70,7 @@ namespace RepairsApi.V2.Infrastructure
         NoApproval = 60,    //No Approval: Work Was Not Approved
         Approved = 70,      //Approved: All Required Approvals Are Present
         Priority = 80,   //Change Priority Changed Either Escalated Or De-Escalated
-        PendingAuthorisation = 90 //Pending authorisation
+        VariationPendingAuthorisation = 90 //Pending authorisation
     }
 
     [Owned]

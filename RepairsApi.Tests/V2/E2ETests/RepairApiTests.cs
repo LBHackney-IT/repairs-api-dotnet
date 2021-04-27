@@ -273,7 +273,7 @@ namespace RepairsApi.Tests.V2.E2ETests
             var workOrder = GetWorkOrderWithJobStatusUpdatesFromDB(workOrderId);
 
             // Assert
-            workOrder.StatusCode.Should().Be(WorkStatusCode.PendApp);
+            workOrder.StatusCode.Should().Be(WorkStatusCode.VariationPendingApproval);
             workOrder.JobStatusUpdates[0].TypeCode.Should().Be(JobStatusUpdateTypeCode._180);
         }
 
