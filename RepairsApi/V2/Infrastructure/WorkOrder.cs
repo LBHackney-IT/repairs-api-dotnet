@@ -83,7 +83,7 @@ namespace RepairsApi.V2.Infrastructure
         /// <summary>
         /// Pend App: Work Order Has a paending Variation . Active.
         /// </summary>
-        PendingVariation = 90,
+        VariationPendingApproval = 90,
 
         /// <summary>
         /// Pend Design: Work Order Is Pending Design Or Design Documents. Active.
@@ -157,7 +157,7 @@ namespace RepairsApi.V2.Infrastructure
         /// <summary>
         /// Pending authorisation
         /// </summary>
-        PendingAuthorisation = 90
+        VariationPendingAuthorisation = 90
     }
 
     [Owned]

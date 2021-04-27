@@ -13,7 +13,7 @@ namespace RepairsApi.V2.Helpers
         public static void VerifyCanComplete(this WorkOrder wo)
         {
             if (wo.StatusCode == WorkStatusCode.PendingApproval) throw new NotSupportedException("Work Orders pending approval can not be completed.");
-            if (wo.StatusCode == WorkStatusCode.PendingVariation) throw new NotSupportedException("Work Orders with outstanding variations can not be completed.");
+            if (wo.StatusCode == WorkStatusCode.VariationPendingApproval) throw new NotSupportedException("Work Orders with outstanding variations can not be completed.");
         }
 
         public static void VerifyCanResumeJob(this WorkOrder wo)
@@ -27,7 +27,7 @@ namespace RepairsApi.V2.Helpers
 
         public static void VerifyCanVary(this WorkOrder wo)
         {
-            if (wo.StatusCode == WorkStatusCode.PendingVariation ||
+            if (wo.StatusCode == WorkStatusCode.VariationPendingApproval ||
                 wo.StatusCode == WorkStatusCode.PendingApproval
             )
                 throw new InvalidOperationException(Resources.ActionUnsupported);
@@ -35,12 +35,12 @@ namespace RepairsApi.V2.Helpers
 
         public static void VerifyCanApproveVariation(this WorkOrder wo)
         {
-            if (wo.StatusCode != WorkStatusCode.PendingVariation) throw new NotSupportedException(Resources.ActionUnsupported);
+            if (wo.StatusCode != WorkStatusCode.VariationPendingApproval) throw new NotSupportedException(Resources.ActionUnsupported);
         }
 
         public static void VerifyCanRejectVariation(this WorkOrder wo)
         {
-            if (wo.StatusCode != WorkStatusCode.PendingVariation) throw new NotSupportedException(Resources.ActionUnsupported);
+            if (wo.StatusCode != WorkStatusCode.VariationPendingApproval) throw new NotSupportedException(Resources.ActionUnsupported);
         }
 
         public static void VerifyCanApproveWorkOrder(this WorkOrder wo)

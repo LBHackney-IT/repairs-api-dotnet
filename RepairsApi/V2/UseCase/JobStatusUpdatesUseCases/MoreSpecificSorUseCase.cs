@@ -46,7 +46,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
             if (await _featureManager.IsEnabledAsync(FeatureFlags.SpendLimits) && !authorised.Succeeded)
             {
-                workOrder.StatusCode = WorkStatusCode.PendingVariation;
+                workOrder.StatusCode = WorkStatusCode.VariationPendingApproval;
                 jobStatusUpdate.TypeCode = JobStatusUpdateTypeCode._180;
             }
             else
