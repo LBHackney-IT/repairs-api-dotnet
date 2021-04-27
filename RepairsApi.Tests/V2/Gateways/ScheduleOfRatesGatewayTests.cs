@@ -219,6 +219,47 @@ namespace RepairsApi.Tests.V2.Gateways
             result.Should().HaveCount(expectedContractors.Count);
         }
 
+        [Test]
+        public async Task CanGetContractorByRef()
+        {
+            const string expectedContractorRef = "contractorRef";
+            var contractorGenerator = new Generator<Contractor>()
+                .AddDefaultGenerators()
+                .AddValue(null, (Contractor c) => c.Contracts);
+            var contractors = contractorGenerator.GenerateList(10);
+            var expectedContractor = contractorGenerator.Generate();
+            expectedContractor.Reference = expectedContractorRef;
+            await InMemoryDb.Instance.Contractors.AddRangeAsync(contractors.Append(expectedContractor));
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            var result = await _classUnderTest.GetContractor(expectedContractorRef);
+
+            result.ContractorReference.Should().Be(expectedContractor.Reference);
+            result.ContractorName.Should().Be(expectedContractor.Name);
+            result.UseExternalScheduleManager.Should().Be(expectedContractor.UseExternalScheduleManager);
+        }
+
+        [Test]
+        public async Task GetContractorReturnsUseExternalScheduleManager()
+        {
+            var contractorGenerator = new Generator<Contractor>()
+                .AddDefaultGenerators()
+                .AddValue(null, (Contractor c) => c.Contracts);
+            var externalContractor = contractorGenerator.Generate();
+            externalContractor.UseExternalScheduleManager = true;
+            var notExternalContractor = contractorGenerator.Generate();
+            notExternalContractor.UseExternalScheduleManager = false;
+            await InMemoryDb.Instance.Contractors.AddAsync(externalContractor);
+            await InMemoryDb.Instance.Contractors.AddAsync(notExternalContractor);
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            var externalResult = await _classUnderTest.GetContractor(externalContractor.Reference);
+            var notExternalResult = await _classUnderTest.GetContractor(notExternalContractor.Reference);
+
+            externalResult.UseExternalScheduleManager.Should().Be(externalContractor.UseExternalScheduleManager);
+            notExternalResult.UseExternalScheduleManager.Should().Be(notExternalContractor.UseExternalScheduleManager);
+        }
+
         private async Task GetAndValidateCodes(string expectedProperty, SorCodeTrade expectedTrade, string contractorReference, List<ScheduleOfRates> expectedCodes)
         {
 
@@ -256,14 +297,14 @@ namespace RepairsApi.Tests.V2.Gateways
                 .AddValue(expectedProperty, (PropertyContract pc) => pc.PropRef)
                 .AddValue(expectedTrade, (ScheduleOfRates sor) => sor.Trade)
                 .AddValue(enabled, (ScheduleOfRates sor) => sor.Enabled)
-                .AddGenerator(() => generateJoinEntry(expectedContract), (ScheduleOfRates sor) => sor.SorCodeMap);
+                .AddGenerator(() => GenerateJoinEntry(expectedContract), (ScheduleOfRates sor) => sor.SorCodeMap);
             var expectedCodes = expectedGenerator.GenerateList(10);
 
             await InMemoryDb.Instance.SORCodes.AddRangeAsync(expectedCodes);
             return expectedCodes;
         }
 
-        private static List<SORContract> generateJoinEntry(Contract expectedContract)
+        private static List<SORContract> GenerateJoinEntry(Contract expectedContract)
         {
             return new List<SORContract>
             {
@@ -303,8 +344,6 @@ namespace RepairsApi.Tests.V2.Gateways
         private static async Task<List<Contractor>> SeedContractors(string tradeCode, string expectedProperty, DateTime effectiveDate, DateTime termDate)
         {
             var stringGenerator = new Generator<string>()
-                .AddDefaultGenerators();
-            var doubleGenerator = new Generator<double>()
                 .AddDefaultGenerators();
             var contractorGenerator = new Generator<Contractor>()
                 .AddDefaultGenerators()

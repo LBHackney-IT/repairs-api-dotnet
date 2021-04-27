@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
+using NodaTime;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers.StubGeneration;
 using RepairsApi.V2.Boundary.Response;
@@ -62,6 +64,19 @@ namespace RepairsApi.Tests.V2.Services
             request.createOrder1.theOrder.priority.Should().Be(expectedDrsCode.ToString());
         }
 
+        [Test]
+        public async Task CreatesDelete()
+        {
+            var generator = new Generator<WorkOrder>()
+                .AddInfrastructureWorkOrderGenerators();
+            var workOrder = generator.Generate();
+            var sorCodes = SetupSorCodes(workOrder);
+
+            var request = await _classUnderTest.BuildDeleteOrderRequest(_sessionId, workOrder);
+
+            VerifyDeleteOrder(request, workOrder, sorCodes);
+        }
+
         private IList<ScheduleOfRatesModel> SetupSorCodes(WorkOrder workOrder)
         {
             var sorCodes = workOrder.WorkElements.FirstOrDefault()?.RateScheduleItem
@@ -88,6 +103,11 @@ namespace RepairsApi.Tests.V2.Services
             createOrder.createOrder1.sessionId.Should().Be(_sessionId);
             ValidateOrder(workOrder, createOrder.createOrder1.theOrder, sorCodes, _locationAlerts);
         }
+        private void VerifyDeleteOrder(deleteOrder deleteOrder, WorkOrder workOrder, IList<ScheduleOfRatesModel> sorCodes)
+        {
+            deleteOrder.deleteOrder1.sessionId.Should().Be(_sessionId);
+            ValidateOrder(workOrder, deleteOrder.deleteOrder1.theOrder, sorCodes, _locationAlerts);
+        }
 
         private static void ValidateOrder(WorkOrder workOrder, order order, IList<ScheduleOfRatesModel> sorCodes, PropertyAlertList locationAlerts)
         {
@@ -97,14 +117,20 @@ namespace RepairsApi.Tests.V2.Services
             order.orderComments.Should().Be(workOrder.DescriptionOfWork);
             order.contract.Should().Be(workOrder.AssignedToPrimary.ContractorReference);
             order.locationID.Should().Be(workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference);
-            order.targetDate.Should().Be(workOrder.WorkPriority.RequiredCompletionDateTime!.Value);
             order.userId.Should().Be(workOrder.AgentEmail);
             order.contactName.Should().Be(workOrder.Customer.Name);
             order.phone.Should().Be(workOrder.Customer.Person.Communication.GetPhoneNumber());
 
             ValidateLocation(workOrder, locationAlerts, order.theLocation);
-
             ValidateBookings(workOrder, sorCodes, order.theBookingCodes);
+            ValidateTargetDate(workOrder.WorkPriority.RequiredCompletionDateTime!.Value, order.targetDate);
+        }
+
+        private static void ValidateTargetDate(DateTime requiredCompletionDateTime, DateTime targetDate)
+        {
+            var london = DateTimeZoneProviders.Tzdb["Europe/London"];
+            var local = Instant.FromDateTimeUtc(requiredCompletionDateTime).InUtc();
+            targetDate.Should().Be(local.WithZone(london).ToDateTimeUnspecified());
         }
 
         private static void ValidateBookings(WorkOrder workOrder, IList<ScheduleOfRatesModel> sorCodes, bookingCode[] bookings)

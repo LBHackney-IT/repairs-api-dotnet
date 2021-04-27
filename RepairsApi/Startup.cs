@@ -39,6 +39,7 @@ using Castle.Core.Internal;
 using System.ServiceModel;
 using Newtonsoft.Json;
 using V2_Generated_DRS;
+using RepairsApi.V2.Notifications;
 
 namespace RepairsApi
 {
@@ -56,7 +57,7 @@ namespace RepairsApi
         }
 
         public IConfiguration Configuration { get; }
-        private static List<ApiVersionDescription> _apiVersions { get; set; }
+        private static List<ApiVersionDescription> ApiVersions { get; set; }
         private const string ApiName = "Repairs API";
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -154,7 +155,7 @@ namespace RepairsApi
                 });
 
                 //Get every ApiVersion attribute specified and create swagger docs for them
-                foreach (var apiVersion in _apiVersions)
+                foreach (var apiVersion in ApiVersions)
                 {
                     var version = $"v{apiVersion.ApiVersion}";
                     c.SwaggerDoc(version, new OpenApiInfo
@@ -195,6 +196,14 @@ namespace RepairsApi
             services.AddSingleton<IAuthenticationService, ChallengeOnlyAuthenticationService>();
             services.AddFeatureManagement();
             services.AddFilteringConfig();
+
+            AddNotificationHandlers(services);
+        }
+
+        private static void AddNotificationHandlers(IServiceCollection services)
+        {
+            services.AddTransient<INotificationHandler<WorkOrderOpened>, DRSNotificationHandler>();
+            services.AddTransient<INotificationHandler<WorkOrderCancelled>, DRSNotificationHandler>();
         }
 
         private static void RegisterGateways(IServiceCollection services)
@@ -226,8 +235,8 @@ namespace RepairsApi
             services.AddTransient<IGetWorkOrderUseCase, GetWorkOrderUseCase>();
             services.AddTransient<IListWorkOrderTasksUseCase, ListWorkOrderTasksUseCase>();
             services.AddTransient<IListSorTradesUseCase, ListSorTradesUseCase>();
-            services.AddTransient<IMoreSpecificSorUseCase, MoreSpecificSorUseCase>();
             services.AddTransient<IListWorkOrderNotesUseCase, ListWorkOrderNotesUseCase>();
+            services.AddTransient<IUpdateSorCodesUseCase, UpdateSorCodesUseCase>();
             services.AddTransient<IListAppointmentsUseCase, ListAppointmentsUseCase>();
             services.AddTransient<ICreateAppointmentUseCase, CreateAppointmentUseCase>();
             services.AddTransient<IListVariationTasksUseCase, ListVariationTasksUseCase>();
@@ -282,12 +291,12 @@ namespace RepairsApi
 
             //Get All ApiVersions,
             var api = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();
-            _apiVersions = api.ApiVersionDescriptions.ToList();
+            ApiVersions = api.ApiVersionDescriptions.ToList();
 
             //Swagger ui to view the swagger.json file
             app.UseSwaggerUI(c =>
             {
-                foreach (var apiVersionDescription in _apiVersions)
+                foreach (var apiVersionDescription in ApiVersions)
                 {
                     //Create a swagger endpoint for each swagger version
                     c.SwaggerEndpoint($"{apiVersionDescription.GetFormattedApiVersion()}/swagger.json",

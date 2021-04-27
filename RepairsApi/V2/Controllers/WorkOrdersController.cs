@@ -23,7 +23,6 @@ namespace RepairsApi.V2.Controllers
     [ApiVersion("2.0")]
     public partial class WorkOrdersController : Controller
     {
-        private readonly IAuthorizationService _authorizationService;
         private readonly ICreateWorkOrderUseCase _createWorkOrderUseCase;
         private readonly IListWorkOrdersUseCase _listWorkOrdersUseCase;
         private readonly ICompleteWorkOrderUseCase _completeWorkOrderUseCase;
@@ -31,11 +30,8 @@ namespace RepairsApi.V2.Controllers
         private readonly IGetWorkOrderUseCase _getWorkOrderUseCase;
         private readonly IListWorkOrderTasksUseCase _listWorkOrderTasksUseCase;
         private readonly IListWorkOrderNotesUseCase _listWorkOrderNotesUseCase;
-        private readonly IFeatureManager _featureManager;
-        private readonly IListVariationTasksUseCase _listVariationTasksUseCase;
 
         public WorkOrdersController(
-            IAuthorizationService authorizationService,
             ICreateWorkOrderUseCase createWorkOrderUseCase,
             IListWorkOrdersUseCase listWorkOrdersUseCase,
             ICompleteWorkOrderUseCase completeWorkOrderUseCase,
@@ -43,10 +39,8 @@ namespace RepairsApi.V2.Controllers
             IGetWorkOrderUseCase getWorkOrderUseCase,
             IListWorkOrderTasksUseCase listWorkOrderTasksUseCase,
             IListWorkOrderNotesUseCase listWorkOrderNotesUseCase,
-            IFeatureManager featureManager,
             IListVariationTasksUseCase listVariationTasksUseCase)
         {
-            _authorizationService = authorizationService;
             _createWorkOrderUseCase = createWorkOrderUseCase;
             _listWorkOrdersUseCase = listWorkOrdersUseCase;
             _completeWorkOrderUseCase = completeWorkOrderUseCase;
@@ -54,7 +48,6 @@ namespace RepairsApi.V2.Controllers
             _getWorkOrderUseCase = getWorkOrderUseCase;
             _listWorkOrderTasksUseCase = listWorkOrderTasksUseCase;
             _listWorkOrderNotesUseCase = listWorkOrderNotesUseCase;
-            _featureManager = featureManager;
             _listVariationTasksUseCase = listVariationTasksUseCase;
         }
 
@@ -68,21 +61,11 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = UserGroups.AGENT + "," + UserGroups.CONTRACT_MANAGER)]
+        [Authorize(Roles = UserGroups.Agent + "," + UserGroups.ContractManager)]
         public async Task<IActionResult> ScheduleRepair([FromBody] ScheduleRepair request)
         {
-            try
-            {
-                var authorised = await _authorizationService.AuthorizeAsync(User, request, "RaiseSpendLimit");
-                if (await _featureManager.IsEnabledAsync(FeatureFlags.SPENDLIMITS) && !authorised.Succeeded) return Unauthorized("Request Work Order is above Spend Limit");
-
-                var result = await _createWorkOrderUseCase.Execute(request.ToDb());
-                return Ok(result);
-            }
-            catch (NotSupportedException e)
-            {
-                return BadRequest(e.Message);
-            }
+            var result = await _createWorkOrderUseCase.Execute(request.ToDb());
+            return Ok(result.Id);
         }
 
         /// <summary>

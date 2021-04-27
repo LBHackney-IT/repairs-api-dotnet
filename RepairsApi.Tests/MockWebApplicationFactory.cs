@@ -19,7 +19,8 @@ using System.Threading.Tasks;
 using Moq;
 using Npgsql;
 using V2_Generated_DRS;
-using RepairsApi.V2.Infrastructure.Migrations;
+using RepairsApi.Tests.Helpers;
+using NUnit.Framework;
 
 namespace RepairsApi.Tests
 {
@@ -30,7 +31,9 @@ namespace RepairsApi.Tests
         : WebApplicationFactory<Startup>
     {
         private readonly string _connection = null;
-        private string _userGroup = UserGroups.AGENT;
+        private string _userGroup = UserGroups.Agent;
+        private readonly SoapMock _soapMock = new SoapMock();
+        protected SoapMock SoapMock => _soapMock;
 
         public MockWebApplicationFactory(string connection)
         {
@@ -75,15 +78,7 @@ namespace RepairsApi.Tests
                 services.RemoveAll<IApiGateway>();
                 services.AddTransient<IApiGateway, MockApiGateway>();
                 services.RemoveAll<SOAP>();
-                services.AddTransient<SOAP>(sp =>
-                {
-                    var mock = new Mock<SOAP>();
-                    mock.Setup(x => x.openSessionAsync(It.IsAny<openSession>()))
-                        .ReturnsAsync(new openSessionResponse { @return = new xmbOpenSessionResponse { status = responseStatus.success } });
-                    mock.Setup(x => x.createOrderAsync(It.IsAny<createOrder>()))
-                        .ReturnsAsync(new createOrderResponse { @return = new xmbCreateOrderResponse { status = responseStatus.success } });
-                    return mock.Object;
-                });
+                services.AddTransient(sp => _soapMock.Object);
             })
             .UseEnvironment("IntegrationTests");
         }
@@ -92,9 +87,12 @@ namespace RepairsApi.Tests
         {
             base.ConfigureClient(client);
 
-            if (_userGroup == UserGroups.AGENT) client.SetAgent();
-            if (_userGroup == UserGroups.CONTRACTOR) client.SetGroup(GetGroup(TestDataSeeder.Contractor));
-            if (_userGroup == UserGroups.CONTRACT_MANAGER) client.SetGroup(_userGroup);
+            switch (_userGroup)
+            {
+                case UserGroups.Agent: client.SetAgent(); break;
+                case UserGroups.Contractor: client.SetGroup(GetGroup(TestDataSeeder.Contractor)); break;
+                default: client.SetGroup(_userGroup); break;
+            }
         }
 
         protected void SetUserRole(string userGroup)
@@ -154,10 +152,16 @@ namespace RepairsApi.Tests
         {
             var responseContent = await result.Content.ReadAsStringAsync();
 
-            object parseResponse = JsonConvert.DeserializeObject(responseContent, typeof(TResponse));
-
-            TResponse castedResponse = parseResponse != null && typeof(TResponse).IsAssignableFrom(parseResponse.GetType()) ? (TResponse) parseResponse : default;
-            return castedResponse;
+            try
+            {
+                object parseResponse = JsonConvert.DeserializeObject(responseContent, typeof(TResponse));
+                TResponse castedResponse = parseResponse != null && typeof(TResponse).IsAssignableFrom(parseResponse.GetType()) ? (TResponse) parseResponse : default;
+                return castedResponse;
+            }
+            catch (Exception e) when (e is JsonSerializationException || e is JsonReaderException)
+            {
+                throw new Exception($"Result Serialisation Failed. Response Had Code {result.StatusCode}", e);
+            }
         }
 
         public async Task<(HttpStatusCode statusCode, TResponse response)> Post<TResponse>(string uri, object data)

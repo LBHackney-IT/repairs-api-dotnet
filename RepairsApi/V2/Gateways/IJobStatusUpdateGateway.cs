@@ -8,7 +8,7 @@ namespace RepairsApi.V2.Gateways
     public interface IJobStatusUpdateGateway
     {
         Task<int> CreateJobStatusUpdate(JobStatusUpdate update);
-        Task<JobStatusUpdate> SelectLastJobStatusUpdate(JobStatusUpdateTypeCode typeCode, int workOrderId);
+        Task<JobStatusUpdate> GetOutstandingVariation(int workOrderId);
         Task<IList<RateScheduleItem>> SelectWorkOrderVariationTasks(int workOrderId);
     }
 }

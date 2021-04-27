@@ -9,7 +9,7 @@ namespace RepairsApi.V2.Infrastructure.Extensions
     {
         public static string GetPhoneNumber(this IEnumerable<Communication> commList)
         {
-            return commList.FirstOrDefault(c => c.Channel.Medium == CommunicationMediumCode._20)?.Value;
+            return commList.FirstOrDefault(c => c.Channel?.Medium == CommunicationMediumCode._20)?.Value;
         }
     }
 }

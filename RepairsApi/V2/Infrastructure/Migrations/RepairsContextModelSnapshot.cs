@@ -311,6 +311,10 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("name");
 
+                    b.Property<bool>("UseExternalScheduleManager")
+                        .HasColumnType("boolean")
+                        .HasColumnName("use_external_schedule_manager");
+
                     b.HasKey("Reference")
                         .HasName("pk_contractors");
 
