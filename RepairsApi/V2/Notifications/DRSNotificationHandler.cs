@@ -10,22 +10,23 @@ namespace RepairsApi.V2.Notifications
 {
     public class DRSNotificationHandler : INotificationHandler<WorkOrderCreated>, INotificationHandler<WorkOrderCancelled>
     {
-        private readonly IServiceProvider _serviceProvider;
         private readonly IFeatureManager _featureManager;
         private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
 
-        // Creating here means we do not need to provide config etc if the feature is not turned on
-        // Not ideal but accessing feature flags in startup is not clean
-        private IDrsService DrsService => _serviceProvider.GetRequiredService<IDrsService>();
+        private IDrsService DrsService => _lazyDrsService.Value;
+        private readonly Lazy<IDrsService> _lazyDrsService;
 
         public DRSNotificationHandler(
             IServiceProvider serviceProvider,
             IFeatureManager featureManager,
             IScheduleOfRatesGateway scheduleOfRatesGateway)
         {
-            _serviceProvider = serviceProvider;
             _featureManager = featureManager;
             _scheduleOfRatesGateway = scheduleOfRatesGateway;
+
+            // Creating using a Lazy<T> means we do not need to provide config etc if the feature is not turned on
+            // Not ideal but accessing feature flags in startup is not clean
+            _lazyDrsService = new Lazy<IDrsService>(serviceProvider.GetRequiredService<IDrsService>);
         }
 
         public async Task Notify(WorkOrderCreated data)
