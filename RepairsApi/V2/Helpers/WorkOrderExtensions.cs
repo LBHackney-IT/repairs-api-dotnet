@@ -66,5 +66,10 @@ namespace RepairsApi.V2.Helpers
         {
             if (wo.StatusCode == WorkStatusCode.PendingApproval) throw new NotSupportedException(Resources.ActionUnsupported);
         }
+
+        public static void VerifyCanGetVariation(this WorkOrder wo)
+        {
+            if (wo.StatusCode != WorkStatusCode.VariationPendingApproval) throw new NotSupportedException(Resources.ActionUnsupported);
+        }
     }
 }

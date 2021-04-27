@@ -123,26 +123,25 @@ namespace RepairsApi.Tests
             return ctx.DB.SecurityGroups.Where(sg => sg.ContractorReference == contractor).Select(sg => sg.GroupName).Single();
         }
 
-        public async Task<(HttpStatusCode statusCode, TResponse response)> Get<TResponse>(string uri, string role = "agent")
+        public async Task<(HttpStatusCode statusCode, TResponse response)> Get<TResponse>(string uri)
         {
-            HttpResponseMessage result = await InternalGet(uri, role);
+            HttpResponseMessage result = await InternalGet(uri);
 
             TResponse response = await ProcessResponse<TResponse>(result);
 
             return (result.StatusCode, response);
         }
 
-        public async Task<HttpStatusCode> Get(string uri, string role = "agent")
+        public async Task<HttpStatusCode> Get(string uri)
         {
-            HttpResponseMessage result = await InternalGet(uri, role);
+            HttpResponseMessage result = await InternalGet(uri);
 
             return result.StatusCode;
         }
 
-        private async Task<HttpResponseMessage> InternalGet(string uri, string role = "agent")
+        private async Task<HttpResponseMessage> InternalGet(string uri)
         {
             var client = CreateClient();
-            client.SetGroup(role);
 
             var result = await client.GetAsync(new Uri(uri, UriKind.Relative));
             return result;
@@ -172,10 +171,9 @@ namespace RepairsApi.Tests
             return (result.StatusCode, response);
         }
 
-        private async Task<HttpResponseMessage> InternalPost(string uri, object data, string role = "agent")
+        private async Task<HttpResponseMessage> InternalPost(string uri, object data)
         {
             var client = CreateClient();
-            client.SetGroup(role);
 
             var serializedContent = JsonConvert.SerializeObject(data);
             StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
@@ -184,9 +182,9 @@ namespace RepairsApi.Tests
             return result;
         }
 
-        public async Task<HttpStatusCode> Post(string uri, object data, string role = "agent")
+        public async Task<HttpStatusCode> Post(string uri, object data)
         {
-            HttpResponseMessage result = await InternalPost(uri, data, role);
+            HttpResponseMessage result = await InternalPost(uri, data);
             return result.StatusCode;
         }
     }

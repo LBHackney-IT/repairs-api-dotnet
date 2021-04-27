@@ -45,21 +45,5 @@ namespace RepairsApi.V2.Gateways
 
             return jobStatusUpdate;
         }
-
-        public async Task<IList<RateScheduleItem>> SelectWorkOrderVariationTasks(int workOrderId)
-        {
-            var jobStatusUpdate = await _repairsContext.JobStatusUpdates
-                .Where(s => s.RelatedWorkOrder.Id == workOrderId)
-                .Where(s => (int) s.TypeCode == (int) JobStatusUpdateTypeCode._180)
-                .OrderByDescending(s => s.EventTime)
-                .FirstOrDefaultAsync();
-
-            if (jobStatusUpdate is null)
-            {
-                throw new ResourceNotFoundException($"Unable to locate jobstatus update for work order {workOrderId} with {JobStatusUpdateTypeCode._180}: Variation attempted");
-            }
-
-            return jobStatusUpdate.MoreSpecificSORCode.RateScheduleItem;
-        }
     }
 }

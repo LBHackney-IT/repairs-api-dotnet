@@ -9,6 +9,5 @@ namespace RepairsApi.V2.Gateways
     {
         Task<int> CreateJobStatusUpdate(JobStatusUpdate update);
         Task<JobStatusUpdate> GetOutstandingVariation(int workOrderId);
-        Task<IList<RateScheduleItem>> SelectWorkOrderVariationTasks(int workOrderId);
     }
 }

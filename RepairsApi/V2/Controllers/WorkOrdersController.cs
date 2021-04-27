@@ -30,6 +30,7 @@ namespace RepairsApi.V2.Controllers
         private readonly IGetWorkOrderUseCase _getWorkOrderUseCase;
         private readonly IListWorkOrderTasksUseCase _listWorkOrderTasksUseCase;
         private readonly IListWorkOrderNotesUseCase _listWorkOrderNotesUseCase;
+        private readonly IListVariationTasksUseCase _listVariationTasksUseCase;
 
         public WorkOrdersController(
             ICreateWorkOrderUseCase createWorkOrderUseCase,
@@ -136,7 +137,7 @@ namespace RepairsApi.V2.Controllers
 
         public async Task<IActionResult> JobStatusUpdate([FromBody] JobStatusUpdate request)
         {
-            await _updateJobStatusUseCase.Execute(request);
+          await _updateJobStatusUseCase.Execute(request);
             return Ok();
         }
     }

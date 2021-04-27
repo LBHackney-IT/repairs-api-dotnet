@@ -8,5 +8,14 @@ namespace RepairsApi.Tests.Helpers
         {
             return JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(a));
         }
+
+        /// <summary>
+        /// For Loading Nvaigation Properties in tests
+        /// </summary>
+        /// <param name="o"></param>
+        public static void Load(this object o)
+        {
+            o.ToString();
+        }
     }
 }
