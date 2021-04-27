@@ -1,23 +1,20 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.FeatureManagement;
 using Moq;
 using NUnit.Framework;
+using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.Tests.V2.Gateways;
 using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Generated;
 using RepairsApi.V2.Infrastructure;
-using RepairsApi.V2.MiddleWare;
+using RepairsApi.V2.Notifications;
 using RepairsApi.V2.Services;
 using RepairsApi.V2.UseCase;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
-using Microsoft.FeatureManagement;
-using RepairsApi.Tests.Helpers.StubGeneration;
-using RepairsApi.Tests.V2.Gateways;
-using RepairsApi.V2;
-using RepairsApi.V2.Generated;
-using V2_Generated_DRS;
 using Trade = RepairsApi.V2.Infrastructure.Trade;
 using WorkElement = RepairsApi.V2.Infrastructure.WorkElement;
 
@@ -28,10 +25,8 @@ namespace RepairsApi.Tests.V2.UseCase
         private MockRepairsGateway _repairsGatewayMock;
         private Mock<IScheduleOfRatesGateway> _scheduleOfRatesGateway;
         private Mock<ICurrentUserService> _currentUserServiceMock;
-        private Mock<IDrsService> _drsServiceMock;
         private CreateWorkOrderUseCase _classUnderTest;
-        private Mock<IFeatureManager> _featureManager;
-        private IOptions<DrsOptions> _drsOptions;
+        private NotificationMock<WorkOrderCreated> _handlerMock;
 
         [SetUp]
         public void Setup()
@@ -39,23 +34,13 @@ namespace RepairsApi.Tests.V2.UseCase
             _repairsGatewayMock = new MockRepairsGateway();
             _scheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
             _currentUserServiceMock = new Mock<ICurrentUserService>();
-            _drsServiceMock = new Mock<IDrsService>();
-            _featureManager = new Mock<IFeatureManager>();
-            _drsOptions = Options.Create<DrsOptions>(new DrsOptions
-            {
-                Login = "login",
-                Password = "password",
-                APIAddress = new Uri("https://apiAddress.none"),
-                ManagementAddress = new Uri("https://managementAddress.none")
-            });
+            _handlerMock = new NotificationMock<WorkOrderCreated>();
             _classUnderTest = new CreateWorkOrderUseCase(
                 _repairsGatewayMock.Object,
                 _scheduleOfRatesGateway.Object,
                 new NullLogger<CreateWorkOrderUseCase>(),
                 _currentUserServiceMock.Object,
-                _drsServiceMock.Object,
-                _featureManager.Object,
-                _drsOptions
+                _handlerMock
                 );
         }
 
@@ -130,70 +115,13 @@ namespace RepairsApi.Tests.V2.UseCase
         }
 
         [Test]
-        public async Task CreatesDRSOrder()
+        public async Task HandlersCalled()
         {
-            _featureManager.Setup(x => x.IsEnabledAsync(FeatureFlags.DRSIntegration))
-                .ReturnsAsync(true);
-            _drsServiceMock.Setup(x => x.ContractorUsingDrs(It.IsAny<string>())).ReturnsAsync(true);
-            var expectedOrder = CreateExpectedOrder();
-            _drsServiceMock.Setup(x => x.CreateOrder(It.IsAny<WorkOrder>())).ReturnsAsync(expectedOrder);
-            var generator = new Generator<WorkOrder>()
-                .AddInfrastructureWorkOrderGenerators()
-                .AddValue(new List<Trade> { new Trade { Code = TradeCode.B2 } }, (WorkElement we) => we.Trade);
-            var workOrder = generator.Generate();
+            int newId = 1;
+            _repairsGatewayMock.ReturnWOId(newId);
+            await _classUnderTest.Execute(new WorkOrder());
 
-            var result = await _classUnderTest.Execute(workOrder);
-
-            _drsServiceMock.Verify(x => x.CreateOrder(workOrder));
-            result.ExternallyManagedAppointment.Should().BeTrue();
-            result.ExternalAppointmentManagementUrl.Query.Should().Contain($"tokenId={expectedOrder.theBookings.Single().tokenId}");
-        }
-
-        private static order CreateExpectedOrder()
-        {
-            order expectedOrder = new order
-            {
-                theBookings = new[]
-                {
-                    new booking
-                    {
-                        tokenId = Guid.NewGuid().ToString()
-                    }
-                }
-            };
-            return expectedOrder;
-        }
-
-        [Test]
-        public async Task DoesNotCreateDRSOrder_When_ContractorNotUsingDRS()
-        {
-            _featureManager.Setup(x => x.IsEnabledAsync(FeatureFlags.DRSIntegration))
-                .ReturnsAsync(true);
-            _drsServiceMock.Setup(x => x.ContractorUsingDrs(It.IsAny<string>())).ReturnsAsync(false);
-            var generator = new Generator<WorkOrder>()
-                .AddInfrastructureWorkOrderGenerators()
-                .AddValue(new List<Trade> { new Trade { Code = TradeCode.B2 } }, (WorkElement we) => we.Trade);
-            var workOrder = generator.Generate();
-
-            var result = await _classUnderTest.Execute(workOrder);
-
-            _drsServiceMock.Verify(x => x.CreateOrder(It.IsAny<WorkOrder>()), Times.Never);
-            result.ExternallyManagedAppointment.Should().BeFalse();
-        }
-
-        [Test]
-        public async Task DoesNotCreateDRSOrder_When_FeatureFlagFalse()
-        {
-            _featureManager.Setup(x => x.IsEnabledAsync(FeatureFlags.DRSIntegration))
-                .ReturnsAsync(false);
-            var generator = new Generator<WorkOrder>()
-                .AddInfrastructureWorkOrderGenerators()
-                .AddValue(new List<Trade> { new Trade { Code = TradeCode.B2 } }, (WorkElement we) => we.Trade);
-            var workOrder = generator.Generate();
-
-            await _classUnderTest.Execute(workOrder);
-
-            _drsServiceMock.Verify(x => x.CreateOrder(workOrder), Times.Never);
+            _handlerMock.HaveHandlersBeenCalled().Should().BeTrue();
         }
 
         private void VerifyRaiseRepairIsCloseToNow()

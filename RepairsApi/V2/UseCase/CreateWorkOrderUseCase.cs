@@ -12,6 +12,8 @@ using RepairsApi.V2.MiddleWare;
 using RepairsApi.V2.Services;
 using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Infrastructure.Extensions;
+using RepairsApi.V2.Notifications;
+using System.Collections.Generic;
 
 namespace RepairsApi.V2.UseCase
 {
@@ -21,27 +23,21 @@ namespace RepairsApi.V2.UseCase
         private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
         private readonly ILogger<CreateWorkOrderUseCase> _logger;
         private readonly ICurrentUserService _currentUserService;
-        private readonly IDrsService _drsService;
-        private readonly IFeatureManager _featureManager;
-        private readonly IOptions<DrsOptions> _drsOptions;
+        private readonly IEnumerable<INotificationHandler<WorkOrderCreated>> _handlers;
 
         public CreateWorkOrderUseCase(
             IRepairsGateway repairsGateway,
             IScheduleOfRatesGateway scheduleOfRatesGateway,
             ILogger<CreateWorkOrderUseCase> logger,
             ICurrentUserService currentUserService,
-            IDrsService drsService,
-            IFeatureManager featureManager,
-            IOptions<DrsOptions> drsOptions
+            IEnumerable<INotificationHandler<WorkOrderCreated>> handlers
             )
         {
             _repairsGateway = repairsGateway;
             _scheduleOfRatesGateway = scheduleOfRatesGateway;
             _logger = logger;
             _currentUserService = currentUserService;
-            _drsService = drsService;
-            _featureManager = featureManager;
-            _drsOptions = drsOptions;
+            _handlers = handlers;
         }
 
         public async Task<CreateOrderResult> Execute(WorkOrder workOrder)
@@ -55,19 +51,17 @@ namespace RepairsApi.V2.UseCase
             var id = await _repairsGateway.CreateWorkOrder(workOrder);
             _logger.LogInformation(Resources.CreatedWorkOrder);
 
-            var result = new CreateOrderResult(id, workOrder.StatusCode, workOrder.GetStatus());
-            if (await _featureManager.IsEnabledAsync(FeatureFlags.DRSIntegration) &&
-                await _drsService.ContractorUsingDrs(workOrder.AssignedToPrimary.ContractorReference))
-            {
-                var order = await _drsService.CreateOrder(workOrder);
-                result.ExternallyManagedAppointment = true;
-                var managementUri = new UriBuilder(_drsOptions.Value.ManagementAddress);
-                managementUri.Port = -1;
-                managementUri.Query = $"tokenId={order.theBookings.Single().tokenId}";
-                result.ExternalAppointmentManagementUrl = managementUri.Uri;
-            }
+            await NotifyHandlers(workOrder);
+            return new CreateOrderResult(id, workOrder.StatusCode, workOrder.GetStatus());
+        }
 
-            return result;
+        private async Task NotifyHandlers(WorkOrder workOrder)
+        {
+            var notification = new WorkOrderCreated(workOrder);
+            foreach (var handler in _handlers)
+            {
+                await handler.Notify(notification);
+            }
         }
 
         private void AttachUserInformation(WorkOrder workOrder)

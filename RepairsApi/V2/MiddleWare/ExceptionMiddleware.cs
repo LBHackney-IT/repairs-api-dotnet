@@ -48,6 +48,7 @@ namespace RepairsApi.V2.MiddleWare
         {
             await using var writer = new StreamWriter(httpContext.Response.Body);
             httpContext.Response.StatusCode = code;
+            httpContext.Response.ContentType = "text/plain";
             await writer.WriteAsync(message);
             await writer.FlushAsync();
         }
