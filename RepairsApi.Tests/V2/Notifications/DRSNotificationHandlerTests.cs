@@ -54,7 +54,7 @@ namespace RepairsApi.Tests.V2.Notifications
             FeatureEnabled(false);
             var workOrder = CreateWorkOrder();
 
-            await _classUnderTest.Notify(new WorkOrderCreated(workOrder));
+            await _classUnderTest.Notify(new WorkOrderOpened(workOrder));
 
             _drsServiceMock.Verify(x => x.CreateOrder(workOrder), Times.Never);
         }
