@@ -31,18 +31,18 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
 
         [TestCase(JobStatusUpdateTypeCode._10020, WorkStatusCode.VariationApproved)]
         [TestCase(JobStatusUpdateTypeCode._125, WorkStatusCode.VariationRejected)]
-        public async Task WorkOrderRejectVariation()
+        public async Task WorkOrderRejectVariation(JobStatusUpdateTypeCode updateCode, WorkStatusCode expectedStatus)
         {
             // Arrange
             int workOrderId = await CreatePendingVariation();
 
             SetUserRole(UserGroups.ContractManager);
-            await UpdateJob(workOrderId, JobStatusUpdateTypeCode._125);
+            await UpdateJob(workOrderId, updateCode);
 
             var workOrder = GetWorkOrderFromDB(workOrderId);
 
             // Assert
-            workOrder.StatusCode.Should().Be(WorkStatusCode.VariationRejected);
+            workOrder.StatusCode.Should().Be(expectedStatus);
         }
 
         [Test]
