@@ -29,7 +29,8 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             workOrder.JobStatusUpdates[0].TypeCode.Should().Be(JobStatusUpdateTypeCode._180);
         }
 
-        [Test]
+        [TestCase(JobStatusUpdateTypeCode._10020, WorkStatusCode.VariationApproved)]
+        [TestCase(JobStatusUpdateTypeCode._125, WorkStatusCode.VariationRejected)]
         public async Task WorkOrderRejectVariation()
         {
             // Arrange
@@ -42,21 +43,6 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
 
             // Assert
             workOrder.StatusCode.Should().Be(WorkStatusCode.VariationRejected);
-        }
-
-        [Test]
-        public async Task WorkOrderApproveVariation()
-        {
-            // Arrange
-            int workOrderId = await CreatePendingVariation();
-
-            SetUserRole(UserGroups.ContractManager);
-            await UpdateJob(workOrderId, JobStatusUpdateTypeCode._10020);
-
-            var workOrder = GetWorkOrderFromDB(workOrderId);
-
-            // Assert
-            workOrder.StatusCode.Should().Be(WorkStatusCode.VariationApproved);
         }
 
         [Test]

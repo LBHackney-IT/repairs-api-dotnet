@@ -10,7 +10,7 @@ namespace RepairsApi.Tests.Helpers
         }
 
         /// <summary>
-        /// For Loading Nvaigation Properties in tests
+        /// For Loading Navigation Properties in tests
         /// </summary>
         /// <param name="o"></param>
         public static void Load(this object o)
