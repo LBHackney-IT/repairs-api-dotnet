@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated;
+using RepairsApi.V2.Infrastructure;
 
 namespace RepairsApi.V2.Authorisation
 {
@@ -14,7 +15,7 @@ namespace RepairsApi.V2.Authorisation
     }
 
     public class RaiseSpendLimitAuthorizationHandler :
-        AuthorizationHandler<RaiseLimitRequirement, ScheduleRepair>
+        AuthorizationHandler<RaiseLimitRequirement, WorkOrder>
     {
         private readonly IScheduleOfRatesGateway _sorGateway;
 
@@ -26,13 +27,13 @@ namespace RepairsApi.V2.Authorisation
         protected override async Task HandleRequirementAsync(
             AuthorizationHandlerContext context,
             RaiseLimitRequirement requirement,
-            ScheduleRepair resource
+            WorkOrder resource
             )
         {
-            var contractorRef = resource.AssignedToPrimary?.Organization.Reference?.FirstOrDefault()?.ID;
-            var rawCodes = resource.WorkElement
+            var contractorRef = resource.AssignedToPrimary?.ContractorReference;
+            var rawCodes = resource.WorkElements
                 .SelectMany(we => we.RateScheduleItem)
-                .Select(rsi => new { rsi.CustomCode, Amount = rsi.Quantity.Amount.Sum() });
+                .Select(rsi => new { rsi.CustomCode, rsi.Quantity.Amount });
             double totalCost = 0;
             await rawCodes.ForEachAsync(async c => totalCost += c.Amount * await _sorGateway.GetCost(contractorRef, c.CustomCode));
 

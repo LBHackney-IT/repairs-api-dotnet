@@ -3,6 +3,7 @@ using RepairsApi.V2.Domain;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated.CustomTypes;
+using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 using RepairsApi.V2.UseCase.Interfaces;
@@ -43,8 +44,7 @@ namespace RepairsApi.V2.UseCase
             }
 
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
-            if (workOrder.StatusCode == WorkStatusCode.VariationPendingApproval)
-                throw new UnauthorizedAccessException("Work Orders pending approval can not be completed.");
+            workOrder.VerifyCanComplete();
 
             ValidateRequest(workOrderComplete);
             await using var transaction = await _transactionManager.Start();
