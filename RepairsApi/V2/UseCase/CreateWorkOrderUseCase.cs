@@ -7,13 +7,12 @@ using RepairsApi.V2.UseCase.Interfaces;
 using System.Threading.Tasks;
 using Microsoft.FeatureManagement;
 using RepairsApi.V2.Domain;
-using RepairsApi.V2.MiddleWare;
 using RepairsApi.V2.Services;
 using RepairsApi.V2.Authorisation;
+using RepairsApi.V2.Infrastructure.Extensions;
 using RepairsApi.V2.Notifications;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
-using RepairsApi.V2.Infrastructure.Extensions;
 
 namespace RepairsApi.V2.UseCase
 {
@@ -59,7 +58,6 @@ namespace RepairsApi.V2.UseCase
             _logger.LogInformation(Resources.CreatedWorkOrder);
 
             await NotifyHandlers(workOrder);
-
             return new CreateOrderResult(id, workOrder.StatusCode, workOrder.GetStatus());
         }
 
