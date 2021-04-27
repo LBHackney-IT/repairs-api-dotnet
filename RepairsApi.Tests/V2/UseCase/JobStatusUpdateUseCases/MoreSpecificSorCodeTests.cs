@@ -28,7 +28,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         private MockRepairsGateway _repairsGatewayMock;
         private Mock<IAuthorizationService> _authorisationMock;
         private CurrentUserServiceMock _currentUserServiceMock;
-        private Mock<IScheduleOfRatesGateway> _scheduleOfRatesGateway;
+        private Mock<IUpdateSorCodesUseCase> _updateSorCodesUseCaseMock;
         private Mock<IFeatureManager> _featureManagerMock;
         private MoreSpecificSorUseCase _classUnderTest;
 
@@ -43,76 +43,16 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _featureManagerMock = new Mock<IFeatureManager>();
             _authorisationMock = new Mock<IAuthorizationService>();
             _currentUserServiceMock = new CurrentUserServiceMock();
-            _scheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
+            _updateSorCodesUseCaseMock = new Mock<IUpdateSorCodesUseCase>();
             _classUnderTest = new MoreSpecificSorUseCase(
                 _repairsGatewayMock.Object,
                 _authorisationMock.Object,
                 _featureManagerMock.Object,
                 _currentUserServiceMock.Object,
-                _scheduleOfRatesGateway.Object);
+                _updateSorCodesUseCaseMock.Object);
         }
 
-        [Test]
-        public async Task MoreSpecificSORCodeAddsSORCodeToWorkOrder()
-        {
-            const int cost = 10;
-            const int desiredWorkOrderId = 42;
-            var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
-            _scheduleOfRatesGateway.Setup(s => s.GetCost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(cost);
-            var expectedNewCodes = workOrder.WorkElements.SelectMany(we => we.RateScheduleItem).ToList();
-            expectedNewCodes.Add(new RateScheduleItem
-            {
-                CustomCode = "code",
-                Quantity = new Quantity
-                {
-                    Amount = 4.5
-                }
-            });
-            var request = CreateMoreSpecificSORUpdateRequest(desiredWorkOrderId, workOrder, expectedNewCodes.ToArray());
 
-            await _classUnderTest.Execute(request);
-
-            List<RateScheduleItem> rateScheduleItems = workOrder.WorkElements.Single().RateScheduleItem;
-            rateScheduleItems.Should().BeEquivalentTo(expectedNewCodes,
-                options => options.Excluding(rsi => rsi.Id).Excluding(rsi => rsi.DateCreated).Excluding(rsi => rsi.CodeCost)
-                .Excluding(rsi => rsi.OriginalId));
-            rateScheduleItems.Last().CodeCost.Should().Be(cost);
-        }
-
-        [Test]
-        public async Task UpdateQuantityOfExistingCodes()
-        {
-            const int desiredWorkOrderId = 42;
-            var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
-            var codeToModify = workOrder.WorkElements.First().RateScheduleItem.First();
-            var expectedNewCode = CloneRateScheduleItem(codeToModify);
-            expectedNewCode.Quantity.Amount += 4;
-            var request = CreateMoreSpecificSORUpdateRequest(desiredWorkOrderId, workOrder, expectedNewCode);
-
-            await _classUnderTest.Execute(request);
-
-            codeToModify.Should().BeEquivalentTo(expectedNewCode,
-                option => option.Excluding(x => x.Id).Excluding(x => x.Original)
-                .Excluding(x => x.OriginalQuantity).Excluding(x => x.OriginalId));
-        }
-
-        [Test]
-        public void ThrowUnsupportedWhenOriginalSorCodeNotPResent()
-        {
-            const int desiredWorkOrderId = 42;
-            var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
-            var expectedNewCode = new RateScheduleItem
-            {
-                CustomCode = "code",
-                Quantity = new Quantity
-                {
-                    Amount = 4.5
-                }
-            };
-            var request = CreateMoreSpecificSORUpdateRequest(desiredWorkOrderId, workOrder, expectedNewCode);
-
-            Assert.ThrowsAsync<NotSupportedException>(() => _classUnderTest.Execute(request));
-        }
 
         [Test]
         public void ThrowWhenWorkOrderNotFound()
@@ -131,26 +71,6 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
 
             Func<Task> fn = () => _classUnderTest.Execute(request);
             fn.Should().ThrowAsync<ResourceNotFoundException>();
-        }
-
-        private static RateScheduleItem CloneRateScheduleItem(RateScheduleItem toModify)
-        {
-
-            var expectedNewCodes = new RateScheduleItem
-            {
-                CustomCode = toModify.CustomCode,
-                CustomName = toModify.CustomName,
-                Quantity = new Quantity
-                {
-                    Amount = toModify.Quantity.Amount,
-                    UnitOfMeasurementCode = toModify.Quantity.UnitOfMeasurementCode
-                },
-                CodeCost = toModify.CodeCost,
-                DateCreated = toModify.DateCreated,
-                M3NHFSORCode = toModify.M3NHFSORCode,
-                Id = toModify.Id
-            };
-            return expectedNewCodes;
         }
 
         private static Generated.JobStatusUpdate CreateMoreSpecificSORUpdateRequest(int desiredWorkOrderId, WorkOrder workOrder, params RateScheduleItem[] expectedNewCodes)
@@ -180,18 +100,6 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
                     RateScheduleItem = newCodes.ToList()
                 }
             };
-        }
-
-        private WorkOrder CreateReturnWorkOrder(int expectedId)
-        {
-            var workOrder = BuildWorkOrder(expectedId);
-
-            _repairsGatewayMock.Setup(gateway => gateway.GetWorkOrder(It.Is<int>(i => i == expectedId)))
-                .ReturnsAsync(workOrder);
-            _repairsGatewayMock.Setup(gateway => gateway.GetWorkElementsForWorkOrder(It.Is<WorkOrder>(wo => wo.Id == expectedId)))
-                .ReturnsAsync(_fixture.Create<List<WorkElement>>);
-
-            return workOrder;
         }
 
         private WorkOrder BuildWorkOrder(int expectedId)

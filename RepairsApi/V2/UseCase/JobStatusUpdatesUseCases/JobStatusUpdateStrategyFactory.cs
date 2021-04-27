@@ -18,29 +18,16 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
         public async Task ProcessActions(JobStatusUpdate jobStatusUpdate)
         {
-            /*
-            https://www.oscre.org/idm?content=entity/JobStatusUpdateTypeCode
-            */
             IJobStatusUpdateStrategy strategy = jobStatusUpdate.TypeCode switch
             {
-                // More specific SOR Code - (means variation) 
                 JobStatusUpdateTypeCode._80 => _activator.CreateInstance<MoreSpecificSorUseCase>(),
-
-                //Variation approved 
                 JobStatusUpdateTypeCode._10020 => _activator.CreateInstance<ApproveVariationUseCase>(),
-
-                //Variation Rejected
                 JobStatusUpdateTypeCode._125 => _activator.CreateInstance<RejectVariationUseCase>(),
-
-                //Variation acknowledged by contractor, workorder set to in progress
                 JobStatusUpdateTypeCode._10010 => _activator.CreateInstance<ContractorAcknowledgeVariationUseCase>(),
-
-                // Job Incomplete
                 JobStatusUpdateTypeCode._120 => _activator.CreateInstance<JobIncompleteStrategy>(),
-
-                // Job incomplete - need materials
                 JobStatusUpdateTypeCode._12020 => _activator.CreateInstance<JobIncompleteNeedMaterialsStrategy>(),
-                // Other
+                JobStatusUpdateTypeCode._190 => _activator.CreateInstance<RejectWorkOrderStrategy>(),
+                JobStatusUpdateTypeCode._200 => _activator.CreateInstance<ApproveWorkOrderStrategy>(),
                 JobStatusUpdateTypeCode._0 => ProcessOtherCode(jobStatusUpdate),
                 _ => throw new NotSupportedException($"This type code is not supported: {jobStatusUpdate.TypeCode}"),
             };

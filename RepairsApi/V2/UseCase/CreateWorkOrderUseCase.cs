@@ -12,6 +12,8 @@ using RepairsApi.V2.Services;
 using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Notifications;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
+using RepairsApi.V2.Infrastructure.Extensions;
 
 namespace RepairsApi.V2.UseCase
 {
@@ -21,29 +23,36 @@ namespace RepairsApi.V2.UseCase
         private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
         private readonly ILogger<CreateWorkOrderUseCase> _logger;
         private readonly ICurrentUserService _currentUserService;
-        private readonly IEnumerable<INotificationHandler<WorkOrderCreated>> _handlers;
+        private readonly IAuthorizationService _authorizationService;
+        private readonly IFeatureManager _featureManager;
+        private readonly IEnumerable<INotificationHandler<WorkOrderOpened>> _handlers;
 
         public CreateWorkOrderUseCase(
             IRepairsGateway repairsGateway,
             IScheduleOfRatesGateway scheduleOfRatesGateway,
             ILogger<CreateWorkOrderUseCase> logger,
             ICurrentUserService currentUserService,
-            IEnumerable<INotificationHandler<WorkOrderCreated>> handlers
+            IAuthorizationService authorizationService,
+            IFeatureManager featureManager,
+            IEnumerable<INotificationHandler<WorkOrderOpened>> handlers
             )
         {
             _repairsGateway = repairsGateway;
             _scheduleOfRatesGateway = scheduleOfRatesGateway;
             _logger = logger;
             _currentUserService = currentUserService;
+            _authorizationService = authorizationService;
+            _featureManager = featureManager;
             _handlers = handlers;
         }
 
-        public async Task<int> Execute(WorkOrder workOrder)
+        public async Task<CreateOrderResult> Execute(WorkOrder workOrder)
         {
             ValidateRequest(workOrder);
             AttachUserInformation(workOrder);
             workOrder.DateRaised = DateTime.UtcNow;
-            workOrder.StatusCode = WorkStatusCode.Open;
+
+            await SetStatus(workOrder);
 
             await PopulateRateScheduleItems(workOrder);
             var id = await _repairsGateway.CreateWorkOrder(workOrder);
@@ -51,15 +60,34 @@ namespace RepairsApi.V2.UseCase
 
             await NotifyHandlers(workOrder);
 
-            return id;
+            return new CreateOrderResult(id, workOrder.StatusCode, workOrder.GetStatus());
         }
 
         private async Task NotifyHandlers(WorkOrder workOrder)
         {
-            var notification = new WorkOrderCreated(workOrder);
+            if (workOrder.StatusCode != WorkStatusCode.Open)
+            {
+                return;
+            }
+
+            var notification = new WorkOrderOpened(workOrder);
             foreach (var handler in _handlers)
             {
                 await handler.Notify(notification);
+            }
+        }
+
+        private async Task SetStatus(WorkOrder workOrder)
+        {
+            var user = _currentUserService.GetUser();
+            var authorised = await _authorizationService.AuthorizeAsync(user, workOrder, "RaiseSpendLimit");
+            if (await _featureManager.IsEnabledAsync(FeatureFlags.SpendLimits) && !authorised.Succeeded)
+            {
+                workOrder.StatusCode = WorkStatusCode.PendingApproval;
+            }
+            else
+            {
+                workOrder.StatusCode = WorkStatusCode.Open;
             }
         }
 

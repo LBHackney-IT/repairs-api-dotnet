@@ -5,5 +5,6 @@ namespace RepairsApi.V2.Authorisation
         public const string Agent = "agent";
         public const string Contractor = "contractor";
         public const string ContractManager = "contract manager";
+        public const string AuthorisationManager = "authorisation_manager";
     }
 }

@@ -8,7 +8,7 @@ using RepairsApi.V2.Gateways;
 
 namespace RepairsApi.V2.Notifications
 {
-    public class DRSNotificationHandler : INotificationHandler<WorkOrderCreated>, INotificationHandler<WorkOrderCancelled>
+    public class DRSNotificationHandler : INotificationHandler<WorkOrderOpened>, INotificationHandler<WorkOrderCancelled>
     {
         private readonly IFeatureManager _featureManager;
         private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
@@ -29,7 +29,7 @@ namespace RepairsApi.V2.Notifications
             _lazyDrsService = new Lazy<IDrsService>(serviceProvider.GetRequiredService<IDrsService>);
         }
 
-        public async Task Notify(WorkOrderCreated data)
+        public async Task Notify(WorkOrderOpened data)
         {
             if (!await _featureManager.IsEnabledAsync(FeatureFlags.DRSIntegration) ||
                 !await ContractorUsingDrs(data.WorkOrder.AssignedToPrimary.ContractorReference))
@@ -56,9 +56,9 @@ namespace RepairsApi.V2.Notifications
         }
     }
 
-    public class WorkOrderCreated : INotification
+    public class WorkOrderOpened : INotification
     {
-        public WorkOrderCreated(WorkOrder workOrder)
+        public WorkOrderOpened(WorkOrder workOrder)
         {
             WorkOrder = workOrder;
         }
