@@ -33,7 +33,7 @@ namespace RepairsApi.Tests.V2.UseCase
             ConfigureGenerator();
             _repairsGatewayMock = new Mock<IRepairsGateway>();
             _currentUserServiceMock = new CurrentUserServiceMock();
-            _currentUserServiceMock.SetSecurityGroup(UserGroups.AGENT, true);
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.Agent, true);
             _workOrderCompletionGatewayMock = new MockWorkOrderCompletionGateway();
             _classUnderTest = new CompleteWorkOrderUseCase(
                 _repairsGatewayMock.Object,
@@ -68,13 +68,13 @@ namespace RepairsApi.Tests.V2.UseCase
         {
             // arrange
             var expectedWorkOrder = CreateWorkOrder();
-            _currentUserServiceMock.SetSecurityGroup(UserGroups.CONTRACTOR, true);
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.Contractor, true);
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
             workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
             {
                 new Generated.JobStatusUpdates
                 {
-                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = CustomJobStatusUpdates.COMPLETED, Comments = "expectedComment"
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = CustomJobStatusUpdates.Completed, Comments = "expectedComment"
                 }
             };
 
@@ -134,7 +134,7 @@ namespace RepairsApi.Tests.V2.UseCase
             {
                 new Generated.JobStatusUpdates
                 {
-                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = CustomJobStatusUpdates.COMPLETED, Comments = "expectedComment", AdditionalWork = new Generated.AdditionalWork()
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = CustomJobStatusUpdates.Completed, Comments = "expectedComment", AdditionalWork = new Generated.AdditionalWork()
                 }
             };
 
@@ -182,7 +182,7 @@ namespace RepairsApi.Tests.V2.UseCase
         public async Task UpdatesWorkOrderStatusCancelled()
         {
             // arrange
-            string customUpdateType = CustomJobStatusUpdates.CANCELLED;
+            string customUpdateType = CustomJobStatusUpdates.Cancelled;
             WorkStatusCode expectedNewStatus = WorkStatusCode.Canceled;
             var expectedWorkOrder = CreateWorkOrder();
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
@@ -205,9 +205,9 @@ namespace RepairsApi.Tests.V2.UseCase
         public async Task ContractorUpdatesWorkOrderStatusComplete()
         {
             // arrange
-            string customUpdateType = CustomJobStatusUpdates.COMPLETED;
+            string customUpdateType = CustomJobStatusUpdates.Completed;
             WorkStatusCode expectedNewStatus = WorkStatusCode.Complete;
-            _currentUserServiceMock.SetSecurityGroup(UserGroups.CONTRACTOR, true);
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.Contractor, true);
             var expectedWorkOrder = CreateWorkOrder();
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
             workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
@@ -229,16 +229,16 @@ namespace RepairsApi.Tests.V2.UseCase
         public async Task ContractorUpdatesWorkOrderStatusNoAccess()
         {
             // arrange
-            const Generated.JobStatusUpdateTypeCode NO_ACCESS = Generated.JobStatusUpdateTypeCode._70;
+            const Generated.JobStatusUpdateTypeCode NoAccess = Generated.JobStatusUpdateTypeCode._70;
             WorkStatusCode expectedNewStatus = WorkStatusCode.NoAccess;
-            _currentUserServiceMock.SetSecurityGroup(UserGroups.CONTRACTOR, true);
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.Contractor, true);
             var expectedWorkOrder = CreateWorkOrder();
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
             workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
             {
                 new Generated.JobStatusUpdates
                 {
-                    TypeCode = NO_ACCESS, Comments = "expectedComment"
+                    TypeCode = NoAccess, Comments = "expectedComment"
                 }
             };
 
@@ -253,9 +253,9 @@ namespace RepairsApi.Tests.V2.UseCase
         public async Task ContractManagerUpdatesWorkOrderStatusComplete()
         {
             // arrange
-            string customUpdateType = CustomJobStatusUpdates.COMPLETED;
+            string customUpdateType = CustomJobStatusUpdates.Completed;
             WorkStatusCode expectedNewStatus = WorkStatusCode.Complete;
-            _currentUserServiceMock.SetSecurityGroup(UserGroups.CONTRACT_MANAGER, true);
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.ContractManager, true);
             var expectedWorkOrder = CreateWorkOrder();
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
             workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
@@ -277,16 +277,16 @@ namespace RepairsApi.Tests.V2.UseCase
         public async Task ContractManagerUpdatesWorkOrderStatusNoAccess()
         {
             // arrange
-            const Generated.JobStatusUpdateTypeCode NO_ACCESS = Generated.JobStatusUpdateTypeCode._70;
+            const Generated.JobStatusUpdateTypeCode NoAccess = Generated.JobStatusUpdateTypeCode._70;
             WorkStatusCode expectedNewStatus = WorkStatusCode.NoAccess;
-            _currentUserServiceMock.SetSecurityGroup(UserGroups.CONTRACT_MANAGER, true);
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.ContractManager, true);
             var expectedWorkOrder = CreateWorkOrder();
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
             workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
             {
                 new Generated.JobStatusUpdates
                 {
-                    TypeCode = NO_ACCESS, Comments = "expectedComment"
+                    TypeCode = NoAccess, Comments = "expectedComment"
                 }
             };
 

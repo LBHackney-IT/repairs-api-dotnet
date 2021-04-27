@@ -65,13 +65,13 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = UserGroups.AGENT + "," + UserGroups.CONTRACT_MANAGER)]
+        [Authorize(Roles = UserGroups.Agent + "," + UserGroups.ContractManager)]
         public async Task<IActionResult> ScheduleRepair([FromBody] ScheduleRepair request)
         {
             try
             {
                 var authorised = await _authorizationService.AuthorizeAsync(User, request, "RaiseSpendLimit");
-                if (await _featureManager.IsEnabledAsync(FeatureFlags.SPENDLIMITS) && !authorised.Succeeded) return Unauthorized("Request Work Order is above Spend Limit");
+                if (await _featureManager.IsEnabledAsync(FeatureFlags.SpendLimits) && !authorised.Succeeded) return Unauthorized("Request Work Order is above Spend Limit");
 
                 var result = await _createWorkOrderUseCase.Execute(request.ToDb());
                 return Ok(result);

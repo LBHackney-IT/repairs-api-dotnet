@@ -48,7 +48,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
                 jobStatusUpdate.TypeCode == JobStatusUpdateTypeCode._80)
                 throw new InvalidOperationException("This action is not permitted");
 
-            if (await _featureManager.IsEnabledAsync(FeatureFlags.SPENDLIMITS) && !authorised.Succeeded)
+            if (await _featureManager.IsEnabledAsync(FeatureFlags.SpendLimits) && !authorised.Succeeded)
             {
                 workOrder.StatusCode = WorkStatusCode.VariationPendingApproval;
                 jobStatusUpdate.TypeCode = JobStatusUpdateTypeCode._180;

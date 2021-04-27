@@ -113,6 +113,20 @@ namespace RepairsApi.V2.Gateways
             return await contractors.ToListAsync();
         }
 
+        public async Task<Contractor> GetContractor(string contractorReference)
+        {
+            var contractor = await _context.Contractors.SingleOrDefaultAsync(c => c.Reference == contractorReference);
+
+            if (contractor is null) return null;
+
+            return new Contractor
+            {
+                ContractorName = contractor.Name,
+                ContractorReference = contractor.Reference,
+                UseExternalScheduleManager = contractor.UseExternalScheduleManager
+            };
+        }
+
         public async Task<ScheduleOfRatesModel> GetCode(string sorCode, string propertyReference, string contractorReference)
         {
             var model = await

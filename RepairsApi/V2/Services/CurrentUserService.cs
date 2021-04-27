@@ -57,7 +57,7 @@ namespace RepairsApi.V2.Services
 
         public bool TryGetContractor(out string contractor)
         {
-            contractor = _user?.FindFirst(CustomClaimTypes.CONTRACTOR)?.Value ?? string.Empty;
+            contractor = _user?.FindFirst(CustomClaimTypes.Contractor)?.Value ?? string.Empty;
             return !string.IsNullOrWhiteSpace(contractor);
         }
 
@@ -75,7 +75,7 @@ namespace RepairsApi.V2.Services
             foreach (var group in await _groupsGateway.GetMatchingGroups(user.Groups.ToArray()))
             {
                 if (!string.IsNullOrWhiteSpace(group.ContractorReference))
-                    identity.AddClaim(new Claim(CustomClaimTypes.CONTRACTOR, group.ContractorReference));
+                    identity.AddClaim(new Claim(CustomClaimTypes.Contractor, group.ContractorReference));
 
                 if (!string.IsNullOrWhiteSpace(group.UserType))
                     identity.AddClaim(new Claim(ClaimTypes.Role, group.UserType));
@@ -88,8 +88,8 @@ namespace RepairsApi.V2.Services
 
             }
 
-            identity.AddClaim(new Claim(CustomClaimTypes.RAISELIMIT, raiseLimit.ToString(CultureInfo.InvariantCulture)));
-            identity.AddClaim(new Claim(CustomClaimTypes.VARYLIMIT, varyLimit.ToString(CultureInfo.InvariantCulture)));
+            identity.AddClaim(new Claim(CustomClaimTypes.RaiseLimit, raiseLimit.ToString(CultureInfo.InvariantCulture)));
+            identity.AddClaim(new Claim(CustomClaimTypes.VaryLimit, varyLimit.ToString(CultureInfo.InvariantCulture)));
 
             return new ClaimsPrincipal(identity);
         }

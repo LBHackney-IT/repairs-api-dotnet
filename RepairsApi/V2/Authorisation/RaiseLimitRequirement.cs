@@ -36,7 +36,7 @@ namespace RepairsApi.V2.Authorisation
             double totalCost = 0;
             await rawCodes.ForEachAsync(async c => totalCost += c.Amount * await _sorGateway.GetCost(contractorRef, c.CustomCode));
 
-            var limit = double.Parse(context.User.FindFirst(CustomClaimTypes.RAISELIMIT).Value);
+            var limit = double.Parse(context.User.FindFirst(CustomClaimTypes.RaiseLimit).Value);
 
             if (totalCost <= limit)
             {

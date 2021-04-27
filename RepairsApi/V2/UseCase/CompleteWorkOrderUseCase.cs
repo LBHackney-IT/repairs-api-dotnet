@@ -48,7 +48,7 @@ namespace RepairsApi.V2.UseCase
 
             ValidateRequest(workOrderComplete);
             await using var transaction = await _transactionManager.Start();
-            var b = _currentUserService.HasGroup(UserGroups.CONTRACT_MANAGER);
+            var b = _currentUserService.HasGroup(UserGroups.ContractManager);
             await UpdateWorkOrderStatus(workOrder.Id, workOrderComplete);
             await _workOrderCompletionGateway.CreateWorkOrderCompletion(workOrderComplete.ToDb(workOrder, null));
             await transaction.Commit();
@@ -64,8 +64,8 @@ namespace RepairsApi.V2.UseCase
                         await HandleCustomType(workOrderId, update);
                         break;
                     case Generated.JobStatusUpdateTypeCode._70: // Denied Access
-                        if (!_currentUserService.HasGroup(UserGroups.CONTRACTOR) &&
-                        !_currentUserService.HasGroup(UserGroups.CONTRACT_MANAGER))
+                        if (!_currentUserService.HasGroup(UserGroups.Contractor) &&
+                        !_currentUserService.HasGroup(UserGroups.ContractManager))
                             throw new UnauthorizedAccessException("Not Authorised to close jobs");
                         await _repairsGateway.UpdateWorkOrderStatus(workOrderId, WorkStatusCode.NoAccess);
                         break;
@@ -78,15 +78,15 @@ namespace RepairsApi.V2.UseCase
         {
             switch (update.OtherType)
             {
-                case CustomJobStatusUpdates.COMPLETED:
-                    if (!_currentUserService.HasGroup(UserGroups.CONTRACTOR) &&
-                        !_currentUserService.HasGroup(UserGroups.CONTRACT_MANAGER))
+                case CustomJobStatusUpdates.Completed:
+                    if (!_currentUserService.HasGroup(UserGroups.Contractor) &&
+                        !_currentUserService.HasGroup(UserGroups.ContractManager))
                         throw new UnauthorizedAccessException("Not Authorised to close jobs");
                     await _repairsGateway.UpdateWorkOrderStatus(workOrderId, WorkStatusCode.Complete);
                     break;
-                case CustomJobStatusUpdates.CANCELLED:
-                    if (!_currentUserService.HasGroup(UserGroups.AGENT) &&
-                        !_currentUserService.HasGroup(UserGroups.CONTRACT_MANAGER))
+                case CustomJobStatusUpdates.Cancelled:
+                    if (!_currentUserService.HasGroup(UserGroups.Agent) &&
+                        !_currentUserService.HasGroup(UserGroups.ContractManager))
                         throw new UnauthorizedAccessException("Not Authorised to cancel jobs");
                     await _repairsGateway.UpdateWorkOrderStatus(workOrderId, WorkStatusCode.Canceled);
                     break;

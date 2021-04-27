@@ -12,7 +12,7 @@
     "transactions_api": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "api/v2/healthcheck/ping",
+      "launchUrl": "swagger/index.html",
       "environmentVariables": {
         "CONNECTION_STRING": "Host=127.0.0.1;Port=5432;Username=postgres;Password=mypassword;Database=testdb",
         "GROUPS": "{ \"GroupOptions\": { \"SecurityGroups\": { \"agent\": { \"SecurityGroup\": \"agent\", \"ContractorReference\": \"\" }, \"contractor-test\": { \"SecurityGroup\": \"contractor\", \"ContractorReference\": \"contractor\" } } } }",
