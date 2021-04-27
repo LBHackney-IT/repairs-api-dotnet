@@ -7,7 +7,7 @@ namespace RepairsApi.V2.Filtering
 {
     public class Filter<TQuery> : IFilter<TQuery>
     {
-        private IEnumerable<Expression<Func<TQuery, bool>>> _predicates;
+        private readonly IEnumerable<Expression<Func<TQuery, bool>>> _predicates;
 
         public Filter(IEnumerable<Expression<Func<TQuery, bool>>> predicates)
         {

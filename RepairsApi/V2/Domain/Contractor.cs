@@ -5,7 +5,6 @@ namespace RepairsApi.V2.Domain
     {
         public string ContractorReference { get; set; }
         public string ContractorName { get; set; }
-        public string ContractReference { get; set; }
-        public double ContractCost { get; set; }
+        public bool UseExternalScheduleManager { get; set; }
     }
 }

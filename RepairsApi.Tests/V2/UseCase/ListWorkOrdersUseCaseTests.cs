@@ -27,7 +27,7 @@ namespace RepairsApi.Tests.V2.UseCase
         [SetUp]
         public void Setup()
         {
-            configureGenerator();
+            ConfigureGenerator();
             _repairsMock = new MockRepairsGateway();
             _classUnderTest = new ListWorkOrdersUseCase(_repairsMock.Object, CreateFilterBuilder());
         }
@@ -52,7 +52,7 @@ namespace RepairsApi.Tests.V2.UseCase
                 );
         }
 
-        private void configureGenerator()
+        private void ConfigureGenerator()
         {
             _generator = new Generator<WorkOrder>()
                 .AddInfrastructureWorkOrderGenerators();
@@ -155,7 +155,7 @@ namespace RepairsApi.Tests.V2.UseCase
             };
             var statusOrder = new[] {
                 WorkOrderStatus.InProgress,
-                WorkOrderStatus.PendApp,
+                WorkOrderStatus.VariationPendingApproval,
                 WorkOrderStatus.Cancelled,
                 WorkOrderStatus.Complete,
                 WorkOrderStatus.Unknown

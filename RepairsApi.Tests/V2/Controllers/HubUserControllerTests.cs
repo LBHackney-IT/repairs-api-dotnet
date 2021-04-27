@@ -40,8 +40,8 @@ namespace RepairsApi.Tests.V2.Controllers
             identity.AddClaim(new Claim(ClaimTypes.Email, "repairs@hackney.gov.uk"));
             identity.AddClaim(new Claim(ClaimTypes.PrimarySid, "222222"));
             identity.AddClaim(new Claim(ClaimTypes.Name, "Bob Repairs"));
-            identity.AddClaim(new Claim(CustomClaimTypes.VARYLIMIT, "250"));
-            identity.AddClaim(new Claim(CustomClaimTypes.RAISELIMIT, "250"));
+            identity.AddClaim(new Claim(CustomClaimTypes.VaryLimit, "250"));
+            identity.AddClaim(new Claim(CustomClaimTypes.RaiseLimit, "250"));
             ClaimsPrincipal user = new ClaimsPrincipal(identity);
 
             _mockCurrentUserService.Setup(x => x.GetUser())
