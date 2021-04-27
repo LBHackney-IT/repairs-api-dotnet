@@ -16,6 +16,7 @@ using RepairsApi.V2.Generated.CustomTypes;
 using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Services;
 using RepairsApi.V2.Authorisation;
+using RepairsApi.V2.Notifications;
 
 namespace RepairsApi.Tests.V2.UseCase
 {
@@ -26,6 +27,7 @@ namespace RepairsApi.Tests.V2.UseCase
         private CompleteWorkOrderUseCase _classUnderTest;
         private Generator<WorkOrder> _generator;
         private MockWorkOrderCompletionGateway _workOrderCompletionGatewayMock;
+        private NotificationMock<WorkOrderCancelled> _handlerMock;
 
         [SetUp]
         public void Setup()
@@ -35,11 +37,13 @@ namespace RepairsApi.Tests.V2.UseCase
             _currentUserServiceMock = new CurrentUserServiceMock();
             _currentUserServiceMock.SetSecurityGroup(UserGroups.Agent, true);
             _workOrderCompletionGatewayMock = new MockWorkOrderCompletionGateway();
+            _handlerMock = new NotificationMock<WorkOrderCancelled>();
             _classUnderTest = new CompleteWorkOrderUseCase(
                 _repairsGatewayMock.Object,
                 _workOrderCompletionGatewayMock.Object,
                 InMemoryDb.TransactionManager,
-                _currentUserServiceMock.Object);
+                _currentUserServiceMock.Object,
+                _handlerMock);
         }
 
         private void ConfigureGenerator()
@@ -179,6 +183,7 @@ namespace RepairsApi.Tests.V2.UseCase
             Assert.ThrowsAsync<NotSupportedException>(() => _classUnderTest.Execute(workOrderCompleteRequest));
         }
 
+        [Test]
         public async Task UpdatesWorkOrderStatusCancelled()
         {
             // arrange
@@ -295,6 +300,24 @@ namespace RepairsApi.Tests.V2.UseCase
 
             // assert
             _repairsGatewayMock.Verify(rgm => rgm.UpdateWorkOrderStatus(expectedWorkOrder.Id, expectedNewStatus));
+        }
+
+        [Test]
+        public async Task HandlersCalled_When_Cancelled()
+        {
+            var expectedWorkOrder = CreateWorkOrder();
+            var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
+            workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
+            {
+                new Generated.JobStatusUpdates
+                {
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = CustomJobStatusUpdates.Cancelled, Comments = "expectedComment"
+                }
+            };
+
+            await _classUnderTest.Execute(workOrderCompleteRequest);
+
+            _handlerMock.HaveHandlersBeenCalled().Should().BeTrue();
         }
 
         private static Generated.WorkOrderComplete CreateRequest(int expectedWorkOrderId)
