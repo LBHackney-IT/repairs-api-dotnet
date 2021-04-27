@@ -9,5 +9,6 @@ namespace RepairsApi.V2.Services
         bool IsUserPresent();
         bool HasGroup(string groupName);
         bool TryGetContractor(out string contractor);
+        bool HasAnyGroup(params string[] groups);
     }
 }

@@ -39,7 +39,7 @@ namespace RepairsApi.Tests.V2.Notifications
                 .AddValue(new List<Trade> { new Trade { Code = RepairsApi.V2.Generated.TradeCode.B2 } }, (WorkElement we) => we.Trade);
             var workOrder = generator.Generate();
 
-            await _classUnderTest.Notify(new WorkOrderCreated(workOrder));
+            await _classUnderTest.Notify(new WorkOrderOpened(workOrder));
 
             _drsServiceMock.Verify(x => x.CreateOrder(workOrder));
         }
@@ -54,7 +54,7 @@ namespace RepairsApi.Tests.V2.Notifications
                 .AddValue(new List<Trade> { new Trade { Code = RepairsApi.V2.Generated.TradeCode.B2 } }, (WorkElement we) => we.Trade);
             var workOrder = generator.Generate();
 
-            await _classUnderTest.Notify(new WorkOrderCreated(workOrder));
+            await _classUnderTest.Notify(new WorkOrderOpened(workOrder));
 
             _drsServiceMock.Verify(x => x.CreateOrder(workOrder), Times.Never);
         }

@@ -28,7 +28,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
             workOrder.VerifyCanRejectWorkOrder();
 
-            if (!_currentUserService.HasGroup(UserGroups.ContractManager))
+            if (!_currentUserService.HasGroup(UserGroups.AuthorisationManager))
                 throw new UnauthorizedAccessException(Resources.InvalidPermissions);
 
             workOrder.StatusCode = Infrastructure.WorkStatusCode.Canceled;

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace RepairsApi.V2.Notifications
 {
-    public class DRSNotificationHandler : INotificationHandler<WorkOrderCreated>
+    public class DRSNotificationHandler : INotificationHandler<WorkOrderOpened>
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IFeatureManager _featureManager;
@@ -18,7 +18,7 @@ namespace RepairsApi.V2.Notifications
             _featureManager = featureManager;
         }
 
-        public async Task Notify(WorkOrderCreated data)
+        public async Task Notify(WorkOrderOpened data)
         {
             if (!await _featureManager.IsEnabledAsync(FeatureFlags.DRSIntegration))
             {
@@ -32,9 +32,9 @@ namespace RepairsApi.V2.Notifications
         }
     }
 
-    public class WorkOrderCreated : INotification
+    public class WorkOrderOpened : INotification
     {
-        public WorkOrderCreated(WorkOrder workOrder)
+        public WorkOrderOpened(WorkOrder workOrder)
         {
             WorkOrder = workOrder;
         }

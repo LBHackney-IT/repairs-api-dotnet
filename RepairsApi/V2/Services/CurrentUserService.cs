@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using RepairsApi.V2.Boundary.Response;
+using System.Linq;
 
 namespace RepairsApi.V2.Services
 {
@@ -92,6 +93,11 @@ namespace RepairsApi.V2.Services
             identity.AddClaim(new Claim(CustomClaimTypes.VaryLimit, varyLimit.ToString(CultureInfo.InvariantCulture)));
 
             return new ClaimsPrincipal(identity);
+        }
+
+        public bool HasAnyGroup(params string[] groups)
+        {
+            return groups.Any(g => HasGroup(g));
         }
     }
 }

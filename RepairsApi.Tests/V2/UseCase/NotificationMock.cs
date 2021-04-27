@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RepairsApi.Tests.V2.UseCase
 {
-    internal class NotificationMock<T> : List<INotificationHandler<WorkOrderCreated>>
+    internal class NotificationMock<T> : List<INotificationHandler<WorkOrderOpened>>
     {
         private readonly NotificationSpy _spy;
 
@@ -19,13 +19,13 @@ namespace RepairsApi.Tests.V2.UseCase
         public bool HaveHandlersBeenCalled() => _spy.HasBeenCalled();
     }
 
-    internal class NotificationSpy : INotificationHandler<WorkOrderCreated>
+    internal class NotificationSpy : INotificationHandler<WorkOrderOpened>
     {
         private bool _called;
 
         public NotificationSpy() => _called = false;
 
-        public Task Notify(WorkOrderCreated data)
+        public Task Notify(WorkOrderOpened data)
         {
             _called = true;
             return Task.CompletedTask;
