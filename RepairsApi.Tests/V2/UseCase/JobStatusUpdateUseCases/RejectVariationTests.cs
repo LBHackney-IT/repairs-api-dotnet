@@ -71,7 +71,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         {
             const int desiredWorkOrderId = 42;
             var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
-            workOrder.StatusCode = WorkStatusCode.PendApp;
+            workOrder.StatusCode = WorkStatusCode.VariationPendingApproval;
             var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
                 Generated.JobStatusUpdateTypeCode._125);
 
