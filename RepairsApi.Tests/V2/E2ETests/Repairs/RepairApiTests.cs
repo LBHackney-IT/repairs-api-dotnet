@@ -20,7 +20,6 @@ using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 
 namespace RepairsApi.Tests.V2.E2ETests.Repairs
 {
-    [SingleThreaded]
     public partial class RepairApiTests : MockWebApplicationFactory
     {
         [SetUp]
