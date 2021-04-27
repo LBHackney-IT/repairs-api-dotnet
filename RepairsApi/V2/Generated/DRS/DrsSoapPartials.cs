@@ -11,7 +11,7 @@ namespace V2_Generated_DRS
     public partial class SOAPClient
     {
         public SOAPClient(IOptions<DrsOptions> drsOptions) :
-            this(new BasicHttpsBinding(), new EndpointAddress(drsOptions.Value.Address))
+            this(new BasicHttpsBinding(), new EndpointAddress(drsOptions.Value.APIAddress))
         {
             this.Endpoint.EndpointBehaviors.Add(new MyFaultLogger());
         }

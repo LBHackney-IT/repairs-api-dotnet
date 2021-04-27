@@ -33,11 +33,7 @@ namespace RepairsApi
                 .AddFilter(
                     searchParams => searchParams.Priorities,
                     codes => codes?.Count > 0,
-                    codes =>
-                    {
-                        var hactCodes = codes.GetHactCodes();
-                        return wo => wo.WorkPriority.PriorityCode.HasValue && hactCodes.Contains(wo.WorkPriority.PriorityCode.Value);
-                    }
+                    codes => wo => wo.WorkPriority.PriorityCode.HasValue && codes.Contains(wo.WorkPriority.PriorityCode.Value)
                 );
             });
         }

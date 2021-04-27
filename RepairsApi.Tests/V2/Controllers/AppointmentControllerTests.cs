@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.UseCase.Interfaces;
 using RepairsApi.V2;
+using RepairsApi.V2.UseCase;
 
 namespace RepairsApi.Tests.V2.Controllers
 {

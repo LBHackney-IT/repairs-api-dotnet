@@ -31,6 +31,8 @@ namespace RepairsApi.V2.Infrastructure.Hackney
 
         public string Description { get; set; }
 
+        public char PriorityCharacter { get; set; }
+
         public int? DaysToComplete { get; set; }
 
         public bool Enabled { get; set; }
@@ -60,7 +62,7 @@ namespace RepairsApi.V2.Infrastructure.Hackney
     {
         [Key] public string Reference { get; set; }
         public string Name { get; set; }
-
+        public bool UseExternalScheduleManager { get; set; }
         public virtual List<Contract> Contracts { get; set; }
     }
 

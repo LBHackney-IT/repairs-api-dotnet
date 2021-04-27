@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
+using NodaTime;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers.StubGeneration;
 using RepairsApi.V2.Boundary.Response;
@@ -25,6 +27,7 @@ namespace RepairsApi.Tests.V2.Services
         private DrsMapping _classUnderTest;
         private string _sessionId;
         private Mock<IAlertsGateway> _alertsGatewayMock;
+        private Mock<ISorPriorityGateway> _sorPriorityGatewayMock;
         private PropertyAlertList _locationAlerts;
 
         [SetUp]
@@ -33,7 +36,8 @@ namespace RepairsApi.Tests.V2.Services
             _sessionId = "sessionId";
             _sorGatewayMock = new Mock<IScheduleOfRatesGateway>();
             _alertsGatewayMock = new Mock<IAlertsGateway>();
-            _classUnderTest = new DrsMapping(_sorGatewayMock.Object, _alertsGatewayMock.Object);
+            _sorPriorityGatewayMock = new Mock<ISorPriorityGateway>();
+            _classUnderTest = new DrsMapping(_sorGatewayMock.Object, _alertsGatewayMock.Object, _sorPriorityGatewayMock.Object);
 
             var generator = new Generator<PropertyAlertList>().AddDefaultGenerators();
             _locationAlerts = generator.Generate();
@@ -42,23 +46,35 @@ namespace RepairsApi.Tests.V2.Services
                 .ReturnsAsync(_locationAlerts);
         }
 
-        [TestCase(WorkPriorityCode._1, "I")]
-        [TestCase(WorkPriorityCode._2, "I")]
-        [TestCase(WorkPriorityCode._3, "E")]
-        [TestCase(WorkPriorityCode._4, "U")]
-        [TestCase(WorkPriorityCode._5, "N")]
-        public async Task MapsPriorityCorrectly(WorkPriorityCode incomingCode, string expectedDrsCode)
+        [TestCase('I')]
+        [TestCase('E')]
+        [TestCase('U')]
+        [TestCase('N')]
+        public async Task MapsPriorityCorrectly(char expectedDrsCode)
         {
             var generator = new Generator<WorkOrder>()
                 .AddInfrastructureWorkOrderGenerators();
             var workOrder = generator.Generate();
-            workOrder.WorkPriority.PriorityCode = incomingCode;
+            _sorPriorityGatewayMock.Setup(m => m.GetLegacyPriorityCode(It.IsAny<int>())).ReturnsAsync(expectedDrsCode);
             var sorCodes = SetupSorCodes(workOrder);
 
             var request = await _classUnderTest.BuildCreateOrderRequest(_sessionId, workOrder);
 
             VerifyCreateOrder(request, workOrder, sorCodes);
-            request.createOrder1.theOrder.priority.Should().Be(expectedDrsCode);
+            request.createOrder1.theOrder.priority.Should().Be(expectedDrsCode.ToString());
+        }
+
+        [Test]
+        public async Task CreatesDelete()
+        {
+            var generator = new Generator<WorkOrder>()
+                .AddInfrastructureWorkOrderGenerators();
+            var workOrder = generator.Generate();
+            var sorCodes = SetupSorCodes(workOrder);
+
+            var request = await _classUnderTest.BuildDeleteOrderRequest(_sessionId, workOrder);
+
+            VerifyDeleteOrder(request, workOrder, sorCodes);
         }
 
         private IList<ScheduleOfRatesModel> SetupSorCodes(WorkOrder workOrder)
@@ -87,6 +103,11 @@ namespace RepairsApi.Tests.V2.Services
             createOrder.createOrder1.sessionId.Should().Be(_sessionId);
             ValidateOrder(workOrder, createOrder.createOrder1.theOrder, sorCodes, _locationAlerts);
         }
+        private void VerifyDeleteOrder(deleteOrder deleteOrder, WorkOrder workOrder, IList<ScheduleOfRatesModel> sorCodes)
+        {
+            deleteOrder.deleteOrder1.sessionId.Should().Be(_sessionId);
+            ValidateOrder(workOrder, deleteOrder.deleteOrder1.theOrder, sorCodes, _locationAlerts);
+        }
 
         private static void ValidateOrder(WorkOrder workOrder, order order, IList<ScheduleOfRatesModel> sorCodes, PropertyAlertList locationAlerts)
         {
@@ -96,14 +117,20 @@ namespace RepairsApi.Tests.V2.Services
             order.orderComments.Should().Be(workOrder.DescriptionOfWork);
             order.contract.Should().Be(workOrder.AssignedToPrimary.ContractorReference);
             order.locationID.Should().Be(workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference);
-            order.targetDate.Should().Be(workOrder.WorkPriority.RequiredCompletionDateTime!.Value);
             order.userId.Should().Be(workOrder.AgentEmail);
             order.contactName.Should().Be(workOrder.Customer.Name);
             order.phone.Should().Be(workOrder.Customer.Person.Communication.GetPhoneNumber());
 
             ValidateLocation(workOrder, locationAlerts, order.theLocation);
-
             ValidateBookings(workOrder, sorCodes, order.theBookingCodes);
+            ValidateTargetDate(workOrder.WorkPriority.RequiredCompletionDateTime!.Value, order.targetDate);
+        }
+
+        private static void ValidateTargetDate(DateTime requiredCompletionDateTime, DateTime targetDate)
+        {
+            var london = DateTimeZoneProviders.Tzdb["Europe/London"];
+            var local = Instant.FromDateTimeUtc(requiredCompletionDateTime).InUtc();
+            targetDate.Should().Be(local.WithZone(london).ToDateTimeUnspecified());
         }
 
         private static void ValidateBookings(WorkOrder workOrder, IList<ScheduleOfRatesModel> sorCodes, bookingCode[] bookings)

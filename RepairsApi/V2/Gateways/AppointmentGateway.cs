@@ -24,7 +24,7 @@ namespace RepairsApi.V2.Gateways
         {
             var refArray = appointmentRef.Split('/', 2);
             var slotId = int.Parse(refArray[0]);
-            var slotDate = DateTime.ParseExact(refArray[1], DateExtensions.DATEFORMAT, null);
+            var slotDate = DateTime.ParseExact(refArray[1], DateExtensions.DateFormat, null);
 
             var appoinment = await _repairsContext.AvailableAppointmentDays
                 .Where(a => a.Id == slotId)

@@ -16,6 +16,11 @@ namespace RepairsApi.V2.Gateways
             _priorities = context.SORPriorities;
         }
 
+        public Task<char> GetLegacyPriorityCode(int priorityCode)
+        {
+            return _priorities.Where(p => p.PriorityCode == priorityCode).Select(p => p.PriorityCharacter).SingleOrDefaultAsync();
+        }
+
         public async Task<IEnumerable<SORPriority>> GetPriorities()
         {
             return await _priorities.Where(p => p.Enabled).OrderBy(p => p.DaysToComplete).ToListAsync();
