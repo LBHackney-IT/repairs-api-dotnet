@@ -1,12 +1,12 @@
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using RepairsApi.V2.Authorisation;
-using JobStatusUpdate = RepairsApi.V2.Infrastructure.JobStatusUpdate;
+using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
-using RepairsApi.V2.Generated;
-using Microsoft.EntityFrameworkCore;
-using RepairsApi.V2.Exceptions;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using JobStatusUpdateTypeCode = RepairsApi.V2.Generated.JobStatusUpdateTypeCode;
 
 namespace RepairsApi.V2.Gateways
 {

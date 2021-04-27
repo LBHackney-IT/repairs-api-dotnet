@@ -38,6 +38,7 @@ namespace RepairsApi.Tests.V2.Controllers
         private Mock<IGetWorkOrderUseCase> _getWorkOrderUseCase;
         private Mock<IListWorkOrderTasksUseCase> _listWorkOrderTasksUseCase;
         private Mock<IListWorkOrderNotesUseCase> _listWorkOrderNotesUseCase;
+        private Mock<IListVariationTasksUseCase> _listVariationsTaskUseCase;
 
         [SetUp]
         public void SetUp()
@@ -50,6 +51,7 @@ namespace RepairsApi.Tests.V2.Controllers
             _getWorkOrderUseCase = new Mock<IGetWorkOrderUseCase>();
             _listWorkOrderTasksUseCase = new Mock<IListWorkOrderTasksUseCase>();
             _listWorkOrderNotesUseCase = new Mock<IListWorkOrderNotesUseCase>();
+            _listVariationsTaskUseCase = new Mock<IListVariationTasksUseCase>();
             _classUnderTest = new WorkOrdersController(
                 _createWorkOrderUseCaseMock.Object,
                 _listWorkOrdersUseCase.Object,
@@ -57,7 +59,8 @@ namespace RepairsApi.Tests.V2.Controllers
                 _updateJobStatusUseCase.Object,
                 _getWorkOrderUseCase.Object,
                 _listWorkOrderTasksUseCase.Object,
-                _listWorkOrderNotesUseCase.Object
+                _listWorkOrderNotesUseCase.Object,
+                _listVariationsTaskUseCase.Object
             );
         }
 

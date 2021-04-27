@@ -22,7 +22,7 @@ namespace RepairsApi.V2.Controllers
     [Route("/api/v2/workOrders")]
     [Produces("application/json")]
     [ApiVersion("2.0")]
-    public class WorkOrdersController : Controller
+    public partial class WorkOrdersController : Controller
     {
         private readonly ICreateWorkOrderUseCase _createWorkOrderUseCase;
         private readonly IListWorkOrdersUseCase _listWorkOrdersUseCase;
@@ -31,6 +31,7 @@ namespace RepairsApi.V2.Controllers
         private readonly IGetWorkOrderUseCase _getWorkOrderUseCase;
         private readonly IListWorkOrderTasksUseCase _listWorkOrderTasksUseCase;
         private readonly IListWorkOrderNotesUseCase _listWorkOrderNotesUseCase;
+        private readonly IListVariationTasksUseCase _listVariationTasksUseCase;
 
         public WorkOrdersController(
             ICreateWorkOrderUseCase createWorkOrderUseCase,
@@ -39,7 +40,8 @@ namespace RepairsApi.V2.Controllers
             IUpdateJobStatusUseCase updateJobStatusUseCase,
             IGetWorkOrderUseCase getWorkOrderUseCase,
             IListWorkOrderTasksUseCase listWorkOrderTasksUseCase,
-            IListWorkOrderNotesUseCase listWorkOrderNotesUseCase)
+            IListWorkOrderNotesUseCase listWorkOrderNotesUseCase,
+            IListVariationTasksUseCase listVariationTasksUseCase)
         {
             _createWorkOrderUseCase = createWorkOrderUseCase;
             _listWorkOrdersUseCase = listWorkOrdersUseCase;
@@ -48,6 +50,7 @@ namespace RepairsApi.V2.Controllers
             _getWorkOrderUseCase = getWorkOrderUseCase;
             _listWorkOrderTasksUseCase = listWorkOrderTasksUseCase;
             _listWorkOrderNotesUseCase = listWorkOrderNotesUseCase;
+            _listVariationTasksUseCase = listVariationTasksUseCase;
         }
 
         /// <summary>
@@ -136,37 +139,6 @@ namespace RepairsApi.V2.Controllers
         {
             await _updateJobStatusUseCase.Execute(request);
             return Ok();
-        }
-
-        /// <summary>
-        /// Gets a list of tasks for a given work order id
-        /// </summary>
-        /// <param name="id">work order id</param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("{id}/tasks")]
-        [ProducesResponseType(typeof(IEnumerable<WorkOrderItemViewModel>), 200)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(400)]
-        public async Task<IActionResult> ListWorkOrderTasks(int id)
-        {
-            var result = await _listWorkOrderTasksUseCase.Execute(id);
-            return Ok(result.ToResponse());
-        }
-
-        /// <summary>
-        /// Gets a list of notes for a given work order id
-        /// </summary>
-        /// <param name="id">work order id</param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("{id}/notes")]
-        [ProducesResponseType(typeof(IEnumerable<NoteListItem>), 200)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> ListWorkOrderNotes(int id)
-        {
-            var result = await _listWorkOrderNotesUseCase.Execute(id);
-            return Ok(result);
         }
     }
 

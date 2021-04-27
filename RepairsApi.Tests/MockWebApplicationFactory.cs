@@ -171,10 +171,10 @@ namespace RepairsApi.Tests
             return (result.StatusCode, response);
         }
 
-        private async Task<HttpResponseMessage> InternalPost(string uri, object data, string role = "agent")
+        private async Task<HttpResponseMessage> InternalPost(string uri, object data)
         {
             var client = CreateClient();
-            if (!role.Equals("agent")) client.SetGroup(role);
+
             var serializedContent = JsonConvert.SerializeObject(data);
             StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
 
@@ -182,9 +182,9 @@ namespace RepairsApi.Tests
             return result;
         }
 
-        public async Task<HttpStatusCode> Post(string uri, object data, string role = "agent")
+        public async Task<HttpStatusCode> Post(string uri, object data)
         {
-            HttpResponseMessage result = await InternalPost(uri, data, role);
+            HttpResponseMessage result = await InternalPost(uri, data);
             return result.StatusCode;
         }
     }

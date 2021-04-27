@@ -1,6 +1,7 @@
+using RepairsApi.V2.Infrastructure;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using RepairsApi.V2.Generated;
-using JobStatusUpdate = RepairsApi.V2.Infrastructure.JobStatusUpdate;
+using JobStatusUpdateTypeCode = RepairsApi.V2.Generated.JobStatusUpdateTypeCode;
 
 namespace RepairsApi.V2.Gateways
 {
