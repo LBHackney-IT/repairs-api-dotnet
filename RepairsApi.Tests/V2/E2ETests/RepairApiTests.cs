@@ -48,6 +48,16 @@ namespace RepairsApi.Tests.V2.E2ETests
         }
 
         [Test]
+        public async Task DeletesFromDRS()
+        {
+            var id = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
+
+            await CancelWorkOrder(id);
+
+            SoapMock.Verify(s => s.deleteOrderAsync(It.IsAny<V2_Generated_DRS.deleteOrder>()));
+        }
+
+        [Test]
         public async Task ScheduleReturns401WhenLimitExceeded()
         {
             // Arrange
