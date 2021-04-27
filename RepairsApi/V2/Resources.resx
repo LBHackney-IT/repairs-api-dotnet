@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -152,5 +152,11 @@
   </data>
   <data name="UnsupportedUHPriority" xml:space="preserve">
     <value>Un supported Priority character</value>
+  </data>
+  <data name="ActionUnsupported" xml:space="preserve">
+    <value>This action is not supported</value>
+  </data>
+  <data name="InvalidPermissions" xml:space="preserve">
+    <value>You do not have the correct permissions for this action</value>
   </data>
 </root>

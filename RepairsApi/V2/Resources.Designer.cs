@@ -61,6 +61,15 @@ namespace RepairsApi.V2 {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This action is not supported.
+        /// </summary>
+        public static string ActionUnsupported {
+            get {
+                return ResourceManager.GetString("ActionUnsupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Could not find contacts.
         /// </summary>
         public static string Contacts_Not_Found {
@@ -93,6 +102,15 @@ namespace RepairsApi.V2 {
         public static string InvalidGeographicalLocation {
             get {
                 return ResourceManager.GetString("InvalidGeographicalLocation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You do not have the correct permissions for this action.
+        /// </summary>
+        public static string InvalidPermissions {
+            get {
+                return ResourceManager.GetString("InvalidPermissions", resourceCulture);
             }
         }
         

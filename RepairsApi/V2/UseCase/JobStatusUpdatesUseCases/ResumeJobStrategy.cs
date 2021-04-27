@@ -1,5 +1,6 @@
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated;
+using RepairsApi.V2.Helpers;
 using System.Threading.Tasks;
 
 namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
@@ -17,6 +18,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
         {
             var workOrderId = int.Parse(jobStatusUpdate.RelatedWorkOrderReference.ID);
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
+            workOrder.VerifyCanResumeJob();
 
             workOrder.StatusCode = Infrastructure.WorkStatusCode.Open;
 
