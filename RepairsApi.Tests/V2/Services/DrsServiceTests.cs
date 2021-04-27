@@ -31,7 +31,8 @@ namespace RepairsApi.Tests.V2.Services
         {
             _drsOptions = Options.Create<DrsOptions>(new DrsOptions
             {
-                Login = "login", Password = "password"
+                Login = "login",
+                Password = "password"
             });
             _loggerMock = new Mock<ILogger<DrsService>>();
             _drsSoapMock = new MockDrsSoap(_drsOptions);
@@ -62,7 +63,8 @@ namespace RepairsApi.Tests.V2.Services
             _drsSoapMock.Setup(x => x.openSessionAsync(It.IsAny<openSession>()))
                 .ReturnsAsync(new openSessionResponse(new xmbOpenSessionResponse
                 {
-                    status = drsResponse, errorMsg = message
+                    status = drsResponse,
+                    errorMsg = message
                 }));
 
             Func<Task> act = async () =>
@@ -160,7 +162,8 @@ namespace RepairsApi.Tests.V2.Services
         {
             Contractor expectedContractor = new Contractor
             {
-                ContractorReference = "contractorRef", UseExternalScheduleManager = useExternal
+                ContractorReference = "contractorRef",
+                UseExternalScheduleManager = useExternal
             };
             return expectedContractor;
         }

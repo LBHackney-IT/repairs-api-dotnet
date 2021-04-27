@@ -1,4 +1,4 @@
-﻿using Moq;
+using Moq;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 using V2_Generated_DRS;
