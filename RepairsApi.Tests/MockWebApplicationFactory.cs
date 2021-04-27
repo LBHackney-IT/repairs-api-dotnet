@@ -87,9 +87,12 @@ namespace RepairsApi.Tests
         {
             base.ConfigureClient(client);
 
-            if (_userGroup == UserGroups.Agent) client.SetAgent();
-            if (_userGroup == UserGroups.Contractor) client.SetGroup(GetGroup(TestDataSeeder.Contractor));
-            if (_userGroup == UserGroups.ContractManager) client.SetGroup(_userGroup);
+            switch (_userGroup)
+            {
+                case UserGroups.Agent: client.SetAgent(); break;
+                case UserGroups.Contractor: client.SetGroup(GetGroup(TestDataSeeder.Contractor)); break;
+                default: client.SetGroup(_userGroup); break;
+            }
         }
 
         protected void SetUserRole(string userGroup)
@@ -147,19 +150,17 @@ namespace RepairsApi.Tests
         private static async Task<TResponse> ProcessResponse<TResponse>(HttpResponseMessage result)
         {
             var responseContent = await result.Content.ReadAsStringAsync();
+
             try
             {
-
                 object parseResponse = JsonConvert.DeserializeObject(responseContent, typeof(TResponse));
                 TResponse castedResponse = parseResponse != null && typeof(TResponse).IsAssignableFrom(parseResponse.GetType()) ? (TResponse) parseResponse : default;
                 return castedResponse;
             }
-            catch (JsonSerializationException e)
+            catch (Exception e) when (e is JsonSerializationException || e is JsonReaderException)
             {
                 throw new Exception($"Result Serialisation Failed. Response Had Code {result.StatusCode}", e);
             }
-
-
         }
 
         public async Task<(HttpStatusCode statusCode, TResponse response)> Post<TResponse>(string uri, object data)

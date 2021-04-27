@@ -31,7 +31,7 @@ namespace RepairsApi.Tests.V2.UseCase
         private Mock<ICurrentUserService> _currentUserServiceMock;
         private Mock<IFeatureManager> _featureManagerMock;
         private CreateWorkOrderUseCase _classUnderTest;
-        private NotificationMock<WorkOrderCreated> _handlerMock;
+        private NotificationMock<WorkOrderOpened> _handlerMock;
 
         [SetUp]
         public void Setup()
@@ -44,7 +44,7 @@ namespace RepairsApi.Tests.V2.UseCase
             _currentUserServiceMock = new Mock<ICurrentUserService>();
             _featureManagerMock = new Mock<IFeatureManager>();
             _featureManagerMock.Setup(fm => fm.IsEnabledAsync(It.IsAny<string>())).ReturnsAsync(true);
-            _handlerMock = new NotificationMock<WorkOrderCreated>();
+            _handlerMock = new NotificationMock<WorkOrderOpened>();
             _classUnderTest = new CreateWorkOrderUseCase(
                 _repairsGatewayMock.Object,
                 _scheduleOfRatesGateway.Object,

@@ -2,8 +2,10 @@ using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Helpers;
+using RepairsApi.V2.Notifications;
 using RepairsApi.V2.Services;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
@@ -12,11 +14,16 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
     {
         private readonly ICurrentUserService _currentUserService;
         private readonly IRepairsGateway _repairsGateway;
+        private readonly IEnumerable<INotificationHandler<WorkOrderOpened>> _handlers;
 
-        public ApproveWorkOrderStrategy(ICurrentUserService currentUserService, IRepairsGateway repairsGateway)
+        public ApproveWorkOrderStrategy(
+            ICurrentUserService currentUserService,
+            IRepairsGateway repairsGateway,
+            IEnumerable<INotificationHandler<WorkOrderOpened>> handlers)
         {
             _currentUserService = currentUserService;
             _repairsGateway = repairsGateway;
+            _handlers = handlers;
         }
 
         public async Task Execute(JobStatusUpdate jobStatusUpdate)
@@ -26,10 +33,21 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
             workOrder.VerifyCanApproveWorkOrder();
 
-            if (!_currentUserService.HasGroup(UserGroups.ContractManager))
+            if (!_currentUserService.HasGroup(UserGroups.AuthorisationManager))
                 throw new UnauthorizedAccessException(Resources.InvalidPermissions);
 
             workOrder.StatusCode = Infrastructure.WorkStatusCode.Open;
+
+            await NotifyHandlers(workOrder);
+        }
+
+        private async Task NotifyHandlers(Infrastructure.WorkOrder workOrder)
+        {
+            var notification = new WorkOrderOpened(workOrder);
+            foreach (var handler in _handlers)
+            {
+                await handler.Notify(notification);
+            }
         }
     }
 }

@@ -22,6 +22,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
 
         [TestCase(UserGroups.Agent)]
         [TestCase(UserGroups.Contractor)]
+        [TestCase(UserGroups.ContractManager)]
         public async Task ApprovePendingWorkOrderShould401ForUnAuthorised(string userGroup)
         {
             var id = await CreateWorkOrder(r => r.WorkElement.Single().RateScheduleItem.Single().Quantity.Amount = new List<double> { 50000 });
@@ -34,6 +35,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
 
         [TestCase(UserGroups.Agent)]
         [TestCase(UserGroups.Contractor)]
+        [TestCase(UserGroups.ContractManager)]
         public async Task RejectPendingWorkOrderShould401ForUnAuthorised(string userGroup)
         {
             var id = await CreateWorkOrder(r => r.WorkElement.Single().RateScheduleItem.Single().Quantity.Amount = new List<double> { 50000 });
@@ -50,7 +52,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             SetUserRole(UserGroups.Agent);
             var id = await CreateWorkOrder(r => r.WorkElement.Single().RateScheduleItem.Single().Quantity.Amount = new List<double> { 50000 });
 
-            SetUserRole(UserGroups.ContractManager);
+            SetUserRole(UserGroups.AuthorisationManager);
             var code = await UpdateJob(id, RepairsApi.V2.Generated.JobStatusUpdateTypeCode._200);
 
             var wo = GetWorkOrderFromDB(id);
@@ -64,7 +66,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             SetUserRole(UserGroups.Agent);
             var id = await CreateWorkOrder(r => r.WorkElement.Single().RateScheduleItem.Single().Quantity.Amount = new List<double> { 50000 });
 
-            SetUserRole(UserGroups.ContractManager);
+            SetUserRole(UserGroups.AuthorisationManager);
             var code = await UpdateJob(id, RepairsApi.V2.Generated.JobStatusUpdateTypeCode._190);
 
             var wo = GetWorkOrderFromDB(id);
