@@ -53,17 +53,17 @@ namespace RepairsApi.V2.Services
             _sessionId = response.@return.sessionId;
         }
 
-        public async Task CreateOrder(WorkOrder workOrder)
+        public async Task<order> CreateOrder(WorkOrder workOrder)
         {
             await CheckSession();
 
             var createOrder = await _drsMapping.BuildCreateOrderRequest(_sessionId, workOrder);
             var response = await _drsSoap.createOrderAsync(createOrder);
-            if (response.@return.status != responseStatus.success)
-            {
-                _logger.LogError(response.@return.errorMsg);
-                throw new ApiException((int) response.@return.status, response.@return.errorMsg);
-            }
+            if (response.@return.status == responseStatus.success) return response.@return.theOrder;
+
+            _logger.LogError(response.@return.errorMsg);
+            throw new ApiException((int) response.@return.status, response.@return.errorMsg);
+
         }
 
         public async Task CancelOrder(WorkOrder workOrder)

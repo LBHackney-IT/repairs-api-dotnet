@@ -138,7 +138,6 @@ namespace RepairsApi.Tests.V2.UseCase
                 .Should().BeTrue();
         }
 
-
         [Test]
         public async Task HandlersCalled()
         {
