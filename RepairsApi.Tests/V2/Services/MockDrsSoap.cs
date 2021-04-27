@@ -23,7 +23,8 @@ namespace RepairsApi.Tests.V2.Services
                 {
                     @return = new xmbOpenSessionResponse
                     {
-                        sessionId = SessionId, status = responseStatus.success
+                        sessionId = SessionId,
+                        status = responseStatus.success
                     }
                 });
         }
@@ -35,7 +36,8 @@ namespace RepairsApi.Tests.V2.Services
                 {
                     @return = new xmbCreateOrderResponse
                     {
-                        status = status, errorMsg = errorMsg
+                        status = status,
+                        errorMsg = errorMsg
                     }
                 });
         }
@@ -47,7 +49,8 @@ namespace RepairsApi.Tests.V2.Services
                 {
                     @return = new xmbDeleteOrderResponse
                     {
-                        status = status, errorMsg = errorMsg
+                        status = status,
+                        errorMsg = errorMsg
                     }
                 });
         }
