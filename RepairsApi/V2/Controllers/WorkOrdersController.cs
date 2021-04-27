@@ -137,7 +137,7 @@ namespace RepairsApi.V2.Controllers
 
         public async Task<IActionResult> JobStatusUpdate([FromBody] JobStatusUpdate request)
         {
-          await _updateJobStatusUseCase.Execute(request);
+            await _updateJobStatusUseCase.Execute(request);
             return Ok();
         }
     }
