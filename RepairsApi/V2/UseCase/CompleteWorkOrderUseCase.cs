@@ -48,7 +48,7 @@ namespace RepairsApi.V2.UseCase
             }
 
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
-            if (workOrder.StatusCode == WorkStatusCode.PendApp)
+            if (workOrder.StatusCode == WorkStatusCode.VariationPendingApproval)
                 throw new UnauthorizedAccessException("Work Orders pending approval can not be completed.");
 
             ValidateRequest(workOrderComplete);
