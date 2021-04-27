@@ -7,6 +7,7 @@ using RepairsApi.Tests.V2.Gateways;
 using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.UseCase;
 using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         private CurrentUserServiceMock _currentUserServiceMock;
         private ApproveVariationUseCase _classUnderTest;
         private Mock<IJobStatusUpdateGateway> _jobStatusUpdateGateway;
-        private Mock<IMoreSpecificSorUseCase> _moreSpecificSorUseCase;
+        private Mock<IUpdateSorCodesUseCase> _updateSorCodesUseCaseMock;
 
         [SetUp]
         public void Setup()
@@ -35,11 +36,11 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _repairsGatewayMock = new MockRepairsGateway();
             _currentUserServiceMock = new CurrentUserServiceMock();
             _jobStatusUpdateGateway = new Mock<IJobStatusUpdateGateway>();
-            _moreSpecificSorUseCase = new Mock<IMoreSpecificSorUseCase>();
+            _updateSorCodesUseCaseMock = new Mock<IUpdateSorCodesUseCase>();
 
             _classUnderTest = new ApproveVariationUseCase(
                 _repairsGatewayMock.Object, _jobStatusUpdateGateway.Object,
-                _currentUserServiceMock.Object, _moreSpecificSorUseCase.Object);
+                _currentUserServiceMock.Object, _updateSorCodesUseCaseMock.Object);
         }
 
         [Test]

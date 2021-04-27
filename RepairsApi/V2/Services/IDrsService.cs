@@ -8,7 +8,7 @@ namespace RepairsApi.V2.Services
     {
         Task OpenSession();
         Task<order> CreateOrder(WorkOrder workOrder);
-        Task<bool> ContractorUsingDrs(string contractorRef);
+        Task CancelOrder(WorkOrder workOrder);
     }
 
 }

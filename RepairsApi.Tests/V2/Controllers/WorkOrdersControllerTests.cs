@@ -38,16 +38,11 @@ namespace RepairsApi.Tests.V2.Controllers
         private Mock<IGetWorkOrderUseCase> _getWorkOrderUseCase;
         private Mock<IListWorkOrderTasksUseCase> _listWorkOrderTasksUseCase;
         private Mock<IListWorkOrderNotesUseCase> _listWorkOrderNotesUseCase;
-        private Mock<IFeatureManager> _featureManager;
-        private Mock<IAuthorizationService> _authMock;
 
         [SetUp]
         public void SetUp()
         {
             ConfigureGenerator();
-            _authMock = new Mock<IAuthorizationService>();
-            _authMock.Setup(a => a.AuthorizeAsync(It.IsAny<ClaimsPrincipal>(), It.IsAny<object>(), It.IsAny<string>()))
-                .ReturnsAsync(AuthorizationResult.Success());
             _createWorkOrderUseCaseMock = new Mock<ICreateWorkOrderUseCase>();
             _listWorkOrdersUseCase = new Mock<IListWorkOrdersUseCase>();
             _completeWorkOrderUseCase = new Mock<ICompleteWorkOrderUseCase>();
@@ -55,17 +50,14 @@ namespace RepairsApi.Tests.V2.Controllers
             _getWorkOrderUseCase = new Mock<IGetWorkOrderUseCase>();
             _listWorkOrderTasksUseCase = new Mock<IListWorkOrderTasksUseCase>();
             _listWorkOrderNotesUseCase = new Mock<IListWorkOrderNotesUseCase>();
-            _featureManager = new Mock<IFeatureManager>();
             _classUnderTest = new WorkOrdersController(
-                _authMock.Object,
                 _createWorkOrderUseCaseMock.Object,
                 _listWorkOrdersUseCase.Object,
                 _completeWorkOrderUseCase.Object,
                 _updateJobStatusUseCase.Object,
                 _getWorkOrderUseCase.Object,
                 _listWorkOrderTasksUseCase.Object,
-                _listWorkOrderNotesUseCase.Object,
-                _featureManager.Object
+                _listWorkOrderNotesUseCase.Object
             );
         }
 

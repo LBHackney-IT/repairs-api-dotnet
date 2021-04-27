@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RepairsApi.V2.Exceptions;
-using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Infrastructure;
 using V2_Generated_DRS;
@@ -19,22 +18,19 @@ namespace RepairsApi.V2.Services
         private readonly IOptions<DrsOptions> _drsOptions;
         private readonly ILogger<DrsService> _logger;
         private readonly IDrsMapping _drsMapping;
-        private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
         private string _sessionId;
 
         public DrsService(
             V2_Generated_DRS.SOAP drsSoap,
             IOptions<DrsOptions> drsOptions,
             ILogger<DrsService> logger,
-            IDrsMapping drsMapping,
-            IScheduleOfRatesGateway scheduleOfRatesGateway
+            IDrsMapping drsMapping
         )
         {
             _drsSoap = drsSoap;
             _drsOptions = drsOptions;
             _logger = logger;
             _drsMapping = drsMapping;
-            _scheduleOfRatesGateway = scheduleOfRatesGateway;
 
         }
 
@@ -59,7 +55,6 @@ namespace RepairsApi.V2.Services
 
         public async Task<order> CreateOrder(WorkOrder workOrder)
         {
-            if (!await ContractorUsingDrs(workOrder.AssignedToPrimary.ContractorReference)) return null;
             await CheckSession();
 
             var createOrder = await _drsMapping.BuildCreateOrderRequest(_sessionId, workOrder);
@@ -71,10 +66,17 @@ namespace RepairsApi.V2.Services
 
         }
 
-        public async Task<bool> ContractorUsingDrs(string contractorRef)
+        public async Task CancelOrder(WorkOrder workOrder)
         {
-            var contractor = await _scheduleOfRatesGateway.GetContractor(contractorRef);
-            return contractor.UseExternalScheduleManager;
+            await CheckSession();
+
+            var deleteOrder = await _drsMapping.BuildDeleteOrderRequest(_sessionId, workOrder);
+            var response = await _drsSoap.deleteOrderAsync(deleteOrder);
+            if (response.@return.status != responseStatus.success)
+            {
+                _logger.LogError(response.@return.errorMsg);
+                throw new ApiException((int) response.@return.status, response.@return.errorMsg);
+            }
         }
 
         private async Task CheckSession()

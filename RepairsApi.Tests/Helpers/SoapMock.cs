@@ -11,6 +11,8 @@ namespace RepairsApi.Tests.Helpers
                 .ReturnsAsync(new openSessionResponse { @return = new xmbOpenSessionResponse { status = responseStatus.success } });
             Setup(x => x.createOrderAsync(It.IsAny<createOrder>()))
                 .ReturnsAsync(new createOrderResponse { @return = new xmbCreateOrderResponse { status = responseStatus.success } });
+            Setup(x => x.deleteOrderAsync(It.IsAny<deleteOrder>()))
+                .ReturnsAsync(new deleteOrderResponse { @return = new xmbDeleteOrderResponse { status = responseStatus.success } });
         }
     }
 }

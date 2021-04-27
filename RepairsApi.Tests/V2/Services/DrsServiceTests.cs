@@ -24,28 +24,25 @@ namespace RepairsApi.Tests.V2.Services
         private MockDrsSoap _drsSoapMock;
         private IOptions<DrsOptions> _drsOptions;
         private Mock<ILogger<DrsService>> _loggerMock;
-        private Mock<IDrsMapping> _drsMappingMock;
-        private Mock<IScheduleOfRatesGateway> _sorGatewayMock;
+        private MockDrsMapping _drsMappingMock;
 
         [SetUp]
         public void SetUp()
         {
-            _loggerMock = new Mock<ILogger<DrsService>>();
-            _drsSoapMock = new MockDrsSoap();
-            _drsMappingMock = new Mock<IDrsMapping>();
-            _sorGatewayMock = new Mock<IScheduleOfRatesGateway>();
             _drsOptions = Options.Create<DrsOptions>(new DrsOptions
             {
                 Login = "login",
                 Password = "password"
             });
+            _loggerMock = new Mock<ILogger<DrsService>>();
+            _drsSoapMock = new MockDrsSoap(_drsOptions);
+            _drsMappingMock = new MockDrsMapping();
 
             _classUnderTest = new DrsService(
                 _drsSoapMock.Object,
                 _drsOptions,
                 _loggerMock.Object,
-                _drsMappingMock.Object,
-                _sorGatewayMock.Object
+                _drsMappingMock.Object
             );
         }
 
@@ -53,7 +50,7 @@ namespace RepairsApi.Tests.V2.Services
         public async Task CreatesSession()
         {
             await _classUnderTest.OpenSession();
-            VerifyOpenSession(_drsSoapMock.LastOpen).Should().BeTrue();
+            _drsSoapMock.VerifyOpenSession();
         }
 
 
@@ -83,23 +80,19 @@ namespace RepairsApi.Tests.V2.Services
         public async Task CreateOrder()
         {
             var workOrder = CreateWorkOrderWithContractor(true);
-            _drsSoapMock.CreateReturns(responseStatus.success, order: new order
-            {
-                orderId = workOrder.Id
-            });
+            _drsSoapMock.CreateReturns(responseStatus.success);
+            _drsMappingMock.SetupMappings(workOrder);
 
-            var result = await _classUnderTest.CreateOrder(workOrder);
+            await _classUnderTest.CreateOrder(workOrder);
 
-            VerifyOpenSession(_drsSoapMock.LastOpen).Should().BeTrue();
-            _drsSoapMock.Verify(x => x.createOrderAsync(It.IsAny<createOrder>()));
-            result.Should().BeOfType<order>();
-            result.orderId.Should().Be(workOrder.Id);
+            _drsSoapMock.VerifyOpenSession();
+            _drsSoapMock.Verify(x => x.createOrderAsync(It.Is<createOrder>(c => c.createOrder1.id == workOrder.Id)));
         }
 
         [TestCase(responseStatus.failure)]
         [TestCase(responseStatus.error)]
         [TestCase(responseStatus.undefined)]
-        public async Task ThrowsApiError_When_DrsError(responseStatus drsResponse)
+        public async Task ThrowsApiError_When_CreateDrsError(responseStatus drsResponse)
         {
             var workOrder = CreateWorkOrderWithContractor(true);
             const string errorMsg = "message";
@@ -116,30 +109,42 @@ namespace RepairsApi.Tests.V2.Services
 
         }
 
-        [TestCase(true)]
-        [TestCase(false)]
-        public async Task ChecksDBFlagForDrsEnabled(bool useExternal)
-        {
-            var expectedContractor = WithContractor(useExternal);
-
-            var result = await _classUnderTest.ContractorUsingDrs(expectedContractor.ContractorReference);
-
-            result.Should().Be(expectedContractor.UseExternalScheduleManager);
-        }
-
         [Test]
-        public async Task DontOpenSession_When_ContractorNotExternal()
+        public async Task CancelsOrder()
         {
-            var workOrder = CreateWorkOrderWithContractor(false);
+            var workOrder = CreateWorkOrderWithContractor(true);
+            _drsSoapMock.DeleteReturns(responseStatus.success);
+            _drsMappingMock.SetupMappings(workOrder);
 
-            await _classUnderTest.CreateOrder(workOrder);
+            await _classUnderTest.CancelOrder(workOrder);
 
-            _drsSoapMock.Verify(x => x.openSessionAsync(It.IsAny<openSession>()), Times.Never);
+            _drsSoapMock.VerifyOpenSession();
+            _drsSoapMock.Verify(x => x.deleteOrderAsync(It.Is<deleteOrder>(d => d.deleteOrder1.id == workOrder.Id)));
         }
 
-        private WorkOrder CreateWorkOrderWithContractor(bool useExternal)
+        [TestCase(responseStatus.failure)]
+        [TestCase(responseStatus.error)]
+        [TestCase(responseStatus.undefined)]
+        public async Task ThrowsApiError_When_DeleteDrsError(responseStatus drsResponse)
         {
-            var expectedContractor = WithContractor(useExternal);
+            var workOrder = CreateWorkOrderWithContractor(true);
+            const string errorMsg = "message";
+            _drsSoapMock.DeleteReturns(drsResponse, errorMsg);
+
+            Func<Task> act = async () =>
+            {
+                await _classUnderTest.CancelOrder(workOrder);
+            };
+
+            (await act.Should().ThrowAsync<ApiException>()
+                    .WithMessage(errorMsg))
+                .Which.StatusCode.Should().Be((int) drsResponse);
+
+        }
+
+        private static WorkOrder CreateWorkOrderWithContractor(bool useExternal)
+        {
+            var expectedContractor = CreateContractor(useExternal);
 
             var generator = new Generator<WorkOrder>()
                 .AddInfrastructureWorkOrderGenerators();
@@ -153,57 +158,15 @@ namespace RepairsApi.Tests.V2.Services
             return workOrder;
         }
 
-        private Contractor WithContractor(bool useExternal)
+        private static Contractor CreateContractor(bool useExternal)
         {
             Contractor expectedContractor = new Contractor
             {
                 ContractorReference = "contractorRef",
                 UseExternalScheduleManager = useExternal
             };
-            _sorGatewayMock.Setup(x => x.GetContractor(It.IsAny<string>()))
-                .ReturnsAsync(expectedContractor);
             return expectedContractor;
         }
 
-        private bool VerifyOpenSession(openSession openSession) =>
-            openSession.openSession1.login == _drsOptions.Value.Login &&
-            openSession.openSession1.password == _drsOptions.Value.Password;
-
-
-    }
-
-    internal class MockDrsSoap : Mock<SOAP>
-    {
-        public openSession LastOpen { get; private set; }
-        public string SessionId { get; }
-
-        public MockDrsSoap()
-        {
-            SessionId = Guid.NewGuid().ToString();
-            Setup(x => x.openSessionAsync(It.IsAny<openSession>()))
-                .Callback<openSession>(o => LastOpen = o)
-                .ReturnsAsync(new openSessionResponse
-                {
-                    @return = new xmbOpenSessionResponse
-                    {
-                        sessionId = SessionId,
-                        status = responseStatus.success
-                    }
-                });
-        }
-
-        public void CreateReturns(responseStatus status, string errorMsg = null, order order = null)
-        {
-            Setup(x => x.createOrderAsync(It.IsAny<createOrder>()))
-                .ReturnsAsync(new createOrderResponse
-                {
-                    @return = new xmbCreateOrderResponse
-                    {
-                        status = status,
-                        errorMsg = errorMsg,
-                        theOrder = order
-                    }
-                });
-        }
     }
 }

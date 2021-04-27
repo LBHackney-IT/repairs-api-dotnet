@@ -202,7 +202,8 @@ namespace RepairsApi
 
         private static void AddNotificationHandlers(IServiceCollection services)
         {
-            services.AddTransient<INotificationHandler<WorkOrderCreated>, DRSNotificationHandler>();
+            services.AddTransient<INotificationHandler<WorkOrderOpened>, DRSNotificationHandler>();
+            services.AddTransient<INotificationHandler<WorkOrderCancelled>, DRSNotificationHandler>();
         }
 
         private static void RegisterGateways(IServiceCollection services)
@@ -234,8 +235,8 @@ namespace RepairsApi
             services.AddTransient<IGetWorkOrderUseCase, GetWorkOrderUseCase>();
             services.AddTransient<IListWorkOrderTasksUseCase, ListWorkOrderTasksUseCase>();
             services.AddTransient<IListSorTradesUseCase, ListSorTradesUseCase>();
-            services.AddTransient<IMoreSpecificSorUseCase, MoreSpecificSorUseCase>();
             services.AddTransient<IListWorkOrderNotesUseCase, ListWorkOrderNotesUseCase>();
+            services.AddTransient<IUpdateSorCodesUseCase, UpdateSorCodesUseCase>();
             services.AddTransient<IListAppointmentsUseCase, ListAppointmentsUseCase>();
             services.AddTransient<ICreateAppointmentUseCase, CreateAppointmentUseCase>();
         }

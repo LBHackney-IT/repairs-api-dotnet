@@ -1,5 +1,6 @@
 using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 using System;
@@ -14,19 +15,12 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
     {
         private readonly IRepairsGateway _repairsGateway;
         private readonly ICurrentUserService _currentUserService;
-        private readonly IList<WorkStatusCode> _authorizedStatus;
 
         public ContractorAcknowledgeVariationUseCase(IRepairsGateway repairsGateway,
             ICurrentUserService currentUserService)
         {
             _repairsGateway = repairsGateway;
             _currentUserService = currentUserService;
-
-            _authorizedStatus = new List<WorkStatusCode>
-            {
-                WorkStatusCode.VariationApproved,
-                WorkStatusCode.VariationRejected
-            };
         }
 
         public async Task Execute(JobStatusUpdate jobStatusUpdate)
@@ -34,12 +28,10 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             var workOrderId = int.Parse(jobStatusUpdate.RelatedWorkOrderReference.ID);
 
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
+            workOrder.VerifyCanAcknowldgeVariation();
 
             if (!_currentUserService.HasGroup(UserGroups.Contractor))
-                throw new UnauthorizedAccessException("You do not have the correct permissions for this action");
-
-            if (!_authorizedStatus.Contains(workOrder.StatusCode))
-                throw new NotSupportedException("This action is not supported");
+                throw new UnauthorizedAccessException(Resources.InvalidPermissions);
 
             workOrder.StatusCode = WorkStatusCode.Open;
             await _repairsGateway.SaveChangesAsync();
