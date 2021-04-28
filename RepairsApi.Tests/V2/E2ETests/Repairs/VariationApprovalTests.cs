@@ -122,7 +122,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             AddTestCode(expectedCode);
             var workOrderId = await CreateWorkOrder();
 
-            await UpdateJob(workOrderId, jsu =>
+            await UpdateSorCodes(workOrderId, jsu =>
             {
                 jsu.MoreSpecificSORCode.RateScheduleItem.Add(new RateScheduleItem
                 {
