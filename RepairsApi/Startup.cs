@@ -202,6 +202,7 @@ namespace RepairsApi
 
         private static void AddNotificationHandlers(IServiceCollection services)
         {
+            services.AddTransient<INotifier, Notifier>();
             services.AddTransient<INotificationHandler<WorkOrderOpened>, DRSNotificationHandler>();
             services.AddTransient<INotificationHandler<WorkOrderCancelled>, DRSNotificationHandler>();
         }

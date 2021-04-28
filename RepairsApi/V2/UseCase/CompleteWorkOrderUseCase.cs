@@ -22,21 +22,21 @@ namespace RepairsApi.V2.UseCase
         private readonly IWorkOrderCompletionGateway _workOrderCompletionGateway;
         private readonly ITransactionManager _transactionManager;
         private readonly ICurrentUserService _currentUserService;
-        private readonly IEnumerable<INotificationHandler<WorkOrderCancelled>> _handlers;
+        private readonly INotifier _notifier;
 
         public CompleteWorkOrderUseCase(
             IRepairsGateway repairsGateway,
             IWorkOrderCompletionGateway workOrderCompletionGateway,
             ITransactionManager transactionManager,
             ICurrentUserService currentUserService,
-            IEnumerable<INotificationHandler<WorkOrderCancelled>> handlers
+            INotifier notifier
         )
         {
             _repairsGateway = repairsGateway;
             _workOrderCompletionGateway = workOrderCompletionGateway;
             _transactionManager = transactionManager;
             _currentUserService = currentUserService;
-            _handlers = handlers;
+            _notifier = notifier;
         }
 
         public async Task Execute(WorkOrderComplete workOrderComplete)
@@ -62,10 +62,7 @@ namespace RepairsApi.V2.UseCase
         private async Task NotifyHandlers(WorkOrder workOrder)
         {
             var notification = new WorkOrderCancelled(workOrder);
-            foreach (var handler in _handlers)
-            {
-                await handler.Notify(notification);
-            }
+            await _notifier.Notify(notification);
         }
 
         private async Task UpdateWorkOrderStatus(WorkOrder workOrder, WorkOrderComplete workOrderComplete)
