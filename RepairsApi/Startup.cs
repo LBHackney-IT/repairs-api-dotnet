@@ -181,6 +181,7 @@ namespace RepairsApi
             services.Configure<GatewayOptions>(Configuration.GetSection(nameof(GatewayOptions)));
             services.Configure<DrsOptions>(Configuration.GetSection(nameof(DrsOptions)));
             services.Configure<FilterConfiguration>(Configuration.GetSection(nameof(FilterConfiguration)));
+            services.Configure<NotifyOptions>(Configuration.GetSection(nameof(NotifyOptions)));
 
             RegisterGateways(services);
             RegisterUseCases(services);

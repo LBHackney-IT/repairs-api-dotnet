@@ -1,5 +1,7 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Notify.Client;
+using Notify.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,17 +12,27 @@ namespace RepairsApi.V2.Services
     public class GovUKNotifyWrapper : IGovUKNotifyWrapper
     {
         private readonly NotifyOptions _options;
+        private readonly ILogger _logger;
 
-        public GovUKNotifyWrapper(IOptions<NotifyOptions> options)
+        public GovUKNotifyWrapper(IOptions<NotifyOptions> options, ILogger logger)
         {
             _options = options.Value;
+            _logger = logger;
         }
 
         public Task SendMailAsync(EmailVariables variables)
         {
             var notificationClient = new NotificationClient(_options.ApiKey);
 
-            return notificationClient.SendEmailAsync(_options.EmailAddress, _options.CompletedTemplateId, variables);
+            try
+            {
+                return notificationClient.SendEmailAsync(_options.EmailAddress, _options.CompletedTemplateId, variables);
+            }
+            catch (NotifyClientException ex)
+            {
+                _logger.LogError($"[EmailError] Failed to send Email with error {ex.Message}");
+                return Task.CompletedTask;
+            }
         }
     }
 
