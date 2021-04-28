@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.FeatureManagement;
-using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 using System;
 using System.Threading.Tasks;
@@ -54,15 +53,5 @@ namespace RepairsApi.V2.Notifications
             var contractor = await _scheduleOfRatesGateway.GetContractor(contractorRef);
             return contractor.UseExternalScheduleManager;
         }
-    }
-
-    public class WorkOrderOpened : INotification
-    {
-        public WorkOrderOpened(WorkOrder workOrder)
-        {
-            WorkOrder = workOrder;
-        }
-
-        public WorkOrder WorkOrder { get; }
     }
 }
