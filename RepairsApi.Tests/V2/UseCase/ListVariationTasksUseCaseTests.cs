@@ -46,21 +46,22 @@ namespace RepairsApi.Tests.V2.UseCase
         [Test]
         public async Task GetsData()
         {
-            const int originalQuantity = 10;
+            const int originalQuantity = 25;
+            const int currentQuantity = 10;
             const int updatedQuantity = 15;
             const int newQuantity = 5;
             Guid existingItemGuid = Guid.NewGuid();
-            _repairsGatewayMock.Setup(g => g.GetWorkOrder(It.IsAny<int>())).ReturnsAsync(BuildWorkOrder(existingItemGuid, originalQuantity));
+            _repairsGatewayMock.Setup(g => g.GetWorkOrder(It.IsAny<int>())).ReturnsAsync(BuildWorkOrder(existingItemGuid, currentQuantity, originalQuantity));
             _jobStatusUpdateGatewayMock.Setup(g => g.GetOutstandingVariation(It.IsAny<int>())).ReturnsAsync(BuildVariation(existingItemGuid, updatedQuantity, newQuantity));
 
             var result = await _classUnderTest.Execute(15);
 
             result.Should().HaveCount(2);
-            result.Should().ContainSingle(rsi => rsi.OldQuantity == originalQuantity && rsi.NewQuantity == updatedQuantity);
-            result.Should().ContainSingle(rsi => rsi.OldQuantity == 0 && rsi.NewQuantity == newQuantity);
+            result.Should().ContainSingle(rsi => rsi.CurrentQuantity == currentQuantity && rsi.VariedQuantity == updatedQuantity && rsi.OriginalQuantity == originalQuantity);
+            result.Should().ContainSingle(rsi => rsi.CurrentQuantity == 0 && rsi.VariedQuantity == newQuantity);
         }
 
-        private static WorkOrder BuildWorkOrder(Guid itemId, int quantity)
+        private static WorkOrder BuildWorkOrder(Guid itemId, int currentQuantity, int originalQuantity)
         {
             return new WorkOrder
             {
@@ -76,7 +77,8 @@ namespace RepairsApi.Tests.V2.UseCase
                                CustomCode = "customCode",
                                CustomName = "customName",
                                Id = itemId,
-                               Quantity = new Quantity(quantity)
+                               Quantity = new Quantity(currentQuantity),
+                               OriginalQuantity = originalQuantity
                            }
                        }
                    }
