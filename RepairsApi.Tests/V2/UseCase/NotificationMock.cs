@@ -12,6 +12,8 @@ namespace RepairsApi.Tests.V2.UseCase
         private readonly List<Type> _calledTypes = new List<Type>();
         private readonly List<object> _notifications = new List<object>();
 
+        public bool HaveHandlersBeenCalled() => _calledTypes.Count > 0;
+
         public bool HaveHandlersBeenCalled<T>() => _calledTypes.Contains(typeof(T));
 
         public List<T> GetNotifications<T>() => _notifications.OfType<T>().ToList();
