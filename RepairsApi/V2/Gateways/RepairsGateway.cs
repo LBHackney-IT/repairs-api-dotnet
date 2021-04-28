@@ -57,21 +57,9 @@ namespace RepairsApi.V2.Gateways
                 throw new ResourceNotFoundException($"Unable to locate work order {id}");
             }
 
-            if (!UserCanAccess(workOrder)) throw new UnauthorizedAccessException($"Cannot access work order id {id}");
+            if (!workOrder.UserCanAccess(_currentUserService)) throw new UnauthorizedAccessException($"Cannot access work order id {id}");
 
             return workOrder;
-        }
-
-        private bool UserCanAccess(WorkOrder workOrder)
-        {
-            if (_currentUserService.HasAnyGroup(UserGroups.Agent, UserGroups.ContractManager, UserGroups.AuthorisationManager)) return true;
-
-            if (_currentUserService.TryGetContractor(out string contractor))
-            {
-                return workOrder.AssignedToPrimary.ContractorReference == contractor;
-            }
-
-            return false;
         }
 
         public async Task<IEnumerable<WorkElement>> GetWorkElementsForWorkOrder(WorkOrder workOrder)
@@ -110,10 +98,23 @@ namespace RepairsApi.V2.Gateways
 
             if (userService.TryGetContractor(out string contractor))
             {
-                return source.Where(wo => wo.AssignedToPrimary.ContractorReference == contractor);
+                return source.Where(wo => wo.AssignedToPrimary.ContractorReference == contractor && wo.StatusCode != WorkStatusCode.PendingApproval);
             }
 
             throw new UnauthorizedAccessException("Cannot access work orders");
+        }
+
+        public static bool UserCanAccess(this WorkOrder workOrder, ICurrentUserService userService)
+        {
+            if (userService.HasAnyGroup(UserGroups.Agent, UserGroups.ContractManager, UserGroups.AuthorisationManager)) return true;
+
+            if (userService.TryGetContractor(out string contractor))
+            {
+                return workOrder.AssignedToPrimary.ContractorReference == contractor
+                    && workOrder.StatusCode != WorkStatusCode.PendingApproval;
+            }
+
+            return false;
         }
     }
 }
