@@ -38,8 +38,9 @@ namespace RepairsApi.V2.UseCase
                        Code = vTask.CustomCode,
                        Description = vTask.CustomName,
                        UnitCost = vTask.CodeCost,
-                       OldQuantity = groupTask?.Quantity?.Amount ?? 0,
-                       NewQuantity = vTask.Quantity?.Amount
+                       OriginalQuantity = groupTask?.OriginalQuantity ?? 0,
+                       CurrentQuantity = groupTask?.Quantity?.Amount ?? 0,
+                       VariedQuantity = vTask.Quantity?.Amount
                    };
         }
 

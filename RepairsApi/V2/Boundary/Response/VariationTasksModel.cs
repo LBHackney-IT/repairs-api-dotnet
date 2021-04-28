@@ -11,7 +11,8 @@ namespace RepairsApi.V2.Boundary.Response
         public string Code { get; set; }
         public string Description { get; set; }
         public double? UnitCost { get; set; }
-        public double? OldQuantity { get; set; }
-        public double? NewQuantity { get; set; }
+        public double? OriginalQuantity { get; set; }
+        public double? CurrentQuantity { get; set; }
+        public double? VariedQuantity { get; set; }
     }
 }
