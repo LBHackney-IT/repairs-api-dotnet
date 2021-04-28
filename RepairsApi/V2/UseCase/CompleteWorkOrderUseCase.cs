@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using RepairsApi.V2.Generated;
 using RepairsApi.V2.Notifications;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 
@@ -59,12 +60,6 @@ namespace RepairsApi.V2.UseCase
             await transaction.Commit();
         }
 
-        private async Task NotifyHandlers(WorkOrder workOrder)
-        {
-            var notification = new WorkOrderCancelled(workOrder);
-            await _notifier.Notify(notification);
-        }
-
         private async Task UpdateWorkOrderStatus(WorkOrder workOrder, WorkOrderComplete workOrderComplete)
         {
             await workOrderComplete.JobStatusUpdates.ForEachAsync(async update =>
@@ -96,6 +91,7 @@ namespace RepairsApi.V2.UseCase
                         throw new UnauthorizedAccessException("Not Authorised to close jobs");
 
                     await _repairsGateway.UpdateWorkOrderStatus(workOrder.Id, WorkStatusCode.Complete);
+                    await _notifier.Notify(new WorkOrderCompleted(workOrder));
                     break;
                 case CustomJobStatusUpdates.Cancelled:
                     if (!_currentUserService.HasGroup(UserGroups.Agent) &&
@@ -103,7 +99,7 @@ namespace RepairsApi.V2.UseCase
                         throw new UnauthorizedAccessException("Not Authorised to cancel jobs");
 
                     await _repairsGateway.UpdateWorkOrderStatus(workOrder.Id, WorkStatusCode.Canceled);
-                    await NotifyHandlers(workOrder);
+                    await _notifier.Notify(new WorkOrderCancelled(workOrder));
                     break;
                 default: throw new NotSupportedException("Unsupported workorder complete job status update code");
             }
