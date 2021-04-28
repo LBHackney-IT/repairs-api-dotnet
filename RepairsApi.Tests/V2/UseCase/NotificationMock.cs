@@ -2,35 +2,31 @@ using RepairsApi.V2.Notifications;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace RepairsApi.Tests.V2.UseCase
 {
-    internal class NotificationMock<T> : List<INotificationHandler<T>> where T : INotification
+    internal class NotificationMock : INotifier
     {
-        private readonly NotificationSpy<T> _spy;
+        private readonly List<Type> _calledTypes = new List<Type>();
+        private readonly List<object> _notifications = new List<object>();
 
-        public NotificationMock()
+        public bool HaveHandlersBeenCalled() => _calledTypes.Count > 0;
+
+        public bool HaveHandlersBeenCalled<T>() => _calledTypes.Contains(typeof(T));
+
+        public List<T> GetNotifications<T>() => _notifications.OfType<T>().ToList();
+
+        public T GetLastNotification<T>() => _notifications.OfType<T>().LastOrDefault();
+
+        public List<object> GetNotifications() => _notifications;
+
+        public Task Notify<T>(T notification) where T : INotification
         {
-            _spy = new NotificationSpy<T>();
-            this.Add(_spy);
-        }
-
-        public bool HaveHandlersBeenCalled() => _spy.HasBeenCalled();
-    }
-
-    internal class NotificationSpy<T> : INotificationHandler<T> where T : INotification
-    {
-        private bool _called;
-
-        public NotificationSpy() => _called = false;
-
-        public Task Notify(T data)
-        {
-            _called = true;
+            _calledTypes.Add(typeof(T));
+            _notifications.Add(notification);
             return Task.CompletedTask;
         }
-
-        internal bool HasBeenCalled() => _called;
     }
 }

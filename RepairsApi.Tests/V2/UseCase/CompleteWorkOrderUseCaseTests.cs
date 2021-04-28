@@ -27,8 +27,7 @@ namespace RepairsApi.Tests.V2.UseCase
         private CompleteWorkOrderUseCase _classUnderTest;
         private Generator<WorkOrder> _generator;
         private MockWorkOrderCompletionGateway _workOrderCompletionGatewayMock;
-        private NotificationMock<WorkOrderCompleted> _completionHandlerMock;
-        private NotificationMock<WorkOrderCancelled> _cancellationHandlerMock;
+        private NotificationMock _handlerMock;
 
         [SetUp]
         public void Setup()
@@ -39,15 +38,13 @@ namespace RepairsApi.Tests.V2.UseCase
             _currentUserServiceMock.SetSecurityGroup(UserGroups.Agent, true);
             _currentUserServiceMock.SetSecurityGroup(UserGroups.Contractor, true);
             _workOrderCompletionGatewayMock = new MockWorkOrderCompletionGateway();
-            _completionHandlerMock = new NotificationMock<WorkOrderCompleted>();
-            _cancellationHandlerMock = new NotificationMock<WorkOrderCancelled>();
+            _handlerMock = new NotificationMock();
             _classUnderTest = new CompleteWorkOrderUseCase(
                 _repairsGatewayMock.Object,
                 _workOrderCompletionGatewayMock.Object,
                 InMemoryDb.TransactionManager,
                 _currentUserServiceMock.Object,
-                _cancellationHandlerMock,
-                _completionHandlerMock);
+                _handlerMock);
         }
 
         private void ConfigureGenerator()
@@ -324,7 +321,7 @@ namespace RepairsApi.Tests.V2.UseCase
 
             await _classUnderTest.Execute(workOrderCompleteRequest);
 
-            _completionHandlerMock.HaveHandlersBeenCalled().Should().BeTrue();
+            _handlerMock.HaveHandlersBeenCalled<WorkOrderCompleted>().Should().BeTrue();
         }
 
         [Test]
@@ -342,7 +339,7 @@ namespace RepairsApi.Tests.V2.UseCase
 
             await _classUnderTest.Execute(workOrderCompleteRequest);
 
-            _cancellationHandlerMock.HaveHandlersBeenCalled().Should().BeTrue();
+            _handlerMock.HaveHandlersBeenCalled<WorkOrderCancelled>().Should().BeTrue();
         }
 
         private static Generated.WorkOrderComplete CreateRequest(int expectedWorkOrderId)

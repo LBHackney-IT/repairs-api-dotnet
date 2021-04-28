@@ -23,24 +23,21 @@ namespace RepairsApi.V2.UseCase
         private readonly IWorkOrderCompletionGateway _workOrderCompletionGateway;
         private readonly ITransactionManager _transactionManager;
         private readonly ICurrentUserService _currentUserService;
-        private readonly IEnumerable<INotificationHandler<WorkOrderCancelled>> _cancellationHandlers;
-        private readonly IEnumerable<INotificationHandler<WorkOrderCompleted>> _completionHandlers;
+        private readonly INotifier _notifier;
 
         public CompleteWorkOrderUseCase(
             IRepairsGateway repairsGateway,
             IWorkOrderCompletionGateway workOrderCompletionGateway,
             ITransactionManager transactionManager,
             ICurrentUserService currentUserService,
-            IEnumerable<INotificationHandler<WorkOrderCancelled>> cancellationHandlers,
-            IEnumerable<INotificationHandler<WorkOrderCompleted>> completionHandlers
+            INotifier notifier
         )
         {
             _repairsGateway = repairsGateway;
             _workOrderCompletionGateway = workOrderCompletionGateway;
             _transactionManager = transactionManager;
             _currentUserService = currentUserService;
-            _cancellationHandlers = cancellationHandlers;
-            _completionHandlers = completionHandlers;
+            _notifier = notifier;
         }
 
         public async Task Execute(WorkOrderComplete workOrderComplete)
@@ -61,14 +58,6 @@ namespace RepairsApi.V2.UseCase
             await UpdateWorkOrderStatus(workOrder, workOrderComplete);
             await _workOrderCompletionGateway.CreateWorkOrderCompletion(workOrderComplete.ToDb(workOrder, null));
             await transaction.Commit();
-        }
-
-        private static async Task NotifyHandlers<T>(IEnumerable<INotificationHandler<T>> handlers, T notification) where T: INotification
-        {
-            foreach (var handler in handlers)
-            {
-                await handler.Notify(notification);
-            }
         }
 
         private async Task UpdateWorkOrderStatus(WorkOrder workOrder, WorkOrderComplete workOrderComplete)
@@ -102,7 +91,7 @@ namespace RepairsApi.V2.UseCase
                         throw new UnauthorizedAccessException("Not Authorised to close jobs");
 
                     await _repairsGateway.UpdateWorkOrderStatus(workOrder.Id, WorkStatusCode.Complete);
-                    await NotifyHandlers(_completionHandlers, new WorkOrderCompleted(workOrder));
+                    await _notifier.Notify(new WorkOrderCompleted(workOrder));
                     break;
                 case CustomJobStatusUpdates.Cancelled:
                     if (!_currentUserService.HasGroup(UserGroups.Agent) &&
@@ -110,7 +99,7 @@ namespace RepairsApi.V2.UseCase
                         throw new UnauthorizedAccessException("Not Authorised to cancel jobs");
 
                     await _repairsGateway.UpdateWorkOrderStatus(workOrder.Id, WorkStatusCode.Canceled);
-                    await NotifyHandlers(_cancellationHandlers, new WorkOrderCancelled(workOrder));
+                    await _notifier.Notify(new WorkOrderCancelled(workOrder));
                     break;
                 default: throw new NotSupportedException("Unsupported workorder complete job status update code");
             }

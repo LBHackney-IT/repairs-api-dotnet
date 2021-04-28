@@ -14,16 +14,16 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
     {
         private readonly ICurrentUserService _currentUserService;
         private readonly IRepairsGateway _repairsGateway;
-        private readonly IEnumerable<INotificationHandler<WorkOrderOpened>> _handlers;
+        private readonly INotifier _notifier;
 
         public ApproveWorkOrderStrategy(
             ICurrentUserService currentUserService,
             IRepairsGateway repairsGateway,
-            IEnumerable<INotificationHandler<WorkOrderOpened>> handlers)
+            INotifier notifier)
         {
             _currentUserService = currentUserService;
             _repairsGateway = repairsGateway;
-            _handlers = handlers;
+            _notifier = notifier;
         }
 
         public async Task Execute(JobStatusUpdate jobStatusUpdate)
@@ -44,10 +44,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
         private async Task NotifyHandlers(Infrastructure.WorkOrder workOrder)
         {
             var notification = new WorkOrderOpened(workOrder);
-            foreach (var handler in _handlers)
-            {
-                await handler.Notify(notification);
-            }
+            await _notifier.Notify(notification);
         }
     }
 }

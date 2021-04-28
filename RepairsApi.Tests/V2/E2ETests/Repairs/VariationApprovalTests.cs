@@ -112,7 +112,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             var (code, response) = await Get<List<VariationTasksModel>>($"/api/v2/workOrders/{workOrderId}/variation-tasks");
 
             // Assert
-            response[1].NewQuantity.Should().Be(newItemQuantity);
+            response[1].VariedQuantity.Should().Be(newItemQuantity);
             code.Should().Be(HttpStatusCode.OK);
         }
 
@@ -122,7 +122,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             AddTestCode(expectedCode);
             var workOrderId = await CreateWorkOrder();
 
-            await UpdateJob(workOrderId, jsu =>
+            await UpdateSorCodes(workOrderId, jsu =>
             {
                 jsu.MoreSpecificSORCode.RateScheduleItem.Add(new RateScheduleItem
                 {

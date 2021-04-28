@@ -24,7 +24,7 @@ namespace RepairsApi.V2.UseCase
         private readonly ICurrentUserService _currentUserService;
         private readonly IAuthorizationService _authorizationService;
         private readonly IFeatureManager _featureManager;
-        private readonly IEnumerable<INotificationHandler<WorkOrderOpened>> _handlers;
+        private readonly INotifier _notifier;
 
         public CreateWorkOrderUseCase(
             IRepairsGateway repairsGateway,
@@ -33,7 +33,7 @@ namespace RepairsApi.V2.UseCase
             ICurrentUserService currentUserService,
             IAuthorizationService authorizationService,
             IFeatureManager featureManager,
-            IEnumerable<INotificationHandler<WorkOrderOpened>> handlers
+            INotifier notifier
             )
         {
             _repairsGateway = repairsGateway;
@@ -42,7 +42,7 @@ namespace RepairsApi.V2.UseCase
             _currentUserService = currentUserService;
             _authorizationService = authorizationService;
             _featureManager = featureManager;
-            _handlers = handlers;
+            _notifier = notifier;
         }
 
         public async Task<CreateOrderResult> Execute(WorkOrder workOrder)
@@ -69,10 +69,7 @@ namespace RepairsApi.V2.UseCase
             }
 
             var notification = new WorkOrderOpened(workOrder);
-            foreach (var handler in _handlers)
-            {
-                await handler.Notify(notification);
-            }
+            await _notifier.Notify(notification);
         }
 
         private async Task SetStatus(WorkOrder workOrder)

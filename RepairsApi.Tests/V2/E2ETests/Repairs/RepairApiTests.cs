@@ -245,7 +245,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             // Arrange
             var expectedNote = "expectedComments";
             var workOrderId = await CreateWorkOrder();
-            await UpdateJob(workOrderId, req =>
+            await UpdateSorCodes(workOrderId, req =>
             {
                 req.Comments = expectedNote;
             });
@@ -279,9 +279,9 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             var workOrderId = await CreateWorkOrder();
 
             // Act
-            await UpdateJob(workOrderId, req => req.TypeCode = updateCode);
+            await UpdateSorCodes(workOrderId, req => req.TypeCode = updateCode);
             var heldOrder = GetWorkOrderFromDB(workOrderId);
-            await UpdateJob(workOrderId, req =>
+            await UpdateSorCodes(workOrderId, req =>
             {
                 req.TypeCode = JobStatusUpdateTypeCode._0;
                 req.OtherType = CustomJobStatusUpdates.Resume;
@@ -357,16 +357,24 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             return UpdateJob(workOrderId, jsu => jsu.TypeCode = typeCode);
         }
 
-        private async Task<HttpStatusCode> UpdateJob(int workOrderId, Action<JobStatusUpdate> interceptor = null)
+        private async Task<HttpStatusCode> UpdateSorCodes(int workOrderId, Action<JobStatusUpdate> interceptor = null)
         {
             var tasks = await GetTasks(workOrderId);
             RepairsApi.V2.Generated.WorkElement workElement = TransformTasksToWorkElement(tasks);
 
+            return await UpdateJob(workOrderId, jsu =>
+            {
+                jsu.MoreSpecificSORCode = workElement;
+                interceptor?.Invoke(jsu);
+            });
+        }
+
+        private async Task<HttpStatusCode> UpdateJob(int workOrderId, Action<JobStatusUpdate> interceptor = null)
+        {
             JobStatusUpdate request = new Generator<JobStatusUpdate>()
                 .AddJobStatusUpdateGenerators()
                 .AddValue(JobStatusUpdateTypeCode._80, (JobStatusUpdate jsu) => jsu.TypeCode)
                 .AddValue(workOrderId.ToString(), (JobStatusUpdate jsu) => jsu.RelatedWorkOrderReference.ID)
-                .AddValue(workElement, (JobStatusUpdate jsu) => jsu.MoreSpecificSORCode)
                 .AddValue("comments", (JobStatusUpdate jsu) => jsu.Comments)
                 .Generate();
 
