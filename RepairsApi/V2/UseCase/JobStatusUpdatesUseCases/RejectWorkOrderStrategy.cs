@@ -32,7 +32,6 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
                 throw new UnauthorizedAccessException(Resources.InvalidPermissions);
 
             workOrder.StatusCode = Infrastructure.WorkStatusCode.Canceled;
-            jobStatusUpdate.Comments = $"Work Order Rejected: {jobStatusUpdate.Comments}";
         }
     }
 }
