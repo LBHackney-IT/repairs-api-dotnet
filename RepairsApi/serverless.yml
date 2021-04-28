@@ -39,6 +39,7 @@ functions:
       GatewayOptions__HousingResidentInformationApiKey: ${ssm:/${self:service}/${self:provider.stage}/housing-resident-information-api-token}
       FeatureManagement__SpendLimits: ${ssm:/${self:service}/${self:provider.stage}/spend-limits-flag}
       FeatureManagement__DrsIntegration: ${ssm:/${self:service}/${self:provider.stage}/drs-enabled}
+      FeatureManagement__NotifyIntegration: ${ssm:/${self:service}/${self:provider.stage}/notify-enabled}
       DrsOptions__APIAddress: ${ssm:/${self:service}/${self:provider.stage}/drs-api-address}
       DrsOptions__ManagementAddress: ${ssm:/${self:service}/${self:provider.stage}/drs-management-address}
       DrsOptions__Login: ${ssm:/${self:service}/${self:provider.stage}/drs-login}

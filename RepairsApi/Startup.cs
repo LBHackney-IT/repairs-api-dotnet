@@ -198,6 +198,7 @@ namespace RepairsApi
             services.AddTransient<IGovUKNotifyWrapper, GovUKNotifyWrapper>();
             services.AddFeatureManagement();
             services.AddFilteringConfig();
+            services.AddTransient(typeof(Lazy<>), typeof(LazyWrapper<>));
 
             AddNotificationHandlers(services);
         }

@@ -16,16 +16,13 @@ namespace RepairsApi.V2.Notifications
         private readonly Lazy<IDrsService> _lazyDrsService;
 
         public DRSNotificationHandler(
-            IServiceProvider serviceProvider,
+            Lazy<IDrsService> lazyDrsService,
             IFeatureManager featureManager,
             IScheduleOfRatesGateway scheduleOfRatesGateway)
         {
+            _lazyDrsService = lazyDrsService;
             _featureManager = featureManager;
             _scheduleOfRatesGateway = scheduleOfRatesGateway;
-
-            // Creating using a Lazy<T> means we do not need to provide config etc if the feature is not turned on
-            // Not ideal but accessing feature flags in startup is not clean
-            _lazyDrsService = new Lazy<IDrsService>(serviceProvider.GetRequiredService<IDrsService>);
         }
 
         public async Task Notify(WorkOrderOpened data)

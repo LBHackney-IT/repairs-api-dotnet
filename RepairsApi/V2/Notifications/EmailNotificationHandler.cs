@@ -8,17 +8,17 @@ using System.Threading.Tasks;
 
 namespace RepairsApi.V2.Notifications
 {
-    public class EmailHandler : INotificationHandler<WorkOrderCompleted>
+    public class EmailNotificationHandler : INotificationHandler<WorkOrderCompleted>
     {
         private readonly IFeatureManager _featureManager;
 
         private IGovUKNotifyWrapper NotifyService => _lazyGovUkService.Value;
         private readonly Lazy<IGovUKNotifyWrapper> _lazyGovUkService;
 
-        public EmailHandler(IServiceProvider serviceProvider, IFeatureManager featureMananger)
+        public EmailNotificationHandler(Lazy<IGovUKNotifyWrapper> lazyGovUkService, IFeatureManager featureMananger)
         {
+            _lazyGovUkService = lazyGovUkService;
             _featureManager = featureMananger;
-            _lazyGovUkService = new Lazy<IGovUKNotifyWrapper>(serviceProvider.GetRequiredService<IGovUKNotifyWrapper>);
         }
 
         public async Task Notify(WorkOrderCompleted data)

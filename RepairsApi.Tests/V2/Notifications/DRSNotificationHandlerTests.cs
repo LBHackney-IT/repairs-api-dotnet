@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.Gateways;
+using System;
 
 namespace RepairsApi.Tests.V2.Notifications
 {
@@ -29,11 +30,8 @@ namespace RepairsApi.Tests.V2.Notifications
             _sorGatewayMock = new Mock<IScheduleOfRatesGateway>();
             FeatureEnabled(true);
             ContractorUsesExternalScheduler(true);
-
-            var services = new ServiceCollection();
-            services.AddTransient(sp => _drsServiceMock.Object);
             _classUnderTest = new DRSNotificationHandler(
-                services.BuildServiceProvider(),
+                new Lazy<IDrsService>(_drsServiceMock.Object),
                 _featureManager.Object,
                 _sorGatewayMock.Object);
         }
