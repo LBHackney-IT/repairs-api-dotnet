@@ -36,6 +36,7 @@ namespace RepairsApi.Tests.V2.UseCase
             _repairsGatewayMock = new Mock<IRepairsGateway>();
             _currentUserServiceMock = new CurrentUserServiceMock();
             _currentUserServiceMock.SetSecurityGroup(UserGroups.Agent, true);
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.Contractor, true);
             _workOrderCompletionGatewayMock = new MockWorkOrderCompletionGateway();
             _handlerMock = new NotificationMock();
             _classUnderTest = new CompleteWorkOrderUseCase(
@@ -138,7 +139,10 @@ namespace RepairsApi.Tests.V2.UseCase
             {
                 new Generated.JobStatusUpdates
                 {
-                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = CustomJobStatusUpdates.Completed, Comments = "expectedComment", AdditionalWork = new Generated.AdditionalWork()
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0,
+                    OtherType = CustomJobStatusUpdates.Completed,
+                    Comments = "expectedComment",
+                    AdditionalWork = new Generated.AdditionalWork()
                 }
             };
 
@@ -303,7 +307,25 @@ namespace RepairsApi.Tests.V2.UseCase
         }
 
         [Test]
-        public async Task HandlersCalled_When_Cancelled()
+        public async Task HandlersCalledWhenCompleted()
+        {
+            var expectedWorkOrder = CreateWorkOrder();
+            var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
+            workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
+            {
+                new Generated.JobStatusUpdates
+                {
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = CustomJobStatusUpdates.Completed, Comments = "expectedComment"
+                }
+            };
+
+            await _classUnderTest.Execute(workOrderCompleteRequest);
+
+            _handlerMock.HaveHandlersBeenCalled<WorkOrderCompleted>().Should().BeTrue();
+        }
+
+        [Test]
+        public async Task HandlersCalledWhenCancelled()
         {
             var expectedWorkOrder = CreateWorkOrder();
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
@@ -317,7 +339,7 @@ namespace RepairsApi.Tests.V2.UseCase
 
             await _classUnderTest.Execute(workOrderCompleteRequest);
 
-            _handlerMock.HaveHandlersBeenCalled().Should().BeTrue();
+            _handlerMock.HaveHandlersBeenCalled<WorkOrderCancelled>().Should().BeTrue();
         }
 
         private static Generated.WorkOrderComplete CreateRequest(int expectedWorkOrderId)

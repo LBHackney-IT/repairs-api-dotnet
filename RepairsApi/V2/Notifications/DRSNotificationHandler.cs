@@ -65,14 +65,4 @@ namespace RepairsApi.V2.Notifications
 
         public WorkOrder WorkOrder { get; }
     }
-
-    public class WorkOrderCancelled : INotification
-    {
-        public WorkOrderCancelled(WorkOrder workOrder)
-        {
-            WorkOrder = workOrder;
-        }
-
-        public WorkOrder WorkOrder { get; }
-    }
 }
