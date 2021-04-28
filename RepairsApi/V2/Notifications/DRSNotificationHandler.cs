@@ -55,24 +55,4 @@ namespace RepairsApi.V2.Notifications
             return contractor.UseExternalScheduleManager;
         }
     }
-
-    public class WorkOrderOpened : INotification
-    {
-        public WorkOrderOpened(WorkOrder workOrder)
-        {
-            WorkOrder = workOrder;
-        }
-
-        public WorkOrder WorkOrder { get; }
-    }
-
-    public class WorkOrderCancelled : INotification
-    {
-        public WorkOrderCancelled(WorkOrder workOrder)
-        {
-            WorkOrder = workOrder;
-        }
-
-        public WorkOrder WorkOrder { get; }
-    }
 }
