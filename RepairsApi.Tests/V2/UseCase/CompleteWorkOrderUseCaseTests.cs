@@ -58,21 +58,6 @@ namespace RepairsApi.Tests.V2.UseCase
         {
             // arrange
             var expectedWorkOrder = CreateWorkOrder();
-            var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
-
-            // act
-            await _classUnderTest.Execute(workOrderCompleteRequest);
-
-            var lastWorkOrderComplete = _workOrderCompletionGatewayMock.LastWorkOrderComplete;
-            lastWorkOrderComplete.Should().NotBeNull();
-            lastWorkOrderComplete.WorkOrder.Should().BeEquivalentTo(expectedWorkOrder);
-        }
-
-        [Test]
-        public async Task CanCompleteWorkOrderWithJobStatusUpdates()
-        {
-            // arrange
-            var expectedWorkOrder = CreateWorkOrder();
             _currentUserServiceMock.SetSecurityGroup(UserGroups.Contractor, true);
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
             workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>

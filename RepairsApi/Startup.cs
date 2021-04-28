@@ -194,6 +194,7 @@ namespace RepairsApi
             services.AddScoped<ICurrentUserLoader>(sp => sp.GetService<CurrentUserService>());
             services.AddTransient<ITransactionManager, TransactionManager>();
             services.AddSingleton<IAuthenticationService, ChallengeOnlyAuthenticationService>();
+            services.AddTransient<IGovUKNotifyWrapper, GovUKNotifyWrapper>();
             services.AddFeatureManagement();
             services.AddFilteringConfig();
 
