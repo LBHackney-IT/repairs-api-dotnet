@@ -27,7 +27,7 @@ namespace RepairsApi.Tests.V2.UseCase
         private CompleteWorkOrderUseCase _classUnderTest;
         private Generator<WorkOrder> _generator;
         private MockWorkOrderCompletionGateway _workOrderCompletionGatewayMock;
-        private NotificationMock<WorkOrderCancelled> _handlerMock;
+        private NotificationMock _handlerMock;
 
         [SetUp]
         public void Setup()
@@ -37,7 +37,7 @@ namespace RepairsApi.Tests.V2.UseCase
             _currentUserServiceMock = new CurrentUserServiceMock();
             _currentUserServiceMock.SetSecurityGroup(UserGroups.Agent, true);
             _workOrderCompletionGatewayMock = new MockWorkOrderCompletionGateway();
-            _handlerMock = new NotificationMock<WorkOrderCancelled>();
+            _handlerMock = new NotificationMock();
             _classUnderTest = new CompleteWorkOrderUseCase(
                 _repairsGatewayMock.Object,
                 _workOrderCompletionGatewayMock.Object,
