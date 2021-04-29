@@ -20,7 +20,10 @@ using Party = RepairsApi.V2.Infrastructure.Party;
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Microsoft.Extensions.Options;
 using RepairsApi.V2.Domain;
+using RepairsApi.V2.Notifications;
+using V2_Generated_DRS;
 
 namespace RepairsApi.Tests.V2.UseCase
 {
@@ -33,6 +36,7 @@ namespace RepairsApi.Tests.V2.UseCase
         private Mock<IFeatureManager> _featureManagerMock;
         private CreateWorkOrderUseCase _classUnderTest;
         private NotificationMock _handlerMock;
+        private DrsOptions _drsOptions;
 
         [SetUp]
         public void Setup()
@@ -47,6 +51,10 @@ namespace RepairsApi.Tests.V2.UseCase
             _featureManagerMock = new Mock<IFeatureManager>();
             _featureManagerMock.Setup(fm => fm.IsEnabledAsync(It.IsAny<string>())).ReturnsAsync(true);
             _handlerMock = new NotificationMock();
+            _drsOptions = new DrsOptions
+            {
+                Login = "login", Password = "password", APIAddress = new Uri("https://apiAddress.none"), ManagementAddress = new Uri("https://managementAddress.none")
+            };
             _classUnderTest = new CreateWorkOrderUseCase(
                 _repairsGatewayMock.Object,
                 _scheduleOfRatesGateway.Object,
@@ -54,8 +62,9 @@ namespace RepairsApi.Tests.V2.UseCase
                 _currentUserServiceMock.Object,
                 _authMock.Object,
                 _featureManagerMock.Object,
-                _handlerMock
-                );
+                _handlerMock,
+                Options.Create(_drsOptions)
+            );
         }
 
         [Test]
@@ -77,8 +86,26 @@ namespace RepairsApi.Tests.V2.UseCase
             {
                 WorkElements = new List<WorkElement>
                 {
-                    new WorkElement{Trade = new List<Trade>{new Trade{CustomCode = "trade"}}},
-                    new WorkElement{Trade = new List<Trade>{new Trade{CustomCode = "trade"}}}
+                    new WorkElement
+                    {
+                        Trade = new List<Trade>
+                        {
+                            new Trade
+                            {
+                                CustomCode = "trade"
+                            }
+                        }
+                    },
+                    new WorkElement
+                    {
+                        Trade = new List<Trade>
+                        {
+                            new Trade
+                            {
+                                CustomCode = "trade"
+                            }
+                        }
+                    }
                 }
             };
 
@@ -118,8 +145,26 @@ namespace RepairsApi.Tests.V2.UseCase
             {
                 WorkElements = new List<WorkElement>
                 {
-                    new WorkElement{Trade = new List<Trade>{new Trade{CustomCode = Guid.NewGuid().ToString()}}},
-                    new WorkElement{Trade = new List<Trade>{new Trade{CustomCode = Guid.NewGuid().ToString()}}}
+                    new WorkElement
+                    {
+                        Trade = new List<Trade>
+                        {
+                            new Trade
+                            {
+                                CustomCode = Guid.NewGuid().ToString()
+                            }
+                        }
+                    },
+                    new WorkElement
+                    {
+                        Trade = new List<Trade>
+                        {
+                            new Trade
+                            {
+                                CustomCode = Guid.NewGuid().ToString()
+                            }
+                        }
+                    }
                 }
             };
 
@@ -131,7 +176,13 @@ namespace RepairsApi.Tests.V2.UseCase
         {
             var generator = new Generator<WorkOrder>()
                 .AddInfrastructureWorkOrderGenerators()
-                .AddValue(new List<Trade> { new Trade { Code = TradeCode.B2 } }, (WorkElement we) => we.Trade);
+                .AddValue(new List<Trade>
+                {
+                    new Trade
+                    {
+                        Code = TradeCode.B2
+                    }
+                }, (WorkElement we) => we.Trade);
             var workOrder = generator.Generate();
 
             await _classUnderTest.Execute(workOrder);
@@ -157,8 +208,12 @@ namespace RepairsApi.Tests.V2.UseCase
             int newId = 1;
             _repairsGatewayMock.ReturnWOId(newId);
             ContractorUsesExternalScheduler(true);
+            var generator = new Generator<WorkOrder>()
+                .AddInfrastructureWorkOrderGenerators()
+                .AddValue(new List<Trade> { new Trade { Code = TradeCode.B2 } }, (WorkElement we) => we.Trade);
+            var workOrder = generator.Generate();
 
-            var result = await _classUnderTest.Execute(new WorkOrder{AssignedToPrimary = new Party()});
+            var result = await _classUnderTest.Execute(workOrder);
 
             result.ExternallyManagedAppointment.Should().BeTrue();
         }

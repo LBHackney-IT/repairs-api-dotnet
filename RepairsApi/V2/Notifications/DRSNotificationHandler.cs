@@ -3,6 +3,7 @@ using Microsoft.FeatureManagement;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Helpers;
@@ -37,7 +38,8 @@ namespace RepairsApi.V2.Notifications
             {
                 return;
             }
-            await DrsService.CreateOrder(data.WorkOrder);
+            var order = await DrsService.CreateOrder(data.WorkOrder);
+            data.TokenId = order.theBookings.Single().tokenId;
         }
 
         public async Task Notify(WorkOrderCancelled data)
@@ -59,5 +61,6 @@ namespace RepairsApi.V2.Notifications
         }
 
         public WorkOrder WorkOrder { get; }
+        public string TokenId { get; set; }
     }
 }

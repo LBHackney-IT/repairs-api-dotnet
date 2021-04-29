@@ -53,6 +53,8 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
 
             result.ExternallyManagedAppointment.Should().BeTrue();
+            result.ExternalAppointmentManagementUrl.Query.Should().Contain($"tokenId={SoapMock.ExpectedToken}");
+
             SoapMock.Verify(s => s.createOrderAsync(It.IsAny<V2_Generated_DRS.createOrder>()));
         }
 
