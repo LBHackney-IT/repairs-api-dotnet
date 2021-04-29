@@ -14,8 +14,8 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         [Test]
         public async Task ScheduledRepairStatusIsPendingIfAboveSpendLimit()
         {
-            var id = await CreateWorkOrder(r => r.WorkElement.Single().RateScheduleItem.Single().Quantity.Amount = new List<double> { 50000 });
-            var wo = GetWorkOrderFromDB(id);
+            var result = await CreateWorkOrder(r => r.WorkElement.Single().RateScheduleItem.Single().Quantity.Amount = new List<double> { 50000 });
+            var wo = GetWorkOrderFromDB(result.Id);
 
             wo.StatusCode.Should().Be(WorkStatusCode.PendingApproval);
         }
@@ -25,10 +25,10 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         [TestCase(UserGroups.ContractManager)]
         public async Task ApprovePendingWorkOrderShould401ForUnAuthorised(string userGroup)
         {
-            var id = await CreateWorkOrder(r => r.WorkElement.Single().RateScheduleItem.Single().Quantity.Amount = new List<double> { 50000 });
+            var result = await CreateWorkOrder(r => r.WorkElement.Single().RateScheduleItem.Single().Quantity.Amount = new List<double> { 50000 });
 
             SetUserRole(userGroup);
-            var code = await UpdateJob(id, RepairsApi.V2.Generated.JobStatusUpdateTypeCode._200);
+            var code = await UpdateJob(result.Id, RepairsApi.V2.Generated.JobStatusUpdateTypeCode._200);
 
             code.Should().Be(HttpStatusCode.Unauthorized);
         }
@@ -38,10 +38,10 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         [TestCase(UserGroups.ContractManager)]
         public async Task RejectPendingWorkOrderShould401ForUnAuthorised(string userGroup)
         {
-            var id = await CreateWorkOrder(r => r.WorkElement.Single().RateScheduleItem.Single().Quantity.Amount = new List<double> { 50000 });
+            var result = await CreateWorkOrder(r => r.WorkElement.Single().RateScheduleItem.Single().Quantity.Amount = new List<double> { 50000 });
 
             SetUserRole(userGroup);
-            var code = await UpdateJob(id, RepairsApi.V2.Generated.JobStatusUpdateTypeCode._190);
+            var code = await UpdateJob(result.Id, RepairsApi.V2.Generated.JobStatusUpdateTypeCode._190);
 
             code.Should().Be(HttpStatusCode.Unauthorized);
         }
@@ -50,12 +50,12 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         public async Task ApprovePendingWorkOrder()
         {
             SetUserRole(UserGroups.Agent);
-            var id = await CreateWorkOrder(r => r.WorkElement.Single().RateScheduleItem.Single().Quantity.Amount = new List<double> { 50000 });
+            var result = await CreateWorkOrder(r => r.WorkElement.Single().RateScheduleItem.Single().Quantity.Amount = new List<double> { 50000 });
 
             SetUserRole(UserGroups.AuthorisationManager);
-            var code = await UpdateJob(id, RepairsApi.V2.Generated.JobStatusUpdateTypeCode._200);
+            var code = await UpdateJob(result.Id, RepairsApi.V2.Generated.JobStatusUpdateTypeCode._200);
 
-            var wo = GetWorkOrderFromDB(id);
+            var wo = GetWorkOrderFromDB(result.Id);
             code.Should().Be(HttpStatusCode.OK);
             wo.StatusCode.Should().Be(WorkStatusCode.Open);
         }
@@ -64,12 +64,12 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         public async Task RejectPendingWorkOrder()
         {
             SetUserRole(UserGroups.Agent);
-            var id = await CreateWorkOrder(r => r.WorkElement.Single().RateScheduleItem.Single().Quantity.Amount = new List<double> { 50000 });
+            var result = await CreateWorkOrder(r => r.WorkElement.Single().RateScheduleItem.Single().Quantity.Amount = new List<double> { 50000 });
 
             SetUserRole(UserGroups.AuthorisationManager);
-            var code = await UpdateJob(id, RepairsApi.V2.Generated.JobStatusUpdateTypeCode._190);
+            var code = await UpdateJob(result.Id, RepairsApi.V2.Generated.JobStatusUpdateTypeCode._190);
 
-            var wo = GetWorkOrderFromDB(id);
+            var wo = GetWorkOrderFromDB(result.Id);
             code.Should().Be(HttpStatusCode.OK);
             wo.StatusCode.Should().Be(WorkStatusCode.Canceled);
         }

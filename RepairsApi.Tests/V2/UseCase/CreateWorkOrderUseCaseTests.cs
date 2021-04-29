@@ -8,7 +8,6 @@ using RepairsApi.Tests.V2.Gateways;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Infrastructure;
-using RepairsApi.V2.Notifications;
 using RepairsApi.V2.Services;
 using RepairsApi.V2.UseCase;
 using System;
@@ -17,9 +16,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Trade = RepairsApi.V2.Infrastructure.Trade;
 using WorkElement = RepairsApi.V2.Infrastructure.WorkElement;
+using Party = RepairsApi.V2.Infrastructure.Party;
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using RepairsApi.V2.Domain;
 
 namespace RepairsApi.Tests.V2.UseCase
 {
@@ -41,6 +42,7 @@ namespace RepairsApi.Tests.V2.UseCase
             _authMock.Setup(a => a.AuthorizeAsync(It.IsAny<ClaimsPrincipal>(), It.IsAny<object>(), It.IsAny<string>()))
                 .ReturnsAsync(AuthorizationResult.Success());
             _scheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
+            ContractorUsesExternalScheduler(false);
             _currentUserServiceMock = new Mock<ICurrentUserService>();
             _featureManagerMock = new Mock<IFeatureManager>();
             _featureManagerMock.Setup(fm => fm.IsEnabledAsync(It.IsAny<string>())).ReturnsAsync(true);
@@ -143,9 +145,31 @@ namespace RepairsApi.Tests.V2.UseCase
         {
             int newId = 1;
             _repairsGatewayMock.ReturnWOId(newId);
+
             await _classUnderTest.Execute(new WorkOrder());
 
             _handlerMock.HaveHandlersBeenCalled().Should().BeTrue();
+        }
+
+        [Test]
+        public async Task SetsExternalFlagOnResultWhenContractorHasDrsEnabled()
+        {
+            int newId = 1;
+            _repairsGatewayMock.ReturnWOId(newId);
+            ContractorUsesExternalScheduler(true);
+
+            var result = await _classUnderTest.Execute(new WorkOrder{AssignedToPrimary = new Party()});
+
+            result.ExternallyManagedAppointment.Should().BeTrue();
+        }
+
+        private void ContractorUsesExternalScheduler(bool external)
+        {
+            _scheduleOfRatesGateway.Setup(x => x.GetContractor(It.IsAny<string>()))
+                .ReturnsAsync(new Contractor
+                {
+                    UseExternalScheduleManager = external
+                });
         }
 
         private void VerifyPlacedOrder(Expression<Func<WorkOrder, bool>> predicate)

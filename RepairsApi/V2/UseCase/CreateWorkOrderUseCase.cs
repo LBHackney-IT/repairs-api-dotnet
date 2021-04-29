@@ -13,6 +13,7 @@ using RepairsApi.V2.Infrastructure.Extensions;
 using RepairsApi.V2.Notifications;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
+using RepairsApi.V2.Helpers;
 
 namespace RepairsApi.V2.UseCase
 {
@@ -58,7 +59,11 @@ namespace RepairsApi.V2.UseCase
             _logger.LogInformation(Resources.CreatedWorkOrder);
 
             await NotifyHandlers(workOrder);
-            return new CreateOrderResult(id, workOrder.StatusCode, workOrder.GetStatus());
+            var result = new CreateOrderResult(id, workOrder.StatusCode, workOrder.GetStatus());
+
+            result.ExternallyManagedAppointment = await workOrder.ContractorUsingDrs(_scheduleOfRatesGateway);
+
+            return result;
         }
 
         private async Task NotifyHandlers(WorkOrder workOrder)

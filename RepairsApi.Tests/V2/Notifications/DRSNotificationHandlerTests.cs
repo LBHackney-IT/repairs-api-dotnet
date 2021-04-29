@@ -126,7 +126,6 @@ namespace RepairsApi.Tests.V2.Notifications
 
         private void ContractorUsesExternalScheduler(bool external)
         {
-
             _sorGatewayMock.Setup(x => x.GetContractor(It.IsAny<string>()))
                 .ReturnsAsync(new Contractor
                 {
