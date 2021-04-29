@@ -53,7 +53,10 @@ namespace RepairsApi.Tests.V2.UseCase
             _handlerMock = new NotificationMock();
             _drsOptions = new DrsOptions
             {
-                Login = "login", Password = "password", APIAddress = new Uri("https://apiAddress.none"), ManagementAddress = new Uri("https://managementAddress.none")
+                Login = "login",
+                Password = "password",
+                APIAddress = new Uri("https://apiAddress.none"),
+                ManagementAddress = new Uri("https://managementAddress.none")
             };
             _classUnderTest = new CreateWorkOrderUseCase(
                 _repairsGatewayMock.Object,

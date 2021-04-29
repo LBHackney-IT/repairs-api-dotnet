@@ -65,7 +65,7 @@ namespace RepairsApi.V2.UseCase
             var notification = await NotifyHandlers(workOrder);
             var result = new CreateOrderResult(id, workOrder.StatusCode, workOrder.GetStatus());
 
-            if(await workOrder.ContractorUsingDrs(_scheduleOfRatesGateway))
+            if (await workOrder.ContractorUsingDrs(_scheduleOfRatesGateway))
             {
                 result.ExternallyManagedAppointment = true;
                 var managementUri = new UriBuilder(_drsOptions.Value.ManagementAddress);

@@ -15,10 +15,17 @@ namespace RepairsApi.Tests.Helpers
             Setup(x => x.deleteOrderAsync(It.IsAny<deleteOrder>()))
                 .ReturnsAsync(new deleteOrderResponse { @return = new xmbDeleteOrderResponse { status = responseStatus.success } });
             Setup(x => x.createOrderAsync(It.IsAny<createOrder>()))
-                .ReturnsAsync(new createOrderResponse { @return = new xmbCreateOrderResponse { status = responseStatus.success, theOrder = new order
+                .ReturnsAsync(new createOrderResponse
                 {
-                    theBookings = new []{new booking{tokenId = ExpectedToken}}
-                }} });
+                    @return = new xmbCreateOrderResponse
+                    {
+                        status = responseStatus.success,
+                        theOrder = new order
+                        {
+                            theBookings = new[] { new booking { tokenId = ExpectedToken } }
+                        }
+                    }
+                });
         }
     }
 }
