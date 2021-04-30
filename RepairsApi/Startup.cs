@@ -103,13 +103,19 @@ namespace RepairsApi
                 c.AddSecurityDefinition("Token",
                     new OpenApiSecurityScheme
                     {
-                        In = ParameterLocation.Header, Description = "Your Hackney API Key", Name = "X-Api-Key", Type = SecuritySchemeType.ApiKey
+                        In = ParameterLocation.Header,
+                        Description = "Your Hackney API Key",
+                        Name = "X-Api-Key",
+                        Type = SecuritySchemeType.ApiKey
                     });
 
                 c.AddSecurityDefinition("UserHeader",
                     new OpenApiSecurityScheme
                     {
-                        In = ParameterLocation.Header, Description = "Hackney User JWT", Name = "X-Hackney-User", Type = SecuritySchemeType.ApiKey
+                        In = ParameterLocation.Header,
+                        Description = "Hackney User JWT",
+                        Name = "X-Hackney-User",
+                        Type = SecuritySchemeType.ApiKey
                     });
 
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -161,7 +167,9 @@ namespace RepairsApi
                     var version = $"v{apiVersion.ApiVersion}";
                     c.SwaggerDoc(version, new OpenApiInfo
                     {
-                        Title = $"{ApiName}-api {version}", Version = version, Description = $"{ApiName} version {version}. Please check older versions for depreciated endpoints."
+                        Title = $"{ApiName}-api {version}",
+                        Version = version,
+                        Description = $"{ApiName} version {version}. Please check older versions for depreciated endpoints."
                     });
                 }
 
@@ -195,11 +203,16 @@ namespace RepairsApi
             services.AddSingleton<IAuthenticationService, ChallengeOnlyAuthenticationService>();
             services.AddFeatureManagement();
             services.AddFilteringConfig();
+            ConfigureDRSSoap(services);
+
+            AddNotificationHandlers(services);
+        }
+
+        private static void ConfigureDRSSoap(IServiceCollection services)
+        {
             services.AddSoapCore();
             services.TryAddSingleton<IDrsBackgroundService, DrsBackgroundService>();
             services.AddSoapExceptionTransformer((ex) => ex.Message);
-
-            AddNotificationHandlers(services);
         }
 
         private static void AddNotificationHandlers(IServiceCollection services)
