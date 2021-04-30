@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Xml.Linq;
 
@@ -12,12 +11,4 @@ namespace RepairsApi.V2.Generated.DRS.BackgroundService
         string ConfirmBookings(Bookings Bookings);
     }
 
-    public class DrsBackgroundService : IDrsBackgroundService
-    {
-        public string ConfirmBookings(Bookings bookings)
-        {
-            Console.WriteLine(bookings.ToString());
-            return bookings.ToString();
-        }
-    }
 }
