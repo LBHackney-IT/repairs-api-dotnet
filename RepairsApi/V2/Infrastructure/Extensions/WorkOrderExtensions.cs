@@ -12,8 +12,9 @@ namespace RepairsApi.V2.Infrastructure.Extensions
                 WorkStatusCode.Complete => WorkOrderStatus.Complete,
                 WorkStatusCode.Canceled => WorkOrderStatus.Cancelled,
                 WorkStatusCode.Hold => WorkOrderStatus.Hold,
-                WorkStatusCode.PendApp => WorkOrderStatus.PendApp,
+                WorkStatusCode.VariationPendingApproval => WorkOrderStatus.VariationPendingApproval,
                 WorkStatusCode.PendMaterial => WorkOrderStatus.PendMaterial,
+                WorkStatusCode.PendingApproval => WorkOrderStatus.PendingApproval,
                 WorkStatusCode.VariationApproved => WorkOrderStatus.VariationApproved,
                 WorkStatusCode.VariationRejected => WorkOrderStatus.VariationRejected,
                 _ => WorkOrderStatus.Unknown,
@@ -24,7 +25,7 @@ namespace RepairsApi.V2.Infrastructure.Extensions
         {
             return workOrder.Reason switch
             {
-                ReasonCode.PendingAuthorisation => WorkOrderReason.PendAuthorisation,
+                ReasonCode.VariationPendingAuthorisation => WorkOrderReason.VariationPendingAuthorisation,
                 ReasonCode.NoApproval => WorkOrderReason.Rejected,
                 ReasonCode.Approved => WorkOrderReason.Approved,
                 _ => WorkOrderReason.Unknown,

@@ -2,8 +2,8 @@ namespace RepairsApi.V2.Authorisation
 {
     public static class CustomClaimTypes
     {
-        public const string CONTRACTOR = "contractor";
-        public const string RAISELIMIT = "raiselimit";
-        public const string VARYLIMIT = "varylimit";
+        public const string Contractor = "contractor";
+        public const string RaiseLimit = "raiselimit";
+        public const string VaryLimit = "varylimit";
     }
 }

@@ -102,7 +102,7 @@ namespace RepairsApi.Tests.V2.UseCase
             var appointment = result.First();
             var refArray = appointment.Slots.First().Reference.Split('/', 2);
             var slotId = int.Parse(refArray[0]);
-            var slotDate = DateTime.ParseExact(refArray[1], DateExtensions.DATEFORMAT, null);
+            var slotDate = DateTime.ParseExact(refArray[1], DateExtensions.DateFormat, null);
             slotId.Should().Be(expectedAppointment.Id);
             slotDate.Should().Be(expectedAppointment.Date);
 

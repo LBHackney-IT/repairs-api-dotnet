@@ -14,6 +14,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
 using static RepairsApi.Tests.V2.DataFakers;
+// ReSharper disable All
 
 namespace RepairsApi.Tests
 {

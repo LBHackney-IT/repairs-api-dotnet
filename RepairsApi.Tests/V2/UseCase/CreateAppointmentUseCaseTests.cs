@@ -8,6 +8,7 @@ using RepairsApi.V2.Infrastructure;
 using System;
 using System.Threading.Tasks;
 using RepairsApi.V2.UseCase.Interfaces;
+using RepairsApi.V2.UseCase;
 
 namespace RepairsApi.Tests.V2.UseCase
 {
@@ -15,7 +16,7 @@ namespace RepairsApi.Tests.V2.UseCase
     {
         private Mock<IRepairsGateway> _repairGatewayMock;
         private Mock<IAppointmentsGateway> _appointmentsGatewayMock;
-        private CreateAppointmentUseCase _classUnderTest;
+        private ICreateAppointmentUseCase _classUnderTest;
 
         [SetUp]
         public void Setup()

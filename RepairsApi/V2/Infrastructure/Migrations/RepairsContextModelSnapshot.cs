@@ -311,6 +311,10 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("name");
 
+                    b.Property<bool>("UseExternalScheduleManager")
+                        .HasColumnType("boolean")
+                        .HasColumnName("use_external_schedule_manager");
+
                     b.HasKey("Reference")
                         .HasName("pk_contractors");
 
@@ -375,6 +379,10 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.Property<bool>("Enabled")
                         .HasColumnType("boolean")
                         .HasColumnName("enabled");
+
+                    b.Property<char>("PriorityCharacter")
+                        .HasColumnType("character(1)")
+                        .HasColumnName("priority_character");
 
                     b.HasKey("PriorityCode")
                         .HasName("pk_sor_priorities");
@@ -2189,11 +2197,21 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                             b1.HasKey("WorkOrderId")
                                 .HasName("pk_work_orders");
 
+                            b1.HasIndex("PriorityCode")
+                                .HasDatabaseName("ix_work_orders_work_priority_priority_code");
+
                             b1.ToTable("work_orders");
+
+                            b1.HasOne("RepairsApi.V2.Infrastructure.Hackney.SORPriority", "Priority")
+                                .WithMany()
+                                .HasForeignKey("PriorityCode")
+                                .HasConstraintName("fk_work_orders_sor_priorities_work_priority_priority_code1");
 
                             b1.WithOwner()
                                 .HasForeignKey("WorkOrderId")
                                 .HasConstraintName("fk_work_orders_work_orders_id");
+
+                            b1.Navigation("Priority");
                         });
 
                     b.Navigation("AccessInformation");
