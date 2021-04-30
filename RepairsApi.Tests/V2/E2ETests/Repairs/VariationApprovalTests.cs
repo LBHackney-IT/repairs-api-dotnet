@@ -120,9 +120,9 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         {
             string expectedCode = Guid.NewGuid().ToString();
             AddTestCode(expectedCode);
-            var workOrderId = await CreateWorkOrder();
+            var result = await CreateWorkOrder();
 
-            await UpdateSorCodes(workOrderId, jsu =>
+            await UpdateSorCodes(result.Id, jsu =>
             {
                 jsu.MoreSpecificSORCode.RateScheduleItem.Add(new RateScheduleItem
                 {
@@ -131,7 +131,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
                     Quantity = new Quantity { Amount = new List<double> { newItemQuantity } },
                 });
             });
-            return workOrderId;
+            return result.Id;
         }
     }
 }

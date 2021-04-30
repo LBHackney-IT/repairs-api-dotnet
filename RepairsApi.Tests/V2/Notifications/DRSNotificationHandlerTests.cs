@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.Gateways;
+using V2_Generated_DRS;
 
 namespace RepairsApi.Tests.V2.Notifications
 {
@@ -26,6 +27,14 @@ namespace RepairsApi.Tests.V2.Notifications
         {
             _featureManager = new Mock<IFeatureManager>();
             _drsServiceMock = new Mock<IDrsService>();
+            _drsServiceMock.Setup(x => x.CreateOrder(It.IsAny<WorkOrder>()))
+                .ReturnsAsync(new order
+                {
+                    theBookings = new[]
+                    {
+                        new booking()
+                    }
+                });
             _sorGatewayMock = new Mock<IScheduleOfRatesGateway>();
             FeatureEnabled(true);
             ContractorUsesExternalScheduler(true);
@@ -126,7 +135,6 @@ namespace RepairsApi.Tests.V2.Notifications
 
         private void ContractorUsesExternalScheduler(bool external)
         {
-
             _sorGatewayMock.Setup(x => x.GetContractor(It.IsAny<string>()))
                 .ReturnsAsync(new Contractor
                 {

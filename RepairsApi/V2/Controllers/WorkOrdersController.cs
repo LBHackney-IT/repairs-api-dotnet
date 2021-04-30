@@ -87,7 +87,7 @@ namespace RepairsApi.V2.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [Route("{id}")]
+        [Route("{id:int}")]
         [HttpGet]
         [ProducesResponseType(typeof(WorkOrderResponse), 200)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]

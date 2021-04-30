@@ -3,8 +3,10 @@ using Microsoft.FeatureManagement;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Helpers;
 
 namespace RepairsApi.V2.Notifications
 {
@@ -32,27 +34,22 @@ namespace RepairsApi.V2.Notifications
         public async Task Notify(WorkOrderOpened data)
         {
             if (!await _featureManager.IsEnabledAsync(FeatureFlags.DRSIntegration) ||
-                !await ContractorUsingDrs(data.WorkOrder.AssignedToPrimary.ContractorReference))
+                !await data.WorkOrder.ContractorUsingDrs(_scheduleOfRatesGateway))
             {
                 return;
             }
-            await DrsService.CreateOrder(data.WorkOrder);
+            var order = await DrsService.CreateOrder(data.WorkOrder);
+            data.TokenId = order.theBookings.Single().tokenId;
         }
 
         public async Task Notify(WorkOrderCancelled data)
         {
             if (!await _featureManager.IsEnabledAsync(FeatureFlags.DRSIntegration) ||
-                !await ContractorUsingDrs(data.WorkOrder.AssignedToPrimary.ContractorReference))
+                !await data.WorkOrder.ContractorUsingDrs(_scheduleOfRatesGateway))
             {
                 return;
             }
             await DrsService.CancelOrder(data.WorkOrder);
-        }
-
-        private async Task<bool> ContractorUsingDrs(string contractorRef)
-        {
-            var contractor = await _scheduleOfRatesGateway.GetContractor(contractorRef);
-            return contractor.UseExternalScheduleManager;
         }
     }
 
@@ -64,5 +61,6 @@ namespace RepairsApi.V2.Notifications
         }
 
         public WorkOrder WorkOrder { get; }
+        public string TokenId { get; set; }
     }
 }
