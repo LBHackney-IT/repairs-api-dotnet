@@ -1,5 +1,7 @@
 using RepairsApi.V2.Infrastructure;
 using System;
+using System.Threading.Tasks;
+using RepairsApi.V2.Gateways;
 
 namespace RepairsApi.V2.Helpers
 {
@@ -70,6 +72,14 @@ namespace RepairsApi.V2.Helpers
         public static void VerifyCanGetVariation(this WorkOrder wo)
         {
             if (wo.StatusCode != WorkStatusCode.VariationPendingApproval) throw new NotSupportedException(Resources.ActionUnsupported);
+        }
+
+        public static async Task<bool> ContractorUsingDrs(this WorkOrder wo, IScheduleOfRatesGateway scheduleOfRatesGateway)
+        {
+            if (wo.AssignedToPrimary is null) return false;
+
+            var contractor = await scheduleOfRatesGateway.GetContractor(wo.AssignedToPrimary.ContractorReference);
+            return contractor.UseExternalScheduleManager;
         }
     }
 }
