@@ -37,8 +37,15 @@ using Amazon.XRay.Recorder.Handlers.AspNetCore.Internal;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using Castle.Core.Internal;
 using System.ServiceModel;
+using System.ServiceModel.Channels;
+using System.Text;
+using System.Xml;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Newtonsoft.Json;
+using RepairsApi.V2.Generated.DRS.BackgroundService;
+using SoapCore;
 using V2_Generated_DRS;
+using BackgroundService = Microsoft.Extensions.Hosting.BackgroundService;
 using RepairsApi.V2.Notifications;
 
 namespace RepairsApi
@@ -196,8 +203,16 @@ namespace RepairsApi
             services.AddSingleton<IAuthenticationService, ChallengeOnlyAuthenticationService>();
             services.AddFeatureManagement();
             services.AddFilteringConfig();
+            ConfigureDRSSoap(services);
 
             AddNotificationHandlers(services);
+        }
+
+        private static void ConfigureDRSSoap(IServiceCollection services)
+        {
+            services.AddSoapCore();
+            services.TryAddSingleton<IDrsBackgroundService, DrsBackgroundService>();
+            services.AddSoapExceptionTransformer((ex) => ex.Message);
         }
 
         private static void AddNotificationHandlers(IServiceCollection services)
@@ -314,7 +329,7 @@ namespace RepairsApi
                 // SwaggerGen won't find controllers that are routed via this technique.
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
             });
+            app.UseSoapEndpoint<IDrsBackgroundService>("/Service.asmx", new BasicHttpsBinding(), SoapSerializer.XmlSerializer);
         }
     }
-
 }
