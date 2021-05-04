@@ -51,7 +51,10 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         [Test]
         public async Task ForwardedToDRS()
         {
-            var id = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
+            var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
+
+            result.ExternallyManagedAppointment.Should().BeTrue();
+            result.ExternalAppointmentManagementUrl.Query.Should().Contain($"tokenId={SoapMock.ExpectedToken}");
 
             SoapMock.Verify(s => s.createOrderAsync(It.IsAny<V2_Generated_DRS.createOrder>()));
         }
@@ -59,9 +62,9 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         [Test]
         public async Task DeletesFromDRS()
         {
-            var id = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
+            var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
 
-            await CancelWorkOrder(id);
+            await CancelWorkOrder(result.Id);
 
             SoapMock.Verify(s => s.deleteOrderAsync(It.IsAny<V2_Generated_DRS.deleteOrder>()));
         }
@@ -70,12 +73,12 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         public async Task ViewElements()
         {
             var expectedName = "Expected Name";
-            var id = await CreateWorkOrder(req =>
+            var result = await CreateWorkOrder(req =>
             {
                 req.WorkElement.First().RateScheduleItem.First().CustomName = expectedName;
             });
 
-            var (code, response) = await Get<IEnumerable<WorkOrderItemViewModel>>($"/api/v2/workOrders/{id}/tasks");
+            var (code, response) = await Get<IEnumerable<WorkOrderItemViewModel>>($"/api/v2/workOrders/{result.Id}/tasks");
 
             code.Should().Be(HttpStatusCode.OK);
             response.Should().NotBeEmpty();
@@ -101,23 +104,23 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         public async Task GetListOfWorkOrders()
         {
             // Arrange
-            var workOrderId = await CreateWorkOrder();
+            var result = await CreateWorkOrder();
 
             // Act
             var (code, response) = await Get<List<WorkOrderListItem>>("/api/v2/workOrders");
 
             // Assert
             code.Should().Be(HttpStatusCode.OK);
-            response.Should().Contain(wo => wo.Reference == workOrderId);
+            response.Should().Contain(wo => wo.Reference == result.Id);
         }
 
         [Test]
         public async Task GetFilteredListOfWorkOrders_Status()
         {
             // Arrange
-            var openWorkOrderId = await CreateWorkOrder();
-            var completedWorkOrderId = await CreateWorkOrder();
-            var code = await CancelWorkOrder(completedWorkOrderId);
+            var openWorkOrderResult = await CreateWorkOrder();
+            var completedWorkOrderResult = await CreateWorkOrder();
+            var code = await CancelWorkOrder(completedWorkOrderResult.Id);
 
             // Act
             var (openCode, openResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?StatusCode={(int) WorkStatusCode.Open}&PageSize=50");
@@ -126,19 +129,19 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
 
             // Assert
             openCode.Should().Be(HttpStatusCode.OK);
-            openResponse.Should().ContainSingle(wo => wo.Reference == openWorkOrderId);
-            openResponse.Should().NotContain(wo => wo.Reference == completedWorkOrderId);
+            openResponse.Should().ContainSingle(wo => wo.Reference == openWorkOrderResult.Id);
+            openResponse.Should().NotContain(wo => wo.Reference == completedWorkOrderResult.Id);
 
             closedCode.Should().Be(HttpStatusCode.OK);
-            closedResponse.Should().ContainSingle(wo => wo.Reference == completedWorkOrderId);
-            closedResponse.Should().NotContain(wo => wo.Reference == openWorkOrderId);
+            closedResponse.Should().ContainSingle(wo => wo.Reference == completedWorkOrderResult.Id);
+            closedResponse.Should().NotContain(wo => wo.Reference == openWorkOrderResult.Id);
 
             multiCode.Should().Be(HttpStatusCode.OK);
-            multiResponse.Should().ContainSingle(wo => wo.Reference == openWorkOrderId);
+            multiResponse.Should().ContainSingle(wo => wo.Reference == openWorkOrderResult.Id);
 
-            var wo = GetWorkOrderFromDB(completedWorkOrderId);
+            var wo = GetWorkOrderFromDB(completedWorkOrderResult.Id);
 
-            multiResponse.Should().ContainSingle(wo => wo.Reference == completedWorkOrderId);
+            multiResponse.Should().ContainSingle(wo => wo.Reference == completedWorkOrderResult.Id);
         }
 
 
@@ -146,8 +149,8 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         public async Task GetFilteredListOfWorkOrders_Priority()
         {
             // Arrange
-            var urgentWorkOrderId = await CreateWorkOrder(sr => sr.Priority.PriorityCode = 3);
-            var immediateWorkOrderId = await CreateWorkOrder(sr => sr.Priority.PriorityCode = 0);
+            var urgentResult = await CreateWorkOrder(sr => sr.Priority.PriorityCode = 3);
+            var immediateResult = await CreateWorkOrder(sr => sr.Priority.PriorityCode = 0);
 
             // Act
             var (urgentCode, urgentResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?Priorities={3}");
@@ -156,16 +159,16 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
 
             // Assert
             urgentCode.Should().Be(HttpStatusCode.OK);
-            urgentResponse.Should().ContainSingle(wo => wo.Reference == urgentWorkOrderId);
-            urgentResponse.Should().NotContain(wo => wo.Reference == immediateWorkOrderId);
+            urgentResponse.Should().ContainSingle(wo => wo.Reference == urgentResult.Id);
+            urgentResponse.Should().NotContain(wo => wo.Reference == immediateResult.Id);
 
             immediateCode.Should().Be(HttpStatusCode.OK);
-            immediateResponse.Should().ContainSingle(wo => wo.Reference == immediateWorkOrderId);
-            immediateResponse.Should().NotContain(wo => wo.Reference == urgentWorkOrderId);
+            immediateResponse.Should().ContainSingle(wo => wo.Reference == immediateResult.Id);
+            immediateResponse.Should().NotContain(wo => wo.Reference == urgentResult.Id);
 
             multiCode.Should().Be(HttpStatusCode.OK);
-            multiResponse.Should().ContainSingle(wo => wo.Reference == immediateWorkOrderId);
-            multiResponse.Should().ContainSingle(wo => wo.Reference == urgentWorkOrderId);
+            multiResponse.Should().ContainSingle(wo => wo.Reference == immediateResult.Id);
+            multiResponse.Should().ContainSingle(wo => wo.Reference == urgentResult.Id);
         }
 
         [Test]
@@ -173,12 +176,12 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         {
             // Arrange
             const string tradeName = "trade name";
-            var workOrderId = await CreateWorkOrder(req =>
+            var result = await CreateWorkOrder(req =>
             {
                 req.WorkElement.First().Trade.First().CustomName = tradeName;
             });
 
-            var (code, response) = await Get<RepairsApi.V2.Boundary.WorkOrderResponse>($"/api/v2/workOrders/{workOrderId}");
+            var (code, response) = await Get<RepairsApi.V2.Boundary.WorkOrderResponse>($"/api/v2/workOrders/{result.Id}");
             code.Should().Be(HttpStatusCode.OK);
             response.TradeDescription.Should().Be(tradeName);
         }
@@ -187,9 +190,10 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         public async Task CompleteWorkOrder()
         {
             // Arrange
-            var id = await CreateWorkOrder();
+            var result = await CreateWorkOrder();
             var request = new Generator<WorkOrderComplete>()
                             .AddWorkOrderCompleteGenerators()
+                            .AddValue(result.Id.ToString(), (WorkOrderComplete woc) => woc.WorkOrderReference.ID)
                             .AddValue(id.ToString(), (WorkOrderComplete woc) => woc.WorkOrderReference.ID)
                             .SetListLength<JobStatusUpdates>(1)
                             .AddValue(JobStatusUpdateTypeCode._0, (JobStatusUpdates jsu) => jsu.TypeCode)
@@ -199,7 +203,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             // Act
             SetUserRole(UserGroups.Contractor);
             var code = await Post("/api/v2/workOrderComplete", request);
-            var workOrder = GetWorkOrderFromDB(id);
+            var workOrder = GetWorkOrderFromDB(result.Id);
 
             // Assert
             code.Should().Be(HttpStatusCode.OK);
@@ -211,11 +215,11 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         public async Task CompleteRepairTwice()
         {
             // Arrange
-            var woId = await CreateWorkOrder();
-            await CancelWorkOrder(woId);
+            var result = await CreateWorkOrder();
+            await CancelWorkOrder(result.Id);
 
             // Act
-            var secondResponseCode = await CancelWorkOrder(woId);
+            var secondResponseCode = await CancelWorkOrder(result.Id);
 
             // Assert
             secondResponseCode.Should().Be(HttpStatusCode.BadRequest);
@@ -227,16 +231,16 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             // Arrange
             string expectedCode = "expectedCode_UpdateWorkOrder";
             AddTestCode(expectedCode);
-            var workOrderId = await CreateWorkOrder();
-            var originalTasks = await GetTasks(workOrderId);
+            var result = await CreateWorkOrder();
+            var originalTasks = await GetTasks(result.Id);
 
             RepairsApi.V2.Generated.WorkElement workElement = TransformTasksToWorkElement(originalTasks);
             AddRateScheduleItem(workElement, expectedCode, 10);
-            JobStatusUpdate request = CreateUpdateRequest(workOrderId, workElement);
+            JobStatusUpdate request = CreateUpdateRequest(result.Id, workElement);
 
             // Act
             var code = await Post("/api/v2/jobStatusUpdate", request);
-            var newTasks = await GetTasks(workOrderId);
+            var newTasks = await GetTasks(result.Id);
 
             // Assert
             code.Should().Be(HttpStatusCode.OK);
@@ -248,14 +252,14 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         {
             // Arrange
             var expectedNote = "expectedComments";
-            var workOrderId = await CreateWorkOrder();
-            await UpdateSorCodes(workOrderId, req =>
+            var result = await CreateWorkOrder();
+            await UpdateSorCodes(result.Id, req =>
             {
                 req.Comments = expectedNote;
             });
 
             // Act
-            var (code, notes) = await Get<IList<NoteListItem>>($"/api/v2/workOrders/{workOrderId}/notes");
+            var (code, notes) = await Get<IList<NoteListItem>>($"/api/v2/workOrders/{result.Id}/notes");
 
             // Assert
             code.Should().Be(HttpStatusCode.OK);
@@ -280,17 +284,17 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         public async Task HoldAndResumeWorkOrder(JobStatusUpdateTypeCode updateCode, WorkStatusCode workOrderHoldCode)
         {
             // Arrange
-            var workOrderId = await CreateWorkOrder();
+            var result = await CreateWorkOrder();
 
             // Act
-            await UpdateSorCodes(workOrderId, req => req.TypeCode = updateCode);
-            var heldOrder = GetWorkOrderFromDB(workOrderId);
-            await UpdateSorCodes(workOrderId, req =>
+            await UpdateSorCodes(result.Id, req => req.TypeCode = updateCode);
+            var heldOrder = GetWorkOrderFromDB(result.Id);
+            await UpdateSorCodes(result.Id, req =>
             {
                 req.TypeCode = JobStatusUpdateTypeCode._0;
                 req.OtherType = CustomJobStatusUpdates.Resume;
             });
-            var resumedOrder = GetWorkOrderFromDB(workOrderId);
+            var resumedOrder = GetWorkOrderFromDB(result.Id);
 
             // Assert
             heldOrder.StatusCode.Should().Be(workOrderHoldCode);
@@ -388,7 +392,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             return await Post("/api/v2/jobStatusUpdate", request);
         }
 
-        private async Task<int> CreateWorkOrder(Action<ScheduleRepair> interceptor = null)
+        private async Task<CreateOrderResult> CreateWorkOrder(Action<ScheduleRepair> interceptor = null)
         {
             var request = GenerateWorkOrder<ScheduleRepair>()
                 .AddValue(new List<double> { 1 }, (RateScheduleItem rsi) => rsi.Quantity.Amount)
@@ -398,7 +402,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
 
             var (_, response) = await Post<CreateOrderResult>("/api/v2/workOrders/schedule", request);
 
-            return response.Id;
+            return response;
         }
 
         public async Task<IEnumerable<WorkOrderItemViewModel>> GetTasks(int workOrderId)

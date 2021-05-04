@@ -13,6 +13,8 @@ using RepairsApi.V2.Infrastructure.Extensions;
 using RepairsApi.V2.Notifications;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
+using RepairsApi.V2.Helpers;
 
 namespace RepairsApi.V2.UseCase
 {
@@ -25,6 +27,7 @@ namespace RepairsApi.V2.UseCase
         private readonly IAuthorizationService _authorizationService;
         private readonly IFeatureManager _featureManager;
         private readonly INotifier _notifier;
+        private readonly IOptions<DrsOptions> _drsOptions;
 
         public CreateWorkOrderUseCase(
             IRepairsGateway repairsGateway,
@@ -33,7 +36,8 @@ namespace RepairsApi.V2.UseCase
             ICurrentUserService currentUserService,
             IAuthorizationService authorizationService,
             IFeatureManager featureManager,
-            INotifier notifier
+            INotifier notifier,
+            IOptions<DrsOptions> drsOptions
             )
         {
             _repairsGateway = repairsGateway;
@@ -43,6 +47,7 @@ namespace RepairsApi.V2.UseCase
             _authorizationService = authorizationService;
             _featureManager = featureManager;
             _notifier = notifier;
+            _drsOptions = drsOptions;
         }
 
         public async Task<CreateOrderResult> Execute(WorkOrder workOrder)
@@ -57,19 +62,32 @@ namespace RepairsApi.V2.UseCase
             var id = await _repairsGateway.CreateWorkOrder(workOrder);
             _logger.LogInformation(Resources.CreatedWorkOrder);
 
-            await NotifyHandlers(workOrder);
-            return new CreateOrderResult(id, workOrder.StatusCode, workOrder.GetStatus());
+            var notification = await NotifyHandlers(workOrder);
+            var result = new CreateOrderResult(id, workOrder.StatusCode, workOrder.GetStatus());
+
+            if (await workOrder.ContractorUsingDrs(_scheduleOfRatesGateway))
+            {
+                result.ExternallyManagedAppointment = true;
+                var managementUri = new UriBuilder(_drsOptions.Value.ManagementAddress);
+                managementUri.Port = -1;
+                managementUri.Query = $"tokenId={notification.TokenId}";
+                result.ExternalAppointmentManagementUrl = managementUri.Uri;
+            }
+
+            return result;
         }
 
-        private async Task NotifyHandlers(WorkOrder workOrder)
+        private async Task<WorkOrderOpened> NotifyHandlers(WorkOrder workOrder)
         {
             if (workOrder.StatusCode != WorkStatusCode.Open)
             {
-                return;
+                return null;
             }
 
             var notification = new WorkOrderOpened(workOrder);
             await _notifier.Notify(notification);
+
+            return notification;
         }
 
         private async Task SetStatus(WorkOrder workOrder)
