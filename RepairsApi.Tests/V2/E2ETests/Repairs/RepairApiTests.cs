@@ -176,14 +176,17 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         {
             // Arrange
             const string tradeName = "trade name";
+            const string contractor = "contractor name";
             var result = await CreateWorkOrder(req =>
             {
                 req.WorkElement.First().Trade.First().CustomName = tradeName;
+                req.AssignedToPrimary.Name = contractor;
             });
 
             var (code, response) = await Get<RepairsApi.V2.Boundary.WorkOrderResponse>($"/api/v2/workOrders/{result.Id}");
             code.Should().Be(HttpStatusCode.OK);
             response.TradeDescription.Should().Be(tradeName);
+            response.ContractorName.Should().Be(contractor);
         }
 
         [Test]
