@@ -194,7 +194,6 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             var request = new Generator<WorkOrderComplete>()
                             .AddWorkOrderCompleteGenerators()
                             .AddValue(result.Id.ToString(), (WorkOrderComplete woc) => woc.WorkOrderReference.ID)
-                            .AddValue(id.ToString(), (WorkOrderComplete woc) => woc.WorkOrderReference.ID)
                             .SetListLength<JobStatusUpdates>(1)
                             .AddValue(JobStatusUpdateTypeCode._0, (JobStatusUpdates jsu) => jsu.TypeCode)
                             .AddValue(CustomJobStatusUpdates.Completed, (JobStatusUpdates jsu) => jsu.OtherType)
@@ -208,7 +207,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             // Assert
             code.Should().Be(HttpStatusCode.OK);
             workOrder.StatusCode.Should().Be(WorkStatusCode.Complete);
-            NotifyMock.SentMails.Should().ContainSingle(m => m[WorkOrderCompletedEmailVariables.WorkOrderId].ToString() == id.ToString());
+            NotifyMock.SentMails.Should().ContainSingle(m => m[WorkOrderCompletedEmailVariables.WorkOrderId].ToString() == result.Id.ToString());
         }
 
         [Test]

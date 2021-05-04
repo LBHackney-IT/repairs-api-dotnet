@@ -10,5 +10,6 @@ namespace RepairsApi.V2.Notifications
         }
 
         public WorkOrder WorkOrder { get; }
+        public string TokenId { get; set; }
     }
 }
