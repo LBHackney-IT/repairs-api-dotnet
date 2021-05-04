@@ -94,11 +94,9 @@ namespace RepairsApi.V2.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Get(int id)
         {
-            WorkOrderResponse workOrderResponse;
-
             try
             {
-                workOrderResponse = await _getWorkOrderUseCase.Execute(id);
+                WorkOrderResponse workOrderResponse = await _getWorkOrderUseCase.Execute(id);
                 return Ok(workOrderResponse);
             }
             catch (ResourceNotFoundException ex)
