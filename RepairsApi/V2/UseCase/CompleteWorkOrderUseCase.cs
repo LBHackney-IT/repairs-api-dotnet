@@ -62,23 +62,24 @@ namespace RepairsApi.V2.UseCase
 
         private async Task UpdateWorkOrderStatus(WorkOrder workOrder, WorkOrderComplete workOrderComplete)
         {
-            await workOrderComplete.JobStatusUpdates.ForEachAsync(async update =>
-            {
-                switch (update.TypeCode)
-                {
-                    case Generated.JobStatusUpdateTypeCode._0: //Other
-                        await HandleCustomType(workOrder, update);
-                        break;
-                    case Generated.JobStatusUpdateTypeCode._70: // Denied Access
-                        if (!_currentUserService.HasGroup(UserGroups.Contractor) &&
-                            !_currentUserService.HasGroup(UserGroups.ContractManager))
-                            throw new UnauthorizedAccessException("Not Authorised to close jobs");
+            if (workOrderComplete.JobStatusUpdates?.Count != 1) throw new NotSupportedException("Work order complete must contain a single update");
 
-                        await _repairsGateway.UpdateWorkOrderStatus(workOrder.Id, WorkStatusCode.NoAccess);
-                        break;
-                    default: throw new NotSupportedException("Unsupported workorder complete job status update code");
-                }
-            });
+            var update = workOrderComplete.JobStatusUpdates.Single();
+
+            switch (update.TypeCode)
+            {
+                case Generated.JobStatusUpdateTypeCode._0: //Other
+                    await HandleCustomType(workOrder, update);
+                    break;
+                case Generated.JobStatusUpdateTypeCode._70: // Denied Access
+                    if (!_currentUserService.HasGroup(UserGroups.Contractor) &&
+                        !_currentUserService.HasGroup(UserGroups.ContractManager))
+                        throw new UnauthorizedAccessException("Not Authorised to close jobs");
+
+                    await _repairsGateway.UpdateWorkOrderStatus(workOrder.Id, WorkStatusCode.NoAccess);
+                    break;
+                default: throw new NotSupportedException("Unsupported workorder complete job status update code");
+            }
         }
 
         private async Task HandleCustomType(WorkOrder workOrder, Generated.JobStatusUpdates update)
@@ -91,7 +92,7 @@ namespace RepairsApi.V2.UseCase
                         throw new UnauthorizedAccessException("Not Authorised to close jobs");
 
                     await _repairsGateway.UpdateWorkOrderStatus(workOrder.Id, WorkStatusCode.Complete);
-                    await _notifier.Notify(new WorkOrderCompleted(workOrder));
+                    await _notifier.Notify(new WorkOrderCompleted(workOrder, update));
                     break;
                 case CustomJobStatusUpdates.Cancelled:
                     if (!_currentUserService.HasGroup(UserGroups.Agent) &&

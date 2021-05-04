@@ -18,6 +18,7 @@ using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
 using Quantity = RepairsApi.V2.Generated.Quantity;
 using RateScheduleItem = RepairsApi.V2.Generated.RateScheduleItem;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
+using RepairsApi.V2.Services;
 
 namespace RepairsApi.Tests.V2.E2ETests.Repairs
 {
@@ -193,17 +194,20 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             var request = new Generator<WorkOrderComplete>()
                             .AddWorkOrderCompleteGenerators()
                             .AddValue(result.Id.ToString(), (WorkOrderComplete woc) => woc.WorkOrderReference.ID)
+                            .SetListLength<JobStatusUpdates>(1)
                             .AddValue(JobStatusUpdateTypeCode._0, (JobStatusUpdates jsu) => jsu.TypeCode)
-                            .AddValue(CustomJobStatusUpdates.Cancelled, (JobStatusUpdates jsu) => jsu.OtherType)
+                            .AddValue(CustomJobStatusUpdates.Completed, (JobStatusUpdates jsu) => jsu.OtherType)
                             .Generate();
 
             // Act
+            SetUserRole(UserGroups.Contractor);
             var code = await Post("/api/v2/workOrderComplete", request);
             var workOrder = GetWorkOrderFromDB(result.Id);
 
             // Assert
             code.Should().Be(HttpStatusCode.OK);
-            workOrder.StatusCode.Should().Be(WorkStatusCode.Canceled);
+            workOrder.StatusCode.Should().Be(WorkStatusCode.Complete);
+            NotifyMock.SentMails.Should().ContainSingle(m => m[WorkOrderCompletedEmailVariables.WorkOrderId].ToString() == result.Id.ToString());
         }
 
         [Test]
@@ -347,6 +351,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         {
             var request = new Generator<WorkOrderComplete>()
                 .AddWorkOrderCompleteGenerators()
+                .SetListLength<JobStatusUpdates>(1)
                 .AddValue(id.ToString(), (WorkOrderComplete woc) => woc.WorkOrderReference.ID)
                 .AddValue(JobStatusUpdateTypeCode._0, (JobStatusUpdates jsu) => jsu.TypeCode)
                 .AddValue(CustomJobStatusUpdates.Cancelled, (JobStatusUpdates jsu) => jsu.OtherType)
