@@ -29,6 +29,9 @@ namespace RepairsApi.Tests.V2.Services
         private Mock<IAlertsGateway> _alertsGatewayMock;
         private Mock<ISorPriorityGateway> _sorPriorityGatewayMock;
         private PropertyAlertList _locationAlerts;
+        private PersonAlertList _personAlerts;
+        private Mock<ITenancyGateway> _tenancyGateway;
+        private TenureInformation _tenureInformation;
 
         [SetUp]
         public void Setup()
@@ -36,14 +39,20 @@ namespace RepairsApi.Tests.V2.Services
             _sessionId = "sessionId";
             _sorGatewayMock = new Mock<IScheduleOfRatesGateway>();
             _alertsGatewayMock = new Mock<IAlertsGateway>();
+            _tenancyGateway = new Mock<ITenancyGateway>();
             _sorPriorityGatewayMock = new Mock<ISorPriorityGateway>();
-            _classUnderTest = new DrsMapping(_sorGatewayMock.Object, _alertsGatewayMock.Object, _sorPriorityGatewayMock.Object);
+            _classUnderTest = new DrsMapping(_sorGatewayMock.Object, _alertsGatewayMock.Object, _tenancyGateway.Object, _sorPriorityGatewayMock.Object);
 
-            var generator = new Generator<PropertyAlertList>().AddDefaultGenerators();
-            _locationAlerts = generator.Generate();
+            _locationAlerts = new Generator<PropertyAlertList>().AddDefaultGenerators().Generate();
+            _personAlerts = new Generator<PersonAlertList>().AddDefaultGenerators().Generate();
+            _tenureInformation = new Generator<TenureInformation>().AddDefaultGenerators().Generate();
 
             _alertsGatewayMock.Setup(x => x.GetLocationAlertsAsync(It.IsAny<string>()))
                 .ReturnsAsync(_locationAlerts);
+            _alertsGatewayMock.Setup(x => x.GetPersonAlertsAsync(It.IsAny<string>()))
+                .ReturnsAsync(_personAlerts);
+            _tenancyGateway.Setup(x => x.GetTenancyInformationAsync(It.IsAny<string>()))
+                .ReturnsAsync(_tenureInformation);
         }
 
         [TestCase('I')]
@@ -77,6 +86,21 @@ namespace RepairsApi.Tests.V2.Services
             VerifyDeleteOrder(request, workOrder, sorCodes);
         }
 
+        [Test]
+        public async Task MapsAlerts()
+        {
+            var generator = new Generator<WorkOrder>()
+                .AddInfrastructureWorkOrderGenerators();
+            var workOrder = generator.Generate();
+            _sorPriorityGatewayMock.Setup(m => m.GetLegacyPriorityCode(It.IsAny<int>())).ReturnsAsync('I');
+            var sorCodes = SetupSorCodes(workOrder);
+
+            var request = await _classUnderTest.BuildCreateOrderRequest(_sessionId, workOrder);
+
+            _alertsGatewayMock.Verify(x => x.GetLocationAlertsAsync(workOrder.Site.PropertyClass.First().PropertyReference));
+            _alertsGatewayMock.Verify(x => x.GetPersonAlertsAsync(_tenureInformation.TenancyAgreementReference));
+        }
+
         private IList<ScheduleOfRatesModel> SetupSorCodes(WorkOrder workOrder)
         {
             var sorCodes = workOrder.WorkElements.FirstOrDefault()?.RateScheduleItem
@@ -101,15 +125,16 @@ namespace RepairsApi.Tests.V2.Services
         private void VerifyCreateOrder(createOrder createOrder, WorkOrder workOrder, IList<ScheduleOfRatesModel> sorCodes)
         {
             createOrder.createOrder1.sessionId.Should().Be(_sessionId);
-            ValidateOrder(workOrder, createOrder.createOrder1.theOrder, sorCodes, _locationAlerts);
+            ValidateOrder(workOrder, createOrder.createOrder1.theOrder, sorCodes, _locationAlerts, _personAlerts);
         }
+
         private void VerifyDeleteOrder(deleteOrder deleteOrder, WorkOrder workOrder, IList<ScheduleOfRatesModel> sorCodes)
         {
             deleteOrder.deleteOrder1.sessionId.Should().Be(_sessionId);
-            ValidateOrder(workOrder, deleteOrder.deleteOrder1.theOrder, sorCodes, _locationAlerts);
+            ValidateOrder(workOrder, deleteOrder.deleteOrder1.theOrder, sorCodes, _locationAlerts, _personAlerts);
         }
 
-        private static void ValidateOrder(WorkOrder workOrder, order order, IList<ScheduleOfRatesModel> sorCodes, PropertyAlertList locationAlerts)
+        private static void ValidateOrder(WorkOrder workOrder, order order, IList<ScheduleOfRatesModel> sorCodes, PropertyAlertList locationAlerts, PersonAlertList personAlertList)
         {
             order.primaryOrderNumber.Should().Be(workOrder.Id.ToString(CultureInfo.InvariantCulture));
             order.status.Should().Be(orderStatus.PLANNED);
@@ -121,7 +146,11 @@ namespace RepairsApi.Tests.V2.Services
             order.contactName.Should().Be(workOrder.Customer.Name);
             order.phone.Should().Be(workOrder.Customer.Person.Communication.GetPhoneNumber());
 
-            ValidateLocation(workOrder, locationAlerts, order.theLocation);
+            var expectedExtendedComments = $"--- Property Alerts ---{locationAlerts.Alerts.ToDescriptionString()}{Environment.NewLine}" +
+                                           $"--- Person Alerts ---{personAlertList.Alerts.ToDescriptionString()}";
+            order.orderCommentsExtended.Should().Be(expectedExtendedComments);
+
+            ValidateLocation(workOrder, order.theLocation);
             ValidateBookings(workOrder, sorCodes, order.theBookingCodes);
             ValidateTargetDate(workOrder.WorkPriority.RequiredCompletionDateTime!.Value, order.targetDate);
         }
@@ -163,7 +192,7 @@ namespace RepairsApi.Tests.V2.Services
             booking.standardMinuteValue.Should().Be(sorCode.StandardMinuteValue.ToString());
         }
 
-        private static void ValidateLocation(WorkOrder workOrder, PropertyAlertList locationAlerts, location location)
+        private static void ValidateLocation(WorkOrder workOrder, location location)
         {
             location.locationId.Should().Be(workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference);
             location.name.Should().Be(workOrder.Site.Name);
@@ -171,12 +200,6 @@ namespace RepairsApi.Tests.V2.Services
             location.postCode.Should().Be(workOrder.Site.PropertyClass.FirstOrDefault()?.Address.PostalCode);
             location.contract.Should().Be(workOrder.AssignedToPrimary.ContractorReference);
             location.citizensName.Should().Be(workOrder.Customer.Name);
-            location.theLocationLines.Should().BeEquivalentTo<locationLine>(locationAlerts.Alerts.Select(a => new locationLine
-            {
-                citizensName = workOrder.Customer.Name,
-                lineCode = a.AlertCode,
-                lineDescription = a.Description
-            }).ToArray());
         }
     }
 }

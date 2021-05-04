@@ -19,16 +19,19 @@ namespace RepairsApi.V2.Services
     {
         private readonly IScheduleOfRatesGateway _sorGateway;
         private readonly IAlertsGateway _alertsGateway;
+        private readonly ITenancyGateway _tenancyGateway;
         private readonly ISorPriorityGateway _sorPriorityGateway;
 
         public DrsMapping(
             IScheduleOfRatesGateway sorGateway,
             IAlertsGateway alertsGateway,
+            ITenancyGateway tenancyGateway,
             ISorPriorityGateway sorPriorityGateway
         )
         {
             _sorGateway = sorGateway;
             _alertsGateway = alertsGateway;
+            _tenancyGateway = tenancyGateway;
             _sorPriorityGateway = sorPriorityGateway;
         }
 
@@ -48,7 +51,11 @@ namespace RepairsApi.V2.Services
         private async Task<order> CreateOrder(WorkOrder workOrder)
         {
             var property = workOrder.Site?.PropertyClass.FirstOrDefault();
-            var locationAlerts = property != null ? await _alertsGateway.GetLocationAlertsAsync(property?.PropertyReference) : null;
+            var locationAlerts = property != null ? await _alertsGateway.GetLocationAlertsAsync(property.PropertyReference) : null;
+            var tenureInfo = property != null ? await _tenancyGateway.GetTenancyInformationAsync(property.PropertyReference) : null;
+            var personAlerts = tenureInfo != null ? await _alertsGateway.GetPersonAlertsAsync(tenureInfo.TenancyAgreementReference) : null;
+            var orderCommentsExtended = $"--- Property Alerts ---{locationAlerts?.Alerts.ToDescriptionString()}{Environment.NewLine}" +
+                                        $"--- Person Alerts ---{personAlerts?.Alerts.ToDescriptionString()}";
 
             char priorityCharacter = workOrder.WorkPriority.PriorityCode.HasValue
                 ? await _sorPriorityGateway.GetLegacyPriorityCode(workOrder.WorkPriority.PriorityCode.Value)
@@ -70,6 +77,7 @@ namespace RepairsApi.V2.Services
                 userId = workOrder.AgentEmail ?? workOrder.AgentName,
                 contactName = workOrder.Customer.Name,
                 phone = workOrder.Customer.Person.Communication.GetPhoneNumber(),
+                orderCommentsExtended = orderCommentsExtended,
                 theLocation = new location
                 {
                     locationId = workOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference,
@@ -77,13 +85,7 @@ namespace RepairsApi.V2.Services
                     address1 = workOrder.Site?.PropertyClass.FirstOrDefault()?.Address.AddressLine,
                     postCode = workOrder.Site?.PropertyClass.FirstOrDefault()?.Address.PostalCode,
                     contract = workOrder.AssignedToPrimary.ContractorReference,
-                    citizensName = workOrder.Customer.Name,
-                    theLocationLines = locationAlerts?.Alerts.Select(a => new locationLine
-                    {
-                        citizensName = workOrder.Customer.Name,
-                        lineCode = a.AlertCode,
-                        lineDescription = a.Description
-                    }).ToArray<locationLine>()
+                    citizensName = workOrder.Customer.Name
                 },
                 theBookingCodes = await BuildBookingCodes(workOrder),
             };
