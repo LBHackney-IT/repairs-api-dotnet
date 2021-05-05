@@ -63,7 +63,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(CreateOrderResult), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType(typeof(string))]
-        [Authorize(Roles = UserGroups.Agent + "," + UserGroups.ContractManager)]
+        [Authorize(Roles = UserGroups.Agent + "," + UserGroups.ContractManager + "," + UserGroups.AuthorisationManager)]
         public async Task<IActionResult> ScheduleRepair([FromBody] ScheduleRepair request)
         {
             var result = await _createWorkOrderUseCase.Execute(request.ToDb());

@@ -77,6 +77,7 @@ namespace RepairsApi.Tests
                 new SecurityGroup { GroupName = UserGroups.ContractManager, UserType = UserGroups.ContractManager },
                 new SecurityGroup { GroupName = UserGroups.Contractor, UserType = UserGroups.Contractor, ContractorReference = "contractor" },
                 new SecurityGroup { GroupName = UserGroups.AuthorisationManager, UserType = UserGroups.AuthorisationManager },
+                new SecurityGroup { GroupName = UserGroups.AuthorisationManager, UserType = UserGroups.Agent },
 
                 new SecurityGroup { GroupName = "raise50", RaiseLimit = 50 },
                 new SecurityGroup { GroupName = "raise100", RaiseLimit = 100 },
