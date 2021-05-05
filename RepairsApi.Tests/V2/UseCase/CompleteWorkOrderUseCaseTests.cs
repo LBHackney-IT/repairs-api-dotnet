@@ -53,23 +53,34 @@ namespace RepairsApi.Tests.V2.UseCase
                 .AddWorkOrderGenerators();
         }
 
-        [Test]
-        public async Task CanCompleteWorkOrder()
+        [TestCase(0)]
+        [TestCase(2)]
+        [TestCase(3)]
+        public async Task ThrowsNotSupportedWhenNot1Update(int updatecount)
         {
-            // arrange
             var expectedWorkOrder = CreateWorkOrder();
+
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
+            workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>();
 
-            // act
-            await _classUnderTest.Execute(workOrderCompleteRequest);
+            for (int i = 0; i < updatecount; i++)
+            {
+                workOrderCompleteRequest.JobStatusUpdates.Add(
+                                    new Generated.JobStatusUpdates
+                                    {
+                                        TypeCode = Generated.JobStatusUpdateTypeCode._0,
+                                        OtherType = CustomJobStatusUpdates.Completed,
+                                        Comments = "expectedComment"
+                                    });
+            }
 
-            var lastWorkOrderComplete = _workOrderCompletionGatewayMock.LastWorkOrderComplete;
-            lastWorkOrderComplete.Should().NotBeNull();
-            lastWorkOrderComplete.WorkOrder.Should().BeEquivalentTo(expectedWorkOrder);
+            Func<Task> testFn = () => _classUnderTest.Execute(workOrderCompleteRequest);
+
+            await testFn.Should().ThrowAsync<NotSupportedException>();
         }
 
         [Test]
-        public async Task CanCompleteWorkOrderWithJobStatusUpdates()
+        public async Task CanCompleteWorkOrder()
         {
             // arrange
             var expectedWorkOrder = CreateWorkOrder();

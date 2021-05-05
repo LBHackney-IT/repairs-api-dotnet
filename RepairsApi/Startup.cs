@@ -188,6 +188,7 @@ namespace RepairsApi
             services.Configure<GatewayOptions>(Configuration.GetSection(nameof(GatewayOptions)));
             services.Configure<DrsOptions>(Configuration.GetSection(nameof(DrsOptions)));
             services.Configure<FilterConfiguration>(Configuration.GetSection(nameof(FilterConfiguration)));
+            services.Configure<NotifyOptions>(Configuration.GetSection(nameof(NotifyOptions)));
 
             RegisterGateways(services);
             RegisterUseCases(services);
@@ -201,9 +202,11 @@ namespace RepairsApi
             services.AddScoped<ICurrentUserLoader>(sp => sp.GetService<CurrentUserService>());
             services.AddTransient<ITransactionManager, TransactionManager>();
             services.AddSingleton<IAuthenticationService, ChallengeOnlyAuthenticationService>();
+            services.AddTransient<IGovUKNotifyWrapper, GovUKNotifyWrapper>();
             services.AddFeatureManagement();
             services.AddFilteringConfig();
             ConfigureDRSSoap(services);
+            services.AddTransient(typeof(Lazy<>), typeof(LazyWrapper<>));
 
             AddNotificationHandlers(services);
         }
@@ -218,8 +221,8 @@ namespace RepairsApi
         private static void AddNotificationHandlers(IServiceCollection services)
         {
             services.AddTransient<INotifier, Notifier>();
-            services.AddTransient<INotificationHandler<WorkOrderOpened>, DRSNotificationHandler>();
-            services.AddTransient<INotificationHandler<WorkOrderCancelled>, DRSNotificationHandler>();
+
+            services.AddTransients(typeof(Notifier), typeof(INotificationHandler<>));
         }
 
         private static void RegisterGateways(IServiceCollection services)
