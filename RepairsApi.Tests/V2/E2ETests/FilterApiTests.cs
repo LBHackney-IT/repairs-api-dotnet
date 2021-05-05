@@ -19,6 +19,8 @@ namespace RepairsApi.Tests.V2.Controllers
 
             code.Should().Be(HttpStatusCode.OK);
             result.Should().NotBeEmpty();
+            result["Trades"].Should().NotBeEmpty();
+            result["Contractors"].Should().NotBeEmpty();
         }
     }
 }

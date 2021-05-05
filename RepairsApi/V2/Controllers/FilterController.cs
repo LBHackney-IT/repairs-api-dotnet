@@ -2,8 +2,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using RepairsApi.V2.Configuration;
+using RepairsApi.V2.UseCase;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -13,11 +15,11 @@ namespace RepairsApi.V2.Controllers
     [ApiVersion("2.0")]
     public class FilterController : Controller
     {
-        private readonly FilterConfiguration _options;
+        private readonly IGetFilterUseCase _getFilterUseCase;
 
-        public FilterController(IOptions<FilterConfiguration> options)
+        public FilterController(IGetFilterUseCase getFilterUseCase)
         {
-            _options = options.Value;
+            _getFilterUseCase = getFilterUseCase;
         }
 
         [HttpGet]
@@ -25,16 +27,9 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ModelFilterConfiguration), StatusCodes.Status200OK)]
         [ProducesDefaultResponseType]
-        public IActionResult GetFilterInformation([Required] string modelName)
+        public async Task<IActionResult> GetFilterInformationAsync([Required] string modelName)
         {
-            if (_options.TryGetValue(modelName, out var config))
-            {
-                return Ok(config);
-            }
-            else
-            {
-                return NotFound($"No filter configuration set up for {modelName}");
-            }
+            return Ok(await _getFilterUseCase.Execute(modelName));
         }
     }
 }
