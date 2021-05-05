@@ -186,7 +186,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             var (code, response) = await Get<RepairsApi.V2.Boundary.WorkOrderResponse>($"/api/v2/workOrders/{result.Id}");
             code.Should().Be(HttpStatusCode.OK);
             response.TradeDescription.Should().Be(tradeName);
-            response.ContractorName.Should().Be(contractor);
+            response.Owner.Should().Be(contractor);
         }
 
         [Test]
