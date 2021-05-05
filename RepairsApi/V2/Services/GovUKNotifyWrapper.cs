@@ -14,7 +14,7 @@ namespace RepairsApi.V2.Services
         private readonly NotifyOptions _options;
         private readonly ILogger _logger;
 
-        public GovUKNotifyWrapper(IOptions<NotifyOptions> options, ILogger logger)
+        public GovUKNotifyWrapper(IOptions<NotifyOptions> options, ILogger<GovUKNotifyWrapper> logger)
         {
             _options = options.Value;
             _logger = logger;

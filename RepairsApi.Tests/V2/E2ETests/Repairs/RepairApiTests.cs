@@ -30,10 +30,12 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             SetUserRole(UserGroups.Agent);
         }
 
-        [Test]
-        public async Task ScheduleRepair()
+        [TestCase(UserGroups.Agent)]
+        [TestCase(UserGroups.AuthorisationManager)]
+        public async Task ScheduleRepair(string userGroup)
         {
             // Arrange
+            SetUserRole(userGroup);
             var request = GenerateWorkOrder<ScheduleRepair>()
                 .AddValue(new List<double> { 1 }, (RateScheduleItem rsi) => rsi.Quantity.Amount)
                 .Generate();
