@@ -95,8 +95,7 @@ namespace RepairsApi.V2.UseCase
                     await _notifier.Notify(new WorkOrderCompleted(workOrder, update));
                     break;
                 case CustomJobStatusUpdates.Cancelled:
-                    if (!_currentUserService.HasGroup(UserGroups.Agent) &&
-                        !_currentUserService.HasGroup(UserGroups.ContractManager))
+                    if (!_currentUserService.HasAnyGroup(UserGroups.Agent, UserGroups.ContractManager, UserGroups.AuthorisationManager))
                         throw new UnauthorizedAccessException("Not Authorised to cancel jobs");
 
                     await _repairsGateway.UpdateWorkOrderStatus(workOrder.Id, WorkStatusCode.Canceled);
