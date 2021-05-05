@@ -145,7 +145,6 @@ namespace RepairsApi.V2.Factories
                 Status = workOrder.GetStatus(),
                 Action = workOrder.GetAction(),
                 ContractorReference = workOrder.AssignedToPrimary?.ContractorReference,
-                ContractorName = workOrder.AssignedToPrimary?.Name,
                 TradeCode = workOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomCode,
                 TradeDescription = workOrder.WorkElements.FirstOrDefault()?.Trade.FirstOrDefault()?.CustomName,
                 Appointment = appointment is null ? null : new AppointmentResponse
