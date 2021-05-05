@@ -146,9 +146,8 @@ namespace RepairsApi.Tests.V2.Services
             order.contactName.Should().Be(workOrder.Customer.Name);
             order.phone.Should().Be(workOrder.Customer.Person.Communication.GetPhoneNumber());
 
-            var expectedExtendedComments = $"--- Property Alerts ---{locationAlerts.Alerts.ToDescriptionString()}{Environment.NewLine}" +
-                                           $"--- Person Alerts ---{personAlertList.Alerts.ToDescriptionString()}";
-            order.orderCommentsExtended.Should().Be(expectedExtendedComments);
+            order.orderCommentsExtended.Should().Contain(locationAlerts.Alerts.ToDescriptionString());
+            order.orderCommentsExtended.Should().Contain(personAlertList.Alerts.ToDescriptionString());
 
             ValidateLocation(workOrder, order.theLocation);
             ValidateBookings(workOrder, sorCodes, order.theBookingCodes);

@@ -15,7 +15,7 @@ namespace RepairsApi.V2.Helpers
 
             foreach (var alert in alerts)
             {
-                result += $"{Environment.NewLine}{alert.ToString()})";
+                result += $" - {alert.ToString()})";
             }
 
             return result;

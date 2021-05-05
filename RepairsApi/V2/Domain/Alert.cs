@@ -8,8 +8,7 @@ namespace RepairsApi.V2.Domain
         public string StartDate { get; set; }
         public override string ToString()
         {
-            // return $"{AlertCode} - {Description} ({StartDate} - {EndDate})";
-            return $"{AlertCode}";
+            return $"{AlertCode}: {Description} [{StartDate} - {EndDate}]";
         }
     }
 }
