@@ -24,7 +24,7 @@ namespace RepairsApi.V2.UseCase
                 _ => throw new ResourceNotFoundException($"No filter configuration set up for {modelName}")
             };
 
-            return provider.GetFilter();
+            return provider?.GetFilter();
         }
     }
 }
