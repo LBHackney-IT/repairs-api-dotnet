@@ -1,5 +1,6 @@
 using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 using System;
@@ -25,12 +26,10 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             var workOrderId = int.Parse(jobStatusUpdate.RelatedWorkOrderReference.ID);
 
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
+            workOrder.VerifyCanRejectVariation();
 
-            if (!_currentUserService.HasGroup(UserGroups.CONTRACT_MANAGER))
-                throw new UnauthorizedAccessException("You do not have the correct permissions for this action");
-
-            if (workOrder.StatusCode != WorkStatusCode.PendApp)
-                throw new NotSupportedException("This action is not permitted");
+            if (!_currentUserService.HasGroup(UserGroups.ContractManager))
+                throw new UnauthorizedAccessException(Resources.InvalidPermissions);
 
             workOrder.StatusCode = WorkStatusCode.VariationRejected;
             await _repairsGateway.SaveChangesAsync();

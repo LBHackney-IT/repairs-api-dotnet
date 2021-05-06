@@ -1,12 +1,12 @@
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using RepairsApi.V2.Authorisation;
-using JobStatusUpdate = RepairsApi.V2.Infrastructure.JobStatusUpdate;
+using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
-using RepairsApi.V2.Generated;
-using Microsoft.EntityFrameworkCore;
-using RepairsApi.V2.Exceptions;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using JobStatusUpdateTypeCode = RepairsApi.V2.Generated.JobStatusUpdateTypeCode;
 
 namespace RepairsApi.V2.Gateways
 {
@@ -31,16 +31,16 @@ namespace RepairsApi.V2.Gateways
             return update.Id;
         }
 
-        public async Task<JobStatusUpdate> SelectLastJobStatusUpdate(JobStatusUpdateTypeCode typeCode, int workOrderId)
+        public async Task<JobStatusUpdate> GetOutstandingVariation(int workOrderId)
         {
-            var jobStatusUpdate = await _repairsContext.JobStatusUpdates.Where(s => (int) s.TypeCode == (int) typeCode)
+            var jobStatusUpdate = await _repairsContext.JobStatusUpdates.Where(s => (int) s.TypeCode == (int) JobStatusUpdateTypeCode._180)
                 .Where(s => s.RelatedWorkOrder.Id == workOrderId)
                 .OrderByDescending(s => s.EventTime)
                 .FirstOrDefaultAsync();
 
             if (jobStatusUpdate is null)
             {
-                throw new ResourceNotFoundException($"Unable to locate jobstatus update for work order {workOrderId} with {typeCode}");
+                throw new ResourceNotFoundException($"Unable to locate outstanding variation for work order {workOrderId}");
             }
 
             return jobStatusUpdate;

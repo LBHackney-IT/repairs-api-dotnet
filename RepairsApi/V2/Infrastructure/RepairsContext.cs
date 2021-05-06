@@ -90,6 +90,13 @@ namespace RepairsApi.V2.Infrastructure
                     .WithMany()
                     .HasForeignKey(wp => wp.PriorityCode);
 
+            modelBuilder.Entity<SecurityGroup>()
+                .HasIndex(sg => sg.GroupName)
+                .IsUnique(false);
+
+            modelBuilder.Entity<SecurityGroup>()
+                .Property(sg => sg.GroupName)
+                .IsRequired();
         }
     }
 }

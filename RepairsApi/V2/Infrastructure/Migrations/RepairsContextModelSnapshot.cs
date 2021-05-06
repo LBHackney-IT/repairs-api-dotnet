@@ -311,6 +311,10 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("name");
 
+                    b.Property<bool>("UseExternalScheduleManager")
+                        .HasColumnType("boolean")
+                        .HasColumnName("use_external_schedule_manager");
+
                     b.HasKey("Reference")
                         .HasName("pk_contractors");
 
@@ -885,13 +889,20 @@ namespace RepairsApi.V2.Infrastructure.Migrations
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.SecurityGroup", b =>
                 {
-                    b.Property<string>("GroupName")
-                        .HasColumnType("text")
-                        .HasColumnName("group_name");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<string>("ContractorReference")
                         .HasColumnType("text")
                         .HasColumnName("contractor_reference");
+
+                    b.Property<string>("GroupName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("group_name");
 
                     b.Property<double?>("RaiseLimit")
                         .HasColumnType("double precision")
@@ -905,8 +916,11 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasColumnType("double precision")
                         .HasColumnName("vary_limit");
 
-                    b.HasKey("GroupName")
+                    b.HasKey("Id")
                         .HasName("pk_security_groups");
+
+                    b.HasIndex("GroupName")
+                        .HasDatabaseName("ix_security_groups_group_name");
 
                     b.ToTable("security_groups");
                 });

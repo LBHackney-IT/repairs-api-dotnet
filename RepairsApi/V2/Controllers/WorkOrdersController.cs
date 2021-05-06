@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using RepairsApi.V2.Authorisation;
 using Microsoft.FeatureManagement;
+using RepairsApi.V2.UseCase;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -21,9 +22,8 @@ namespace RepairsApi.V2.Controllers
     [Route("/api/v2/workOrders")]
     [Produces("application/json")]
     [ApiVersion("2.0")]
-    public class WorkOrdersController : Controller
+    public partial class WorkOrdersController : Controller
     {
-        private readonly IAuthorizationService _authorizationService;
         private readonly ICreateWorkOrderUseCase _createWorkOrderUseCase;
         private readonly IListWorkOrdersUseCase _listWorkOrdersUseCase;
         private readonly ICompleteWorkOrderUseCase _completeWorkOrderUseCase;
@@ -31,10 +31,9 @@ namespace RepairsApi.V2.Controllers
         private readonly IGetWorkOrderUseCase _getWorkOrderUseCase;
         private readonly IListWorkOrderTasksUseCase _listWorkOrderTasksUseCase;
         private readonly IListWorkOrderNotesUseCase _listWorkOrderNotesUseCase;
-        private readonly IFeatureManager _featureManager;
+        private readonly IListVariationTasksUseCase _listVariationTasksUseCase;
 
         public WorkOrdersController(
-            IAuthorizationService authorizationService,
             ICreateWorkOrderUseCase createWorkOrderUseCase,
             IListWorkOrdersUseCase listWorkOrdersUseCase,
             ICompleteWorkOrderUseCase completeWorkOrderUseCase,
@@ -42,9 +41,8 @@ namespace RepairsApi.V2.Controllers
             IGetWorkOrderUseCase getWorkOrderUseCase,
             IListWorkOrderTasksUseCase listWorkOrderTasksUseCase,
             IListWorkOrderNotesUseCase listWorkOrderNotesUseCase,
-            IFeatureManager featureManager)
+            IListVariationTasksUseCase listVariationTasksUseCase)
         {
-            _authorizationService = authorizationService;
             _createWorkOrderUseCase = createWorkOrderUseCase;
             _listWorkOrdersUseCase = listWorkOrdersUseCase;
             _completeWorkOrderUseCase = completeWorkOrderUseCase;
@@ -52,7 +50,7 @@ namespace RepairsApi.V2.Controllers
             _getWorkOrderUseCase = getWorkOrderUseCase;
             _listWorkOrderTasksUseCase = listWorkOrderTasksUseCase;
             _listWorkOrderNotesUseCase = listWorkOrderNotesUseCase;
-            _featureManager = featureManager;
+            _listVariationTasksUseCase = listVariationTasksUseCase;
         }
 
         /// <summary>
@@ -62,24 +60,14 @@ namespace RepairsApi.V2.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("schedule")]
-        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CreateOrderResult), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        [ProducesDefaultResponseType]
-        [Authorize(Roles = UserGroups.AGENT + "," + UserGroups.CONTRACT_MANAGER)]
+        [ProducesDefaultResponseType(typeof(string))]
+        [Authorize(Roles = UserGroups.Agent + "," + UserGroups.ContractManager + "," + UserGroups.AuthorisationManager)]
         public async Task<IActionResult> ScheduleRepair([FromBody] ScheduleRepair request)
         {
-            try
-            {
-                var authorised = await _authorizationService.AuthorizeAsync(User, request, "RaiseSpendLimit");
-                if (await _featureManager.IsEnabledAsync(FeatureFlags.SPENDLIMITS) && !authorised.Succeeded) return Unauthorized("Request Work Order is above Spend Limit");
-
-                var result = await _createWorkOrderUseCase.Execute(request.ToDb());
-                return Ok(result);
-            }
-            catch (NotSupportedException e)
-            {
-                return BadRequest(e.Message);
-            }
+            var result = await _createWorkOrderUseCase.Execute(request.ToDb());
+            return Ok(result);
         }
 
         /// <summary>
@@ -99,18 +87,16 @@ namespace RepairsApi.V2.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [Route("{id}")]
+        [Route("{id:int}")]
         [HttpGet]
         [ProducesResponseType(typeof(WorkOrderResponse), 200)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Get(int id)
         {
-            WorkOrderResponse workOrderResponse;
-
             try
             {
-                workOrderResponse = await _getWorkOrderUseCase.Execute(id);
+                WorkOrderResponse workOrderResponse = await _getWorkOrderUseCase.Execute(id);
                 return Ok(workOrderResponse);
             }
             catch (ResourceNotFoundException ex)
@@ -147,42 +133,10 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-
         public async Task<IActionResult> JobStatusUpdate([FromBody] JobStatusUpdate request)
         {
             await _updateJobStatusUseCase.Execute(request);
             return Ok();
-        }
-
-        /// <summary>
-        /// Gets a list of tasks for a given work order id
-        /// </summary>
-        /// <param name="id">work order id</param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("{id}/tasks")]
-        [ProducesResponseType(typeof(IEnumerable<WorkOrderItemViewModel>), 200)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(400)]
-        public async Task<IActionResult> ListWorkOrderTasks(int id)
-        {
-            var result = await _listWorkOrderTasksUseCase.Execute(id);
-            return Ok(result.ToResponse());
-        }
-
-        /// <summary>
-        /// Gets a list of notes for a given work order id
-        /// </summary>
-        /// <param name="id">work order id</param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("{id}/notes")]
-        [ProducesResponseType(typeof(IEnumerable<NoteListItem>), 200)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> ListWorkOrderNotes(int id)
-        {
-            var result = await _listWorkOrderNotesUseCase.Execute(id);
-            return Ok(result);
         }
     }
 

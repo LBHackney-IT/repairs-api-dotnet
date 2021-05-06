@@ -2,6 +2,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using RepairsApi.V2.Configuration;
 using RepairsApi.V2.Controllers;
+using RepairsApi.V2.Filtering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,8 @@ namespace RepairsApi.Tests.V2.Controllers
 
             code.Should().Be(HttpStatusCode.OK);
             result.Should().NotBeEmpty();
+            result[FilterSectionConstants.Trades].Should().NotBeEmpty();
+            result[FilterSectionConstants.Contractors].Should().NotBeEmpty();
         }
     }
 }

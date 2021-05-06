@@ -7,9 +7,14 @@ using RepairsApi.V2.UseCase.Interfaces;
 using System.Threading.Tasks;
 using Microsoft.FeatureManagement;
 using RepairsApi.V2.Domain;
-using RepairsApi.V2.MiddleWare;
 using RepairsApi.V2.Services;
 using RepairsApi.V2.Authorisation;
+using RepairsApi.V2.Infrastructure.Extensions;
+using RepairsApi.V2.Notifications;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
+using RepairsApi.V2.Helpers;
 
 namespace RepairsApi.V2.UseCase
 {
@@ -19,42 +24,84 @@ namespace RepairsApi.V2.UseCase
         private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
         private readonly ILogger<CreateWorkOrderUseCase> _logger;
         private readonly ICurrentUserService _currentUserService;
-        private readonly IDrsService _drsService;
+        private readonly IAuthorizationService _authorizationService;
         private readonly IFeatureManager _featureManager;
+        private readonly INotifier _notifier;
+        private readonly IOptions<DrsOptions> _drsOptions;
 
         public CreateWorkOrderUseCase(
             IRepairsGateway repairsGateway,
             IScheduleOfRatesGateway scheduleOfRatesGateway,
             ILogger<CreateWorkOrderUseCase> logger,
             ICurrentUserService currentUserService,
-            IDrsService drsService,
-            IFeatureManager featureManager
+            IAuthorizationService authorizationService,
+            IFeatureManager featureManager,
+            INotifier notifier,
+            IOptions<DrsOptions> drsOptions
             )
         {
             _repairsGateway = repairsGateway;
             _scheduleOfRatesGateway = scheduleOfRatesGateway;
             _logger = logger;
             _currentUserService = currentUserService;
-            _drsService = drsService;
+            _authorizationService = authorizationService;
             _featureManager = featureManager;
+            _notifier = notifier;
+            _drsOptions = drsOptions;
         }
 
-        public async Task<int> Execute(WorkOrder workOrder)
+        public async Task<CreateOrderResult> Execute(WorkOrder workOrder)
         {
             ValidateRequest(workOrder);
             AttachUserInformation(workOrder);
             workOrder.DateRaised = DateTime.UtcNow;
-            workOrder.StatusCode = WorkStatusCode.Open;
+
+            await SetStatus(workOrder);
 
             await PopulateRateScheduleItems(workOrder);
             var id = await _repairsGateway.CreateWorkOrder(workOrder);
             _logger.LogInformation(Resources.CreatedWorkOrder);
 
-            if (await _featureManager.IsEnabledAsync(FeatureFlags.DRSINTEGRATION))
+            var notification = await NotifyHandlers(workOrder);
+            var result = new CreateOrderResult(id, workOrder.StatusCode, workOrder.GetStatus());
+
+            if (await workOrder.ContractorUsingDrs(_scheduleOfRatesGateway))
             {
-                await _drsService.CreateOrder(workOrder);
+                result.ExternallyManagedAppointment = true;
+                var managementUri = new UriBuilder(_drsOptions.Value.ManagementAddress);
+                managementUri.Port = -1;
+                managementUri.Query = $"tokenId={notification.TokenId}";
+                result.ExternalAppointmentManagementUrl = managementUri.Uri;
             }
-            return id;
+
+            return result;
+        }
+
+        private async Task<WorkOrderOpened> NotifyHandlers(WorkOrder workOrder)
+        {
+            if (workOrder.StatusCode != WorkStatusCode.Open)
+            {
+                return null;
+            }
+
+            var notification = new WorkOrderOpened(workOrder);
+            await _notifier.Notify(notification);
+
+            return notification;
+        }
+
+        private async Task SetStatus(WorkOrder workOrder)
+        {
+            var user = _currentUserService.GetUser();
+            var authorised = await _authorizationService.AuthorizeAsync(user, workOrder, "RaiseSpendLimit");
+            if (await _featureManager.IsEnabledAsync(FeatureFlags.SpendLimits) && !authorised.Succeeded)
+            {
+                workOrder.StatusCode = WorkStatusCode.PendingApproval;
+            }
+            else
+            {
+                workOrder.StatusCode = WorkStatusCode.Open;
+            }
         }
 
         private void AttachUserInformation(WorkOrder workOrder)

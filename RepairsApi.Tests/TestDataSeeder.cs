@@ -13,9 +13,11 @@ namespace RepairsApi.Tests
     public static class TestDataSeeder
     {
         public const string ContractReference = "contract";
+        public const string DRSContractReference = "DRScontract";
         public const string SorCode = "code";
         public const string PropRef = "propref";
         public const string Contractor = "contractor";
+        public const string DRSContractor = "DRScontractor";
         public const string Agent = "agent";
         public const string Trade = "trade";
         public const string Priority = "priority";
@@ -71,9 +73,11 @@ namespace RepairsApi.Tests
         {
             ctx.SecurityGroups.AddRange(new List<SecurityGroup>
             {
-                new SecurityGroup { GroupName = "agent", UserType = UserGroups.AGENT },
-                new SecurityGroup { GroupName = "contract manager", UserType = UserGroups.CONTRACT_MANAGER },
-                new SecurityGroup { GroupName = "contractor", UserType = UserGroups.CONTRACTOR, ContractorReference = "contractor" },
+                new SecurityGroup { GroupName = UserGroups.Agent, UserType = UserGroups.Agent },
+                new SecurityGroup { GroupName = UserGroups.ContractManager, UserType = UserGroups.ContractManager },
+                new SecurityGroup { GroupName = UserGroups.Contractor, UserType = UserGroups.Contractor, ContractorReference = "contractor" },
+                new SecurityGroup { GroupName = UserGroups.AuthorisationManager, UserType = UserGroups.AuthorisationManager },
+                new SecurityGroup { GroupName = UserGroups.AuthorisationManager, UserType = UserGroups.Agent },
 
                 new SecurityGroup { GroupName = "raise50", RaiseLimit = 50 },
                 new SecurityGroup { GroupName = "raise100", RaiseLimit = 100 },
@@ -110,6 +114,12 @@ namespace RepairsApi.Tests
                 SorCodeCode = SorCode,
                 Cost = 1
             });
+            ctx.Set<SORContract>().Add(new SORContract
+            {
+                ContractReference = DRSContractReference,
+                SorCodeCode = SorCode,
+                Cost = 1
+            });
         }
 
         private static void SeedPropertyMap(RepairsContext ctx)
@@ -126,6 +136,11 @@ namespace RepairsApi.Tests
             ctx.Set<PropertyContract>().Add(new PropertyContract
             {
                 ContractReference = ContractReference,
+                PropRef = PropRef
+            });
+            ctx.Set<PropertyContract>().Add(new PropertyContract
+            {
+                ContractReference = DRSContractReference,
                 PropRef = PropRef
             });
         }
@@ -150,6 +165,13 @@ namespace RepairsApi.Tests
                 EffectiveDate = DateTime.UtcNow.AddDays(-1),
                 TerminationDate = DateTime.UtcNow.AddDays(1),
             });
+            ctx.Set<Contract>().Add(new Contract
+            {
+                ContractorReference = DRSContractor,
+                ContractReference = DRSContractReference,
+                EffectiveDate = DateTime.UtcNow.AddDays(-1),
+                TerminationDate = DateTime.UtcNow.AddDays(1),
+            });
         }
 
         private static void SeedContractors(RepairsContext ctx)
@@ -163,7 +185,14 @@ namespace RepairsApi.Tests
             ctx.Set<Contractor>().Add(new Contractor
             {
                 Name = Contractor,
-                Reference = Contractor
+                Reference = Contractor,
+                UseExternalScheduleManager = false
+            });
+            ctx.Set<Contractor>().Add(new Contractor
+            {
+                Name = DRSContractor,
+                Reference = DRSContractor,
+                UseExternalScheduleManager = true
             });
         }
 

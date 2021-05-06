@@ -47,7 +47,7 @@ namespace RepairsApi.V2.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = UserGroups.AGENT + "," + UserGroups.CONTRACT_MANAGER)]
+        [Authorize(Roles = UserGroups.Agent + "," + UserGroups.ContractManager + "," + UserGroups.AuthorisationManager)]
         public async Task<IActionResult> ListRecords([FromQuery][Required] string tradeCode, [FromQuery][Required] string propertyReference, [FromQuery][Required] string contractorReference)
         {
             return Ok(await _listScheduleOfRates.Execute(tradeCode, propertyReference, contractorReference));
@@ -65,10 +65,10 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = UserGroups.CONTRACTOR + "," + UserGroups.CONTRACT_MANAGER)]
+        [Authorize(Roles = UserGroups.Contractor + "," + UserGroups.ContractManager)]
         public async Task<IActionResult> GetSorCode([Required] string sorCode, [FromQuery][Required] string propertyReference)
         {
-            var contractorReference = User.FindFirst(CustomClaimTypes.CONTRACTOR).Value;
+            var contractorReference = User.FindFirst(CustomClaimTypes.Contractor).Value;
 
             return Ok(await _scheduleOfRatesGateway.GetCode(sorCode, propertyReference, contractorReference));
         }
@@ -92,7 +92,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(IEnumerable<SORPriority>), StatusCodes.Status200OK)]
         [HttpGet]
         [Route("priorities")]
-        [Authorize(Roles = UserGroups.AGENT + "," + UserGroups.CONTRACT_MANAGER)]
+        [Authorize(Roles = UserGroups.Agent + "," + UserGroups.ContractManager + "," + UserGroups.AuthorisationManager)]
         public async Task<IActionResult> ListPriorities()
         {
             return Ok(await _priorityGateway.GetPriorities());

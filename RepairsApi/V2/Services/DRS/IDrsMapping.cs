@@ -8,5 +8,6 @@ namespace RepairsApi.V2.Services
     public interface IDrsMapping
     {
         Task<createOrder> BuildCreateOrderRequest(string sessionId, WorkOrder workOrder);
+        Task<deleteOrder> BuildDeleteOrderRequest(string sessionId, WorkOrder workOrder);
     }
 }

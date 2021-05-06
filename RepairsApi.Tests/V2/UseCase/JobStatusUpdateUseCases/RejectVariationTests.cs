@@ -59,7 +59,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
                 Generated.JobStatusUpdateTypeCode._125);
 
-            _currentUserServiceMock.Setup(currentUser => currentUser.HasGroup(UserGroups.CONTRACT_MANAGER))
+            _currentUserServiceMock.Setup(currentUser => currentUser.HasGroup(UserGroups.ContractManager))
                 .Returns(true);
 
             Func<Task> fn = () => _classUnderTest.Execute(request);
@@ -71,11 +71,11 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         {
             const int desiredWorkOrderId = 42;
             var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
-            workOrder.StatusCode = WorkStatusCode.PendApp;
+            workOrder.StatusCode = WorkStatusCode.VariationPendingApproval;
             var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
                 Generated.JobStatusUpdateTypeCode._125);
 
-            _currentUserServiceMock.Setup(currentUser => currentUser.HasGroup(UserGroups.CONTRACT_MANAGER))
+            _currentUserServiceMock.Setup(currentUser => currentUser.HasGroup(UserGroups.ContractManager))
                 .Returns(true);
 
             await _classUnderTest.Execute(request);
