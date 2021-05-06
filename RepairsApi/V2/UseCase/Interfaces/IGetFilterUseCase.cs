@@ -1,4 +1,4 @@
-﻿using RepairsApi.V2.Configuration;
+using RepairsApi.V2.Configuration;
 using System.Threading.Tasks;
 
 namespace RepairsApi.V2.UseCase.Interfaces

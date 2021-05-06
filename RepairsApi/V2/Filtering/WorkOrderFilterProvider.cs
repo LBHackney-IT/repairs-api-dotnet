@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using RepairsApi.V2.Configuration;
 using RepairsApi.V2.Filtering;
 using RepairsApi.V2.Gateways;
@@ -26,8 +26,8 @@ namespace RepairsApi.V2.Filtering
             var trades = await _scheduleOfRatesGateway.GetTrades();
             var liveContractors = await _scheduleOfRatesGateway.GetLiveContractors();
 
-            filters[FilterSectionConstants.Trades] = new List<FilterOption>(trades.Select(t => new FilterOption { Key = t.Code, Description = t.Name}));
-            filters[FilterSectionConstants.Contractors] = new List<FilterOption>(liveContractors.Select(c => new FilterOption { Key = c.ContractorReference, Description = c.ContractorName}));
+            filters[FilterSectionConstants.Trades] = new List<FilterOption>(trades.Select(t => new FilterOption { Key = t.Code, Description = t.Name }));
+            filters[FilterSectionConstants.Contractors] = new List<FilterOption>(liveContractors.Select(c => new FilterOption { Key = c.ContractorReference, Description = c.ContractorName }));
 
             return filters;
         }

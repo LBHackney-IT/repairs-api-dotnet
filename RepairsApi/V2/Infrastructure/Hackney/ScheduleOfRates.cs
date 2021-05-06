@@ -46,7 +46,7 @@ namespace RepairsApi.V2.Infrastructure.Hackney
             this.Name = name;
         }
 
-        public SorCodeTrade() {}
+        public SorCodeTrade() { }
 
         [Key] public string Code { get; set; }
         public string Name { get; set; }

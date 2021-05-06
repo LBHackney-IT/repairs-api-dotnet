@@ -9,7 +9,7 @@ namespace RepairsApi.V2.Domain
             this.ContractorName = contractorName;
         }
 
-        public Contractor() {}
+        public Contractor() { }
 
         public string ContractorReference { get; set; }
         public string ContractorName { get; set; }
