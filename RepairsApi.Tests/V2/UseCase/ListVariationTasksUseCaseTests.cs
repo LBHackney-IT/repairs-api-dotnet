@@ -44,21 +44,23 @@ namespace RepairsApi.Tests.V2.UseCase
         }
 
         [Test]
-        public async Task GetsData()
+        public async Task GetsTasks()
         {
             const int originalQuantity = 25;
             const int currentQuantity = 10;
             const int updatedQuantity = 15;
             const int newQuantity = 5;
+            const string notes = "notes";
             Guid existingItemGuid = Guid.NewGuid();
             _repairsGatewayMock.Setup(g => g.GetWorkOrder(It.IsAny<int>())).ReturnsAsync(BuildWorkOrder(existingItemGuid, currentQuantity, originalQuantity));
-            _jobStatusUpdateGatewayMock.Setup(g => g.GetOutstandingVariation(It.IsAny<int>())).ReturnsAsync(BuildVariation(existingItemGuid, updatedQuantity, newQuantity));
+            _jobStatusUpdateGatewayMock.Setup(g => g.GetOutstandingVariation(It.IsAny<int>())).ReturnsAsync(BuildVariation(existingItemGuid, updatedQuantity, newQuantity, notes));
 
             var result = await _classUnderTest.Execute(15);
 
-            result.Should().HaveCount(2);
-            result.Should().ContainSingle(rsi => rsi.CurrentQuantity == currentQuantity && rsi.VariedQuantity == updatedQuantity && rsi.OriginalQuantity == originalQuantity);
-            result.Should().ContainSingle(rsi => rsi.CurrentQuantity == 0 && rsi.VariedQuantity == newQuantity);
+            result.Tasks.Should().HaveCount(2);
+            result.Tasks.Should().ContainSingle(rsi => rsi.CurrentQuantity == currentQuantity && rsi.VariedQuantity == updatedQuantity && rsi.OriginalQuantity == originalQuantity);
+            result.Tasks.Should().ContainSingle(rsi => rsi.CurrentQuantity == 0 && rsi.VariedQuantity == newQuantity);
+            result.Notes.Should().Be(notes);
         }
 
         private static WorkOrder BuildWorkOrder(Guid itemId, int currentQuantity, int originalQuantity)
@@ -86,10 +88,11 @@ namespace RepairsApi.Tests.V2.UseCase
             };
         }
 
-        private static JobStatusUpdate BuildVariation(Guid existingItemGuid, int updatedQuantity, int newQuantity)
+        private static JobStatusUpdate BuildVariation(Guid existingItemGuid, int updatedQuantity, int newQuantity, string notes)
         {
             return new JobStatusUpdate
             {
+                Comments = notes,
                 MoreSpecificSORCode = new WorkElement
                 {
                     RateScheduleItem = new List<RateScheduleItem>

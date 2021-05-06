@@ -25,7 +25,7 @@ namespace RepairsApi.V2.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("{id}/variation-tasks")]
-        [ProducesResponseType(typeof(IEnumerable<VariationTasksModel>), 200)]
+        [ProducesResponseType(typeof(IEnumerable<GetVariationResponse>), 200)]
         [ProducesResponseType(404)]
         [Authorize(Roles = UserGroups.ContractManager)]
         public async Task<IActionResult> GetWorkOrderVariations(int id)

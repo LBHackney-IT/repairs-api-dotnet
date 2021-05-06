@@ -1,10 +1,13 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace RepairsApi.V2.Boundary.Response
 {
+    public class GetVariationResponse
+    {
+        public string Notes { get; set; }
+        public IEnumerable<VariationTasksModel> Tasks { get; set; }
+    }
+
     public class VariationTasksModel
     {
         public string Id { get; set; }
