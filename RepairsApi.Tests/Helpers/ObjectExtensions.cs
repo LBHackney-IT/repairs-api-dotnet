@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace RepairsApi.Tests.Helpers
 {
@@ -8,6 +9,8 @@ namespace RepairsApi.Tests.Helpers
         {
             return JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(a));
         }
+
+        public static T[] MakeArray<T>(this T o) => new T[] { o };
 
         /// <summary>
         /// For Loading Navigation Properties in tests

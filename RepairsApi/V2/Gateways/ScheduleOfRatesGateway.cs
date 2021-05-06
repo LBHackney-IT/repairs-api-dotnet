@@ -21,6 +21,25 @@ namespace RepairsApi.V2.Gateways
             _context = context;
         }
 
+        public async Task<IEnumerable<SorCodeTrade>> GetTrades()
+        {
+            return await (
+                    from trade in _context.Trades
+                    where (
+                         from sor in _context.SORCodes
+                         join sorContract in _context.SORContracts on sor.Code equals sorContract.SorCodeCode
+                         join contract in _context.Contracts on sorContract.ContractReference equals contract.ContractReference
+                         where
+                        contract.EffectiveDate < DateTime.UtcNow && DateTime.UtcNow < contract.TerminationDate &&
+                        sor.Enabled
+                         select sor.TradeCode
+                    ).Contains(trade.Code)
+
+                    select trade
+                )
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<SorCodeTrade>> GetTrades(string propRef)
         {
             return await (
@@ -92,6 +111,17 @@ namespace RepairsApi.V2.Gateways
             return await _context.Contracts
                 .Where(c => c.Contractor.Reference == contractorReference)
                 .Select(c => c.ContractReference).ToListAsync();
+        }
+
+        public Task<IEnumerable<Contractor>> GetLiveContractors()
+        {
+            var contractors = _context.Contractors.Where(c => _context.SecurityGroups.Any(sg => sg.ContractorReference == c.Reference))
+                .Select(c => new Contractor
+                {
+                    ContractorName = c.Name,
+                    ContractorReference = c.Reference
+                });
+            return Task.FromResult(contractors.AsEnumerable());
         }
 
         public async Task<IEnumerable<Contractor>> GetContractors(string propertyRef, string tradeCode)

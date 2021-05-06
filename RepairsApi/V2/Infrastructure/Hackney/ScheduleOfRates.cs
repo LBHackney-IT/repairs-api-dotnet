@@ -40,6 +40,14 @@ namespace RepairsApi.V2.Infrastructure.Hackney
 
     public class SorCodeTrade
     {
+        public SorCodeTrade(string code, string name)
+        {
+            this.Code = code;
+            this.Name = name;
+        }
+
+        public SorCodeTrade() { }
+
         [Key] public string Code { get; set; }
         public string Name { get; set; }
     }
