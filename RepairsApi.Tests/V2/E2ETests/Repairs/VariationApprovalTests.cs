@@ -106,17 +106,19 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         {
             // Arrange
             const int newItemQuantity = 100000;
-            int workOrderId = await CreatePendingVariation(newItemQuantity);
+            const string Notes = "notes";
+            int workOrderId = await CreatePendingVariation(newItemQuantity, Notes);
 
             SetUserRole(UserGroups.ContractManager);
-            var (code, response) = await Get<List<VariationTasksModel>>($"/api/v2/workOrders/{workOrderId}/variation-tasks");
+            var (code, response) = await Get<GetVariationResponse>($"/api/v2/workOrders/{workOrderId}/variation-tasks");
 
             // Assert
-            response[1].VariedQuantity.Should().Be(newItemQuantity);
+            response.Tasks.ElementAt(1).VariedQuantity.Should().Be(newItemQuantity);
+            response.Notes.Should().Be(Notes);
             code.Should().Be(HttpStatusCode.OK);
         }
 
-        private async Task<int> CreatePendingVariation(int newItemQuantity = 100000000)
+        private async Task<int> CreatePendingVariation(int newItemQuantity = 100000000, string notes = "notes")
         {
             string expectedCode = Guid.NewGuid().ToString();
             AddTestCode(expectedCode);
@@ -130,6 +132,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
                     CustomName = "customName",
                     Quantity = new Quantity { Amount = new List<double> { newItemQuantity } },
                 });
+                jsu.Comments = notes;
             });
             return result.Id;
         }

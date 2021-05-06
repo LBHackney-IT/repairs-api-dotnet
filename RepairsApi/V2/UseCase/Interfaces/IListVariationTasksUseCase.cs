@@ -6,6 +6,6 @@ namespace RepairsApi.V2.UseCase.Interfaces
 {
     public interface IListVariationTasksUseCase
     {
-        Task<IEnumerable<VariationTasksModel>> Execute(int workOrderId);
+        Task<GetVariationResponse> Execute(int workOrderId);
     }
 }
