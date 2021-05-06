@@ -3,6 +3,7 @@ using RepairsApi.V2.Factories;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Helpers;
 using RepairsApi.V2.UseCase.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,14 +22,24 @@ namespace RepairsApi.V2.UseCase
             _repairsGateway = repairsGateway;
         }
 
-        public async Task<IEnumerable<VariationTasksModel>> Execute(int workOrderId)
+        public async Task<GetVariationResponse> Execute(int workOrderId)
         {
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
             workOrder.VerifyCanGetVariation();
 
             var workOrderTasks = workOrder.WorkElements.SelectMany(we => we.RateScheduleItem);
-            var variationTasks = await GetVariationTasks(workOrderId);
+            var variation = await _jobStatusUpdateGateway.GetOutstandingVariation(workOrderId);
+            var variationTasks = variation.MoreSpecificSORCode.RateScheduleItem;
 
+            return new GetVariationResponse
+            {
+                Notes = variation.Comments,
+                Tasks = MapTasks(variationTasks, workOrderTasks)
+            };
+        }
+
+        private static IEnumerable<VariationTasksModel> MapTasks(IEnumerable<Infrastructure.RateScheduleItem> variationTasks, IEnumerable<Infrastructure.RateScheduleItem> workOrderTasks)
+        {
             return from vTask in variationTasks
                    join wTask in workOrderTasks on vTask.OriginalId equals wTask.Id into gj
                    from groupTask in gj.DefaultIfEmpty()
@@ -42,13 +53,6 @@ namespace RepairsApi.V2.UseCase
                        CurrentQuantity = groupTask?.Quantity?.Amount ?? 0,
                        VariedQuantity = vTask.Quantity?.Amount
                    };
-        }
-
-        private async Task<List<Infrastructure.RateScheduleItem>> GetVariationTasks(int workOrderId)
-        {
-            var variation = await _jobStatusUpdateGateway.GetOutstandingVariation(workOrderId);
-            var variationTasks = variation.MoreSpecificSORCode.RateScheduleItem;
-            return variationTasks;
         }
     }
 }
