@@ -1,7 +1,9 @@
 using Microsoft.Extensions.Options;
+using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Configuration;
 using RepairsApi.V2.Filtering;
 using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Services;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,11 +14,16 @@ namespace RepairsApi.V2.Filtering
     {
         private readonly FilterConfiguration _options;
         private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
+        private readonly ICurrentUserService _currentUserService;
 
-        public WorkOrderFilterProvider(IOptions<FilterConfiguration> options, IScheduleOfRatesGateway scheduleOfRatesGateway)
+        public WorkOrderFilterProvider(IOptions<FilterConfiguration> options,
+            IScheduleOfRatesGateway scheduleOfRatesGateway,
+            ICurrentUserService currentUserService
+            )
         {
             _options = options.Value;
             _scheduleOfRatesGateway = scheduleOfRatesGateway;
+            _currentUserService = currentUserService;
         }
 
         public async Task<ModelFilterConfiguration> GetFilter()
@@ -24,12 +31,21 @@ namespace RepairsApi.V2.Filtering
             var filters = _options[FilterConstants.WorkOrder];
 
             var trades = await _scheduleOfRatesGateway.GetTrades();
-            var liveContractors = await _scheduleOfRatesGateway.GetLiveContractors();
 
             filters[FilterSectionConstants.Trades] = new List<FilterOption>(trades.Select(t => new FilterOption { Key = t.Code, Description = t.Name }));
-            filters[FilterSectionConstants.Contractors] = new List<FilterOption>(liveContractors.Select(c => new FilterOption { Key = c.ContractorReference, Description = c.ContractorName }));
+
+            filters[FilterSectionConstants.Contractors] = await GetContractors();
 
             return filters;
+        }
+
+        private async Task<List<FilterOption>> GetContractors()
+        {
+            if (!_currentUserService.HasAnyGroup(UserGroups.Agent, UserGroups.AuthorisationManager, UserGroups.ContractManager))
+                return new List<FilterOption>();
+
+            var liveContractors = await _scheduleOfRatesGateway.GetLiveContractors();
+            return new List<FilterOption>(liveContractors.Select(c => new FilterOption { Key = c.ContractorReference, Description = c.ContractorName }));
         }
     }
 }

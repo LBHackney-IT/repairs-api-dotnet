@@ -117,63 +117,6 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         }
 
         [Test]
-        public async Task GetFilteredListOfWorkOrders_Status()
-        {
-            // Arrange
-            var openWorkOrderResult = await CreateWorkOrder();
-            var completedWorkOrderResult = await CreateWorkOrder();
-            var code = await CancelWorkOrder(completedWorkOrderResult.Id);
-
-            // Act
-            var (openCode, openResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?StatusCode={(int) WorkStatusCode.Open}&PageSize=50");
-            var (closedCode, closedResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?StatusCode={(int) WorkStatusCode.Canceled}&PageSize=50");
-            var (multiCode, multiResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?StatusCode={(int) WorkStatusCode.Open}&StatusCode={(int) WorkStatusCode.Canceled}&PageSize=50");
-
-            // Assert
-            openCode.Should().Be(HttpStatusCode.OK);
-            openResponse.Should().ContainSingle(wo => wo.Reference == openWorkOrderResult.Id);
-            openResponse.Should().NotContain(wo => wo.Reference == completedWorkOrderResult.Id);
-
-            closedCode.Should().Be(HttpStatusCode.OK);
-            closedResponse.Should().ContainSingle(wo => wo.Reference == completedWorkOrderResult.Id);
-            closedResponse.Should().NotContain(wo => wo.Reference == openWorkOrderResult.Id);
-
-            multiCode.Should().Be(HttpStatusCode.OK);
-            multiResponse.Should().ContainSingle(wo => wo.Reference == openWorkOrderResult.Id);
-
-            var wo = GetWorkOrderFromDB(completedWorkOrderResult.Id);
-
-            multiResponse.Should().ContainSingle(wo => wo.Reference == completedWorkOrderResult.Id);
-        }
-
-
-        [Test]
-        public async Task GetFilteredListOfWorkOrders_Priority()
-        {
-            // Arrange
-            var urgentResult = await CreateWorkOrder(sr => sr.Priority.PriorityCode = 3);
-            var immediateResult = await CreateWorkOrder(sr => sr.Priority.PriorityCode = 0);
-
-            // Act
-            var (urgentCode, urgentResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?Priorities={3}");
-            var (immediateCode, immediateResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?Priorities={0}");
-            var (multiCode, multiResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?Priorities={3}&Priorities={0}");
-
-            // Assert
-            urgentCode.Should().Be(HttpStatusCode.OK);
-            urgentResponse.Should().ContainSingle(wo => wo.Reference == urgentResult.Id);
-            urgentResponse.Should().NotContain(wo => wo.Reference == immediateResult.Id);
-
-            immediateCode.Should().Be(HttpStatusCode.OK);
-            immediateResponse.Should().ContainSingle(wo => wo.Reference == immediateResult.Id);
-            immediateResponse.Should().NotContain(wo => wo.Reference == urgentResult.Id);
-
-            multiCode.Should().Be(HttpStatusCode.OK);
-            multiResponse.Should().ContainSingle(wo => wo.Reference == immediateResult.Id);
-            multiResponse.Should().ContainSingle(wo => wo.Reference == urgentResult.Id);
-        }
-
-        [Test]
         public async Task GetWorkOrder()
         {
             // Arrange
