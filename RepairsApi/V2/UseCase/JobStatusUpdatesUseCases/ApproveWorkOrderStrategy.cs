@@ -37,6 +37,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
                 throw new UnauthorizedAccessException(Resources.InvalidPermissions);
 
             workOrder.StatusCode = Infrastructure.WorkStatusCode.Open;
+            jobStatusUpdate.Comments = $"{jobStatusUpdate.Comments} Approved By: {_currentUserService.GetHubUser().Name}";
 
             await NotifyHandlers(workOrder);
         }

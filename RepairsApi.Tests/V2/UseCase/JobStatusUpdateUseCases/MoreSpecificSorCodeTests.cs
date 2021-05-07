@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
@@ -10,9 +11,7 @@ using Moq;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers;
 using RepairsApi.Tests.V2.Gateways;
-using RepairsApi.V2.Exceptions;
-using RepairsApi.V2.Factories;
-using RepairsApi.V2.Gateways;
+using RepairsApi.V2;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase;
 using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
@@ -52,54 +51,94 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
                 _updateSorCodesUseCaseMock.Object);
         }
 
-
-
         [Test]
-        public void ThrowWhenWorkOrderNotFound()
+        public async Task ThrowWhenWorkOrderNotInCorrectState(
+            [Values(WorkStatusCode.VariationPendingApproval, WorkStatusCode.PendingApproval)]
+            WorkStatusCode state)
         {
             const int desiredWorkOrderId = 42;
             var workOrder = BuildWorkOrder(desiredWorkOrderId);
-            var expectedNewCode = new RateScheduleItem
-            {
-                CustomCode = "code",
-                Quantity = new Quantity
-                {
-                    Amount = 4.5
-                }
-            };
-            var request = CreateMoreSpecificSORUpdateRequest(desiredWorkOrderId, workOrder, expectedNewCode);
+            workOrder.StatusCode = state;
+            _repairsGatewayMock.ReturnsWorkOrders(workOrder);
+            var request = BuildUpdate(workOrder);
 
             Func<Task> fn = () => _classUnderTest.Execute(request);
-            fn.Should().ThrowAsync<ResourceNotFoundException>();
+            (await fn.Should().ThrowAsync<InvalidOperationException>())
+                .Which.Message.Should().Be(Resources.ActionUnsupported);
         }
 
-        private static Generated.JobStatusUpdate CreateMoreSpecificSORUpdateRequest(int desiredWorkOrderId, WorkOrder workOrder, params RateScheduleItem[] expectedNewCodes)
-        {
-            var newCodes = expectedNewCodes.Select(rsi => new Generated.RateScheduleItem
-            {
-                CustomCode = rsi.CustomCode,
-                Quantity = rsi.Quantity.ToResponse(),
-                CustomName = rsi.CustomName,
-                M3NHFSORCode = rsi.M3NHFSORCode,
-                Id = rsi.Id.ToString()
-            });
 
-            return new Generated.JobStatusUpdate
-            {
-                RelatedWorkOrderReference = new Generated.Reference
-                {
-                    ID = desiredWorkOrderId.ToString()
-                },
-                TypeCode = Generated.JobStatusUpdateTypeCode._80,
-                MoreSpecificSORCode = new Generated.WorkElement
-                {
-                    Trade = new List<Generated.Trade>
-                    {
-                        workOrder.WorkElements.First().Trade.First().ToResponse()
-                    },
-                    RateScheduleItem = newCodes.ToList()
-                }
-            };
+        [Test]
+        public async Task SetsVariationPendingApprovalWhenAuthRequired()
+        {
+            const int desiredWorkOrderId = 42;
+            var workOrder = BuildWorkOrder(desiredWorkOrderId);
+            workOrder.StatusCode = WorkStatusCode.Open;
+            _repairsGatewayMock.ReturnsWorkOrders(workOrder);
+            var request = BuildUpdate(workOrder);
+            _featureManagerMock.Setup(x => x.IsEnabledAsync(It.IsAny<string>()))
+                .ReturnsAsync(true);
+            _authorisationMock.Setup(x => x.AuthorizeAsync(It.IsAny<ClaimsPrincipal>(), It.IsAny<object>(), It.IsAny<string>()))
+                .ReturnsAsync(AuthorizationResult.Failed);
+
+            await _classUnderTest.Execute(request);
+
+            workOrder.StatusCode.Should().Be(WorkStatusCode.VariationPendingApproval);
+            request.TypeCode.Should().Be(Generated.JobStatusUpdateTypeCode._180);
+        }
+
+
+        [TestCase(true, false)] // feature on, below limit
+        [TestCase(false, false)] // feature off, below limit
+        [TestCase(false, true)] // feature off, above limit
+        public async Task CallsUpdateSorCodeUseCaseWhenAuthNotRequired(bool featureEnabled, bool authorisationRequired)
+        {
+            const int desiredWorkOrderId = 42;
+            var workOrder = BuildWorkOrder(desiredWorkOrderId);
+            workOrder.StatusCode = WorkStatusCode.Open;
+            _repairsGatewayMock.ReturnsWorkOrders(workOrder);
+            var request = BuildUpdate(workOrder);
+            _featureManagerMock.Setup(x => x.IsEnabledAsync(It.IsAny<string>()))
+                .ReturnsAsync(featureEnabled);
+            _authorisationMock.Setup(x => x.AuthorizeAsync(It.IsAny<ClaimsPrincipal>(), It.IsAny<object>(), It.IsAny<string>()))
+                .ReturnsAsync(authorisationRequired ? AuthorizationResult.Failed() : AuthorizationResult.Success());
+
+            await _classUnderTest.Execute(request);
+
+            _updateSorCodesUseCaseMock.Verify(x => x.Execute(workOrder, It.IsAny<WorkElement>()));
+        }
+
+        [Test]
+        public async Task PrependsRejectString()
+        {
+            const int desiredWorkOrderId = 42;
+            var workOrder = BuildWorkOrder(desiredWorkOrderId);
+            workOrder.StatusCode = WorkStatusCode.Open;
+            _repairsGatewayMock.ReturnsWorkOrders(workOrder);
+            var jobStatusUpdate = BuildUpdate(workOrder);
+            const string beforeComments = "expectedBeforeComments";
+            jobStatusUpdate.Comments = beforeComments;
+
+            await _classUnderTest.Execute(jobStatusUpdate);
+
+            jobStatusUpdate.Comments.Should().Contain(beforeComments);
+            jobStatusUpdate.Comments.Should().Contain(Resources.VariationReason);
+        }
+
+        [Test]
+        public async Task DoesntPrependsRejectStringWhenAlreadyPresent()
+        {
+            const int desiredWorkOrderId = 42;
+            var workOrder = BuildWorkOrder(desiredWorkOrderId);
+            workOrder.StatusCode = WorkStatusCode.Open;
+            _repairsGatewayMock.ReturnsWorkOrders(workOrder);
+            var jobStatusUpdate = BuildUpdate(workOrder);
+            var expectedComments = $"{Resources.VariationReason}expectedBeforeComments";
+            jobStatusUpdate.Comments = expectedComments;
+
+            await _classUnderTest.Execute(jobStatusUpdate);
+
+            jobStatusUpdate.Comments.Should().Be(expectedComments);
         }
 
         private WorkOrder BuildWorkOrder(int expectedId)
@@ -123,6 +162,23 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
                 .With(x => x.Id, expectedId)
                 .Create();
             return workOrder;
+        }
+
+        private Generated.JobStatusUpdate BuildUpdate(WorkOrder workOrder)
+        {
+
+            return _fixture.Build<Generated.JobStatusUpdate>()
+                .With(jsu => jsu.MoreSpecificSORCode, _fixture.Build<Generated.WorkElement>()
+                    .With(we => we.RateScheduleItem, _fixture.Build<Generated.RateScheduleItem>()
+                        .With(rsi => rsi.Quantity, _fixture.Build<Generated.Quantity>()
+                            .With(q => q.Amount, _fixture.CreateMany<double>(1).ToArray)
+                            .Create())
+                        .CreateMany().ToArray)
+                    .Create())
+                .With(jsu => jsu.RelatedWorkOrderReference, _fixture.Build<Generated.Reference>()
+                    .With(r => r.ID, workOrder.Id.ToString)
+                    .Create())
+                .Create();
         }
     }
 }

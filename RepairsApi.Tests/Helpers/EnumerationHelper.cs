@@ -2,6 +2,7 @@ using FluentAssertions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace RepairsApi.Tests.Helpers
@@ -18,7 +19,27 @@ namespace RepairsApi.Tests.Helpers
             while (actualEnumerator.MoveNext() && expectedEnumerator.MoveNext())
             {
                 asserter(actualEnumerator.Current, expectedEnumerator.Current);
-            };
+            }
+            ;
+        }
+
+        public static string[] GetStaticValues(IReflect type)
+        {
+            return type.GetFields(BindingFlags.Public | BindingFlags.Static |
+                                  BindingFlags.FlattenHierarchy)
+                .Where(fi => fi.IsLiteral && !fi.IsInitOnly)
+                .Select(fi => (string) fi.GetValue(null))
+                .ToArray();
+        }
+
+        public static string[] GetStaticValuesWithExclude(IReflect type, string exclude)
+        {
+            return type.GetFields(BindingFlags.Public | BindingFlags.Static |
+                                  BindingFlags.FlattenHierarchy)
+                .Where(fi => fi.IsLiteral && !fi.IsInitOnly)
+                .Select(fi => (string) fi.GetValue(null))
+                .Where(f => exclude != f)
+                .ToArray();
         }
     }
 }

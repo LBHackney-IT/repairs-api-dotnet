@@ -12,7 +12,9 @@ using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using RepairsApi.V2;
 using Generated = RepairsApi.V2.Generated;
 using WorkElement = RepairsApi.V2.Infrastructure.WorkElement;
 
@@ -39,31 +41,36 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
                 _currentUserServiceMock.Object);
         }
 
-        [Test]
-        public void ThrowAccessExceptionWhenUnauthorizedGroup()
+        [Test, TestCaseSource(typeof(EnumerationHelper), nameof(EnumerationHelper.GetStaticValuesWithExclude), new object[] {typeof(UserGroups), UserGroups.ContractManager})]
+        public async Task ThrowsUnauthorizedWhenUserNotInGroup(string userGroup)
         {
             const int desiredWorkOrderId = 42;
             var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
             var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
                 Generated.JobStatusUpdateTypeCode._125);
 
-            Func<Task> fn = () => _classUnderTest.Execute(request);
-            fn.Should().ThrowAsync<UnauthorizedAccessException>();
+            _currentUserServiceMock.SetSecurityGroup(userGroup);
+
+            Func<Task> fn = async () => await _classUnderTest.Execute(request);
+            (await fn.Should().ThrowAsync<UnauthorizedAccessException>())
+                .Which.Message.Should().Be(Resources.InvalidPermissions);
+
         }
 
-        [Test]
-        public void ThrowNotSupportedExceptionWhenWorkStatusNotPendingApproval()
+        private static IEnumerable<WorkStatusCode> _testCodes = Enum.GetValues(typeof(WorkStatusCode)).Cast<WorkStatusCode>()
+            .Where(c => c != WorkStatusCode.VariationPendingApproval);
+        [Test, TestCaseSource(nameof(_testCodes))]
+        public async Task ThrowNotSupportedExceptionWhenWorkStatusNotPendingApproval(WorkStatusCode status)
         {
             const int desiredWorkOrderId = 42;
-            var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
+            var workOrder = CreateReturnWorkOrder(desiredWorkOrderId, status);
             var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
                 Generated.JobStatusUpdateTypeCode._125);
 
-            _currentUserServiceMock.Setup(currentUser => currentUser.HasGroup(UserGroups.ContractManager))
-                .Returns(true);
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.ContractManager);
 
-            Func<Task> fn = () => _classUnderTest.Execute(request);
-            fn.Should().ThrowAsync<NotSupportedException>();
+            Func<Task> fn = async () => await _classUnderTest.Execute(request);
+            await fn.Should().ThrowAsync<NotSupportedException>();
         }
 
         [Test]
@@ -75,11 +82,48 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
                 Generated.JobStatusUpdateTypeCode._125);
 
-            _currentUserServiceMock.Setup(currentUser => currentUser.HasGroup(UserGroups.ContractManager))
-                .Returns(true);
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.ContractManager);
 
             await _classUnderTest.Execute(request);
+
             workOrder.StatusCode.Should().Be(WorkStatusCode.VariationRejected);
+        }
+
+        [Test]
+        public async Task PrependsRejectString()
+        {
+            const int desiredWorkOrderId = 42;
+            var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
+            workOrder.StatusCode = WorkStatusCode.VariationPendingApproval;
+            var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
+                Generated.JobStatusUpdateTypeCode._125);
+            const string beforeComments = "expectedBeforeComments";
+            request.Comments = beforeComments;
+
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.ContractManager);
+
+            await _classUnderTest.Execute(request);
+
+            request.Comments.Should().Contain(beforeComments);
+            request.Comments.Should().Contain(Resources.RejectedVariationPrepend);
+        }
+
+        [Test]
+        public async Task DoesntPrependsRejectStringWhenAlreadyPresent()
+        {
+            const int desiredWorkOrderId = 42;
+            var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
+            workOrder.StatusCode = WorkStatusCode.VariationPendingApproval;
+            var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
+                Generated.JobStatusUpdateTypeCode._125);
+            var expectedComments = $"{Resources.RejectedVariationPrepend}expectedBeforeComments";
+            request.Comments = expectedComments;
+
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.ContractManager);
+
+            await _classUnderTest.Execute(request);
+
+            request.Comments.Should().Be(expectedComments);
         }
 
         private static Generated.JobStatusUpdate CreateJobStatusUpdateRequest
@@ -99,9 +143,9 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
                 }
             };
         }
-        private WorkOrder CreateReturnWorkOrder(int expectedId)
+        private WorkOrder CreateReturnWorkOrder(int expectedId, WorkStatusCode statusCode = WorkStatusCode.VariationPendingApproval)
         {
-            var workOrder = BuildWorkOrder(expectedId);
+            var workOrder = BuildWorkOrder(expectedId, statusCode);
 
             _repairsGatewayMock.Setup(gateway => gateway.GetWorkOrder(It.Is<int>(i => i == expectedId)))
                 .ReturnsAsync(workOrder);
@@ -111,7 +155,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             return workOrder;
         }
 
-        private WorkOrder BuildWorkOrder(int expectedId)
+        private WorkOrder BuildWorkOrder(int expectedId, WorkStatusCode statusCode)
         {
             var workOrder = _fixture.Build<WorkOrder>()
                 .With(x => x.WorkElements, new List<WorkElement>
@@ -130,6 +174,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
                         .Create()
                 })
                 .With(x => x.Id, expectedId)
+                .With(x => x.StatusCode, statusCode)
                 .Create();
             return workOrder;
         }
