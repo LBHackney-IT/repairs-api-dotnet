@@ -7,7 +7,7 @@ namespace RepairsApi.Tests.Helpers
 {
     public class CurrentUserServiceMock : Mock<ICurrentUserService>
     {
-        public void SetSecurityGroup(string group, bool isInGroup)
+        public void SetSecurityGroup(string group, bool isInGroup = true)
         {
             Setup(m => m.HasGroup(group)).Returns(isInGroup);
             Setup(c => c.HasAnyGroup(It.Is<string[]>(s => s.Contains(group)))).Returns(isInGroup);

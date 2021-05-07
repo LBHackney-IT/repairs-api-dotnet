@@ -76,6 +76,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                     (GeographicalLocation q) => q.ElevationReferenceSystem)
                 .AddValue("trade", (Trade t) => t.CustomCode)
                 .SetListLength<WorkElement>(1)
+                .SetListLength<Trade>(1)
                 .SetListLength<RateScheduleItem>(1);
         }
 
