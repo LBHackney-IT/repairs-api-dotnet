@@ -27,7 +27,6 @@ namespace RepairsApi.V2.Controllers
         [Route("{id}/variation-tasks")]
         [ProducesResponseType(typeof(IEnumerable<GetVariationResponse>), 200)]
         [ProducesResponseType(404)]
-        [Authorize(Roles = UserGroups.ContractManager)]
         public async Task<IActionResult> GetWorkOrderVariations(int id)
         {
             return Ok(await _listVariationTasksUseCase.Execute(id));
