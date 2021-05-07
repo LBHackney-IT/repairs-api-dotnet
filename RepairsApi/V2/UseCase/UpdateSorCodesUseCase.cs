@@ -18,8 +18,8 @@ namespace RepairsApi.V2.UseCase
 
         public async Task Execute(WorkOrder workOrder, WorkElement workElement)
         {
-            var existingCodes = workOrder.WorkElements.SelectMany(we => we.RateScheduleItem);
-            var newCodes = workElement.RateScheduleItem.Where(rsi => !existingCodes.Any(ec => ec.Id == rsi.OriginalId));
+            var existingCodes = workOrder.WorkElements.SelectMany(we => we.RateScheduleItem).ToList();
+            var newCodes = workElement.RateScheduleItem.Where(rsi => !existingCodes.Any(ec => ec.Id == rsi.OriginalId)).ToList();
 
             UpdateExistingCodes(existingCodes, workElement);
             await AddNewCodes(newCodes, workOrder);
