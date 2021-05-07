@@ -12,7 +12,7 @@ COPY ./RepairsApi.Tests/RepairsApi.Tests.csproj ./RepairsApi.Tests/
 
 RUN dotnet restore ./RepairsApi/RepairsApi.csproj
 RUN dotnet restore ./RepairsApi.Tests/RepairsApi.Tests.csproj
-RUN dotnet tool install --global coverlet.console
+RUN dotnet tool install --global coverlet.console --version 1.7.2
 
 # Copy everything else and build
 COPY . .
