@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using RepairsApi.V2.Boundary.Response;
 
-namespace RepairsApi.Tests.V2.E2ETests
+namespace RepairsApi.Tests.E2ETests
 {
     public class HubUserApiTests : MockWebApplicationFactory
     {

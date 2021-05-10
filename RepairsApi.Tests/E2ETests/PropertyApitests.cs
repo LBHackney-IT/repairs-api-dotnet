@@ -12,7 +12,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace RepairsApi.Tests.V2.E2ETests
+namespace RepairsApi.Tests.E2ETests
 {
     [SingleThreaded]
     public class PropertyApitests : MockWebApplicationFactory

@@ -20,7 +20,7 @@ using RateScheduleItem = RepairsApi.V2.Generated.RateScheduleItem;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 using RepairsApi.V2.Services;
 
-namespace RepairsApi.Tests.V2.E2ETests.Repairs
+namespace RepairsApi.Tests.E2ETests.Repairs
 {
     public partial class RepairApiTests : MockWebApplicationFactory
     {
