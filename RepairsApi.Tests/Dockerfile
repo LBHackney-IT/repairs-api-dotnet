@@ -17,5 +17,6 @@ RUN dotnet restore ./RepairsApi.Tests/RepairsApi.Tests.csproj
 COPY . .
 
 RUN dotnet build -c debug
+RUN chmod 777 ./RepairsApi.Tests/startup.sh
 
 CMD ./RepairsApi.Tests/startup.sh
