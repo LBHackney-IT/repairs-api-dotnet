@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 using WorkStatusCode = RepairsApi.V2.Infrastructure.WorkStatusCode;
 
-namespace RepairsApi.Tests.V2.E2ETests.Repairs
+namespace RepairsApi.Tests.E2ETests.Repairs
 {
     public partial class RepairApiTests : MockWebApplicationFactory
     {

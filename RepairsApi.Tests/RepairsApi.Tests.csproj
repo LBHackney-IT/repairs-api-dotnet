@@ -37,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="V2\E2ETests\Requests.Designer.cs">
+    <Compile Update="E2ETests\Requests.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Requests.resx</DependentUpon>
@@ -45,7 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="V2\E2ETests\Requests.resx">
+    <EmbeddedResource Update="E2ETests\Requests.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Requests.Designer.cs</LastGenOutput>
     </EmbeddedResource>

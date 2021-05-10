@@ -18,4 +18,4 @@ COPY . .
 
 RUN dotnet build -c debug -o out RepairsApi.Tests/RepairsApi.Tests.csproj
 
-CMD dotnet test /p:CollectCoverage=true /p:Threshold=50 /p:ThresholdType=line /p:ExcludeByFile="**/Migrations/**/*.*%2c**/Generated/**/*.cs" --no-build
+CMD dotnet test /p:CollectCoverage=true /p:Threshold=70 /p:ThresholdType=line /p:ExcludeByFile="**/Migrations/**/*.*%2c**/Generated/**/*.cs" --no-build --filter FullyQualifiedName~V2
