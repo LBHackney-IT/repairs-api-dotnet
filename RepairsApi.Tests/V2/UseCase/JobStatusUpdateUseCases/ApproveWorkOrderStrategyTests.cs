@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -63,7 +63,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         }
 
 
-        [Test, TestCaseSource(typeof(EnumerationHelper), nameof(EnumerationHelper.GetStaticValuesWithExclude), new object[] {typeof(UserGroups), UserGroups.AuthorisationManager})]
+        [Test, TestCaseSource(typeof(EnumerationHelper), nameof(EnumerationHelper.GetStaticValuesWithExclude), new object[] { typeof(UserGroups), UserGroups.AuthorisationManager })]
         public async Task ThrowsUnauthorizedWhenUserNotInGroup(string userGroup)
         {
             var workOrder = _fixture.Create<WorkOrder>();

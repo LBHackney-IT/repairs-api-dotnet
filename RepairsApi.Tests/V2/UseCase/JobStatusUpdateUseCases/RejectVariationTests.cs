@@ -41,7 +41,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
                 _currentUserServiceMock.Object);
         }
 
-        [Test, TestCaseSource(typeof(EnumerationHelper), nameof(EnumerationHelper.GetStaticValuesWithExclude), new object[] {typeof(UserGroups), UserGroups.ContractManager})]
+        [Test, TestCaseSource(typeof(EnumerationHelper), nameof(EnumerationHelper.GetStaticValuesWithExclude), new object[] { typeof(UserGroups), UserGroups.ContractManager })]
         public async Task ThrowsUnauthorizedWhenUserNotInGroup(string userGroup)
         {
             const int desiredWorkOrderId = 42;

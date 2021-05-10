@@ -132,7 +132,8 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
                 TypeCode = jobStatus,
                 MoreSpecificSORCode = new Generated.WorkElement
                 {
-                    Trade = new List<Generated.Trade>(), RateScheduleItem = new List<Generated.RateScheduleItem>()
+                    Trade = new List<Generated.Trade>(),
+                    RateScheduleItem = new List<Generated.RateScheduleItem>()
                 }
             };
         }

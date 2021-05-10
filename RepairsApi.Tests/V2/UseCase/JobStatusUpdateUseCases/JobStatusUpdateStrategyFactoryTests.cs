@@ -45,7 +45,8 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         {
             await ValidateStrategyResolution<T>(new JobStatusUpdate
             {
-                TypeCode = typeCode, OtherType = otherTypeCode
+                TypeCode = typeCode,
+                OtherType = otherTypeCode
             });
         }
 
@@ -62,14 +63,15 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         }
 
         [TestCase(JobStatusUpdateTypeCode._10, "")]
-        [TestCase(JobStatusUpdateTypeCode._0,"notSupported")]
+        [TestCase(JobStatusUpdateTypeCode._0, "notSupported")]
         public void ThrowUnsupportedWhenNonSupportedTypeCodes(JobStatusUpdateTypeCode typeCode, string otherTypeCode)
         {
             var workOrder = _fixture.Create<WorkOrder>();
             workOrder.Id = 41;
             var jobStatusUpdate = new JobStatusUpdate
             {
-                TypeCode = typeCode, OtherType = otherTypeCode
+                TypeCode = typeCode,
+                OtherType = otherTypeCode
             };
 
             Assert.ThrowsAsync<NotSupportedException>(async () => await _classUnderTest.ProcessActions(jobStatusUpdate));
