@@ -180,4 +180,7 @@
   <data name="NotAuthorisedToCancel" xml:space="preserve">
       <value>Not Authorised to cancel jobs</value>
   </data>
+  <data name="CannotResumeJob" xml:space="preserve">
+      <value>Cannot Resume Job</value>
+  </data>
 </root>

@@ -70,6 +70,15 @@ namespace RepairsApi.V2 {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot Resume Job.
+        /// </summary>
+        public static string CannotResumeJob {
+            get {
+                return ResourceManager.GetString("CannotResumeJob", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Could not find contacts.
         /// </summary>
         public static string Contacts_Not_Found {
