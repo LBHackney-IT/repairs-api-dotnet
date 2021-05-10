@@ -14,7 +14,8 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
         private readonly IRepairsGateway _repairsGateway;
         private readonly ICurrentUserService _currentUserService;
 
-        public RejectVariationUseCase(IRepairsGateway repairsGateway,
+        public RejectVariationUseCase(
+            IRepairsGateway repairsGateway,
             ICurrentUserService currentUserService)
         {
             _repairsGateway = repairsGateway;
@@ -32,6 +33,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
                 throw new UnauthorizedAccessException(Resources.InvalidPermissions);
 
             workOrder.StatusCode = WorkStatusCode.VariationRejected;
+            jobStatusUpdate.PrefixComments(Resources.RejectedVariationPrepend);
             await _repairsGateway.SaveChangesAsync();
         }
     }

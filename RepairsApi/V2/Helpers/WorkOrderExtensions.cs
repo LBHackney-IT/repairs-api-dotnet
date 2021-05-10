@@ -47,15 +47,15 @@ namespace RepairsApi.V2.Helpers
 
         public static void VerifyCanApproveWorkOrder(this WorkOrder wo)
         {
-            if (wo.StatusCode != Infrastructure.WorkStatusCode.PendingApproval) throw new NotSupportedException("Work order is not pending approval");
+            if (wo.StatusCode != Infrastructure.WorkStatusCode.PendingApproval) throw new NotSupportedException(Resources.WorkOrderNotPendingApproval);
         }
 
         public static void VerifyCanRejectWorkOrder(this WorkOrder wo)
         {
-            if (wo.StatusCode != Infrastructure.WorkStatusCode.PendingApproval) throw new NotSupportedException("Work order is not pending approval");
+            if (wo.StatusCode != Infrastructure.WorkStatusCode.PendingApproval) throw new NotSupportedException(Resources.WorkOrderNotPendingApproval);
         }
 
-        public static void VerifyCanAcknowldgeVariation(this WorkOrder wo)
+        public static void VerifyCanAcknowledgeVariation(this WorkOrder wo)
         {
             if (
                 wo.StatusCode != WorkStatusCode.VariationApproved &&

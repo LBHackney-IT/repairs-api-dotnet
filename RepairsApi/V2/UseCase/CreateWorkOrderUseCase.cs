@@ -106,12 +106,11 @@ namespace RepairsApi.V2.UseCase
 
         private void AttachUserInformation(WorkOrder workOrder)
         {
-            if (_currentUserService.IsUserPresent())
-            {
-                var user = _currentUserService.GetUser();
-                workOrder.AgentName = user.Name();
-                workOrder.AgentEmail = user.Email();
-            }
+            if (!_currentUserService.IsUserPresent()) return;
+
+            var user = _currentUserService.GetUser();
+            workOrder.AgentName = user.Name();
+            workOrder.AgentEmail = user.Email();
         }
 
         private static void ValidateRequest(WorkOrder workOrder)

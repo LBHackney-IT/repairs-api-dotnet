@@ -124,6 +124,24 @@ namespace RepairsApi.V2 {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Not Authorised to cancel jobs.
+        /// </summary>
+        public static string NotAuthorisedToCancel {
+            get {
+                return ResourceManager.GetString("NotAuthorisedToCancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not Authorised to close jobs.
+        /// </summary>
+        public static string NotAuthorisedToClose {
+            get {
+                return ResourceManager.GetString("NotAuthorisedToClose", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to fetch person alerts.
         /// </summary>
         public static string PersonAlertsFailure {
@@ -160,6 +178,15 @@ namespace RepairsApi.V2 {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Variation rejected: .
+        /// </summary>
+        public static string RejectedVariationPrepend {
+            get {
+                return ResourceManager.GetString("RejectedVariationPrepend", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to fetch tenancy.
         /// </summary>
         public static string TenancyFailure {
@@ -174,6 +201,42 @@ namespace RepairsApi.V2 {
         public static string UnsupportedUHPriority {
             get {
                 return ResourceManager.GetString("UnsupportedUHPriority", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unsupported work order complete job status update code.
+        /// </summary>
+        public static string UnsupportedWorkOrderUpdate {
+            get {
+                return ResourceManager.GetString("UnsupportedWorkOrderUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Variation reason: .
+        /// </summary>
+        public static string VariationReason {
+            get {
+                return ResourceManager.GetString("VariationReason", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Authorisation rejected: .
+        /// </summary>
+        public static string WorkOrderAuthorisationRejected {
+            get {
+                return ResourceManager.GetString("WorkOrderAuthorisationRejected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Work order is not pending approval.
+        /// </summary>
+        public static string WorkOrderNotPendingApproval {
+            get {
+                return ResourceManager.GetString("WorkOrderNotPendingApproval", resourceCulture);
             }
         }
         
