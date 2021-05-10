@@ -16,6 +16,6 @@ RUN dotnet restore ./RepairsApi.Tests/RepairsApi.Tests.csproj
 # Copy everything else and build
 COPY . .
 
-RUN dotnet build -c debug -o out RepairsApi.Tests/RepairsApi.Tests.csproj
+RUN dotnet build -c debug
 
-CMD dotnet test
+CMD dotnet test /p:CollectCoverage=true /p:Threshold=70 /p:ThresholdType=line /p:ExcludeByFile="**/Migrations/**/*.*%2c**/Generated/**/*.cs" --no-build --filter FullyQualifiedName~V2

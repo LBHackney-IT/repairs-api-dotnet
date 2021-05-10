@@ -10,7 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace RepairsApi.Tests.V2.E2ETests.Repairs
+namespace RepairsApi.Tests.E2ETests.Repairs
 {
     public partial class RepairApiTests
     {

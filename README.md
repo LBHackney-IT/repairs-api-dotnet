@@ -2,6 +2,14 @@
 A JWT can be passed in the header X-Hackney-User. This is used to gain information about the current user without causing deviations from HACT use case endpoints. 
 > The API is NOT validating this JWT and expects validation to be done before passing it. Security is still managed via an x-api-key header handled by AWS
 
+# Local Code Coverage
+A Cobertura report can be created using 
+`dotnet test /p:CollectCoverage=true /p:Threshold=70 /p:ThresholdType=line /p:ExcludeByFile="**/Migrations/**/*.*%2c**/Generated/**/*.cs" --no-build --filter FullyQualifiedName~V2`
+
+`reportgenerator "-reports:coverage.cobertura.xml" "-targetdir:coveragereport" -reporttypes:Html`
+Can then be used to generate an html report (Requires `dotnet tool install -g dotnet-reportgenerator-globaltool`)
+
+
 
 # LBH Base API
 

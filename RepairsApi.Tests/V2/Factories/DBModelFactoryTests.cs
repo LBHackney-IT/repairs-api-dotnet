@@ -1,6 +1,6 @@
 using FluentAssertions;
 using NUnit.Framework;
-using RepairsApi.Tests.V2.E2ETests;
+using RepairsApi.Tests.E2ETests;
 using RepairsApi.V2;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Generated;

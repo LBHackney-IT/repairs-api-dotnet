@@ -13,6 +13,10 @@
 
   <ItemGroup>
     <PackageReference Include="AutoFixture" Version="4.11.0" />
+    <PackageReference Include="coverlet.msbuild" Version="3.0.3">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.4" />
@@ -33,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="V2\E2ETests\Requests.Designer.cs">
+    <Compile Update="E2ETests\Requests.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Requests.resx</DependentUpon>
@@ -41,7 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="V2\E2ETests\Requests.resx">
+    <EmbeddedResource Update="E2ETests\Requests.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Requests.Designer.cs</LastGenOutput>
     </EmbeddedResource>
