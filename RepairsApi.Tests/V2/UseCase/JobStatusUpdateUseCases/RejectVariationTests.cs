@@ -41,7 +41,8 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
                 _currentUserServiceMock.Object);
         }
 
-        [Test, TestCaseSource(typeof(EnumerationHelper), nameof(EnumerationHelper.GetStaticValuesWithExclude), new object[] { typeof(UserGroups), UserGroups.ContractManager })]
+        private static IEnumerable<string> _testGroups = EnumerationHelper.GetStaticValues(typeof(UserGroups), UserGroups.ContractManager);
+        [Test, TestCaseSource(nameof(_testGroups))]
         public async Task ThrowsUnauthorizedWhenUserNotInGroup(string userGroup)
         {
             const int desiredWorkOrderId = 42;
@@ -69,7 +70,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
 
             _currentUserServiceMock.SetSecurityGroup(UserGroups.ContractManager);
 
-            Func<Task> fn = async () => await _classUnderTest.Execute(request);
+            Func<Task> fn = () => _classUnderTest.Execute(request);
             await fn.Should().ThrowAsync<NotSupportedException>();
         }
 

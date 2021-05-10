@@ -56,14 +56,14 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             var jobStatusUpdate = BuildUpdate(workOrder);
             _repairsGatewayMock.ReturnsWorkOrders(workOrder);
 
-            Func<Task> act = async () => await _classUnderTest.Execute(jobStatusUpdate);
+            Func<Task> act = () => _classUnderTest.Execute(jobStatusUpdate);
 
             (await act.Should().ThrowAsync<NotSupportedException>())
                 .Which.Message.Should().Be(Resources.WorkOrderNotPendingApproval);
         }
 
-
-        [Test, TestCaseSource(typeof(EnumerationHelper), nameof(EnumerationHelper.GetStaticValuesWithExclude), new object[] { typeof(UserGroups), UserGroups.AuthorisationManager })]
+        private static IEnumerable<string> _testGroups = EnumerationHelper.GetStaticValues(typeof(UserGroups), UserGroups.AuthorisationManager);
+        [Test, TestCaseSource(nameof(_testGroups))]
         public async Task ThrowsUnauthorizedWhenUserNotInGroup(string userGroup)
         {
             var workOrder = _fixture.Create<WorkOrder>();

@@ -20,25 +20,15 @@ namespace RepairsApi.Tests.Helpers
             {
                 asserter(actualEnumerator.Current, expectedEnumerator.Current);
             }
-            ;
         }
 
-        public static string[] GetStaticValues(IReflect type)
+        public static string[] GetStaticValues(IReflect type, string exclude = null)
         {
             return type.GetFields(BindingFlags.Public | BindingFlags.Static |
                                   BindingFlags.FlattenHierarchy)
                 .Where(fi => fi.IsLiteral && !fi.IsInitOnly)
                 .Select(fi => (string) fi.GetValue(null))
-                .ToArray();
-        }
-
-        public static string[] GetStaticValuesWithExclude(IReflect type, string exclude)
-        {
-            return type.GetFields(BindingFlags.Public | BindingFlags.Static |
-                                  BindingFlags.FlattenHierarchy)
-                .Where(fi => fi.IsLiteral && !fi.IsInitOnly)
-                .Select(fi => (string) fi.GetValue(null))
-                .Where(f => exclude != f)
+                .Where(f => exclude is null || exclude != f)
                 .ToArray();
         }
     }

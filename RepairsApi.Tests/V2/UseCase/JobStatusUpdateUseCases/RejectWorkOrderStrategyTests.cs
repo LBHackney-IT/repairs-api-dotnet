@@ -53,7 +53,8 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
                 .Which.Message.Should().Be(Resources.WorkOrderNotPendingApproval);
         }
 
-        [Test, TestCaseSource(typeof(EnumerationHelper), nameof(EnumerationHelper.GetStaticValuesWithExclude), new object[] { typeof(UserGroups), UserGroups.AuthorisationManager })]
+        private static IEnumerable<string> _testGroups = EnumerationHelper.GetStaticValues(typeof(UserGroups), UserGroups.AuthorisationManager);
+        [Test, TestCaseSource(nameof(_testGroups))]
         public async Task ThrowsUnauthorizedWhenUserNotInGroup(string userGroup)
         {
             var workOrder = _fixture.Create<WorkOrder>();

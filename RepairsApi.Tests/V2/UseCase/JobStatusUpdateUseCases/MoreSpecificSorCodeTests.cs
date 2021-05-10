@@ -51,10 +51,9 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
                 _updateSorCodesUseCaseMock.Object);
         }
 
-        [Test]
-        public async Task ThrowWhenWorkOrderNotInCorrectState(
-            [Values(WorkStatusCode.VariationPendingApproval, WorkStatusCode.PendingApproval)]
-            WorkStatusCode state)
+        [TestCase(WorkStatusCode.VariationPendingApproval)]
+        [TestCase(WorkStatusCode.PendingApproval)]
+        public async Task ThrowWhenWorkOrderNotInCorrectState(WorkStatusCode state)
         {
             const int desiredWorkOrderId = 42;
             var workOrder = BuildWorkOrder(desiredWorkOrderId);

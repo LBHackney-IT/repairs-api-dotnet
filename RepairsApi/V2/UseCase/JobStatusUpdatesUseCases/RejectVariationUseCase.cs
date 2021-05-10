@@ -33,10 +33,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
                 throw new UnauthorizedAccessException(Resources.InvalidPermissions);
 
             workOrder.StatusCode = WorkStatusCode.VariationRejected;
-            if (jobStatusUpdate.Comments is null || !jobStatusUpdate.Comments.Contains(Resources.RejectedVariationPrepend))
-            {
-                jobStatusUpdate.Comments = $"{Resources.RejectedVariationPrepend}{jobStatusUpdate.Comments}";
-            }
+            jobStatusUpdate.PrefixComments(Resources.RejectedVariationPrepend);
             await _repairsGateway.SaveChangesAsync();
         }
     }
