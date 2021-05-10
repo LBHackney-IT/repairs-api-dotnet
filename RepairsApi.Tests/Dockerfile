@@ -18,4 +18,4 @@ COPY . .
 
 RUN dotnet build -c debug
 
-CMD dotnet test /p:CollectCoverage=true /p:Threshold=70 /p:ThresholdType=line /p:ExcludeByFile="**/Migrations/**/*.*%2c**/Generated/**/*.cs" --no-build --filter FullyQualifiedName~V2
+CMD ./RepairsApi.Tests/startup.sh
