@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using RepairsApi.V2;
 using RepairsApi.V2.UseCase;
 using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
 using Quantity = RepairsApi.V2.Generated.Quantity;
@@ -37,7 +38,10 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             // Arrange
             SetUserRole(userGroup);
             var request = GenerateWorkOrder<ScheduleRepair>()
-                .AddValue(new List<double> { 1 }, (RateScheduleItem rsi) => rsi.Quantity.Amount)
+                .AddValue(new List<double>
+                {
+                    1
+                }, (RateScheduleItem rsi) => rsi.Quantity.Amount)
                 .Generate();
 
             // Act
@@ -140,12 +144,12 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             // Arrange
             var result = await CreateWorkOrder();
             var request = new Generator<WorkOrderComplete>()
-                            .AddWorkOrderCompleteGenerators()
-                            .AddValue(result.Id.ToString(), (WorkOrderComplete woc) => woc.WorkOrderReference.ID)
-                            .SetListLength<JobStatusUpdates>(1)
-                            .AddValue(JobStatusUpdateTypeCode._0, (JobStatusUpdates jsu) => jsu.TypeCode)
-                            .AddValue(CustomJobStatusUpdates.Completed, (JobStatusUpdates jsu) => jsu.OtherType)
-                            .Generate();
+                .AddWorkOrderCompleteGenerators()
+                .AddValue(result.Id.ToString(), (WorkOrderComplete woc) => woc.WorkOrderReference.ID)
+                .SetListLength<JobStatusUpdates>(1)
+                .AddValue(JobStatusUpdateTypeCode._0, (JobStatusUpdates jsu) => jsu.TypeCode)
+                .AddValue(CustomJobStatusUpdates.Completed, (JobStatusUpdates jsu) => jsu.OtherType)
+                .Generate();
 
             // Act
             SetUserRole(UserGroups.Contractor);
@@ -210,7 +214,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
 
             // Assert
             code.Should().Be(HttpStatusCode.OK);
-            notes.Should().ContainSingle(note => note.Note == expectedNote);
+            notes.Should().ContainSingle(note => note.Note.Contains(expectedNote));
         }
 
         [Test]
@@ -259,7 +263,10 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
                     CustomName = task.Description,
                     Quantity = new Quantity
                     {
-                        Amount = new List<double>() { task.Quantity }
+                        Amount = new List<double>()
+                        {
+                            task.Quantity
+                        }
                     }
                 }).ToList()
             };
@@ -279,9 +286,13 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             {
                 var db = ctx.DB;
                 gen = new Generator<T>()
-                                .AddWorkOrderGenerators()
-                                .AddValue(new List<double> { 0 }, (RateScheduleItem rsi) => rsi.Quantity.Amount);
-            };
+                    .AddWorkOrderGenerators()
+                    .AddValue(new List<double>
+                    {
+                        0
+                    }, (RateScheduleItem rsi) => rsi.Quantity.Amount);
+            }
+            ;
 
             return gen;
         }
@@ -342,7 +353,10 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         private async Task<CreateOrderResult> CreateWorkOrder(Action<ScheduleRepair> interceptor = null)
         {
             var request = GenerateWorkOrder<ScheduleRepair>()
-                .AddValue(new List<double> { 1 }, (RateScheduleItem rsi) => rsi.Quantity.Amount)
+                .AddValue(new List<double>
+                {
+                    1
+                }, (RateScheduleItem rsi) => rsi.Quantity.Amount)
                 .Generate();
 
             interceptor?.Invoke(request);
@@ -379,7 +393,10 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
                 CustomName = "test code",
                 Quantity = new Quantity
                 {
-                    Amount = new double[] { quantity }
+                    Amount = new double[]
+                    {
+                        quantity
+                    }
                 }
             });
         }

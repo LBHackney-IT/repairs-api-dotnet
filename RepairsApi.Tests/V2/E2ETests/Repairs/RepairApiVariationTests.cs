@@ -114,7 +114,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
 
             // Assert
             response.Tasks.ElementAt(1).VariedQuantity.Should().Be(newItemQuantity);
-            response.Notes.Should().Be(Notes);
+            response.Notes.Should().EndWith(Notes);
             code.Should().Be(HttpStatusCode.OK);
         }
 
