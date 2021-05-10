@@ -17,5 +17,6 @@ RUN dotnet restore ./RepairsApi.Tests/RepairsApi.Tests.csproj
 COPY . .
 
 RUN dotnet build -c debug
+RUN chmod 777 ./RepairsApi.Tests/startup.sh
 
-CMD dotnet test /p:CollectCoverage=true /p:Threshold=70 /p:ThresholdType=line /p:ExcludeByFile="**/Migrations/**/*.*%2c**/Generated/**/*.cs" --no-build --filter FullyQualifiedName~V2
+CMD ./RepairsApi.Tests/startup.sh
