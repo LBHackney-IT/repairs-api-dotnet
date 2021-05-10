@@ -24,7 +24,7 @@ namespace RepairsApi.V2.Helpers
                 wo.StatusCode != WorkStatusCode.PendMaterial &&
                 wo.StatusCode != WorkStatusCode.Hold
             )
-                throw new NotSupportedException("Cannot Resume Job");
+                throw new NotSupportedException(Resources.CannotResumeJob);
         }
 
         public static void VerifyCanVary(this WorkOrder wo)
