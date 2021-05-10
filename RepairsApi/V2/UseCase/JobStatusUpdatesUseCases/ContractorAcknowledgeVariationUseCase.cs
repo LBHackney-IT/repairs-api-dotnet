@@ -28,7 +28,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             var workOrderId = int.Parse(jobStatusUpdate.RelatedWorkOrderReference.ID);
 
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
-            workOrder.VerifyCanAcknowldgeVariation();
+            workOrder.VerifyCanAcknowledgeVariation();
 
             if (!_currentUserService.HasGroup(UserGroups.Contractor))
                 throw new UnauthorizedAccessException(Resources.InvalidPermissions);

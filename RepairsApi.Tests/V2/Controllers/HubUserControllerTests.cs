@@ -8,18 +8,19 @@ using RepairsApi.V2.Controllers;
 using RepairsApi.V2.Services;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using RepairsApi.Tests.Helpers;
 
 namespace RepairsApi.Tests.V2.Controllers
 {
     public class HubUserControllerTests : ControllerTests
     {
         private HubUserController _classUnderTest;
-        private Mock<ICurrentUserService> _mockCurrentUserService;
+        private CurrentUserServiceMock _mockCurrentUserService;
 
         [SetUp]
         public void SetUp()
         {
-            _mockCurrentUserService = new Mock<ICurrentUserService>();
+            _mockCurrentUserService = new CurrentUserServiceMock();
             _classUnderTest = new HubUserController(_mockCurrentUserService.Object);
         }
 
@@ -36,16 +37,8 @@ namespace RepairsApi.Tests.V2.Controllers
                 RaiseLimit = "250"
             };
 
-            var identity = new ClaimsIdentity();
-            identity.AddClaim(new Claim(ClaimTypes.Email, "repairs@hackney.gov.uk"));
-            identity.AddClaim(new Claim(ClaimTypes.PrimarySid, "222222"));
-            identity.AddClaim(new Claim(ClaimTypes.Name, "Bob Repairs"));
-            identity.AddClaim(new Claim(CustomClaimTypes.VaryLimit, "250"));
-            identity.AddClaim(new Claim(CustomClaimTypes.RaiseLimit, "250"));
-            ClaimsPrincipal user = new ClaimsPrincipal(identity);
+            _mockCurrentUserService.SetUser(hubUser.Sub, hubUser.Email, hubUser.Name, hubUser.VaryLimit, hubUser.RaiseLimit);
 
-            _mockCurrentUserService.Setup(x => x.GetUser())
-                .Returns(user);
             var response = await _classUnderTest.GetHubUser() as OkObjectResult;
 
             response.Should().NotBeNull();

@@ -54,6 +54,8 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
                 await _updateSorCodesUseCase.Execute(workOrder, workElement);
             }
 
+            jobStatusUpdate.PrefixComments(Resources.VariationReason);
+
             await _repairsGateway.SaveChangesAsync();
         }
 

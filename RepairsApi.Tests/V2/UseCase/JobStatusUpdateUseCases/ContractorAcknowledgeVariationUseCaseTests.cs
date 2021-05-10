@@ -18,7 +18,7 @@ using WorkElement = RepairsApi.V2.Infrastructure.WorkElement;
 
 namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
 {
-    public class ContractorAcceptApprovedVariationTests
+    public class ContractorAcknowledgeVariationUseCaseTests
     {
         private Fixture _fixture;
 
@@ -40,7 +40,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         }
 
         [Test]
-        public void ThrowAccessExceptionWhenUnauthorizedGroup()
+        public async Task ThrowAccessExceptionWhenUnauthorizedGroup()
         {
             const int desiredWorkOrderId = 42;
             var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
@@ -48,14 +48,14 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
                 Generated.JobStatusUpdateTypeCode._10010);
 
             Func<Task> fn = () => _classUnderTest.Execute(request);
-            fn.Should().ThrowAsync<UnauthorizedAccessException>();
+            await fn.Should().ThrowAsync<UnauthorizedAccessException>();
         }
 
         [Test]
-        public void ThrowNotSupportedExceptionWhenWorkOrderNotApproved()
+        public async Task ThrowNotSupportedExceptionWhenWorkOrderNotApproved()
         {
             const int desiredWorkOrderId = 42;
-            var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
+            var workOrder = CreateReturnWorkOrder(desiredWorkOrderId, WorkStatusCode.Open);
             var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
                 Generated.JobStatusUpdateTypeCode._10010);
 
@@ -63,7 +63,21 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
                 .Returns(true);
 
             Func<Task> fn = () => _classUnderTest.Execute(request);
-            fn.Should().ThrowAsync<NotSupportedException>();
+            await fn.Should().ThrowAsync<NotSupportedException>();
+        }
+
+        [Test]
+        public async Task UpdatesWorkOrderStatus()
+        {
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.Contractor);
+            const int desiredWorkOrderId = 42;
+            var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
+            var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
+                Generated.JobStatusUpdateTypeCode._10010);
+
+            await _classUnderTest.Execute(request);
+
+            workOrder.StatusCode.Should().Be(WorkStatusCode.Open);
         }
 
         private static Generated.JobStatusUpdate CreateJobStatusUpdateRequest
@@ -83,9 +97,9 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
                 }
             };
         }
-        private WorkOrder CreateReturnWorkOrder(int expectedId)
+        private WorkOrder CreateReturnWorkOrder(int expectedId, WorkStatusCode workStatusCode = WorkStatusCode.VariationApproved)
         {
-            var workOrder = BuildWorkOrder(expectedId);
+            var workOrder = BuildWorkOrder(expectedId, workStatusCode);
 
             _repairsGatewayMock.Setup(gateway => gateway.GetWorkOrder(It.Is<int>(i => i == expectedId)))
                 .ReturnsAsync(workOrder);
@@ -95,7 +109,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             return workOrder;
         }
 
-        private WorkOrder BuildWorkOrder(int expectedId)
+        private WorkOrder BuildWorkOrder(int expectedId, WorkStatusCode workStatusCode)
         {
             var workOrder = _fixture.Build<WorkOrder>()
                 .With(x => x.WorkElements, new List<WorkElement>
@@ -114,6 +128,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
                         .Create()
                 })
                 .With(x => x.Id, expectedId)
+                .With(x => x.StatusCode, workStatusCode)
                 .Create();
             return workOrder;
         }
