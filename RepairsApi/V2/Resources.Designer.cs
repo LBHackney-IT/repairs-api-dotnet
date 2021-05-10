@@ -124,6 +124,24 @@ namespace RepairsApi.V2 {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Not Authorised to cancel jobs.
+        /// </summary>
+        public static string NotAuthorisedToCancel {
+            get {
+                return ResourceManager.GetString("NotAuthorisedToCancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not Authorised to close jobs.
+        /// </summary>
+        public static string NotAuthorisedToClose {
+            get {
+                return ResourceManager.GetString("NotAuthorisedToClose", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to fetch person alerts.
         /// </summary>
         public static string PersonAlertsFailure {
@@ -183,6 +201,15 @@ namespace RepairsApi.V2 {
         public static string UnsupportedUHPriority {
             get {
                 return ResourceManager.GetString("UnsupportedUHPriority", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unsupported work order complete job status update code.
+        /// </summary>
+        public static string UnsupportedWorkOrderUpdate {
+            get {
+                return ResourceManager.GetString("UnsupportedWorkOrderUpdate", resourceCulture);
             }
         }
         

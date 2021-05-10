@@ -171,4 +171,13 @@
   <data name="VariationReason" xml:space="preserve">
       <value>Variation reason: </value>
   </data>
+  <data name="UnsupportedWorkOrderUpdate" xml:space="preserve">
+      <value>Unsupported work order complete job status update code</value>
+  </data>
+  <data name="NotAuthorisedToClose" xml:space="preserve">
+      <value>Not Authorised to close jobs</value>
+  </data>
+  <data name="NotAuthorisedToCancel" xml:space="preserve">
+      <value>Not Authorised to cancel jobs</value>
+  </data>
 </root>

@@ -20,7 +20,9 @@ using Party = RepairsApi.V2.Infrastructure.Party;
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using AutoFixture;
 using Microsoft.Extensions.Options;
+using RepairsApi.Tests.Helpers;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.Notifications;
 using V2_Generated_DRS;
@@ -32,31 +34,30 @@ namespace RepairsApi.Tests.V2.UseCase
         private MockRepairsGateway _repairsGatewayMock;
         private Mock<IAuthorizationService> _authMock;
         private Mock<IScheduleOfRatesGateway> _scheduleOfRatesGateway;
-        private Mock<ICurrentUserService> _currentUserServiceMock;
+        private CurrentUserServiceMock _currentUserServiceMock;
         private Mock<IFeatureManager> _featureManagerMock;
         private CreateWorkOrderUseCase _classUnderTest;
         private NotificationMock _handlerMock;
         private DrsOptions _drsOptions;
+        private Fixture _fixture;
 
         [SetUp]
         public void Setup()
         {
+            _fixture = new Fixture();
             _repairsGatewayMock = new MockRepairsGateway();
             _authMock = new Mock<IAuthorizationService>();
             _authMock.Setup(a => a.AuthorizeAsync(It.IsAny<ClaimsPrincipal>(), It.IsAny<object>(), It.IsAny<string>()))
                 .ReturnsAsync(AuthorizationResult.Success());
             _scheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
             ContractorUsesExternalScheduler(false);
-            _currentUserServiceMock = new Mock<ICurrentUserService>();
+            _currentUserServiceMock = new CurrentUserServiceMock();
             _featureManagerMock = new Mock<IFeatureManager>();
             _featureManagerMock.Setup(fm => fm.IsEnabledAsync(It.IsAny<string>())).ReturnsAsync(true);
             _handlerMock = new NotificationMock();
             _drsOptions = new DrsOptions
             {
-                Login = "login",
-                Password = "password",
-                APIAddress = new Uri("https://apiAddress.none"),
-                ManagementAddress = new Uri("https://managementAddress.none")
+                Login = "login", Password = "password", APIAddress = new Uri("https://apiAddress.none"), ManagementAddress = new Uri("https://managementAddress.none")
             };
             _classUnderTest = new CreateWorkOrderUseCase(
                 _repairsGatewayMock.Object,
@@ -177,7 +178,7 @@ namespace RepairsApi.Tests.V2.UseCase
         [Test]
         public async Task SetsRSIToOriginalTrue()
         {
-            var generator = new Generator<WorkOrder>()
+            var generator = new Helpers.StubGeneration.Generator<WorkOrder>()
                 .AddInfrastructureWorkOrderGenerators()
                 .AddValue(new List<Trade>
                 {
@@ -211,14 +212,41 @@ namespace RepairsApi.Tests.V2.UseCase
             int newId = 1;
             _repairsGatewayMock.ReturnWOId(newId);
             ContractorUsesExternalScheduler(true);
-            var generator = new Generator<WorkOrder>()
+            var generator = new Helpers.StubGeneration.Generator<WorkOrder>()
                 .AddInfrastructureWorkOrderGenerators()
-                .AddValue(new List<Trade> { new Trade { Code = TradeCode.B2 } }, (WorkElement we) => we.Trade);
+                .AddValue(new List<Trade>
+                {
+                    new Trade
+                    {
+                        Code = TradeCode.B2
+                    }
+                }, (WorkElement we) => we.Trade);
             var workOrder = generator.Generate();
 
             var result = await _classUnderTest.Execute(workOrder);
 
             result.ExternallyManagedAppointment.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task AttachesUserInfo()
+        {
+            var expectedEmail = _fixture.Create<string>();
+            var expectedName = _fixture.Create<string>();
+            _currentUserServiceMock.SetUser(
+                _fixture.Create<string>(),
+                expectedEmail,
+                expectedName,
+                _fixture.Create<string>(),
+                _fixture.Create<string>()
+            );
+            _repairsGatewayMock.ReturnWOId(1);
+            var workOrder = new WorkOrder();
+
+            await _classUnderTest.Execute(workOrder);
+
+            workOrder.AgentEmail.Should().Be(expectedEmail);
+            workOrder.AgentName.Should().Be(expectedName);
         }
 
         private void ContractorUsesExternalScheduler(bool external)

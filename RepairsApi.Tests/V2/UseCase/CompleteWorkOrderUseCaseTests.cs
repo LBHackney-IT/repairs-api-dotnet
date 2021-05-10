@@ -12,6 +12,7 @@ using RepairsApi.V2.Infrastructure;
 using Generated = RepairsApi.V2.Generated;
 using RepairsApi.V2.UseCase;
 using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.V2;
 using RepairsApi.V2.Generated.CustomTypes;
 using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Services;
@@ -56,14 +57,14 @@ namespace RepairsApi.Tests.V2.UseCase
         [TestCase(0)]
         [TestCase(2)]
         [TestCase(3)]
-        public async Task ThrowsNotSupportedWhenNot1Update(int updatecount)
+        public async Task ThrowsNotSupportedWhenNot1Update(int updateCount)
         {
             var expectedWorkOrder = CreateWorkOrder();
 
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
             workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>();
 
-            for (int i = 0; i < updatecount; i++)
+            for (int i = 0; i < updateCount; i++)
             {
                 workOrderCompleteRequest.JobStatusUpdates.Add(
                                     new Generated.JobStatusUpdates
@@ -163,8 +164,9 @@ namespace RepairsApi.Tests.V2.UseCase
         }
 
 
-        [Test]
-        public void ThrowsExceptionWhenNotValidUpdateType()
+        [TestCase(Generated.JobStatusUpdateTypeCode._0, "expectedOtherType")]
+        [TestCase(Generated.JobStatusUpdateTypeCode._10, "")]
+        public async Task ThrowsExceptionWhenNotValidUpdateType(Generated.JobStatusUpdateTypeCode typeCode, string otherTypeCode)
         {
             // arrange
             var expectedWorkOrder = CreateWorkOrder();
@@ -173,13 +175,16 @@ namespace RepairsApi.Tests.V2.UseCase
             {
                 new Generated.JobStatusUpdates
                 {
-                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = "expectedOtherType", Comments = "expectedComment"
+                    TypeCode = typeCode, OtherType = otherTypeCode, Comments = "expectedComment"
                 }
             };
 
             // act
             // assert
-            Assert.ThrowsAsync<NotSupportedException>(() => _classUnderTest.Execute(workOrderCompleteRequest));
+            Func<Task> act = () => _classUnderTest.Execute(workOrderCompleteRequest);
+
+            (await act.Should().ThrowAsync<NotSupportedException>())
+                .Which.Message.Should().Be(Resources.UnsupportedWorkOrderUpdate);
         }
 
         [Test]
@@ -351,6 +356,36 @@ namespace RepairsApi.Tests.V2.UseCase
             await _classUnderTest.Execute(workOrderCompleteRequest);
 
             _handlerMock.HaveHandlersBeenCalled<WorkOrderCancelled>().Should().BeTrue();
+        }
+
+        [TestCase(Generated.JobStatusUpdateTypeCode._70, "")]
+        [TestCase(Generated.JobStatusUpdateTypeCode._0, CustomJobStatusUpdates.Completed)]
+        [TestCase(Generated.JobStatusUpdateTypeCode._0, CustomJobStatusUpdates.Cancelled)]
+        public async Task ThrowsUnauthorizedWhenNotAuthorized(Generated.JobStatusUpdateTypeCode updateCode, string otherTypeCode)
+        {
+            // arrange
+            var expectedWorkOrder = CreateWorkOrder();
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.Contractor, false);
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.ContractManager, false);
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.Agent, false);
+
+            var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
+            workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
+            {
+                new Generated.JobStatusUpdates
+                {
+                    TypeCode = updateCode, OtherType = otherTypeCode, Comments = "expectedComment"
+                }
+            };
+
+            // act
+            Func<Task> act = () => _classUnderTest.Execute(workOrderCompleteRequest);
+
+            (await act.Should().ThrowAsync<UnauthorizedAccessException>())
+                .Which.Message.Should().BeOneOf(new List<string>
+                {
+                    Resources.NotAuthorisedToCancel, Resources.NotAuthorisedToClose
+                });
         }
 
         private static Generated.WorkOrderComplete CreateRequest(int expectedWorkOrderId)

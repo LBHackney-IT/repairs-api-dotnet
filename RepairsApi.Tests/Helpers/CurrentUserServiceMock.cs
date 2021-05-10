@@ -32,6 +32,8 @@ namespace RepairsApi.Tests.Helpers
             ClaimsPrincipal user = new ClaimsPrincipal(identity);
             Setup(x => x.GetUser())
                 .Returns(user);
+            Setup(x => x.IsUserPresent())
+                .Returns(true);
         }
     }
 }
