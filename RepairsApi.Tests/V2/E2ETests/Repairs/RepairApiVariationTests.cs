@@ -20,7 +20,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         public async Task UpdateCausesPendingApprovalOnWorkOrderWhenCostLimitExceeded()
         {
             // Arrange
-            int workOrderId = await CreatePendingVariation();
+            int workOrderId = await CreateVariation();
 
             var workOrder = GetWorkOrderFromDB(workOrderId, workOrder => workOrder.JobStatusUpdates.Load());
 
@@ -34,7 +34,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         public async Task WorkOrderRejectVariation(JobStatusUpdateTypeCode updateCode, WorkStatusCode expectedStatus)
         {
             // Arrange
-            int workOrderId = await CreatePendingVariation();
+            int workOrderId = await CreateVariation();
 
             SetUserRole(UserGroups.ContractManager);
             await UpdateJob(workOrderId, updateCode);
@@ -49,7 +49,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         public async Task ContractorAcknowledgeWorkOrderSetToInProgress()
         {
             // Arrange
-            int workOrderId = await CreatePendingVariation();
+            int workOrderId = await CreateVariation();
 
             SetUserRole(UserGroups.ContractManager);
             await UpdateJob(workOrderId, JobStatusUpdateTypeCode._10020);
@@ -70,7 +70,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         public async Task InvalidUserUpdatingVariationReturns401(string userGroup, JobStatusUpdateTypeCode updateCode)
         {
             // Arrange
-            int workOrderId = await CreatePendingVariation();
+            int workOrderId = await CreateVariation();
 
             SetUserRole(userGroup);
             var code = await UpdateJob(workOrderId, updateCode);
@@ -86,7 +86,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
         public async Task IvalidUserAcknowledgingWorkOrderReturns401(string userGroup)
         {
             // Arrange
-            int workOrderId = await CreatePendingVariation();
+            int workOrderId = await CreateVariation();
 
             SetUserRole(UserGroups.ContractManager);
             await UpdateJob(workOrderId, JobStatusUpdateTypeCode._10020);
@@ -107,7 +107,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             // Arrange
             const int newItemQuantity = 100000;
             const string Notes = "notes";
-            int workOrderId = await CreatePendingVariation(newItemQuantity, Notes);
+            int workOrderId = await CreateVariation(newItemQuantity, Notes);
 
             SetUserRole(UserGroups.ContractManager);
             var (code, response) = await Get<GetVariationResponse>($"/api/v2/workOrders/{workOrderId}/variation-tasks");
@@ -118,7 +118,39 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
             code.Should().Be(HttpStatusCode.OK);
         }
 
-        private async Task<int> CreatePendingVariation(int newItemQuantity = 100000000, string notes = "notes")
+        [Test]
+        public async Task AddMultipleCodesInVariation()
+        {
+            string expectedCode = Guid.NewGuid().ToString();
+            string otherExpectedCode = Guid.NewGuid().ToString();
+            AddTestCode(expectedCode);
+            AddTestCode(otherExpectedCode);
+            var result = await CreateWorkOrder();
+
+            await UpdateSorCodes(result.Id, jsu =>
+            {
+                jsu.MoreSpecificSORCode.RateScheduleItem.Add(new RateScheduleItem
+                {
+                    CustomCode = expectedCode,
+                    CustomName = "customName",
+                    Quantity = new Quantity { Amount = new List<double> { 1 } },
+                });
+
+                jsu.MoreSpecificSORCode.RateScheduleItem.Add(new RateScheduleItem
+                {
+                    CustomCode = otherExpectedCode,
+                    CustomName = "customName",
+                    Quantity = new Quantity { Amount = new List<double> { 1 } },
+                });
+            });
+
+            var tasks = await GetTasks(result.Id);
+
+            tasks.Should().ContainSingle(r => r.Code == otherExpectedCode);
+            tasks.Should().ContainSingle(r => r.Code == expectedCode);
+        }
+
+        private async Task<int> CreateVariation(int newItemQuantity = 100000000, string notes = "notes")
         {
             string expectedCode = Guid.NewGuid().ToString();
             AddTestCode(expectedCode);
@@ -134,6 +166,7 @@ namespace RepairsApi.Tests.V2.E2ETests.Repairs
                 });
                 jsu.Comments = notes;
             });
+
             return result.Id;
         }
     }

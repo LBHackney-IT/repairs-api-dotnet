@@ -17,8 +17,13 @@ namespace RepairsApi
             {
                 filter.AddFilter(
                     searchParams => searchParams.ContractorReference,
-                    contractorReference => !string.IsNullOrWhiteSpace(contractorReference),
-                    contractorReference => wo => wo.AssignedToPrimary.ContractorReference == contractorReference
+                    contractorReference => contractorReference?.Count > 0,
+                    contractorReference => wo => contractorReference.Contains(wo.AssignedToPrimary.ContractorReference)
+                )
+                .AddFilter(
+                    searchParams => searchParams.TradeCodes,
+                    tc => tc?.Count > 0,
+                    tc => wo => tc.Contains(wo.WorkElements.FirstOrDefault().Trade.FirstOrDefault().CustomCode)
                 )
                 .AddFilter(
                     searchParams => searchParams.PropertyReference,

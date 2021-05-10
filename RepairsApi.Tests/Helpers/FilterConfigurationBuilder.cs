@@ -10,10 +10,10 @@ namespace RepairsApi.Tests.Helpers
     {
         private FilterConfiguration _filters = new FilterConfiguration();
 
-        public FilterConfigurationBuilder AddModel(string modelKey, Action<ModelFilterConfigurationBuilder> setup)
+        public FilterConfigurationBuilder AddModel(string modelKey, Action<ModelFilterConfigurationBuilder> setup = null)
         {
             var modelBuilder = new ModelFilterConfigurationBuilder();
-            setup(modelBuilder);
+            setup?.Invoke(modelBuilder);
             _filters.Add(modelKey, modelBuilder.Build());
             return this;
         }
