@@ -12,6 +12,7 @@ using NUnit.Framework;
 using RepairsApi.Tests.Helpers;
 using RepairsApi.Tests.V2.Gateways;
 using RepairsApi.V2;
+using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase;
 using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
@@ -28,6 +29,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         private Mock<IAuthorizationService> _authorisationMock;
         private CurrentUserServiceMock _currentUserServiceMock;
         private Mock<IUpdateSorCodesUseCase> _updateSorCodesUseCaseMock;
+        private Mock<IScheduleOfRatesGateway> _sheduleOfRatesGateway;
         private Mock<IFeatureManager> _featureManagerMock;
         private MoreSpecificSorUseCase _classUnderTest;
 
@@ -43,12 +45,15 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _authorisationMock = new Mock<IAuthorizationService>();
             _currentUserServiceMock = new CurrentUserServiceMock();
             _updateSorCodesUseCaseMock = new Mock<IUpdateSorCodesUseCase>();
+            _sheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
+            _sheduleOfRatesGateway.Setup(g => g.GetCost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(10.0);
             _classUnderTest = new MoreSpecificSorUseCase(
                 _repairsGatewayMock.Object,
                 _authorisationMock.Object,
                 _featureManagerMock.Object,
                 _currentUserServiceMock.Object,
-                _updateSorCodesUseCaseMock.Object);
+                _updateSorCodesUseCaseMock.Object,
+                _sheduleOfRatesGateway.Object);
         }
 
         [TestCase(WorkStatusCode.VariationPendingApproval)]
@@ -163,20 +168,18 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             return workOrder;
         }
 
-        private Generated.JobStatusUpdate BuildUpdate(WorkOrder workOrder)
+        private JobStatusUpdate BuildUpdate(WorkOrder workOrder)
         {
 
-            return _fixture.Build<Generated.JobStatusUpdate>()
-                .With(jsu => jsu.MoreSpecificSORCode, _fixture.Build<Generated.WorkElement>()
-                    .With(we => we.RateScheduleItem, _fixture.Build<Generated.RateScheduleItem>()
-                        .With(rsi => rsi.Quantity, _fixture.Build<Generated.Quantity>()
-                            .With(q => q.Amount, _fixture.CreateMany<double>(1).ToArray)
+            return _fixture.Build<JobStatusUpdate>()
+                .With(jsu => jsu.MoreSpecificSORCode, _fixture.Build<WorkElement>()
+                    .With(we => we.RateScheduleItem, _fixture.Build<RateScheduleItem>()
+                        .With(rsi => rsi.Quantity, _fixture.Build<Quantity>()
+                            .With(q => q.Amount, 1)
                             .Create())
-                        .CreateMany().ToArray)
+                        .CreateMany().ToList())
                     .Create())
-                .With(jsu => jsu.RelatedWorkOrderReference, _fixture.Build<Generated.Reference>()
-                    .With(r => r.ID, workOrder.Id.ToString)
-                    .Create())
+                .With(jsu => jsu.RelatedWorkOrder, workOrder)
                 .Create();
         }
     }

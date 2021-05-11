@@ -5,7 +5,6 @@ using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 using System;
 using System.Threading.Tasks;
-using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
 
 namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 {
@@ -24,9 +23,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
         public async Task Execute(JobStatusUpdate jobStatusUpdate)
         {
-            var workOrderId = int.Parse(jobStatusUpdate.RelatedWorkOrderReference.ID);
-
-            var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
+            var workOrder = jobStatusUpdate.RelatedWorkOrder;
             workOrder.VerifyCanRejectVariation();
 
             if (!_currentUserService.HasGroup(UserGroups.ContractManager))

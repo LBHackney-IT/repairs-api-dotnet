@@ -9,30 +9,15 @@ namespace RepairsApi.V2.UseCase
 {
     public class UpdateSorCodesUseCase : IUpdateSorCodesUseCase
     {
-        private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
-
-        public UpdateSorCodesUseCase(IScheduleOfRatesGateway scheduleOfRatesGateway)
-        {
-            _scheduleOfRatesGateway = scheduleOfRatesGateway;
-        }
-
-        public async Task Execute(WorkOrder workOrder, WorkElement workElement)
+        public Task Execute(WorkOrder workOrder, WorkElement workElement)
         {
             var existingCodes = workOrder.WorkElements.SelectMany(we => we.RateScheduleItem).ToList();
             var newCodes = workElement.RateScheduleItem.Where(rsi => !existingCodes.Any(ec => ec.Id == rsi.OriginalId)).ToList();
 
             UpdateExistingCodes(existingCodes, workElement);
-            await AddNewCodes(newCodes, workOrder);
-        }
+            workOrder.WorkElements.First().RateScheduleItem.AddRange(newCodes);
 
-        private async Task AddNewCodes(IEnumerable<RateScheduleItem> newCodes, WorkOrder workOrder)
-        {
-            foreach (var newCode in newCodes)
-            {
-                newCode.Original = false;
-                newCode.CodeCost = await _scheduleOfRatesGateway.GetCost(workOrder.AssignedToPrimary?.ContractorReference, newCode.CustomCode);
-                workOrder.WorkElements.First().RateScheduleItem.Add(newCode);
-            }
+            return Task.CompletedTask;
         }
 
         private static void UpdateExistingCodes(IEnumerable<RateScheduleItem> existingCodes, WorkElement workElement)

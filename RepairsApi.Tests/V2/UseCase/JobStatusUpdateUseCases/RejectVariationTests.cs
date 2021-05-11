@@ -47,7 +47,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         {
             const int desiredWorkOrderId = 42;
             var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
-            var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
+            var request = CreateJobStatusUpdateRequest(workOrder,
                 Generated.JobStatusUpdateTypeCode._125);
 
             _currentUserServiceMock.SetSecurityGroup(userGroup);
@@ -65,7 +65,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         {
             const int desiredWorkOrderId = 42;
             var workOrder = CreateReturnWorkOrder(desiredWorkOrderId, status);
-            var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
+            var request = CreateJobStatusUpdateRequest(workOrder,
                 Generated.JobStatusUpdateTypeCode._125);
 
             _currentUserServiceMock.SetSecurityGroup(UserGroups.ContractManager);
@@ -80,7 +80,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             const int desiredWorkOrderId = 42;
             var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
             workOrder.StatusCode = WorkStatusCode.VariationPendingApproval;
-            var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
+            var request = CreateJobStatusUpdateRequest(workOrder,
                 Generated.JobStatusUpdateTypeCode._125);
 
             _currentUserServiceMock.SetSecurityGroup(UserGroups.ContractManager);
@@ -96,7 +96,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             const int desiredWorkOrderId = 42;
             var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
             workOrder.StatusCode = WorkStatusCode.VariationPendingApproval;
-            var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
+            var request = CreateJobStatusUpdateRequest(workOrder,
                 Generated.JobStatusUpdateTypeCode._125);
             const string beforeComments = "expectedBeforeComments";
             request.Comments = beforeComments;
@@ -115,7 +115,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             const int desiredWorkOrderId = 42;
             var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
             workOrder.StatusCode = WorkStatusCode.VariationPendingApproval;
-            var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
+            var request = CreateJobStatusUpdateRequest(workOrder,
                 Generated.JobStatusUpdateTypeCode._125);
             var expectedComments = $"{Resources.RejectedVariationPrepend}expectedBeforeComments";
             request.Comments = expectedComments;
@@ -127,20 +127,17 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             request.Comments.Should().Be(expectedComments);
         }
 
-        private static Generated.JobStatusUpdate CreateJobStatusUpdateRequest
-            (int workOrderId, Generated.JobStatusUpdateTypeCode jobStatus)
+        private static JobStatusUpdate CreateJobStatusUpdateRequest
+            (WorkOrder workOrder, Generated.JobStatusUpdateTypeCode jobStatus)
         {
-            return new Generated.JobStatusUpdate
+            return new JobStatusUpdate
             {
-                RelatedWorkOrderReference = new Generated.Reference
-                {
-                    ID = workOrderId.ToString()
-                },
+                RelatedWorkOrder = workOrder,
                 TypeCode = jobStatus,
-                MoreSpecificSORCode = new Generated.WorkElement
+                MoreSpecificSORCode = new WorkElement
                 {
-                    Trade = new List<Generated.Trade>(),
-                    RateScheduleItem = new List<Generated.RateScheduleItem>()
+                    Trade = new List<Trade>(),
+                    RateScheduleItem = new List<RateScheduleItem>()
                 }
             };
         }

@@ -12,14 +12,13 @@ using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
-using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
+using JobStatusUpdate = RepairsApi.V2.Infrastructure.JobStatusUpdate;
 
 namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
 {
     public class RejectWorkOrderStrategyTests
     {
         private CurrentUserServiceMock _currentUserServiceMock;
-        private MockRepairsGateway _repairsGatewayMock;
         private RejectWorkOrderStrategy _classUnderTest;
         private Fixture _fixture;
 
@@ -30,10 +29,8 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _fixture.Behaviors.Remove(new ThrowingRecursionBehavior());
             _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
             _currentUserServiceMock = new CurrentUserServiceMock();
-            _repairsGatewayMock = new MockRepairsGateway();
             _classUnderTest = new RejectWorkOrderStrategy(
-                _currentUserServiceMock.Object,
-                _repairsGatewayMock.Object
+                _currentUserServiceMock.Object
             );
         }
 
@@ -44,7 +41,6 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         {
             var workOrder = _fixture.Create<WorkOrder>();
             workOrder.StatusCode = status;
-            _repairsGatewayMock.ReturnsWorkOrders(workOrder);
             var jobStatusUpdate = BuildUpdate(workOrder);
 
             Func<Task> act = async () => await _classUnderTest.Execute(jobStatusUpdate);
@@ -59,7 +55,6 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         {
             var workOrder = _fixture.Create<WorkOrder>();
             workOrder.StatusCode = WorkStatusCode.PendingApproval;
-            _repairsGatewayMock.ReturnsWorkOrders(workOrder);
             var jobStatusUpdate = BuildUpdate(workOrder);
             _currentUserServiceMock.SetSecurityGroup(userGroup);
 
@@ -74,7 +69,6 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         {
             var workOrder = _fixture.Create<WorkOrder>();
             workOrder.StatusCode = WorkStatusCode.PendingApproval;
-            _repairsGatewayMock.ReturnsWorkOrders(workOrder);
             var jobStatusUpdate = BuildUpdate(workOrder);
             _currentUserServiceMock.SetSecurityGroup(UserGroups.AuthorisationManager);
 
@@ -88,7 +82,6 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         {
             var workOrder = _fixture.Create<WorkOrder>();
             workOrder.StatusCode = WorkStatusCode.PendingApproval;
-            _repairsGatewayMock.ReturnsWorkOrders(workOrder);
             var jobStatusUpdate = BuildUpdate(workOrder);
             const string beforeComments = "expectedBeforeComments";
             jobStatusUpdate.Comments = beforeComments;
@@ -106,7 +99,6 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         {
             var workOrder = _fixture.Create<WorkOrder>();
             workOrder.StatusCode = WorkStatusCode.PendingApproval;
-            _repairsGatewayMock.ReturnsWorkOrders(workOrder);
             var jobStatusUpdate = BuildUpdate(workOrder);
             var expectedComments = $"{Resources.WorkOrderAuthorisationRejected}expectedBeforeComments";
             jobStatusUpdate.Comments = expectedComments;
@@ -121,11 +113,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         private JobStatusUpdate BuildUpdate(WorkOrder workOrder)
         {
             var jobStatusUpdate = _fixture.Build<JobStatusUpdate>()
-                .With(jsu => jsu.RelatedWorkOrderReference,
-                    _fixture.Build<Reference>()
-                        .With(r => r.ID, workOrder.Id.ToString)
-                        .Create())
-                .Create();
+                .With(jsu => jsu.RelatedWorkOrder, workOrder).Create();
             return jobStatusUpdate;
         }
     }

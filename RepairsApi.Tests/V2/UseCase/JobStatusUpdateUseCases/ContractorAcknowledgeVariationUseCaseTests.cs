@@ -44,7 +44,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         {
             const int desiredWorkOrderId = 42;
             var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
-            var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
+            var request = CreateJobStatusUpdateRequest(workOrder,
                 Generated.JobStatusUpdateTypeCode._10010);
 
             Func<Task> fn = () => _classUnderTest.Execute(request);
@@ -56,7 +56,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         {
             const int desiredWorkOrderId = 42;
             var workOrder = CreateReturnWorkOrder(desiredWorkOrderId, WorkStatusCode.Open);
-            var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
+            var request = CreateJobStatusUpdateRequest(workOrder,
                 Generated.JobStatusUpdateTypeCode._10010);
 
             _currentUserServiceMock.Setup(currentUser => currentUser.HasGroup(UserGroups.Contractor))
@@ -72,7 +72,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _currentUserServiceMock.SetSecurityGroup(UserGroups.Contractor);
             const int desiredWorkOrderId = 42;
             var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
-            var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
+            var request = CreateJobStatusUpdateRequest(workOrder,
                 Generated.JobStatusUpdateTypeCode._10010);
 
             await _classUnderTest.Execute(request);
@@ -80,20 +80,17 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             workOrder.StatusCode.Should().Be(WorkStatusCode.Open);
         }
 
-        private static Generated.JobStatusUpdate CreateJobStatusUpdateRequest
-            (int workOrderId, Generated.JobStatusUpdateTypeCode jobStatus)
+        private static JobStatusUpdate CreateJobStatusUpdateRequest
+            (WorkOrder workOrder, Generated.JobStatusUpdateTypeCode jobStatus)
         {
-            return new Generated.JobStatusUpdate
+            return new JobStatusUpdate
             {
-                RelatedWorkOrderReference = new Generated.Reference
-                {
-                    ID = workOrderId.ToString()
-                },
+                RelatedWorkOrder = workOrder,
                 TypeCode = jobStatus,
-                MoreSpecificSORCode = new Generated.WorkElement
+                MoreSpecificSORCode = new WorkElement
                 {
-                    Trade = new List<Generated.Trade>(),
-                    RateScheduleItem = new List<Generated.RateScheduleItem>()
+                    Trade = new List<Trade>(),
+                    RateScheduleItem = new List<RateScheduleItem>()
                 }
             };
         }
