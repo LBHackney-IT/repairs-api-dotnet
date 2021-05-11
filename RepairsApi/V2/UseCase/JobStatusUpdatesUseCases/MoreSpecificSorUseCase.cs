@@ -41,7 +41,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             WorkOrder workOrder = jobStatusUpdate.RelatedWorkOrder;
             workOrder.VerifyCanVary();
 
-            var workElement = jobStatusUpdate.MoreSpecificSORCode.DeepClone();
+            var workElement = jobStatusUpdate.MoreSpecificSORCode;
             await AddCodeCosts(workElement.RateScheduleItem, workOrder.AssignedToPrimary?.ContractorReference);
 
             var authorised = await _authorizationService.AuthorizeAsync(_currentUserService.GetUser(), jobStatusUpdate, "VarySpendLimit");
@@ -53,7 +53,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             }
             else
             {
-                await _updateSorCodesUseCase.Execute(workOrder, workElement);
+                await _updateSorCodesUseCase.Execute(workOrder, workElement.DeepClone());
             }
 
             jobStatusUpdate.PrefixComments(Resources.VariationReason);
