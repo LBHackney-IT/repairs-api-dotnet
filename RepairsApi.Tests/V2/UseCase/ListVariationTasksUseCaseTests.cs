@@ -51,15 +51,16 @@ namespace RepairsApi.Tests.V2.UseCase
             const int updatedQuantity = 15;
             const int newQuantity = 5;
             const string notes = "notes";
+            const string authorName = "expectedAuthor";
             Guid existingItemGuid = Guid.NewGuid();
             _repairsGatewayMock.Setup(g => g.GetWorkOrder(It.IsAny<int>())).ReturnsAsync(BuildWorkOrder(existingItemGuid, currentQuantity, originalQuantity));
-            _jobStatusUpdateGatewayMock.Setup(g => g.GetOutstandingVariation(It.IsAny<int>())).ReturnsAsync(BuildVariation(existingItemGuid, updatedQuantity, newQuantity, notes));
+            _jobStatusUpdateGatewayMock.Setup(g => g.GetOutstandingVariation(It.IsAny<int>())).ReturnsAsync(BuildVariation(existingItemGuid, updatedQuantity, newQuantity, notes, authorName));
 
             var result = await _classUnderTest.Execute(15);
 
             result.Tasks.Should().HaveCount(2);
             result.Tasks.Should().ContainSingle(rsi => rsi.CurrentQuantity == currentQuantity && rsi.VariedQuantity == updatedQuantity && rsi.OriginalQuantity == originalQuantity);
-            result.Tasks.Should().ContainSingle(rsi => rsi.CurrentQuantity == 0 && rsi.VariedQuantity == newQuantity);
+            result.Tasks.Should().ContainSingle(rsi => rsi.CurrentQuantity == 0 && rsi.VariedQuantity == newQuantity && rsi.AuthorName == authorName);
             result.Notes.Should().Be(notes);
         }
 
@@ -88,7 +89,7 @@ namespace RepairsApi.Tests.V2.UseCase
             };
         }
 
-        private static JobStatusUpdate BuildVariation(Guid existingItemGuid, int updatedQuantity, int newQuantity, string notes)
+        private static JobStatusUpdate BuildVariation(Guid existingItemGuid, int updatedQuantity, int newQuantity, string notes, string authorName)
         {
             return new JobStatusUpdate
             {
@@ -113,7 +114,8 @@ namespace RepairsApi.Tests.V2.UseCase
                             Quantity = new Quantity(newQuantity)
                         }
                     }
-                }
+                },
+                AuthorName = authorName
             };
         }
     }

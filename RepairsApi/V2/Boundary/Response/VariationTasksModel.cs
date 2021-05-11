@@ -17,5 +17,6 @@ namespace RepairsApi.V2.Boundary.Response
         public double? OriginalQuantity { get; set; }
         public double? CurrentQuantity { get; set; }
         public double? VariedQuantity { get; set; }
+        public string AuthorName { get; set; }
     }
 }
