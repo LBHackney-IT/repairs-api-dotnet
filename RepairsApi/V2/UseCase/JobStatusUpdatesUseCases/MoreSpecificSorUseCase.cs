@@ -41,23 +41,21 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             workOrder.VerifyCanVary();
 
             var workElement = jobStatusUpdate.MoreSpecificSORCode;
-            await AddCodeCosts(workElement.RateScheduleItem, workOrder.AssignedToPrimary?.ContractorReference);
+            //await AddCodeCosts(workElement.RateScheduleItem, workOrder.AssignedToPrimary?.ContractorReference);
 
-            var authorised = await _authorizationService.AuthorizeAsync(_currentUserService.GetUser(), jobStatusUpdate, "VarySpendLimit");
+            //var authorised = await _authorizationService.AuthorizeAsync(_currentUserService.GetUser(), jobStatusUpdate, "VarySpendLimit");
 
-            if (await _featureManager.IsEnabledAsync(FeatureFlags.SpendLimits) && !authorised.Succeeded)
-            {
-                workOrder.StatusCode = WorkStatusCode.VariationPendingApproval;
-                jobStatusUpdate.TypeCode = JobStatusUpdateTypeCode._180;
-            }
-            else
-            {
+            //if (await _featureManager.IsEnabledAsync(FeatureFlags.SpendLimits) && !authorised.Succeeded)
+            //{
+            //    workOrder.StatusCode = WorkStatusCode.VariationPendingApproval;
+            //    jobStatusUpdate.TypeCode = JobStatusUpdateTypeCode._180;
+            //}
+            //else
+            //{
                 await _updateSorCodesUseCase.Execute(workOrder, workElement);
-            }
+            //}
 
-            jobStatusUpdate.PrefixComments(Resources.VariationReason);
-
-            await _repairsGateway.SaveChangesAsync();
+            //jobStatusUpdate.PrefixComments(Resources.VariationReason);
         }
 
         private async Task AddCodeCosts(IEnumerable<RateScheduleItem> newCodes, string contractorReference)

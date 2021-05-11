@@ -39,6 +39,8 @@ namespace RepairsApi.V2.UseCase
 
             await _strategyFactory.ProcessActions(jsu);
 
+            await _repairsGateway.SaveChangesAsync();
+
             await _jobStatusUpdateGateway.CreateJobStatusUpdate(jsu);
         }
 
