@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace RepairsApi.V2.Boundary.Response
@@ -6,6 +7,8 @@ namespace RepairsApi.V2.Boundary.Response
     {
         public string Notes { get; set; }
         public IEnumerable<VariationTasksModel> Tasks { get; set; }
+        public string AuthorName { get; set; }
+        public DateTime VariationDate { get; set; }
     }
 
     public class VariationTasksModel
@@ -17,6 +20,5 @@ namespace RepairsApi.V2.Boundary.Response
         public double? OriginalQuantity { get; set; }
         public double? CurrentQuantity { get; set; }
         public double? VariedQuantity { get; set; }
-        public string AuthorName { get; set; }
     }
 }
