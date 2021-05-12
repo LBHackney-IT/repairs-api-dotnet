@@ -78,7 +78,7 @@ namespace RepairsApi.V2.UseCase
 
                     await _repairsGateway.UpdateWorkOrderStatus(workOrder.Id, WorkStatusCode.NoAccess);
                     break;
-                default: throw new NotSupportedException("Unsupported workorder complete job status update code");
+                default: throw new NotSupportedException(Resources.UnsupportedWorkOrderUpdate);
             }
         }
 
@@ -101,7 +101,7 @@ namespace RepairsApi.V2.UseCase
                     await _repairsGateway.UpdateWorkOrderStatus(workOrder.Id, WorkStatusCode.Canceled);
                     await _notifier.Notify(new WorkOrderCancelled(workOrder));
                     break;
-                default: throw new NotSupportedException("Unsupported workorder complete job status update code");
+                default: throw new NotSupportedException(Resources.UnsupportedWorkOrderUpdate);
             }
         }
 

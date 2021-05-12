@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using RepairsApi.V2.Infrastructure;
 
 namespace RepairsApi.V2.UseCase
 {
@@ -34,11 +35,13 @@ namespace RepairsApi.V2.UseCase
             return new GetVariationResponse
             {
                 Notes = variation.Comments,
-                Tasks = MapTasks(variationTasks, workOrderTasks)
+                Tasks = MapTasks(variationTasks, workOrderTasks),
+                AuthorName = variation.AuthorName,
+                VariationDate = variation.EventTime ?? DateTime.UtcNow
             };
         }
 
-        private static IEnumerable<VariationTasksModel> MapTasks(IEnumerable<Infrastructure.RateScheduleItem> variationTasks, IEnumerable<Infrastructure.RateScheduleItem> workOrderTasks)
+        private static IEnumerable<VariationTasksModel> MapTasks(List<RateScheduleItem> variationTasks, IEnumerable<Infrastructure.RateScheduleItem> workOrderTasks)
         {
             return from vTask in variationTasks
                    join wTask in workOrderTasks on vTask.OriginalId equals wTask.Id into gj

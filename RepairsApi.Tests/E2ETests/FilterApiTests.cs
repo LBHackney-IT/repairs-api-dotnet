@@ -9,7 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace RepairsApi.Tests.V2.Controllers
+namespace RepairsApi.Tests.E2ETests
 {
     public class FilterApiTests : MockWebApplicationFactory
     {

@@ -1,15 +1,17 @@
 using System;
 using System.Threading.Tasks;
 using AutoFixture;
+using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using RepairsApi.Tests.Helpers;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Generated.CustomTypes;
 using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase;
 using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
-using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
+using JobStatusUpdate = RepairsApi.V2.Infrastructure.JobStatusUpdate;
 
 namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
 {
@@ -30,58 +32,21 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _classUnderTest = new JobStatusUpdateStrategyFactory(_mockActivatorWrapper.Object);
         }
 
-        [Test]
-        public async Task ExecutesMoreSpecificSORUseCase()
+        [GenericTestCase(typeof(MoreSpecificSorUseCase), JobStatusUpdateTypeCode._80)]
+        [GenericTestCase(typeof(ApproveVariationUseCase), JobStatusUpdateTypeCode._10020)]
+        [GenericTestCase(typeof(RejectVariationUseCase), JobStatusUpdateTypeCode._125)]
+        [GenericTestCase(typeof(ContractorAcknowledgeVariationUseCase), JobStatusUpdateTypeCode._10010)]
+        [GenericTestCase(typeof(JobIncompleteStrategy), JobStatusUpdateTypeCode._120)]
+        [GenericTestCase(typeof(JobIncompleteNeedMaterialsStrategy), JobStatusUpdateTypeCode._12020)]
+        [GenericTestCase(typeof(RejectWorkOrderStrategy), JobStatusUpdateTypeCode._190)]
+        [GenericTestCase(typeof(ApproveWorkOrderStrategy), JobStatusUpdateTypeCode._200)]
+        [GenericTestCase(typeof(ResumeJobStrategy), JobStatusUpdateTypeCode._0, CustomJobStatusUpdates.Resume)]
+        public async Task ValidateStrategyLookups<T>(JobStatusUpdateTypeCode typeCode, string otherTypeCode = "") where T : IJobStatusUpdateStrategy
         {
-            await ValidateStrategyResolution<MoreSpecificSorUseCase>(new JobStatusUpdate
+            await ValidateStrategyResolution<T>(new JobStatusUpdate
             {
-                TypeCode = JobStatusUpdateTypeCode._80
-            });
-        }
-
-        [Test]
-        public async Task ExecutesApproveVariationUseCase()
-        {
-            await ValidateStrategyResolution<ApproveVariationUseCase>(new JobStatusUpdate
-            {
-                TypeCode = JobStatusUpdateTypeCode._10020
-            });
-        }
-
-        [Test]
-        public async Task ExecutesRejectVariationUseCase()
-        {
-            await ValidateStrategyResolution<RejectVariationUseCase>(new JobStatusUpdate
-            {
-                TypeCode = JobStatusUpdateTypeCode._125
-            });
-        }
-
-        [Test]
-        public async Task ExecutesContractorAcceptApprovedVariationUseCase()
-        {
-            await ValidateStrategyResolution<ContractorAcknowledgeVariationUseCase>(new JobStatusUpdate
-            {
-                TypeCode = JobStatusUpdateTypeCode._10010
-            });
-        }
-
-        [Test]
-        public async Task JobIncomplete()
-        {
-            await ValidateStrategyResolution<JobIncompleteStrategy>(new JobStatusUpdate
-            {
-                TypeCode = JobStatusUpdateTypeCode._120
-            });
-        }
-
-        [Test]
-        public async Task ResumeJob()
-        {
-            await ValidateStrategyResolution<ResumeJobStrategy>(new JobStatusUpdate
-            {
-                TypeCode = JobStatusUpdateTypeCode._0,
-                OtherType = CustomJobStatusUpdates.Resume
+                TypeCode = typeCode,
+                OtherType = otherTypeCode
             });
         }
 
@@ -97,14 +62,16 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             useCaseMock.Verify(x => x.Execute(It.IsAny<JobStatusUpdate>()));
         }
 
-        [Test]
-        public void ThrowUnsupportedWhenNonSupportedTypeCodes()
+        [TestCase(JobStatusUpdateTypeCode._10, "")]
+        [TestCase(JobStatusUpdateTypeCode._0, "notSupported")]
+        public void ThrowUnsupportedWhenNonSupportedTypeCodes(JobStatusUpdateTypeCode typeCode, string otherTypeCode)
         {
             var workOrder = _fixture.Create<WorkOrder>();
             workOrder.Id = 41;
             var jobStatusUpdate = new JobStatusUpdate
             {
-                TypeCode = JobStatusUpdateTypeCode._10
+                TypeCode = typeCode,
+                OtherType = otherTypeCode
             };
 
             Assert.ThrowsAsync<NotSupportedException>(async () => await _classUnderTest.ProcessActions(jobStatusUpdate));
@@ -120,4 +87,5 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             Assert.ThrowsAsync<NotSupportedException>(async () => await _classUnderTest.ProcessActions(jobStatusUpdate));
         }
     }
+
 }

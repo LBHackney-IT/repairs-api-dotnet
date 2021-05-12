@@ -1,8 +1,10 @@
 using System;
 using System.Threading.Tasks;
-using RepairsApi.V2.Generated;
 using RepairsApi.V2.Generated.CustomTypes;
 using RepairsApi.V2.Helpers;
+using RepairsApi.V2.Infrastructure;
+
+using JobStatusUpdateTypeCode = RepairsApi.V2.Generated.JobStatusUpdateTypeCode;
 
 namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 {
@@ -42,7 +44,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             return jobStatusUpdate.OtherType switch
             {
                 CustomJobStatusUpdates.Resume => _activator.CreateInstance<ResumeJobStrategy>(),
-                _ => null,
+                _ => throw new NotSupportedException($"This type code is not supported: {jobStatusUpdate.TypeCode} - {jobStatusUpdate.OtherType}"),
             };
         }
     }

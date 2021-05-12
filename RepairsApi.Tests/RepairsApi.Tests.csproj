@@ -13,6 +13,10 @@
 
   <ItemGroup>
     <PackageReference Include="AutoFixture" Version="4.11.0" />
+    <PackageReference Include="coverlet.msbuild" Version="3.0.3">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.4" />
@@ -21,10 +25,10 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
     <PackageReference Include="NodaTime" Version="3.0.5" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
     <PackageReference Include="Bogus" Version="25.0.4" />
     <PackageReference Include="Moq" Version="4.16.1" />
-    <PackageReference Include="nunit" Version="3.11.0" />
+    <PackageReference Include="nunit" Version="3.13.2" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.1" />
   </ItemGroup>
 
@@ -33,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="V2\E2ETests\Requests.Designer.cs">
+    <Compile Update="E2ETests\Requests.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Requests.resx</DependentUpon>
@@ -41,7 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="V2\E2ETests\Requests.resx">
+    <EmbeddedResource Update="E2ETests\Requests.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Requests.Designer.cs</LastGenOutput>
     </EmbeddedResource>

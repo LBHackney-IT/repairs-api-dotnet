@@ -12,6 +12,7 @@ using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using RepairsApi.V2;
 using Generated = RepairsApi.V2.Generated;
 using WorkElement = RepairsApi.V2.Infrastructure.WorkElement;
 
@@ -26,6 +27,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         private ApproveVariationUseCase _classUnderTest;
         private Mock<IJobStatusUpdateGateway> _jobStatusUpdateGateway;
         private Mock<IUpdateSorCodesUseCase> _updateSorCodesUseCaseMock;
+        private string _expectedName;
 
         [SetUp]
         public void Setup()
@@ -37,6 +39,8 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _currentUserServiceMock = new CurrentUserServiceMock();
             _jobStatusUpdateGateway = new Mock<IJobStatusUpdateGateway>();
             _updateSorCodesUseCaseMock = new Mock<IUpdateSorCodesUseCase>();
+            _expectedName = "Expected Name";
+            _currentUserServiceMock.SetUser("1111", "expected@email.com", _expectedName);
 
             _classUnderTest = new ApproveVariationUseCase(
                 _repairsGatewayMock.Object, _jobStatusUpdateGateway.Object,
@@ -44,50 +48,93 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         }
 
         [Test]
-        public void ThrowAccessExceptionWhenUnauthorizedGroup()
+        public async Task ThrowAccessExceptionWhenUnauthorizedGroup()
         {
             const int desiredWorkOrderId = 42;
             var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
-            var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
+            var request = CreateJobStatusUpdateRequest(workOrder,
                 Generated.JobStatusUpdateTypeCode._10020);
 
-            Func<Task> fn = () => _classUnderTest.Execute(request);
-            fn.Should().ThrowAsync<UnauthorizedAccessException>();
+            Func<Task> fn = async () => await _classUnderTest.Execute(request);
+            await fn.Should().ThrowAsync<UnauthorizedAccessException>();
         }
 
         [Test]
-        [Ignore("wip")]
-        public void SetWorkOrderWhenAuthorizedGroup()
+        public async Task ThrowNotSupportedExceptionWhenWoInWrongState([Values] WorkStatusCode statusCode)
         {
+            if (statusCode == WorkStatusCode.VariationPendingApproval) return;
+
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.ContractManager);
             const int desiredWorkOrderId = 42;
             var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
-            var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
+            workOrder.StatusCode = statusCode;
+            var request = CreateJobStatusUpdateRequest(workOrder,
                 Generated.JobStatusUpdateTypeCode._10020);
 
-            _currentUserServiceMock.Setup(currentUser => currentUser.HasGroup(UserGroups.ContractManager))
-                .Returns(true);
-
-            Func<Task> fn = () => _classUnderTest.Execute(request);
-            fn.Should().ThrowAsync<UnauthorizedAccessException>();
+            Func<Task> fn = async () => await _classUnderTest.Execute(request);
+            (await fn.Should().ThrowAsync<NotSupportedException>())
+                .Which.Message.Should().Be(Resources.ActionUnsupported);
         }
 
-        private static Generated.JobStatusUpdate CreateJobStatusUpdateRequest
-            (int workOrderId, Generated.JobStatusUpdateTypeCode jobStatus)
+        [Test]
+        public async Task CallsUpdateSorUseCase()
         {
-            return new Generated.JobStatusUpdate
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.ContractManager);
+
+            const int desiredWorkOrderId = 42;
+            var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
+            workOrder.StatusCode = WorkStatusCode.VariationPendingApproval;
+            var request = CreateJobStatusUpdateRequest(workOrder,
+                Generated.JobStatusUpdateTypeCode._10020);
+
+            var expectedJobStatusUpdate = _fixture.Create<JobStatusUpdate>();
+            _jobStatusUpdateGateway.Setup(x => x.GetOutstandingVariation(desiredWorkOrderId))
+                .ReturnsAsync(expectedJobStatusUpdate);
+
+            await _classUnderTest.Execute(request);
+
+            _updateSorCodesUseCaseMock.Verify(x => x.Execute(workOrder, expectedJobStatusUpdate.MoreSpecificSORCode));
+            _repairsGatewayMock.VerifyChangesSaved();
+        }
+
+        [Test]
+        public async Task AppendsUserToComment()
+        {
+
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.ContractManager);
+
+            const int desiredWorkOrderId = 42;
+            var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
+            workOrder.StatusCode = WorkStatusCode.VariationPendingApproval;
+            var request = CreateJobStatusUpdateRequest(workOrder,
+                Generated.JobStatusUpdateTypeCode._10020);
+            string beforeComment = "expectedBefore";
+            request.Comments = beforeComment;
+
+            var expectedJobStatusUpdate = _fixture.Create<JobStatusUpdate>();
+            _jobStatusUpdateGateway.Setup(x => x.GetOutstandingVariation(desiredWorkOrderId))
+                .ReturnsAsync(expectedJobStatusUpdate);
+
+            await _classUnderTest.Execute(request);
+
+            request.Comments.Should().Contain(beforeComment);
+            request.Comments.Should().Contain(_expectedName);
+        }
+
+        private static JobStatusUpdate CreateJobStatusUpdateRequest(WorkOrder workOrder, Generated.JobStatusUpdateTypeCode jobStatus)
+        {
+            return new JobStatusUpdate
             {
-                RelatedWorkOrderReference = new Generated.Reference
-                {
-                    ID = workOrderId.ToString()
-                },
+                RelatedWorkOrder = workOrder,
                 TypeCode = jobStatus,
-                MoreSpecificSORCode = new Generated.WorkElement
+                MoreSpecificSORCode = new WorkElement
                 {
-                    Trade = new List<Generated.Trade>(),
-                    RateScheduleItem = new List<Generated.RateScheduleItem>()
+                    Trade = new List<Trade>(),
+                    RateScheduleItem = new List<RateScheduleItem>()
                 }
             };
         }
+
         private WorkOrder CreateReturnWorkOrder(int expectedId)
         {
             var workOrder = BuildWorkOrder(expectedId);

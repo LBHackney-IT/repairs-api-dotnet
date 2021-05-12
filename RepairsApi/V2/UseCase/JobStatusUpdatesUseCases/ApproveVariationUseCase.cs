@@ -5,7 +5,6 @@ using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 using System;
 using System.Threading.Tasks;
-using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
 
 
 namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
@@ -30,7 +29,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
         {
             if (!_currentUserService.HasGroup(UserGroups.ContractManager)) throw new UnauthorizedAccessException(Resources.InvalidPermissions);
 
-            WorkOrder workOrder = await GetWorkOrder(jobStatusUpdate);
+            WorkOrder workOrder = jobStatusUpdate.RelatedWorkOrder;
             workOrder.VerifyCanApproveVariation();
 
 
@@ -40,13 +39,6 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
             jobStatusUpdate.Comments = $"{jobStatusUpdate.Comments} Approved By: {_currentUserService.GetHubUser().Name}";
             await _repairsGateway.SaveChangesAsync();
-        }
-
-        private async Task<WorkOrder> GetWorkOrder(JobStatusUpdate jobStatusUpdate)
-        {
-            var workOrderId = int.Parse(jobStatusUpdate.RelatedWorkOrderReference.ID);
-            var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
-            return workOrder;
         }
 
         private async Task VaryWorkOrder(WorkOrder workOrder, Infrastructure.JobStatusUpdate variationJobStatus)

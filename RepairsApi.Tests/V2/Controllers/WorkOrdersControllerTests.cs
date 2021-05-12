@@ -159,6 +159,21 @@ namespace RepairsApi.Tests.V2.Controllers
         }
 
         [Test]
+        public async Task VariationListReturns()
+        {
+            var expected = new Generator<GetVariationResponse>().AddDefaultGenerators().Generate();
+            _listVariationsTaskUseCase.Setup(uc => uc.Execute(1)).ReturnsAsync(expected);
+
+            var result = await _classUnderTest.GetWorkOrderVariations(1);
+
+            GetStatusCode(result).Should().Be(200);
+
+            var response = GetResultData<GetVariationResponse>(result);
+
+            response.Should().BeEquivalentTo(expected);
+        }
+
+        [Test]
         public async Task TaskListReturns()
         {
             var expected = new Generator<WorkOrderTask>().AddDefaultGenerators().GenerateList(5);

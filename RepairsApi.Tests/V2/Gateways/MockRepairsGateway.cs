@@ -48,13 +48,24 @@ namespace RepairsApi.Tests.V2.Gateways
         public void ReturnsWorkOrders(IEnumerable<WorkOrder> workOrders)
         {
             _workOrders = workOrders;
+        }
 
-
+        public void ReturnsWorkOrders(WorkOrder workOrder)
+        {
+            _workOrders = new List<WorkOrder>
+            {
+                workOrder
+            };
         }
 
         public void ReturnWOId(int newId)
         {
             _workOrderId = newId;
+        }
+
+        public void VerifyChangesSaved()
+        {
+            Verify(x => x.SaveChangesAsync());
         }
     }
 }

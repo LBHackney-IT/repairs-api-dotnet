@@ -13,7 +13,7 @@ using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.Infrastructure;
 
-namespace RepairsApi.Tests.V2.E2ETests
+namespace RepairsApi.Tests.E2ETests
 {
     public class ScheduleOfRateCodesTests : MockWebApplicationFactory
     {

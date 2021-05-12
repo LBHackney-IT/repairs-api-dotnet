@@ -24,7 +24,7 @@ namespace RepairsApi.V2.Helpers
                 wo.StatusCode != WorkStatusCode.PendMaterial &&
                 wo.StatusCode != WorkStatusCode.Hold
             )
-                throw new NotSupportedException("Cannot Resume Job");
+                throw new NotSupportedException(Resources.CannotResumeJob);
         }
 
         public static void VerifyCanVary(this WorkOrder wo)
@@ -47,15 +47,15 @@ namespace RepairsApi.V2.Helpers
 
         public static void VerifyCanApproveWorkOrder(this WorkOrder wo)
         {
-            if (wo.StatusCode != Infrastructure.WorkStatusCode.PendingApproval) throw new NotSupportedException("Work order is not pending approval");
+            if (wo.StatusCode != Infrastructure.WorkStatusCode.PendingApproval) throw new NotSupportedException(Resources.WorkOrderNotPendingApproval);
         }
 
         public static void VerifyCanRejectWorkOrder(this WorkOrder wo)
         {
-            if (wo.StatusCode != Infrastructure.WorkStatusCode.PendingApproval) throw new NotSupportedException("Work order is not pending approval");
+            if (wo.StatusCode != Infrastructure.WorkStatusCode.PendingApproval) throw new NotSupportedException(Resources.WorkOrderNotPendingApproval);
         }
 
-        public static void VerifyCanAcknowldgeVariation(this WorkOrder wo)
+        public static void VerifyCanAcknowledgeVariation(this WorkOrder wo)
         {
             if (
                 wo.StatusCode != WorkStatusCode.VariationApproved &&

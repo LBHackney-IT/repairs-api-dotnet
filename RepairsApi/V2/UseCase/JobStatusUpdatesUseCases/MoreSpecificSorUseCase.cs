@@ -1,46 +1,45 @@
+using Force.DeepCloner;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.FeatureManagement;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using JobStatusUpdateTypeCode = RepairsApi.V2.Generated.JobStatusUpdateTypeCode;
-using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
-using RepairsApi.V2.Helpers;
 
 namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 {
     public class MoreSpecificSorUseCase : IJobStatusUpdateStrategy
     {
-        private readonly IRepairsGateway _repairsGateway;
         private readonly IAuthorizationService _authorizationService;
         private readonly IFeatureManager _featureManager;
         private readonly ICurrentUserService _currentUserService;
         private readonly IUpdateSorCodesUseCase _updateSorCodesUseCase;
+        private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
 
-        public MoreSpecificSorUseCase(IRepairsGateway repairsGateway,
-            IAuthorizationService authorizationService,
+        public MoreSpecificSorUseCase(IAuthorizationService authorizationService,
             IFeatureManager featureManager,
             ICurrentUserService currentUserService,
-            IUpdateSorCodesUseCase updateSorCodesUseCase)
+            IUpdateSorCodesUseCase updateSorCodesUseCase,
+            IScheduleOfRatesGateway scheduleOfRatesGateway)
         {
-            _repairsGateway = repairsGateway;
             _authorizationService = authorizationService;
             _featureManager = featureManager;
             _currentUserService = currentUserService;
             _updateSorCodesUseCase = updateSorCodesUseCase;
+            _scheduleOfRatesGateway = scheduleOfRatesGateway;
         }
 
         public async Task Execute(JobStatusUpdate jobStatusUpdate)
         {
-            var workElement = jobStatusUpdate.MoreSpecificSORCode.ToDb();
-
-            WorkOrder workOrder = await GetWorkOrder(jobStatusUpdate);
+            WorkOrder workOrder = jobStatusUpdate.RelatedWorkOrder;
             workOrder.VerifyCanVary();
+
+            var workElement = jobStatusUpdate.MoreSpecificSORCode;
+            await AddCodeCosts(workElement.RateScheduleItem, workOrder.AssignedToPrimary?.ContractorReference);
 
             var authorised = await _authorizationService.AuthorizeAsync(_currentUserService.GetUser(), jobStatusUpdate, "VarySpendLimit");
 
@@ -51,17 +50,19 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             }
             else
             {
-                await _updateSorCodesUseCase.Execute(workOrder, workElement);
+                await _updateSorCodesUseCase.Execute(workOrder, workElement.DeepClone());
             }
 
-            await _repairsGateway.SaveChangesAsync();
+            jobStatusUpdate.PrefixComments(Resources.VariationReason);
         }
 
-        private async Task<WorkOrder> GetWorkOrder(JobStatusUpdate jobStatusUpdate)
+        private async Task AddCodeCosts(IEnumerable<RateScheduleItem> newCodes, string contractorReference)
         {
-            var workOrderId = int.Parse(jobStatusUpdate.RelatedWorkOrderReference.ID);
-            var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
-            return workOrder;
+            foreach (var newCode in newCodes)
+            {
+                newCode.Original = false;
+                newCode.CodeCost = await _scheduleOfRatesGateway.GetCost(contractorReference, newCode.CustomCode);
+            }
         }
     }
 
