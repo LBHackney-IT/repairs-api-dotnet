@@ -17,7 +17,7 @@ namespace RepairsApi.Tests.Helpers
 
         public void SetContractor(string contractor)
         {
-            Setup(m => m.TryGetContractor(out contractor)).Returns(true);
+            Setup(m => m.GetContractors()).Returns(contractor.MakeList());
         }
 
         public void SetUser(string id, string email, string name, string varyLimit = null, string raiseLimit = null)

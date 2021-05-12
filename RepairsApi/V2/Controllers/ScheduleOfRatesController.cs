@@ -9,6 +9,7 @@ using RepairsApi.V2.Infrastructure.Hackney;
 using System.ComponentModel.DataAnnotations;
 using RepairsApi.V2.Authorisation;
 using Microsoft.AspNetCore.Authorization;
+using System.Linq;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -68,7 +69,7 @@ namespace RepairsApi.V2.Controllers
         [Authorize(Roles = UserGroups.Contractor + "," + UserGroups.ContractManager)]
         public async Task<IActionResult> GetSorCode([Required] string sorCode, [FromQuery][Required] string propertyReference)
         {
-            var contractorReference = User.FindFirst(CustomClaimTypes.Contractor).Value;
+            var contractorReference = User.Groups().First();
 
             return Ok(await _scheduleOfRatesGateway.GetCode(sorCode, propertyReference, contractorReference));
         }
