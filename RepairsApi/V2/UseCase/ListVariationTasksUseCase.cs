@@ -35,13 +35,14 @@ namespace RepairsApi.V2.UseCase
             return new GetVariationResponse
             {
                 Notes = variation.Comments,
-                Tasks = MapTasks(variation, workOrderTasks)
+                Tasks = MapTasks(variationTasks, workOrderTasks),
+                AuthorName = variation.AuthorName,
+                VariationDate = variation.EventTime ?? DateTime.UtcNow
             };
         }
 
-        private static IEnumerable<VariationTasksModel> MapTasks(JobStatusUpdate variation, IEnumerable<Infrastructure.RateScheduleItem> workOrderTasks)
+        private static IEnumerable<VariationTasksModel> MapTasks(List<RateScheduleItem> variationTasks, IEnumerable<Infrastructure.RateScheduleItem> workOrderTasks)
         {
-            var variationTasks = variation.MoreSpecificSORCode.RateScheduleItem;
             return from vTask in variationTasks
                    join wTask in workOrderTasks on vTask.OriginalId equals wTask.Id into gj
                    from groupTask in gj.DefaultIfEmpty()
@@ -53,8 +54,7 @@ namespace RepairsApi.V2.UseCase
                        UnitCost = vTask.CodeCost,
                        OriginalQuantity = groupTask?.OriginalQuantity ?? 0,
                        CurrentQuantity = groupTask?.Quantity?.Amount ?? 0,
-                       VariedQuantity = vTask.Quantity?.Amount,
-                       AuthorName = variation.AuthorName
+                       VariedQuantity = vTask.Quantity?.Amount
                    };
         }
     }

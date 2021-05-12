@@ -52,16 +52,19 @@ namespace RepairsApi.Tests.V2.UseCase
             const int newQuantity = 5;
             const string notes = "notes";
             const string authorName = "expectedAuthor";
-            Guid existingItemGuid = Guid.NewGuid();
+            var expectedTime = DateTime.UtcNow;
+            var existingItemGuid = Guid.NewGuid();
             _repairsGatewayMock.Setup(g => g.GetWorkOrder(It.IsAny<int>())).ReturnsAsync(BuildWorkOrder(existingItemGuid, currentQuantity, originalQuantity));
-            _jobStatusUpdateGatewayMock.Setup(g => g.GetOutstandingVariation(It.IsAny<int>())).ReturnsAsync(BuildVariation(existingItemGuid, updatedQuantity, newQuantity, notes, authorName));
+            _jobStatusUpdateGatewayMock.Setup(g => g.GetOutstandingVariation(It.IsAny<int>())).ReturnsAsync(BuildVariation(existingItemGuid, updatedQuantity, newQuantity, notes, authorName, expectedTime));
 
             var result = await _classUnderTest.Execute(15);
 
             result.Tasks.Should().HaveCount(2);
             result.Tasks.Should().ContainSingle(rsi => rsi.CurrentQuantity == currentQuantity && rsi.VariedQuantity == updatedQuantity && rsi.OriginalQuantity == originalQuantity);
-            result.Tasks.Should().ContainSingle(rsi => rsi.CurrentQuantity == 0 && rsi.VariedQuantity == newQuantity && rsi.AuthorName == authorName);
+            result.Tasks.Should().ContainSingle(rsi => rsi.CurrentQuantity == 0 && rsi.VariedQuantity == newQuantity);
             result.Notes.Should().Be(notes);
+            result.AuthorName.Should().Be(authorName);
+            result.VariationDate.Should().Be(expectedTime);
         }
 
         private static WorkOrder BuildWorkOrder(Guid itemId, int currentQuantity, int originalQuantity)
@@ -89,7 +92,7 @@ namespace RepairsApi.Tests.V2.UseCase
             };
         }
 
-        private static JobStatusUpdate BuildVariation(Guid existingItemGuid, int updatedQuantity, int newQuantity, string notes, string authorName)
+        private static JobStatusUpdate BuildVariation(Guid existingItemGuid, int updatedQuantity, int newQuantity, string notes, string authorName, DateTime eventTime)
         {
             return new JobStatusUpdate
             {
@@ -115,7 +118,8 @@ namespace RepairsApi.Tests.V2.UseCase
                         }
                     }
                 },
-                AuthorName = authorName
+                AuthorName = authorName,
+                EventTime = eventTime
             };
         }
     }
