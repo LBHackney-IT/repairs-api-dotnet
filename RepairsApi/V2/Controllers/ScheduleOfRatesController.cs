@@ -10,6 +10,7 @@ using System.ComponentModel.DataAnnotations;
 using RepairsApi.V2.Authorisation;
 using Microsoft.AspNetCore.Authorization;
 using System.Linq;
+using System;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -59,6 +60,7 @@ namespace RepairsApi.V2.Controllers
         /// </summary>
         /// <param name="sorCode"></param>
         /// <param name="propertyReference"></param>
+        /// <param name="contractorReference"></param>
         /// <returns></returns>
         [ProducesResponseType(typeof(IEnumerable<ScheduleOfRatesModel>), StatusCodes.Status200OK)]
         [Route("codes/{sorCode}")]
@@ -67,11 +69,18 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
         [Authorize(Roles = UserGroups.Contractor + "," + UserGroups.ContractManager)]
-        public async Task<IActionResult> GetSorCode([Required] string sorCode, [FromQuery][Required] string propertyReference)
+        public async Task<IActionResult> GetSorCode([Required] string sorCode, [FromQuery][Required] string propertyReference, [FromQuery] string contractorReference)
         {
-            var contractorReference = User.Groups().First();
+            var validContractors = User.Groups();
 
-            return Ok(await _scheduleOfRatesGateway.GetCode(sorCode, propertyReference, contractorReference));
+            if (string.IsNullOrWhiteSpace(contractorReference))
+            {
+                return Ok(await _scheduleOfRatesGateway.GetCode(sorCode, propertyReference, validContractors.First()));
+            } else
+            {
+                if (!validContractors.Contains(contractorReference)) throw new UnauthorizedAccessException("You do not have access to codes for this contractor");
+                return Ok(await _scheduleOfRatesGateway.GetCode(sorCode, propertyReference, contractorReference));
+            }
         }
 
         /// <summary>
