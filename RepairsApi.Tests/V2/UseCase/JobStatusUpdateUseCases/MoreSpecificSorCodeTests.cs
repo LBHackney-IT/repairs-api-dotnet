@@ -25,7 +25,6 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
     {
         private Fixture _fixture;
 
-        private MockRepairsGateway _repairsGatewayMock;
         private Mock<IAuthorizationService> _authorisationMock;
         private CurrentUserServiceMock _currentUserServiceMock;
         private Mock<IUpdateSorCodesUseCase> _updateSorCodesUseCaseMock;
@@ -39,7 +38,6 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _fixture = new Fixture();
             _fixture.Behaviors.Remove(new ThrowingRecursionBehavior());
             _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            _repairsGatewayMock = new MockRepairsGateway();
             _authorisationMock = new Mock<IAuthorizationService>();
             _featureManagerMock = new Mock<IFeatureManager>();
             _authorisationMock = new Mock<IAuthorizationService>();
@@ -48,7 +46,6 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _sheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
             _sheduleOfRatesGateway.Setup(g => g.GetCost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(10.0);
             _classUnderTest = new MoreSpecificSorUseCase(
-                _repairsGatewayMock.Object,
                 _authorisationMock.Object,
                 _featureManagerMock.Object,
                 _currentUserServiceMock.Object,
@@ -63,7 +60,6 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             const int desiredWorkOrderId = 42;
             var workOrder = BuildWorkOrder(desiredWorkOrderId);
             workOrder.StatusCode = state;
-            _repairsGatewayMock.ReturnsWorkOrders(workOrder);
             var request = BuildUpdate(workOrder);
 
             Func<Task> fn = () => _classUnderTest.Execute(request);
@@ -78,7 +74,6 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             const int desiredWorkOrderId = 42;
             var workOrder = BuildWorkOrder(desiredWorkOrderId);
             workOrder.StatusCode = WorkStatusCode.Open;
-            _repairsGatewayMock.ReturnsWorkOrders(workOrder);
             var request = BuildUpdate(workOrder);
             _featureManagerMock.Setup(x => x.IsEnabledAsync(It.IsAny<string>()))
                 .ReturnsAsync(true);
@@ -100,7 +95,6 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             const int desiredWorkOrderId = 42;
             var workOrder = BuildWorkOrder(desiredWorkOrderId);
             workOrder.StatusCode = WorkStatusCode.Open;
-            _repairsGatewayMock.ReturnsWorkOrders(workOrder);
             var request = BuildUpdate(workOrder);
             _featureManagerMock.Setup(x => x.IsEnabledAsync(It.IsAny<string>()))
                 .ReturnsAsync(featureEnabled);
@@ -118,7 +112,6 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             const int desiredWorkOrderId = 42;
             var workOrder = BuildWorkOrder(desiredWorkOrderId);
             workOrder.StatusCode = WorkStatusCode.Open;
-            _repairsGatewayMock.ReturnsWorkOrders(workOrder);
             var jobStatusUpdate = BuildUpdate(workOrder);
             const string beforeComments = "expectedBeforeComments";
             jobStatusUpdate.Comments = beforeComments;
@@ -135,7 +128,6 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             const int desiredWorkOrderId = 42;
             var workOrder = BuildWorkOrder(desiredWorkOrderId);
             workOrder.StatusCode = WorkStatusCode.Open;
-            _repairsGatewayMock.ReturnsWorkOrders(workOrder);
             var jobStatusUpdate = BuildUpdate(workOrder);
             var expectedComments = $"{Resources.VariationReason}expectedBeforeComments";
             jobStatusUpdate.Comments = expectedComments;
@@ -143,6 +135,23 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             await _classUnderTest.Execute(jobStatusUpdate);
 
             jobStatusUpdate.Comments.Should().Be(expectedComments);
+        }
+
+        [TestCase(10.0)]
+        public async Task CostIsAttachedToUpdates(double cost)
+        {
+            const int desiredWorkOrderId = 42;
+            _sheduleOfRatesGateway.Setup(g => g.GetCost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(cost);
+            var workOrder = BuildWorkOrder(desiredWorkOrderId);
+            workOrder.StatusCode = WorkStatusCode.Open;
+            var jobStatusUpdate = BuildUpdate(workOrder);
+
+            await _classUnderTest.Execute(jobStatusUpdate);
+
+            foreach (var rsi in jobStatusUpdate.MoreSpecificSORCode.RateScheduleItem)
+            {
+                rsi.CodeCost.Should().Be(cost);
+            }
         }
 
         private WorkOrder BuildWorkOrder(int expectedId)

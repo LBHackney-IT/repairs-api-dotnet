@@ -14,21 +14,18 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 {
     public class MoreSpecificSorUseCase : IJobStatusUpdateStrategy
     {
-        private readonly IRepairsGateway _repairsGateway;
         private readonly IAuthorizationService _authorizationService;
         private readonly IFeatureManager _featureManager;
         private readonly ICurrentUserService _currentUserService;
         private readonly IUpdateSorCodesUseCase _updateSorCodesUseCase;
         private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
 
-        public MoreSpecificSorUseCase(IRepairsGateway repairsGateway,
-            IAuthorizationService authorizationService,
+        public MoreSpecificSorUseCase(IAuthorizationService authorizationService,
             IFeatureManager featureManager,
             ICurrentUserService currentUserService,
             IUpdateSorCodesUseCase updateSorCodesUseCase,
             IScheduleOfRatesGateway scheduleOfRatesGateway)
         {
-            _repairsGateway = repairsGateway;
             _authorizationService = authorizationService;
             _featureManager = featureManager;
             _currentUserService = currentUserService;
