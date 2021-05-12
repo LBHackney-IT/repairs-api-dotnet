@@ -77,7 +77,7 @@ namespace RepairsApi.Tests.V2.Middleware
         }
 
         public override Stream Body { get; set; }
-        public override long? ContentLength { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public override long? ContentLength { get; set; }
         public override string ContentType { get; set; }
 
         public override IResponseCookies Cookies => throw new NotImplementedException();
