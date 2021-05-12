@@ -69,8 +69,6 @@ namespace RepairsApi.Tests.V2.Middleware
         };
     }
 
-
-
     internal class MockResponse : HttpResponse
     {
         public MockResponse(Stream stream)
