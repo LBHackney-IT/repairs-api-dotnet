@@ -48,7 +48,7 @@ namespace RepairsApi.V2.Services
             return createOrder;
         }
 
-        private async Task<order> CreateOrder(WorkOrder workOrder)
+        public async Task<order> CreateOrder(WorkOrder workOrder)
         {
             var property = workOrder.Site?.PropertyClass.FirstOrDefault();
             var locationAlerts = property != null ? await _alertsGateway.GetLocationAlertsAsync(property.PropertyReference) : null;
@@ -102,6 +102,61 @@ namespace RepairsApi.V2.Services
                 }
             };
             return deleteOrder;
+        }
+
+        public Task<updateBooking> BuildCompleteOrderUpdateBookingRequest(string sessionId, WorkOrder workOrder, order drsOrder)
+        {
+            var booking = drsOrder.theBookings.First();
+            booking.theOrder = drsOrder.DeepClone();
+            booking.theOrder.theBusinessData = SetBusinessData(booking.theOrder.theBusinessData, "STATUS", "COMPLETED");
+            booking.theOrder.theBookings = null;
+            booking.theOrder.status = orderStatus.COMPLETED;
+            booking.theOrder.earliestBookingDate = drsOrder.earliestBookingDate; // Dont know why but sometimes date doesnt make it through deep clone
+
+            booking.bookingCompletionStatus = "COMPLETED";
+            booking.bookingLifeCycleStatus = transactionTypeType.COMPLETED;
+
+            var resource = booking.theResources.First();
+
+            var updateBooking = new updateBooking
+            {
+                updateBooking1 = new xmbUpdateBooking
+                {
+                    completeOrder = true,
+                    startDateAndTime = booking.assignedStart,
+                    endDateAndTime = booking.assignedEnd,
+                    resourceId = resource.resourceID,
+                    transactionType = transactionTypeType.COMPLETED,
+                    sessionId = sessionId,
+                    theBooking = booking,
+                }
+            };
+
+            booking.theBusinessData = SetBusinessData(booking.theBusinessData, "TASK_LIFE_CYCLE_STAT", "completed");
+
+            return Task.FromResult(updateBooking);
+        }
+
+        private static businessData[] SetBusinessData(businessData[] businessData, string name, string value)
+        {
+            var existingValue = businessData.SingleOrDefault(bd => bd.name == name);
+
+            if (existingValue is null)
+            {
+                businessData = businessData.Concat(new[]
+                {
+                    new businessData
+                    {
+                        name = name, value = value
+                    }
+                }).ToArray();
+            }
+            else
+            {
+                existingValue.value = value;
+            }
+
+            return businessData;
         }
 
         private static DateTime ConvertToDrsTimeZone(DateTime dateTime)

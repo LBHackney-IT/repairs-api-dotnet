@@ -79,6 +79,33 @@ namespace RepairsApi.V2.Services
             }
         }
 
+        public async Task CompleteOrder(WorkOrder workOrder)
+        {
+            await CheckSession();
+
+            var selectOrder = new selectOrder
+            {
+                selectOrder1 = new xmbSelectOrder
+                {
+                    sessionId = _sessionId,
+                    primaryOrderNumber = new[]
+                    {
+                        workOrder.Id.ToString()
+                    }
+                }
+            };
+            var selectOrderResponse = (await _drsSoap.selectOrderAsync(selectOrder));
+            var drsOrder = selectOrderResponse?.@return.theOrders.First();
+
+            var updateBooking = await _drsMapping.BuildCompleteOrderUpdateBookingRequest(_sessionId, workOrder, drsOrder);
+            var response = await _drsSoap.updateBookingAsync(updateBooking);
+            if (response.@return.status != responseStatus.success)
+            {
+                _logger.LogError(response.@return.errorMsg);
+                throw new ApiException((int) response.@return.status, response.@return.errorMsg);
+            }
+        }
+
         private async Task CheckSession()
         {
             if (_sessionId is null)

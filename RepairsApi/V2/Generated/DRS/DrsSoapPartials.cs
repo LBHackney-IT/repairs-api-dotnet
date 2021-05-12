@@ -6,16 +6,29 @@ using System.ServiceModel.Dispatcher;
 using Microsoft.Extensions.Options;
 using RepairsApi.V2.Services;
 
+// ReSharper disable All
+
 namespace V2_Generated_DRS
 {
     public partial class SOAPClient
     {
         public SOAPClient(IOptions<DrsOptions> drsOptions) :
-            this(new BasicHttpsBinding(), new EndpointAddress(drsOptions.Value.APIAddress))
+            this(new BasicHttpsBinding
+            {
+                MaxReceivedMessageSize = 262144
+            }, new EndpointAddress(drsOptions.Value.APIAddress))
         {
             this.Endpoint.EndpointBehaviors.Add(new MyFaultLogger());
         }
     }
+
+    public partial class bookingCode : entity
+    {
+        public bookingCode()
+        {
+        }
+    }
+
 
     class MyFaultLogger : IEndpointBehavior, IClientMessageInspector
     {

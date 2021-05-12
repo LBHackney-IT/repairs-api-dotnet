@@ -1,7 +1,6 @@
 using Newtonsoft.Json;
-using System.Collections.Generic;
 
-namespace RepairsApi.Tests.Helpers
+namespace RepairsApi.V2.Helpers
 {
     public static class ObjectExtensions
     {
@@ -18,7 +17,7 @@ namespace RepairsApi.Tests.Helpers
         /// <param name="o"></param>
         public static void Load(this object o)
         {
-            o.ToString(); // Calling a function on the object will cause navigation proeprties to be loaded
+            o.ToString(); // Calling a function on the object will cause navigation properties to be loaded
         }
     }
 }

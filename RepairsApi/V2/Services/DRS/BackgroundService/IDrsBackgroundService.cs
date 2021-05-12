@@ -1,6 +1,7 @@
 using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Xml.Linq;
+// ReSharper disable All
 
 namespace RepairsApi.V2.Generated.DRS.BackgroundService
 {

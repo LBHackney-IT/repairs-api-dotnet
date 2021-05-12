@@ -9,7 +9,7 @@ using RepairsApi.V2.Helpers;
 
 namespace RepairsApi.V2.Notifications
 {
-    public class DRSNotificationHandler : INotificationHandler<WorkOrderOpened>, INotificationHandler<WorkOrderCancelled>
+    public class DRSNotificationHandler : INotificationHandler<WorkOrderOpened>, INotificationHandler<WorkOrderCancelled>, INotificationHandler<WorkOrderCompleted>
     {
         private readonly IFeatureManager _featureManager;
         private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
@@ -46,6 +46,16 @@ namespace RepairsApi.V2.Notifications
                 return;
             }
             await DrsService.CancelOrder(data.WorkOrder);
+        }
+
+        public async Task Notify(WorkOrderCompleted data)
+        {
+            if (!await _featureManager.IsEnabledAsync(FeatureFlags.DRSIntegration) ||
+                !await data.WorkOrder.ContractorUsingDrs(_scheduleOfRatesGateway))
+            {
+                return;
+            }
+            await DrsService.CompleteOrder(data.WorkOrder);
         }
     }
 }
