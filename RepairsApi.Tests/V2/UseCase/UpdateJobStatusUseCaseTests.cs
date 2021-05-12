@@ -103,7 +103,7 @@ namespace RepairsApi.Tests.V2.UseCase
 
             await _classUnderTest.Execute(CreateMoreSpecificSORUpdateRequest(desiredWorkOrderId, workOrder, "code"));
 
-            _strategyFactory.Verify(uc => uc.ProcessActions(It.IsAny<Generated.JobStatusUpdate>()));
+            _strategyFactory.Verify(uc => uc.ProcessActions(It.IsAny<JobStatusUpdate>()));
         }
 
         private static Generated.JobStatusUpdate CreateMoreSpecificSORUpdateRequest(int desiredWorkOrderId, WorkOrder workOrder, string expectedNewCode)

@@ -38,8 +38,6 @@ namespace RepairsApi.V2.MiddleWare
                 await httpContext.SetResponse(401, e.Message);
             }
         }
-
-
     }
 
     public static class ContextExtensions

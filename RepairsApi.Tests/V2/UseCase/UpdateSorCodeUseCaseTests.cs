@@ -14,15 +14,12 @@ namespace RepairsApi.Tests.V2.UseCase
 {
     public class UpdateSorCodeUseCaseTests
     {
-        private Mock<IScheduleOfRatesGateway> _sheduleOfRatesGateway;
         private UpdateSorCodesUseCase _classUnderTest;
 
         [SetUp]
         public void Setup()
         {
-            _sheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
-            _sheduleOfRatesGateway.Setup(g => g.GetCost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(10.0);
-            _classUnderTest = new UpdateSorCodesUseCase(_sheduleOfRatesGateway.Object);
+            _classUnderTest = new UpdateSorCodesUseCase();
         }
 
         [Test]

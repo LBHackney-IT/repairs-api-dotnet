@@ -114,6 +114,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
 
             // Assert
             response.Tasks.ElementAt(1).VariedQuantity.Should().Be(newItemQuantity);
+            response.Tasks.ElementAt(1).UnitCost.Should().NotBeNull();
             response.Notes.Should().EndWith(Notes);
             code.Should().Be(HttpStatusCode.OK);
         }
@@ -146,8 +147,8 @@ namespace RepairsApi.Tests.E2ETests.Repairs
 
             var tasks = await GetTasks(result.Id);
 
-            tasks.Should().ContainSingle(r => r.Code == otherExpectedCode);
             tasks.Should().ContainSingle(r => r.Code == expectedCode);
+            tasks.Should().ContainSingle(r => r.Code == otherExpectedCode);
         }
 
         private async Task<int> CreateVariation(int newItemQuantity = 100000000, string notes = "notes")
