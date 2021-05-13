@@ -67,7 +67,7 @@ namespace RepairsApi.V2.Services
             {
                 status = orderStatus.PLANNED,
                 primaryOrderNumber = workOrder.Id.ToString(CultureInfo.InvariantCulture),
-                orderComments = workOrder.DescriptionOfWork,
+                orderComments = $"{orderCommentsExtended} -- {workOrder.DescriptionOfWork}",
                 contract = workOrder.AssignedToPrimary.ContractorReference,
                 locationID = workOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference,
                 priority = priorityCharacter.ToString(),
