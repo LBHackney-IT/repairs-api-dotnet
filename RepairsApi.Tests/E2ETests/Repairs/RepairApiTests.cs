@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using AutoFixture;
 using RepairsApi.V2;
 using RepairsApi.V2.UseCase;
 using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
@@ -20,11 +21,21 @@ using Quantity = RepairsApi.V2.Generated.Quantity;
 using RateScheduleItem = RepairsApi.V2.Generated.RateScheduleItem;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 using RepairsApi.V2.Services;
+using V2_Generated_DRS;
 
 namespace RepairsApi.Tests.E2ETests.Repairs
 {
     public partial class RepairApiTests : MockWebApplicationFactory
     {
+        private readonly Fixture _fixture;
+
+        public RepairApiTests()
+        {
+            _fixture = new Fixture();
+            _fixture.Behaviors.Remove(new ThrowingRecursionBehavior());
+            _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        }
+
         [SetUp]
         public void SetUp()
         {
@@ -73,6 +84,39 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             await CancelWorkOrder(result.Id);
 
             SoapMock.Verify(s => s.deleteOrderAsync(It.IsAny<V2_Generated_DRS.deleteOrder>()));
+        }
+
+        [Test]
+        public async Task CompletedInDRS()
+        {
+            var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
+            SetUserRole(UserGroups.ContractManager);
+            var drsOrder = _fixture.Create<order>();
+            drsOrder.status = orderStatus.PLANNED;
+            SoapMock.Setup(s => s.selectOrderAsync(It.IsAny<selectOrder>()))
+                .ReturnsAsync(new selectOrderResponse
+                {
+                    @return = new xmbSelectOrderResponse
+                    {
+                        status = responseStatus.success,
+                        theOrders = new[]
+                        {
+                            drsOrder
+                        }
+                    }
+                });
+            SoapMock.Setup(s => s.updateBookingAsync(It.IsAny<updateBooking>()))
+                .ReturnsAsync(new updateBookingResponse
+                {
+                    @return = new xmbUpdateBookingResponse
+                    {
+                        status = responseStatus.success
+                    }
+                });
+
+            await CompleteWorkOrder(result.Id);
+
+            SoapMock.Verify(s => s.updateBookingAsync(It.IsAny<updateBooking>()));
         }
 
         [Test]
@@ -143,23 +187,29 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         {
             // Arrange
             var result = await CreateWorkOrder();
-            var request = new Generator<WorkOrderComplete>()
-                .AddWorkOrderCompleteGenerators()
-                .AddValue(result.Id.ToString(), (WorkOrderComplete woc) => woc.WorkOrderReference.ID)
-                .SetListLength<JobStatusUpdates>(1)
-                .AddValue(JobStatusUpdateTypeCode._0, (JobStatusUpdates jsu) => jsu.TypeCode)
-                .AddValue(CustomJobStatusUpdates.Completed, (JobStatusUpdates jsu) => jsu.OtherType)
-                .Generate();
-
-            // Act
             SetUserRole(UserGroups.Contractor);
-            var code = await Post("/api/v2/workOrderComplete", request);
+            var code = await CompleteWorkOrder(result.Id);
             var workOrder = GetWorkOrderFromDB(result.Id);
 
             // Assert
             code.Should().Be(HttpStatusCode.OK);
             workOrder.StatusCode.Should().Be(WorkStatusCode.Complete);
             NotifyMock.SentMails.Should().ContainSingle(m => m[WorkOrderCompletedEmailVariables.WorkOrderId].ToString() == result.Id.ToString());
+        }
+
+        private async Task<HttpStatusCode> CompleteWorkOrder(int workOrderId)
+        {
+            var request = new Helpers.StubGeneration.Generator<WorkOrderComplete>()
+                .AddWorkOrderCompleteGenerators()
+                .AddValue(workOrderId.ToString(), (WorkOrderComplete woc) => woc.WorkOrderReference.ID)
+                .SetListLength<JobStatusUpdates>(1)
+                .AddValue(JobStatusUpdateTypeCode._0, (JobStatusUpdates jsu) => jsu.TypeCode)
+                .AddValue(CustomJobStatusUpdates.Completed, (JobStatusUpdates jsu) => jsu.OtherType)
+                .Generate();
+
+            // Act
+            var response = await Post("/api/v2/workOrderComplete", request);
+            return response;
         }
 
         [Test]
@@ -278,14 +328,14 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             TestDataSeeder.AddCode(ctx.DB, expectedCode);
         }
 
-        private Generator<T> GenerateWorkOrder<T>()
+        private Helpers.StubGeneration.Generator<T> GenerateWorkOrder<T>()
         {
-            Generator<T> gen = new Generator<T>();
+            Helpers.StubGeneration.Generator<T> gen = new Helpers.StubGeneration.Generator<T>();
 
             using (var ctx = GetContext())
             {
                 var db = ctx.DB;
-                gen = new Generator<T>()
+                gen = new Helpers.StubGeneration.Generator<T>()
                     .AddWorkOrderGenerators()
                     .AddValue(new List<double>
                     {
@@ -308,7 +358,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
 
         public async Task<HttpStatusCode> CancelWorkOrder(int id)
         {
-            var request = new Generator<WorkOrderComplete>()
+            var request = new Helpers.StubGeneration.Generator<WorkOrderComplete>()
                 .AddWorkOrderCompleteGenerators()
                 .SetListLength<JobStatusUpdates>(1)
                 .AddValue(id.ToString(), (WorkOrderComplete woc) => woc.WorkOrderReference.ID)
@@ -338,7 +388,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
 
         private async Task<HttpStatusCode> UpdateJob(int workOrderId, Action<JobStatusUpdate> interceptor = null)
         {
-            JobStatusUpdate request = new Generator<JobStatusUpdate>()
+            JobStatusUpdate request = new Helpers.StubGeneration.Generator<JobStatusUpdate>()
                 .AddJobStatusUpdateGenerators()
                 .AddValue(JobStatusUpdateTypeCode._80, (JobStatusUpdate jsu) => jsu.TypeCode)
                 .AddValue(workOrderId.ToString(), (JobStatusUpdate jsu) => jsu.RelatedWorkOrderReference.ID)
@@ -375,7 +425,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
 
         private static JobStatusUpdate CreateUpdateRequest(int workOrderId, RepairsApi.V2.Generated.WorkElement workElement)
         {
-            return new Generator<JobStatusUpdate>()
+            return new Helpers.StubGeneration.Generator<JobStatusUpdate>()
                 .AddJobStatusUpdateGenerators()
                 .AddValue(JobStatusUpdateTypeCode._80, (JobStatusUpdate jsu) => jsu.TypeCode)
                 .AddValue(workOrderId.ToString(), (JobStatusUpdate jsu) => jsu.RelatedWorkOrderReference.ID)

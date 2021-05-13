@@ -183,4 +183,7 @@
   <data name="CannotResumeJob" xml:space="preserve">
       <value>Cannot Resume Job</value>
   </data>
+  <data name="WorkOrderNotScheduled" xml:space="preserve">
+      <value>Work order is not scheduled</value>
+  </data>
 </root>

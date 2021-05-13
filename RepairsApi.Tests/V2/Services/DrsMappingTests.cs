@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
+using Amazon.XRay.Recorder.Core.Exceptions;
 using AutoFixture;
 using FluentAssertions;
 using Moq;
@@ -12,6 +13,7 @@ using NodaTime;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers;
 using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.V2;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.Gateways;
@@ -107,6 +109,54 @@ namespace RepairsApi.Tests.V2.Services
             VerifyCompleteOrder(request, workOrder, sorCodes, drsOrder);
         }
 
+        [Test]
+        public async Task CreatesCompleteOrderAddsBusinessDataWhenItemNotPresent()
+        {
+            var expectedOrderNumber = _fixture.Create<int>();
+            var drsOrder = GenerateDrsOrder(expectedOrderNumber);
+            drsOrder.theBusinessData = new[]{new businessData
+            {
+                name = "WRONG_NAME", value = "WRONG_VALUE"
+            }};
+            var workOrder = GenerateWorkOrder(drsOrder);
+            SetupSORCodes(drsOrder);
+
+            var request = await _classUnderTest.BuildCompleteOrderUpdateBookingRequest(_sessionId, workOrder, drsOrder);
+
+            ValidateBusinessData(request.updateBooking1.theBooking.theOrder.theBusinessData, "STATUS", "COMPLETED");
+        }
+
+        [Test]
+        public async Task CreatesCompleteOrderAddsBusinessDataWhenListNotPresent()
+        {
+            var expectedOrderNumber = _fixture.Create<int>();
+            var drsOrder = GenerateDrsOrder(expectedOrderNumber);
+            drsOrder.theBusinessData = null;
+            var workOrder = GenerateWorkOrder(drsOrder);
+            SetupSORCodes(drsOrder);
+
+            var request = await _classUnderTest.BuildCompleteOrderUpdateBookingRequest(_sessionId, workOrder, drsOrder);
+
+            ValidateBusinessData(request.updateBooking1.theBooking.theOrder.theBusinessData, "STATUS", "COMPLETED");
+        }
+
+        [Test]
+        public async Task CreatesCompleteOrderUpdatesBusinessDataWhenAlreadyPresent()
+        {
+            var expectedOrderNumber = _fixture.Create<int>();
+            var drsOrder = GenerateDrsOrder(expectedOrderNumber);
+            drsOrder.theBusinessData = new[]{new businessData
+            {
+                name = "STATUS", value = "WRONG_VALUE"
+            }};
+            var workOrder = GenerateWorkOrder(drsOrder);
+            SetupSORCodes(drsOrder);
+
+            var request = await _classUnderTest.BuildCompleteOrderUpdateBookingRequest(_sessionId, workOrder, drsOrder);
+
+            ValidateBusinessData(request.updateBooking1.theBooking.theOrder.theBusinessData, "STATUS", "COMPLETED");
+        }
+
         private static WorkOrder GenerateWorkOrder(order drsOrder)
         {
             var booking = drsOrder.theBookings.First();
@@ -186,8 +236,10 @@ namespace RepairsApi.Tests.V2.Services
                 .AddValue(expectedOrderNumber.ToString(), (order o) => o.primaryOrderNumber)
                 .AddValue(expectedOrderNumber.ToString(), (booking b) => b.primaryOrderNumber)
                 .AddValue(expectedOrderNumber.ToString(), (resource r) => r.primaryOrderNumber)
+                .AddValue(orderStatus.PLANNED, (order o) => o.status)
                 .Ignore((order o) => o.phone)
                 .Ignore((booking b) => b.theOrder);
+
             var drsOrder = generator.Generate();
             drsOrder.orderCommentsExtended = _locationAlerts.Alerts.ToDescriptionString() + _personAlerts.Alerts.ToDescriptionString();
             return drsOrder;

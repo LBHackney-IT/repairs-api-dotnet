@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Amazon.XRay.Recorder.Core.Exceptions;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
@@ -11,6 +13,7 @@ using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 using V2_Generated_DRS;
 using RepairsApi.Tests.Helpers.StubGeneration;
+using RepairsApi.V2;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.Exceptions;
@@ -152,6 +155,7 @@ namespace RepairsApi.Tests.V2.Services
         {
             var workOrder = CreateWorkOrderWithContractor(true);
             var drsOrder = _fixture.Create<order>();
+            drsOrder.status = orderStatus.PLANNED;
 
             _drsSoapMock.UpdateBookingReturns(responseStatus.success);
             _drsSoapMock.SelectOrderReturns(drsOrder);
@@ -171,8 +175,11 @@ namespace RepairsApi.Tests.V2.Services
         public async Task ThrowsApiError_When_UpdateBookingDrsError(responseStatus drsResponse)
         {
             var workOrder = CreateWorkOrderWithContractor(true);
+            var drsOrder = _fixture.Create<order>();
+            drsOrder.status = orderStatus.PLANNED;
             const string errorMsg = "message";
             _drsSoapMock.UpdateBookingReturns(drsResponse, errorMsg);
+            _drsSoapMock.SelectOrderReturns(drsOrder);
 
             Func<Task> act = async () =>
             {
@@ -183,6 +190,46 @@ namespace RepairsApi.Tests.V2.Services
                     .WithMessage(errorMsg))
                 .Which.StatusCode.Should().Be((int) drsResponse);
 
+        }
+
+        [TestCase(responseStatus.failure)]
+        [TestCase(responseStatus.error)]
+        [TestCase(responseStatus.undefined)]
+        public async Task ThrowsApiError_When_SelectOrderDrsError(responseStatus drsResponse)
+        {
+            var workOrder = CreateWorkOrderWithContractor(true);
+            var drsOrder = _fixture.Create<order>();
+            drsOrder.status = orderStatus.PLANNED;
+            const string errorMsg = "message";
+            _drsSoapMock.SelectOrderReturns(null, drsResponse, errorMsg);
+
+            Func<Task> act = async () =>
+            {
+                await _classUnderTest.CompleteOrder(workOrder);
+            };
+
+            (await act.Should().ThrowAsync<ApiException>()
+                    .WithMessage(errorMsg))
+                .Which.StatusCode.Should().Be((int) drsResponse);
+
+        }
+
+        private static IEnumerable<orderStatus> _testCodes = Enum.GetValues(typeof(orderStatus)).Cast<orderStatus>()
+            .Where(c => c != orderStatus.PLANNED);
+        [Test, TestCaseSource(nameof(_testCodes))]
+        public async Task ThrowsNotSupportedWhenOrderNotPlanned(orderStatus status)
+        {
+            var workOrder = CreateWorkOrderWithContractor(true);
+            var drsOrder = _fixture.Create<order>();
+            drsOrder.status = status;
+            _drsSoapMock.UpdateBookingReturns(responseStatus.success);
+            _drsSoapMock.SelectOrderReturns(drsOrder);
+            _drsMappingMock.SetupMappings(workOrder);
+
+            Func<Task> act = () => _classUnderTest.CompleteOrder(workOrder);
+
+            (await act.Should().ThrowAsync<NotSupportedException>())
+                .Which.Message.Should().Be(Resources.WorkOrderNotScheduled);
         }
 
         private static WorkOrder CreateWorkOrderWithContractor(bool useExternal)

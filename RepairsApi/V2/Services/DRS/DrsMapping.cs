@@ -115,8 +115,9 @@ namespace RepairsApi.V2.Services
 
             booking.bookingCompletionStatus = "COMPLETED";
             booking.bookingLifeCycleStatus = transactionTypeType.COMPLETED;
+            booking.theBusinessData = SetBusinessData(booking.theBusinessData, "TASK_LIFE_CYCLE_STAT", "completed");
 
-            var resource = booking.theResources.First();
+            var resource = booking.theResources?.First();
 
             var updateBooking = new updateBooking
             {
@@ -125,24 +126,24 @@ namespace RepairsApi.V2.Services
                     completeOrder = true,
                     startDateAndTime = booking.assignedStart,
                     endDateAndTime = booking.assignedEnd,
-                    resourceId = resource.resourceID,
+                    resourceId = resource?.resourceID,
                     transactionType = transactionTypeType.COMPLETED,
                     sessionId = sessionId,
                     theBooking = booking,
                 }
             };
 
-            booking.theBusinessData = SetBusinessData(booking.theBusinessData, "TASK_LIFE_CYCLE_STAT", "completed");
 
             return Task.FromResult(updateBooking);
         }
 
         private static businessData[] SetBusinessData(businessData[] businessData, string name, string value)
         {
-            var existingValue = businessData.SingleOrDefault(bd => bd.name == name);
+            var existingValue = businessData?.SingleOrDefault(bd => bd.name == name);
 
             if (existingValue is null)
             {
+                businessData ??= Array.Empty<businessData>();
                 businessData = businessData.Concat(new[]
                 {
                     new businessData

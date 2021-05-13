@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Amazon.XRay.Recorder.Core.Exceptions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RepairsApi.V2.Exceptions;
@@ -94,8 +95,19 @@ namespace RepairsApi.V2.Services
                     }
                 }
             };
-            var selectOrderResponse = (await _drsSoap.selectOrderAsync(selectOrder));
-            var drsOrder = selectOrderResponse?.@return.theOrders.First();
+            var selectOrderResponse = await _drsSoap.selectOrderAsync(selectOrder);
+            if (selectOrderResponse.@return.status != responseStatus.success)
+            {
+                _logger.LogError(selectOrderResponse.@return.errorMsg);
+                throw new ApiException((int) selectOrderResponse.@return.status, selectOrderResponse.@return.errorMsg);
+            }
+
+            var drsOrder = selectOrderResponse.@return.theOrders.First();
+            if (drsOrder.status != orderStatus.PLANNED)
+            {
+                _logger.LogError($"Cannot complete work order ({workOrder.Id}) as it has not been scheduled in DRS");
+                throw new NotSupportedException(Resources.WorkOrderNotScheduled);
+            }
 
             var updateBooking = await _drsMapping.BuildCompleteOrderUpdateBookingRequest(_sessionId, workOrder, drsOrder);
             var response = await _drsSoap.updateBookingAsync(updateBooking);

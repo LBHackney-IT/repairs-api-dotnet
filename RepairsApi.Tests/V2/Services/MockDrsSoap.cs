@@ -68,13 +68,15 @@ namespace RepairsApi.Tests.V2.Services
                 });
         }
 
-        public void SelectOrderReturns(order order)
+        public void SelectOrderReturns(order order, responseStatus status = responseStatus.success, string error = "")
         {
             Setup(x => x.selectOrderAsync(It.IsAny<selectOrder>()))
                 .ReturnsAsync(new selectOrderResponse
                 {
                     @return = new xmbSelectOrderResponse
                     {
+                        status = status,
+                        errorMsg = error,
                         theOrders = new[]
                         {
                             order
