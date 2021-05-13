@@ -48,7 +48,7 @@ namespace RepairsApi.V2.Services
             return createOrder;
         }
 
-        public async Task<order> CreateOrder(WorkOrder workOrder)
+        private async Task<order> CreateOrder(WorkOrder workOrder)
         {
             var property = workOrder.Site?.PropertyClass.FirstOrDefault();
             var locationAlerts = property != null ? await _alertsGateway.GetLocationAlertsAsync(property.PropertyReference) : null;
