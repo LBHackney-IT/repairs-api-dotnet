@@ -20,7 +20,6 @@ namespace RepairsApi.V2.Controllers
     [ApiVersion("2.0")]
     public class ScheduleOfRatesController : Controller
     {
-
         private readonly IListScheduleOfRatesUseCase _listScheduleOfRates;
         private readonly ISorPriorityGateway _priorityGateway;
         private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
@@ -40,7 +39,7 @@ namespace RepairsApi.V2.Controllers
         }
 
         /// <summary>
-        /// Returns paged list of SOR codes
+        /// Returns list of SOR codes
         /// </summary>
         /// <response code="200">Success. Returns a list of SOR codes</response>
         /// <response code="400">Invalid Query Parameter.</response>
@@ -50,7 +49,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
         [Authorize(Roles = UserGroups.Agent + "," + UserGroups.ContractManager + "," + UserGroups.AuthorisationManager)]
-        public async Task<IActionResult> ListRecords([FromQuery][Required] string tradeCode, [FromQuery][Required] string propertyReference, [FromQuery][Required] string contractorReference)
+        public async Task<IActionResult> ListSorCodes([FromQuery][Required] string tradeCode, [FromQuery][Required] string propertyReference, [FromQuery][Required] string contractorReference)
         {
             return Ok(await _listScheduleOfRates.Execute(tradeCode, propertyReference, contractorReference));
         }
@@ -69,7 +68,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
         [Authorize(Roles = UserGroups.Contractor + "," + UserGroups.ContractManager)]
-        public async Task<IActionResult> GetSorCode([Required] string sorCode, [FromQuery][Required] string propertyReference, [FromQuery] string contractorReference)
+        public async Task<IActionResult> GetSorCode([Required] string sorCode, [FromQuery][Required] string propertyReference, [FromQuery] string contractorReference = null)
         {
             var validContractors = User.Groups();
 
