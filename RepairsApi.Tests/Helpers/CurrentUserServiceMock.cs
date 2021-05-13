@@ -26,7 +26,7 @@ namespace RepairsApi.Tests.Helpers
             identity.AddClaim(new Claim(ClaimTypes.Email, email));
             identity.AddClaim(new Claim(ClaimTypes.PrimarySid, id));
             identity.AddClaim(new Claim(ClaimTypes.Name, name));
-            identity.AddClaims(contractors.Select(c => new Claim(CustomClaimTypes.Contractor, c)));
+            identity.AddClaims(contractors?.Select(c => new Claim(CustomClaimTypes.Contractor, c)) ?? new List<Claim>());
             if (!(varyLimit is null)) identity.AddClaim(new Claim(CustomClaimTypes.VaryLimit, varyLimit));
             if (!(raiseLimit is null)) identity.AddClaim(new Claim(CustomClaimTypes.RaiseLimit, raiseLimit));
 
