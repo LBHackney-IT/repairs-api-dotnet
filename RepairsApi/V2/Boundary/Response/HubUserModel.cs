@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace RepairsApi.V2.Boundary.Response
 {
     public class HubUserModel
@@ -8,5 +10,6 @@ namespace RepairsApi.V2.Boundary.Response
 
         public string VaryLimit { get; set; }
         public string RaiseLimit { get; set; }
+        public List<string> Contractors { get; set; }
     }
 }

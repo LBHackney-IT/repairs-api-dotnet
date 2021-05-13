@@ -70,7 +70,7 @@ namespace RepairsApi.V2.Controllers
         [Authorize(Roles = UserGroups.Contractor + "," + UserGroups.ContractManager)]
         public async Task<IActionResult> GetSorCode([Required] string sorCode, [FromQuery][Required] string propertyReference, [FromQuery] string contractorReference = null)
         {
-            var validContractors = User.Groups();
+            var validContractors = User.Contractors();
 
             if (string.IsNullOrWhiteSpace(contractorReference))
             {
