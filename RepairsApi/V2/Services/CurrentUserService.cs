@@ -9,6 +9,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using RepairsApi.V2.Boundary.Response;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace RepairsApi.V2.Services
 {
@@ -56,10 +57,9 @@ namespace RepairsApi.V2.Services
             return _user?.HasClaim(ClaimTypes.Role, groupName) ?? false;
         }
 
-        public bool TryGetContractor(out string contractor)
+        public List<string> GetContractors()
         {
-            contractor = _user?.FindFirst(CustomClaimTypes.Contractor)?.Value ?? string.Empty;
-            return !string.IsNullOrWhiteSpace(contractor);
+            return _user?.Groups() ?? new List<string>();
         }
 
         private async Task<ClaimsPrincipal> MapUser(User user)

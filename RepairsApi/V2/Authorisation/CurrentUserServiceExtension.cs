@@ -15,8 +15,7 @@ namespace RepairsApi.V2.Authorisation
             hubUser.Email = user.Email();
             hubUser.Name = user.Name();
 
-            double number;
-            if (double.TryParse(user.FindFirst(CustomClaimTypes.RaiseLimit)?.Value, out number))
+            if (double.TryParse(user.FindFirst(CustomClaimTypes.RaiseLimit)?.Value, out var number))
                 hubUser.RaiseLimit = number.ToString(CultureInfo.InvariantCulture);
 
             if (double.TryParse(user.FindFirst(CustomClaimTypes.VaryLimit)?.Value, out number))

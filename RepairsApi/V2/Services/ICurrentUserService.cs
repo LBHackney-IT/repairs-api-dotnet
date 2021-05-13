@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Security.Claims;
 using RepairsApi.V2.Boundary.Response;
 
@@ -8,7 +9,7 @@ namespace RepairsApi.V2.Services
         ClaimsPrincipal GetUser();
         bool IsUserPresent();
         bool HasGroup(string groupName);
-        bool TryGetContractor(out string contractor);
+        List<string> GetContractors();
         bool HasAnyGroup(params string[] groups);
     }
 }
