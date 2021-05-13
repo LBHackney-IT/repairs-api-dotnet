@@ -338,14 +338,13 @@ namespace RepairsApi.Tests.V2.Services
             order.primaryOrderNumber.Should().Be(workOrder.Id.ToString(CultureInfo.InvariantCulture));
             order.status.Should().Be(expectedStatus ?? orderStatus.PLANNED);
             order.primaryOrderNumber.Should().Be(workOrder.Id.ToString(CultureInfo.InvariantCulture));
-            order.orderComments.Should().Contain(workOrder.DescriptionOfWork);
-            order.orderComments.Should().Contain(locationAlerts.Alerts.ToDescriptionString());
-            order.orderComments.Should().Contain(personAlertList.Alerts.ToDescriptionString());
+            order.orderComments.Should().Be(workOrder.DescriptionOfWork);
             order.contract.Should().Be(workOrder.AssignedToPrimary.ContractorReference);
             order.locationID.Should().Be(workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference);
             order.userId.Should().Be(workOrder.AgentEmail);
             order.contactName.Should().Be(workOrder.Customer.Name);
             order.phone.Should().Be(workOrder.Customer.Person.Communication.GetPhoneNumber());
+
             order.orderCommentsExtended.Should().Contain(locationAlerts.Alerts.ToDescriptionString());
             order.orderCommentsExtended.Should().Contain(personAlertList.Alerts.ToDescriptionString());
 
