@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace RepairsApi.V2.Helpers
