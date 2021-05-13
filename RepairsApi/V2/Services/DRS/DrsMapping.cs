@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using Force.DeepCloner;
 using NodaTime;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.Gateways;

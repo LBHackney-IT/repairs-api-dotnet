@@ -7,6 +7,7 @@ using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Force.DeepCloner;
 using JobStatusUpdateTypeCode = RepairsApi.V2.Generated.JobStatusUpdateTypeCode;
 
 namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases

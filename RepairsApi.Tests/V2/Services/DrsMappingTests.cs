@@ -1,19 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml;
-using Amazon.XRay.Recorder.Core.Exceptions;
 using AutoFixture;
 using FluentAssertions;
+using Force.DeepCloner;
 using Moq;
 using NodaTime;
 using NUnit.Framework;
-using RepairsApi.Tests.Helpers;
 using RepairsApi.Tests.Helpers.StubGeneration;
-using RepairsApi.V2;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.Gateways;
@@ -104,7 +100,8 @@ namespace RepairsApi.Tests.V2.Services
             var workOrder = GenerateWorkOrder(drsOrder);
             var sorCodes = SetupSORCodes(drsOrder);
 
-            var request = await _classUnderTest.BuildCompleteOrderUpdateBookingRequest(_sessionId, workOrder, drsOrder);
+            var drsOrderCopy = drsOrder.DeepClone();
+            var request = await _classUnderTest.BuildCompleteOrderUpdateBookingRequest(_sessionId, workOrder, drsOrderCopy);
 
             VerifyCompleteOrder(request, workOrder, sorCodes, drsOrder);
         }
@@ -397,11 +394,13 @@ namespace RepairsApi.Tests.V2.Services
         {
             booking.bookingCompletionStatus.Should().Be("COMPLETED");
             booking.bookingLifeCycleStatus.Should().Be(transactionTypeType.COMPLETED);
+            ValidateBusinessData(booking.theBusinessData, "TASK_LIFE_CYCLE_STAT", "completed");
             booking.Should().BeEquivalentTo(drsBooking, config => config
                 .Excluding(b => b.theOrder)
                 .Excluding(b => b.theBookingCodes)
-                .Excluding(b => b.bookingLifeCycleStatus));
-            ValidateBusinessData(booking.theBusinessData, "TASK_LIFE_CYCLE_STAT", "completed");
+                .Excluding(b => b.bookingLifeCycleStatus)
+                .Excluding(b => b.bookingCompletionStatus)
+                .Excluding(b => b.theBusinessData));
         }
 
         private static void ValidateBusinessData(businessData[] newBusinessData, string name, string expectedValue)

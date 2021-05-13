@@ -5,7 +5,7 @@ namespace RepairsApi.V2.Helpers
 {
     public static class ObjectExtensions
     {
-        public static T DeepClone<T>(this T a)
+        public static T JsonDeepClone<T>(this T a)
         {
             return JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(a));
         }
