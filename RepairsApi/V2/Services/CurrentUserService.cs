@@ -59,7 +59,7 @@ namespace RepairsApi.V2.Services
 
         public List<string> GetContractors()
         {
-            return _user?.Groups() ?? new List<string>();
+            return _user?.Contractors() ?? new List<string>();
         }
 
         private async Task<ClaimsPrincipal> MapUser(User user)
