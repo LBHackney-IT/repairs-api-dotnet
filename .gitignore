@@ -63,3 +63,7 @@ tmp/
 
 .fake
 .ionide
+
+coveragereport
+
+*.cobertura.xml

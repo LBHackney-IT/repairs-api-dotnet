@@ -52,7 +52,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         {
             const int desiredWorkOrderId = 42;
             var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
-            var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
+            var request = CreateJobStatusUpdateRequest(workOrder,
                 Generated.JobStatusUpdateTypeCode._10020);
 
             Func<Task> fn = async () => await _classUnderTest.Execute(request);
@@ -68,7 +68,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             const int desiredWorkOrderId = 42;
             var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
             workOrder.StatusCode = statusCode;
-            var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
+            var request = CreateJobStatusUpdateRequest(workOrder,
                 Generated.JobStatusUpdateTypeCode._10020);
 
             Func<Task> fn = async () => await _classUnderTest.Execute(request);
@@ -84,7 +84,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             const int desiredWorkOrderId = 42;
             var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
             workOrder.StatusCode = WorkStatusCode.VariationPendingApproval;
-            var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
+            var request = CreateJobStatusUpdateRequest(workOrder,
                 Generated.JobStatusUpdateTypeCode._10020);
 
             var expectedJobStatusUpdate = _fixture.Create<JobStatusUpdate>();
@@ -106,7 +106,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             const int desiredWorkOrderId = 42;
             var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
             workOrder.StatusCode = WorkStatusCode.VariationPendingApproval;
-            var request = CreateJobStatusUpdateRequest(desiredWorkOrderId,
+            var request = CreateJobStatusUpdateRequest(workOrder,
                 Generated.JobStatusUpdateTypeCode._10020);
             string beforeComment = "expectedBefore";
             request.Comments = beforeComment;
@@ -121,19 +121,16 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             request.Comments.Should().Contain(_expectedName);
         }
 
-        private static Generated.JobStatusUpdate CreateJobStatusUpdateRequest(int workOrderId, Generated.JobStatusUpdateTypeCode jobStatus)
+        private static JobStatusUpdate CreateJobStatusUpdateRequest(WorkOrder workOrder, Generated.JobStatusUpdateTypeCode jobStatus)
         {
-            return new Generated.JobStatusUpdate
+            return new JobStatusUpdate
             {
-                RelatedWorkOrderReference = new Generated.Reference
-                {
-                    ID = workOrderId.ToString()
-                },
+                RelatedWorkOrder = workOrder,
                 TypeCode = jobStatus,
-                MoreSpecificSORCode = new Generated.WorkElement
+                MoreSpecificSORCode = new WorkElement
                 {
-                    Trade = new List<Generated.Trade>(),
-                    RateScheduleItem = new List<Generated.RateScheduleItem>()
+                    Trade = new List<Trade>(),
+                    RateScheduleItem = new List<RateScheduleItem>()
                 }
             };
         }

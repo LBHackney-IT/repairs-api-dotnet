@@ -10,6 +10,7 @@ namespace RepairsApi.V2.Helpers
         }
 
         public static T[] MakeArray<T>(this T o) => new T[] { o };
+        public static List<T> MakeList<T>(this T o) => new List<T>(o.MakeArray());
 
         /// <summary>
         /// For Loading Navigation Properties in tests

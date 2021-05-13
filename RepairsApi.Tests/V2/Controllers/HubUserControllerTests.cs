@@ -9,6 +9,7 @@ using RepairsApi.V2.Services;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using RepairsApi.Tests.Helpers;
+using System.Collections.Generic;
 
 namespace RepairsApi.Tests.V2.Controllers
 {
@@ -34,10 +35,11 @@ namespace RepairsApi.Tests.V2.Controllers
                 Email = "repairs@hackney.gov.uk",
                 Name = "Bob Repairs",
                 VaryLimit = "250",
-                RaiseLimit = "250"
+                RaiseLimit = "250",
+                Contractors = new List<string> { "contractor1", "contractor2" }
             };
 
-            _mockCurrentUserService.SetUser(hubUser.Sub, hubUser.Email, hubUser.Name, hubUser.VaryLimit, hubUser.RaiseLimit);
+            _mockCurrentUserService.SetUser(hubUser.Sub, hubUser.Email, hubUser.Name, hubUser.VaryLimit, hubUser.RaiseLimit, hubUser.Contractors);
 
             var response = await _classUnderTest.GetHubUser() as OkObjectResult;
 
