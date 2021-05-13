@@ -75,7 +75,8 @@ namespace RepairsApi.V2.Controllers
             if (string.IsNullOrWhiteSpace(contractorReference))
             {
                 return Ok(await _scheduleOfRatesGateway.GetCode(sorCode, propertyReference, validContractors.First()));
-            } else
+            }
+            else
             {
                 if (!validContractors.Contains(contractorReference)) throw new UnauthorizedAccessException("You do not have access to codes for this contractor");
                 return Ok(await _scheduleOfRatesGateway.GetCode(sorCode, propertyReference, contractorReference));
