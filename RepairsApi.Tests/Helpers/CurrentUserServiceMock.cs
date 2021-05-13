@@ -15,9 +15,9 @@ namespace RepairsApi.Tests.Helpers
             Setup(c => c.HasAnyGroup(It.Is<string[]>(s => s.Contains(group)))).Returns(isInGroup);
         }
 
-        public void SetContractor(string contractor)
+        public void SetContractor(params string[] contractors)
         {
-            Setup(m => m.GetContractors()).Returns(contractor.MakeList());
+            Setup(m => m.GetContractors()).Returns(contractors.ToList());
         }
 
         public void SetUser(string id, string email, string name, string varyLimit = null, string raiseLimit = null)
