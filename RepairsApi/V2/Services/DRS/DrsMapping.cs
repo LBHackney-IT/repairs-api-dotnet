@@ -112,12 +112,13 @@ namespace RepairsApi.V2.Services
             booking.theOrder.theBusinessData = SetBusinessData(booking.theOrder.theBusinessData, "STATUS", "COMPLETED");
             booking.theOrder.theBookings = null;
             booking.theOrder.status = orderStatus.COMPLETED;
-            booking.theOrder.earliestBookingDate = drsOrder.earliestBookingDate; // Dont know why but sometimes date doesnt make it through deep clone
-
             booking.bookingCompletionStatus = "COMPLETED";
             booking.bookingLifeCycleStatus = transactionTypeType.COMPLETED;
             booking.theBusinessData = SetBusinessData(booking.theBusinessData, "TASK_LIFE_CYCLE_STAT", "completed");
-
+            foreach (var bookingCode in booking.theBookingCodes)
+            {
+                bookingCode.itemValue = null;
+            }
             var resource = booking.theResources?.First();
 
             var updateBooking = new updateBooking
@@ -193,7 +194,6 @@ namespace RepairsApi.V2.Services
                 quantity = rsi.Quantity.Amount.ToString(CultureInfo.InvariantCulture),
                 bookingCodeSORCode = sorCode.Code,
                 bookingCodeDescription = sorCode.LongDescription ?? sorCode.ShortDescription,
-                itemValue = sorCode.Cost?.ToString(CultureInfo.InvariantCulture) ?? "0",
                 itemNumberWithinBooking = index.ToString(CultureInfo.InvariantCulture),
                 trade = sorCode.TradeCode,
                 standardMinuteValue = sorCode.StandardMinuteValue.ToString()

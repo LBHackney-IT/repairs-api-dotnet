@@ -383,7 +383,7 @@ namespace RepairsApi.Tests.V2.Services
             booking.quantity.Should().Be(rateScheduleItem.Quantity.Amount.ToString(CultureInfo.InvariantCulture));
             booking.bookingCodeSORCode.Should().Be(sorCode.Code);
             booking.bookingCodeDescription.Should().Be(sorCode.LongDescription ?? sorCode.ShortDescription);
-            booking.itemValue.Should().Be(sorCode.Cost?.ToString(CultureInfo.InvariantCulture) ?? "0");
+            booking.itemValue.Should().BeNull();
             booking.itemNumberWithinBooking.Should().Be((index + 1).ToString(CultureInfo.InvariantCulture));
             index.Should().NotBe(-1);
             booking.trade.Should().Be(sorCode.TradeCode);
