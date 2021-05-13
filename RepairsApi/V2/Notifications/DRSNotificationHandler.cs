@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Helpers;
+using RepairsApi.V2.Infrastructure;
 
 namespace RepairsApi.V2.Notifications
 {
@@ -27,10 +28,15 @@ namespace RepairsApi.V2.Notifications
             _scheduleOfRatesGateway = scheduleOfRatesGateway;
         }
 
+        private async Task<bool> UseDrs(WorkOrder workOder)
+        {
+            return !await _featureManager.IsEnabledAsync(FeatureFlags.DRSIntegration) ||
+                   !await workOder.ContractorUsingDrs(_scheduleOfRatesGateway);
+        }
+
         public async Task Notify(WorkOrderOpened data)
         {
-            if (!await _featureManager.IsEnabledAsync(FeatureFlags.DRSIntegration) ||
-                !await data.WorkOrder.ContractorUsingDrs(_scheduleOfRatesGateway))
+            if (await UseDrs(data.WorkOrder))
             {
                 return;
             }
@@ -40,8 +46,7 @@ namespace RepairsApi.V2.Notifications
 
         public async Task Notify(WorkOrderCancelled data)
         {
-            if (!await _featureManager.IsEnabledAsync(FeatureFlags.DRSIntegration) ||
-                !await data.WorkOrder.ContractorUsingDrs(_scheduleOfRatesGateway))
+            if (await UseDrs(data.WorkOrder))
             {
                 return;
             }
@@ -50,8 +55,7 @@ namespace RepairsApi.V2.Notifications
 
         public async Task Notify(WorkOrderCompleted data)
         {
-            if (!await _featureManager.IsEnabledAsync(FeatureFlags.DRSIntegration) ||
-                !await data.WorkOrder.ContractorUsingDrs(_scheduleOfRatesGateway))
+            if (await UseDrs(data.WorkOrder))
             {
                 return;
             }

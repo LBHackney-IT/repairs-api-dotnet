@@ -17,6 +17,7 @@ using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Infrastructure.Extensions;
 using RepairsApi.V2.Services;
+using RepairsApi.V2.Services.DRS;
 using V2_Generated_DRS;
 using RateScheduleItem = RepairsApi.V2.Infrastructure.RateScheduleItem;
 using WorkElement = RepairsApi.V2.Infrastructure.WorkElement;
@@ -120,7 +121,7 @@ namespace RepairsApi.Tests.V2.Services
 
             var request = await _classUnderTest.BuildCompleteOrderUpdateBookingRequest(_sessionId, workOrder, drsOrder);
 
-            ValidateBusinessData(request.updateBooking1.theBooking.theOrder.theBusinessData, "STATUS", "COMPLETED");
+            ValidateBusinessData(request.updateBooking1.theBooking.theOrder.theBusinessData, DrsBusinessDataNames.Status, DrsBookingStatusCodes.Completed);
         }
 
         [Test]
@@ -134,7 +135,7 @@ namespace RepairsApi.Tests.V2.Services
 
             var request = await _classUnderTest.BuildCompleteOrderUpdateBookingRequest(_sessionId, workOrder, drsOrder);
 
-            ValidateBusinessData(request.updateBooking1.theBooking.theOrder.theBusinessData, "STATUS", "COMPLETED");
+            ValidateBusinessData(request.updateBooking1.theBooking.theOrder.theBusinessData, DrsBusinessDataNames.Status, DrsBookingStatusCodes.Completed);
         }
 
         [Test]
@@ -144,14 +145,14 @@ namespace RepairsApi.Tests.V2.Services
             var drsOrder = GenerateDrsOrder(expectedOrderNumber);
             drsOrder.theBusinessData = new[]{new businessData
             {
-                name = "STATUS", value = "WRONG_VALUE"
+                name = DrsBusinessDataNames.Status, value = "WRONG_VALUE"
             }};
             var workOrder = GenerateWorkOrder(drsOrder);
             SetupSORCodes(drsOrder);
 
             var request = await _classUnderTest.BuildCompleteOrderUpdateBookingRequest(_sessionId, workOrder, drsOrder);
 
-            ValidateBusinessData(request.updateBooking1.theBooking.theOrder.theBusinessData, "STATUS", "COMPLETED");
+            ValidateBusinessData(request.updateBooking1.theBooking.theOrder.theBusinessData, DrsBusinessDataNames.Status, DrsBookingStatusCodes.Completed);
         }
 
         private static WorkOrder GenerateWorkOrder(order drsOrder)
@@ -310,7 +311,7 @@ namespace RepairsApi.Tests.V2.Services
             ValidateBookings(workOrder, sorCodes, updateBooking.updateBooking1.theBooking.theBookingCodes);
 
             updateBooking.updateBooking1.theBooking.theOrder.theBookings.Should().BeNull();
-            ValidateBusinessData(updateBooking.updateBooking1.theBooking.theOrder.theBusinessData, "STATUS", "COMPLETED");
+            ValidateBusinessData(updateBooking.updateBooking1.theBooking.theOrder.theBusinessData, DrsBusinessDataNames.Status, "COMPLETED");
             updateBooking.updateBooking1.theBooking.theOrder.Should().BeEquivalentTo(drsOrder, c => c
                 .Excluding(o => o.status)
                 .Excluding(o => o.theBookings)
@@ -392,9 +393,9 @@ namespace RepairsApi.Tests.V2.Services
 
         private static void ValidateBooking(booking booking, booking drsBooking)
         {
-            booking.bookingCompletionStatus.Should().Be("COMPLETED");
+            booking.bookingCompletionStatus.Should().Be(DrsBookingStatusCodes.Completed);
             booking.bookingLifeCycleStatus.Should().Be(transactionTypeType.COMPLETED);
-            ValidateBusinessData(booking.theBusinessData, "TASK_LIFE_CYCLE_STAT", "completed");
+            ValidateBusinessData(booking.theBusinessData, DrsBusinessDataNames.TaskLifeCycleStatus, DrsTaskLifeCycleCodes.Completed);
             booking.Should().BeEquivalentTo(drsBooking, config => config
                 .Excluding(b => b.theOrder)
                 .Excluding(b => b.theBookingCodes)

@@ -6,29 +6,28 @@ using System.ServiceModel.Dispatcher;
 using Microsoft.Extensions.Options;
 using RepairsApi.V2.Services;
 
-// ReSharper disable All
-
 namespace V2_Generated_DRS
 {
     public partial class SOAPClient
     {
+        private const int MaxReceivedMessageSize = 262144;
         public SOAPClient(IOptions<DrsOptions> drsOptions) :
             this(new BasicHttpsBinding
             {
-                MaxReceivedMessageSize = 262144
+                MaxReceivedMessageSize = MaxReceivedMessageSize
             }, new EndpointAddress(drsOptions.Value.APIAddress))
         {
             this.Endpoint.EndpointBehaviors.Add(new MyFaultLogger());
         }
     }
 
+    // ReSharper disable once InconsistentNaming
     public partial class bookingCode : entity
     {
         public bookingCode()
         {
         }
     }
-
 
     class MyFaultLogger : IEndpointBehavior, IClientMessageInspector
     {

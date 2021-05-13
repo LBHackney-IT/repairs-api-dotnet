@@ -84,6 +84,31 @@ namespace RepairsApi.V2.Services
         {
             await CheckSession();
 
+            var drsOrder = await SelectOrder(workOrder);
+
+            if (drsOrder.status != orderStatus.PLANNED)
+            {
+                _logger.LogError($"Cannot complete work order ({workOrder.Id}) as it has not been scheduled in DRS");
+                throw new NotSupportedException(Resources.WorkOrderNotScheduled);
+            }
+
+            await CompleteBooking(workOrder, drsOrder);
+        }
+
+        private async Task CompleteBooking(WorkOrder workOrder, order drsOrder)
+        {
+            var updateBooking = await _drsMapping.BuildCompleteOrderUpdateBookingRequest(_sessionId, workOrder, drsOrder);
+            var response = await _drsSoap.updateBookingAsync(updateBooking);
+            if (response.@return.status != responseStatus.success)
+            {
+                _logger.LogError(response.@return.errorMsg);
+                throw new ApiException((int) response.@return.status, response.@return.errorMsg);
+            }
+        }
+
+        private async Task<order> SelectOrder(WorkOrder workOrder)
+        {
+
             var selectOrder = new selectOrder
             {
                 selectOrder1 = new xmbSelectOrder
@@ -101,21 +126,8 @@ namespace RepairsApi.V2.Services
                 _logger.LogError(selectOrderResponse.@return.errorMsg);
                 throw new ApiException((int) selectOrderResponse.@return.status, selectOrderResponse.@return.errorMsg);
             }
-
             var drsOrder = selectOrderResponse.@return.theOrders.First();
-            if (drsOrder.status != orderStatus.PLANNED)
-            {
-                _logger.LogError($"Cannot complete work order ({workOrder.Id}) as it has not been scheduled in DRS");
-                throw new NotSupportedException(Resources.WorkOrderNotScheduled);
-            }
-
-            var updateBooking = await _drsMapping.BuildCompleteOrderUpdateBookingRequest(_sessionId, workOrder, drsOrder);
-            var response = await _drsSoap.updateBookingAsync(updateBooking);
-            if (response.@return.status != responseStatus.success)
-            {
-                _logger.LogError(response.@return.errorMsg);
-                throw new ApiException((int) response.@return.status, response.@return.errorMsg);
-            }
+            return drsOrder;
         }
 
         private async Task CheckSession()

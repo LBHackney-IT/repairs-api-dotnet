@@ -10,6 +10,7 @@ using RepairsApi.V2.Generated;
 using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Infrastructure.Extensions;
+using RepairsApi.V2.Services.DRS;
 using V2_Generated_DRS;
 using RateScheduleItem = RepairsApi.V2.Infrastructure.RateScheduleItem;
 
@@ -108,13 +109,13 @@ namespace RepairsApi.V2.Services
         public Task<updateBooking> BuildCompleteOrderUpdateBookingRequest(string sessionId, WorkOrder workOrder, order drsOrder)
         {
             var booking = drsOrder.theBookings.First();
-            booking.theOrder = drsOrder.DeepClone();
-            booking.theOrder.theBusinessData = SetBusinessData(booking.theOrder.theBusinessData, "STATUS", "COMPLETED");
+            booking.theOrder = drsOrder;
+            booking.theOrder.theBusinessData = SetBusinessData(booking.theOrder.theBusinessData, DrsBusinessDataNames.Status, DrsBookingStatusCodes.Completed);
             booking.theOrder.theBookings = null;
             booking.theOrder.status = orderStatus.COMPLETED;
-            booking.bookingCompletionStatus = "COMPLETED";
+            booking.bookingCompletionStatus = DrsBookingStatusCodes.Completed;
             booking.bookingLifeCycleStatus = transactionTypeType.COMPLETED;
-            booking.theBusinessData = SetBusinessData(booking.theBusinessData, "TASK_LIFE_CYCLE_STAT", "completed");
+            booking.theBusinessData = SetBusinessData(booking.theBusinessData, DrsBusinessDataNames.TaskLifeCycleStatus, DrsTaskLifeCycleCodes.Completed);
             foreach (var bookingCode in booking.theBookingCodes)
             {
                 bookingCode.itemValue = null;

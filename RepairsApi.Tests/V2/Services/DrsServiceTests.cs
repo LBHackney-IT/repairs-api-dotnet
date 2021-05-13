@@ -181,15 +181,10 @@ namespace RepairsApi.Tests.V2.Services
             _drsSoapMock.UpdateBookingReturns(drsResponse, errorMsg);
             _drsSoapMock.SelectOrderReturns(drsOrder);
 
-            Func<Task> act = async () =>
-            {
-                await _classUnderTest.CompleteOrder(workOrder);
-            };
+            Func<Task> act = () => _classUnderTest.CompleteOrder(workOrder);
 
-            (await act.Should().ThrowAsync<ApiException>()
-                    .WithMessage(errorMsg))
+            (await act.Should().ThrowAsync<ApiException>().WithMessage(errorMsg))
                 .Which.StatusCode.Should().Be((int) drsResponse);
-
         }
 
         [TestCase(responseStatus.failure)]
@@ -203,15 +198,10 @@ namespace RepairsApi.Tests.V2.Services
             const string errorMsg = "message";
             _drsSoapMock.SelectOrderReturns(null, drsResponse, errorMsg);
 
-            Func<Task> act = async () =>
-            {
-                await _classUnderTest.CompleteOrder(workOrder);
-            };
+            Func<Task> act = () => _classUnderTest.CompleteOrder(workOrder);
 
-            (await act.Should().ThrowAsync<ApiException>()
-                    .WithMessage(errorMsg))
+            (await act.Should().ThrowAsync<ApiException>().WithMessage(errorMsg))
                 .Which.StatusCode.Should().Be((int) drsResponse);
-
         }
 
         private static IEnumerable<orderStatus> _testCodes = Enum.GetValues(typeof(orderStatus)).Cast<orderStatus>()
@@ -228,8 +218,8 @@ namespace RepairsApi.Tests.V2.Services
 
             Func<Task> act = () => _classUnderTest.CompleteOrder(workOrder);
 
-            (await act.Should().ThrowAsync<NotSupportedException>())
-                .Which.Message.Should().Be(Resources.WorkOrderNotScheduled);
+            await act.Should().ThrowAsync<NotSupportedException>()
+                .WithMessage(Resources.WorkOrderNotScheduled);
         }
 
         private static WorkOrder CreateWorkOrderWithContractor(bool useExternal)
