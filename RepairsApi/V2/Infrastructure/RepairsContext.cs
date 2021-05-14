@@ -29,6 +29,7 @@ namespace RepairsApi.V2.Infrastructure
         public DbSet<AvailableAppointmentDay> AvailableAppointmentDays { get; set; }
         public DbSet<Hackney.Appointment> Appointments { get; set; }
         public DbSet<SecurityGroup> SecurityGroups { get; set; }
+        public DbSet<Company> Company { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
