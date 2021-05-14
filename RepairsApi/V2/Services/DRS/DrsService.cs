@@ -95,7 +95,7 @@ namespace RepairsApi.V2.Services
 
             if (!drsOrder.IsScheduled())
             {
-                _logger.LogError($"Cannot complete work order ({workOrder.Id}) as it has not been scheduled in DRS, cancelling instead");
+                _logger.LogError("Cannot complete work order ({WorkOrderId}) as it has not been scheduled in DRS, cancelling instead", workOrder.Id);
                 await CancelOrder(workOrder);
                 return;
             }
