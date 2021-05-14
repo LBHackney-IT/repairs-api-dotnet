@@ -26,9 +26,9 @@ namespace RepairsApi.V2.Controllers
         [Produces("application/json")]
         [ProducesResponseType(typeof(HubUserModel), 200)]
         [HttpGet]
-        public async Task<ActionResult> GetHubUser()
+        public IActionResult GetHubUser()
         {
-            return Ok(await Task.FromResult(_currentUserService.GetHubUser()));
+            return Ok(_currentUserService.GetHubUser());
         }
     }
 }

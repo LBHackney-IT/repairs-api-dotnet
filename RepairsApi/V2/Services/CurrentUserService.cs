@@ -34,6 +34,8 @@ namespace RepairsApi.V2.Services
                 var jwtUser = new JwtBuilder()
                         .Decode<User>(jwt);
 
+                _logger.LogInformation("User Loaded with {email}", jwtUser.Email);
+
                 _user = await MapUser(jwtUser);
             }
             catch (Exception e)

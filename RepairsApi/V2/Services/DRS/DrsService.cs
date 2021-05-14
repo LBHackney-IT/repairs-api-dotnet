@@ -60,7 +60,11 @@ namespace RepairsApi.V2.Services
 
             var createOrder = await _drsMapping.BuildCreateOrderRequest(_sessionId, workOrder);
             var response = await _drsSoap.createOrderAsync(createOrder);
-            if (response.@return.status == responseStatus.success) return response.@return.theOrder;
+            if (response.@return.status == responseStatus.success)
+            {
+                _logger.LogInformation("DRS Order Created for Work order {WorkOrderId}", workOrder.Id);
+                return response.@return.theOrder;
+            }
 
             _logger.LogError(response.@return.errorMsg);
             throw new ApiException((int) response.@return.status, response.@return.errorMsg);
@@ -78,6 +82,8 @@ namespace RepairsApi.V2.Services
                 _logger.LogError(response.@return.errorMsg);
                 throw new ApiException((int) response.@return.status, response.@return.errorMsg);
             }
+
+            _logger.LogInformation("DRS Order Deleted for Work order {WorkOrderId}", workOrder.Id);
         }
 
         public async Task CompleteOrder(WorkOrder workOrder)
