@@ -6,10 +6,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Helpers;
+using RepairsApi.V2.Infrastructure;
 
 namespace RepairsApi.V2.Notifications
 {
-    public class DRSNotificationHandler : INotificationHandler<WorkOrderOpened>, INotificationHandler<WorkOrderCancelled>
+    public class DRSNotificationHandler : INotificationHandler<WorkOrderOpened>, INotificationHandler<WorkOrderCancelled>, INotificationHandler<WorkOrderCompleted>
     {
         private readonly IFeatureManager _featureManager;
         private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
@@ -27,10 +28,15 @@ namespace RepairsApi.V2.Notifications
             _scheduleOfRatesGateway = scheduleOfRatesGateway;
         }
 
+        private async Task<bool> UseDrs(WorkOrder workOder)
+        {
+            return !await _featureManager.IsEnabledAsync(FeatureFlags.DRSIntegration) ||
+                   !await workOder.ContractorUsingDrs(_scheduleOfRatesGateway);
+        }
+
         public async Task Notify(WorkOrderOpened data)
         {
-            if (!await _featureManager.IsEnabledAsync(FeatureFlags.DRSIntegration) ||
-                !await data.WorkOrder.ContractorUsingDrs(_scheduleOfRatesGateway))
+            if (await UseDrs(data.WorkOrder))
             {
                 return;
             }
@@ -40,12 +46,20 @@ namespace RepairsApi.V2.Notifications
 
         public async Task Notify(WorkOrderCancelled data)
         {
-            if (!await _featureManager.IsEnabledAsync(FeatureFlags.DRSIntegration) ||
-                !await data.WorkOrder.ContractorUsingDrs(_scheduleOfRatesGateway))
+            if (await UseDrs(data.WorkOrder))
             {
                 return;
             }
             await DrsService.CancelOrder(data.WorkOrder);
+        }
+
+        public async Task Notify(WorkOrderCompleted data)
+        {
+            if (await UseDrs(data.WorkOrder))
+            {
+                return;
+            }
+            await DrsService.CompleteOrder(data.WorkOrder);
         }
     }
 }

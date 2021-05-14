@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-
+using RepairsApi.V2.Helpers;
 using WorkStatusCode = RepairsApi.V2.Infrastructure.WorkStatusCode;
 
 namespace RepairsApi.Tests.E2ETests.Repairs

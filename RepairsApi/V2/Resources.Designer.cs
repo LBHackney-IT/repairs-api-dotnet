@@ -250,6 +250,15 @@ namespace RepairsApi.V2 {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Work order is not scheduled.
+        /// </summary>
+        public static string WorkOrderNotScheduled {
+            get {
+                return ResourceManager.GetString("WorkOrderNotScheduled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No WorkPriorityCode provided.
         /// </summary>
         public static string WorkPriorityCodeMissing {

@@ -9,5 +9,6 @@ namespace RepairsApi.V2.Services
     {
         Task<createOrder> BuildCreateOrderRequest(string sessionId, WorkOrder workOrder);
         Task<deleteOrder> BuildDeleteOrderRequest(string sessionId, WorkOrder workOrder);
+        Task<updateBooking> BuildCompleteOrderUpdateBookingRequest(string sessionId, WorkOrder workOrder, order drsOrder);
     }
 }
