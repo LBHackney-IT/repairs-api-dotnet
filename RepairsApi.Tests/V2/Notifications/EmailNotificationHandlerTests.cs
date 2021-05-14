@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.FeatureManagement;
 using Moq;
 using NUnit.Framework;
@@ -23,7 +24,7 @@ namespace RepairsApi.Tests.V2.Notifications
             _featureManager = new Mock<IFeatureManager>();
             _serviceMock = new MockGovUKNotifyWrapper();
 
-            _classUnderTest = new EmailNotificationHandler(new Lazy<IGovUKNotifyWrapper>(_serviceMock), _featureManager.Object);
+            _classUnderTest = new EmailNotificationHandler(new Lazy<IGovUKNotifyWrapper>(_serviceMock), _featureManager.Object, new NullLogger<EmailNotificationHandler>());
         }
 
         [Test]
