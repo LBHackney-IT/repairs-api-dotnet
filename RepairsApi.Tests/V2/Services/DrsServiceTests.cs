@@ -204,22 +204,22 @@ namespace RepairsApi.Tests.V2.Services
                 .Which.StatusCode.Should().Be((int) drsResponse);
         }
 
-        private static IEnumerable<orderStatus> _testCodes = Enum.GetValues(typeof(orderStatus)).Cast<orderStatus>()
-            .Where(c => c != orderStatus.PLANNED);
-        [Test, TestCaseSource(nameof(_testCodes))]
-        public async Task ThrowsNotSupportedWhenOrderNotPlanned(orderStatus status)
+        [Test]
+        public async Task CancelsWhenOrderNotPlanned()
         {
             var workOrder = CreateWorkOrderWithContractor(true);
             var drsOrder = _fixture.Create<order>();
-            drsOrder.status = status;
-            _drsSoapMock.UpdateBookingReturns(responseStatus.success);
+            foreach (var booking in drsOrder.theBookings)
+            {
+                booking.theResources = null;
+            }
+            _drsSoapMock.DeleteReturns(responseStatus.success);
             _drsSoapMock.SelectOrderReturns(drsOrder);
             _drsMappingMock.SetupMappings(workOrder);
 
-            Func<Task> act = () => _classUnderTest.CompleteOrder(workOrder);
+            await _classUnderTest.CompleteOrder(workOrder);
 
-            await act.Should().ThrowAsync<NotSupportedException>()
-                .WithMessage(Resources.WorkOrderNotScheduled);
+            _drsSoapMock.Verify(x => x.deleteOrderAsync(It.Is<deleteOrder>(d => d.deleteOrder1.id == workOrder.Id)));
         }
 
         private static WorkOrder CreateWorkOrderWithContractor(bool useExternal)

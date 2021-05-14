@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Services.DRS;
 using V2_Generated_DRS;
 using WorkElement = RepairsApi.V2.Infrastructure.WorkElement;
 
@@ -92,10 +93,11 @@ namespace RepairsApi.V2.Services
 
             var drsOrder = await SelectOrder(workOrder);
 
-            if (drsOrder.status != orderStatus.PLANNED)
+            if (!drsOrder.IsScheduled())
             {
-                _logger.LogError($"Cannot complete work order ({workOrder.Id}) as it has not been scheduled in DRS");
-                throw new NotSupportedException(Resources.WorkOrderNotScheduled);
+                _logger.LogError("Cannot complete work order ({WorkOrderId}) as it has not been scheduled in DRS, cancelling instead", workOrder.Id);
+                await CancelOrder(workOrder);
+                return;
             }
 
             await CompleteBooking(workOrder, drsOrder);
