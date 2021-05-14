@@ -104,7 +104,7 @@ namespace RepairsApi.Tests.V2.UseCase
         }
 
         [Test]
-        public async Task ReturnFalseWhenAlreadyComplete()
+        public async Task ThrowsWhenAlreadyComplete()
         {
             // arrange
             _workOrderCompletionGatewayMock.Setup(m => m.IsWorkOrderCompleted(It.IsAny<int>())).ReturnsAsync(true);
@@ -386,6 +386,27 @@ namespace RepairsApi.Tests.V2.UseCase
                 {
                     Resources.NotAuthorisedToCancel, Resources.NotAuthorisedToClose
                 });
+        }
+
+        [Test]
+        public async Task CanCancelPendingOrder()
+        {
+            // arrange
+            var expectedWorkOrder = CreateWorkOrder();
+            expectedWorkOrder.StatusCode = WorkStatusCode.PendingApproval;
+            var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
+            workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
+            {
+                new Generated.JobStatusUpdates
+                {
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = CustomJobStatusUpdates.Cancelled, Comments = "expectedComment"
+                }
+            };
+
+            // act
+            await _classUnderTest.Execute(workOrderCompleteRequest);
+
+            _repairsGatewayMock.Verify(rgm => rgm.UpdateWorkOrderStatus(expectedWorkOrder.Id, WorkStatusCode.Canceled));
         }
 
         private static Generated.WorkOrderComplete CreateRequest(int expectedWorkOrderId)

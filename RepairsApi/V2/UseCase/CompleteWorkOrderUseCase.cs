@@ -50,7 +50,6 @@ namespace RepairsApi.V2.UseCase
             }
 
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
-            workOrder.VerifyCanComplete();
 
             ValidateRequest(workOrderComplete);
             await using var transaction = await _transactionManager.Start();
@@ -72,6 +71,8 @@ namespace RepairsApi.V2.UseCase
                     await HandleCustomType(workOrder, update);
                     break;
                 case Generated.JobStatusUpdateTypeCode._70: // Denied Access
+                    workOrder.VerifyCanComplete();
+
                     if (!_currentUserService.HasGroup(UserGroups.Contractor) &&
                         !_currentUserService.HasGroup(UserGroups.ContractManager))
                         throw new UnauthorizedAccessException("Not Authorised to close jobs");
@@ -87,6 +88,8 @@ namespace RepairsApi.V2.UseCase
             switch (update.OtherType)
             {
                 case CustomJobStatusUpdates.Completed:
+                    workOrder.VerifyCanComplete();
+
                     if (!_currentUserService.HasGroup(UserGroups.Contractor) &&
                         !_currentUserService.HasGroup(UserGroups.ContractManager))
                         throw new UnauthorizedAccessException("Not Authorised to close jobs");
@@ -95,6 +98,8 @@ namespace RepairsApi.V2.UseCase
                     await _notifier.Notify(new WorkOrderCompleted(workOrder, update));
                     break;
                 case CustomJobStatusUpdates.Cancelled:
+                    workOrder.VerifyCanCancel();
+
                     if (!_currentUserService.HasAnyGroup(UserGroups.Agent, UserGroups.ContractManager, UserGroups.AuthorisationManager))
                         throw new UnauthorizedAccessException("Not Authorised to cancel jobs");
 
