@@ -26,7 +26,7 @@ namespace RepairsApi.Tests.V2.Controllers
         }
 
         [Test]
-        public async Task GetHubUser()
+        public void GetHubUser()
         {
             // Arrange
             var hubUser = new HubUserModel
@@ -41,7 +41,7 @@ namespace RepairsApi.Tests.V2.Controllers
 
             _mockCurrentUserService.SetUser(hubUser.Sub, hubUser.Email, hubUser.Name, hubUser.VaryLimit, hubUser.RaiseLimit, hubUser.Contractors);
 
-            var response = await _classUnderTest.GetHubUser() as OkObjectResult;
+            var response = _classUnderTest.GetHubUser() as OkObjectResult;
 
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(200);
