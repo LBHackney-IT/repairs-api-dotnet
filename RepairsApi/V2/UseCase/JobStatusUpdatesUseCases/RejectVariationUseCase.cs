@@ -2,6 +2,7 @@ using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Notifications;
 using RepairsApi.V2.Services;
 using System;
 using System.Threading.Tasks;
@@ -12,13 +13,16 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
     {
         private readonly IRepairsGateway _repairsGateway;
         private readonly ICurrentUserService _currentUserService;
+        private readonly INotifier _notifier;
 
         public RejectVariationUseCase(
             IRepairsGateway repairsGateway,
-            ICurrentUserService currentUserService)
+            ICurrentUserService currentUserService,
+            INotifier notifier)
         {
             _repairsGateway = repairsGateway;
             _currentUserService = currentUserService;
+            _notifier = notifier;
         }
 
         public async Task Execute(JobStatusUpdate jobStatusUpdate)
@@ -31,6 +35,9 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
             workOrder.StatusCode = WorkStatusCode.VariationRejected;
             jobStatusUpdate.PrefixComments(Resources.RejectedVariationPrepend);
+
+            await _notifier.Notify(new VariationRejected(workOrder));
+
             await _repairsGateway.SaveChangesAsync();
         }
     }
