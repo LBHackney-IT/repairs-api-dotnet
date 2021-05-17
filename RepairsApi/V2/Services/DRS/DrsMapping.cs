@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using Force.DeepCloner;
 using NodaTime;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.Gateways;
@@ -9,6 +10,7 @@ using RepairsApi.V2.Generated;
 using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Infrastructure.Extensions;
+using RepairsApi.V2.Services.DRS;
 using V2_Generated_DRS;
 using RateScheduleItem = RepairsApi.V2.Infrastructure.RateScheduleItem;
 
@@ -104,6 +106,63 @@ namespace RepairsApi.V2.Services
             return deleteOrder;
         }
 
+        public Task<updateBooking> BuildCompleteOrderUpdateBookingRequest(string sessionId, WorkOrder workOrder, order drsOrder)
+        {
+            var booking = drsOrder.theBookings.First();
+            booking.theOrder = drsOrder;
+            booking.theOrder.theBusinessData = SetBusinessData(booking.theOrder.theBusinessData, DrsBusinessDataNames.Status, DrsBookingStatusCodes.Completed);
+            booking.theOrder.theBookings = null;
+            booking.theOrder.status = orderStatus.COMPLETED;
+            booking.bookingCompletionStatus = DrsBookingStatusCodes.Completed;
+            booking.bookingLifeCycleStatus = transactionTypeType.COMPLETED;
+            booking.theBusinessData = SetBusinessData(booking.theBusinessData, DrsBusinessDataNames.TaskLifeCycleStatus, DrsTaskLifeCycleCodes.Completed);
+            foreach (var bookingCode in booking.theBookingCodes)
+            {
+                bookingCode.itemValue = null;
+            }
+            var resource = booking.theResources?.First();
+
+            var updateBooking = new updateBooking
+            {
+                updateBooking1 = new xmbUpdateBooking
+                {
+                    completeOrder = true,
+                    startDateAndTime = booking.assignedStart,
+                    endDateAndTime = booking.assignedEnd,
+                    resourceId = resource?.resourceID,
+                    transactionType = transactionTypeType.COMPLETED,
+                    sessionId = sessionId,
+                    theBooking = booking,
+                }
+            };
+
+
+            return Task.FromResult(updateBooking);
+        }
+
+        private static businessData[] SetBusinessData(businessData[] businessData, string name, string value)
+        {
+            var existingValue = businessData?.SingleOrDefault(bd => bd.name == name);
+
+            if (existingValue is null)
+            {
+                businessData ??= Array.Empty<businessData>();
+                businessData = businessData.Concat(new[]
+                {
+                    new businessData
+                    {
+                        name = name, value = value
+                    }
+                }).ToArray();
+            }
+            else
+            {
+                existingValue.value = value;
+            }
+
+            return businessData;
+        }
+
         private static DateTime ConvertToDrsTimeZone(DateTime dateTime)
         {
             var london = DateTimeZoneProviders.Tzdb["Europe/London"];
@@ -136,7 +195,6 @@ namespace RepairsApi.V2.Services
                 quantity = rsi.Quantity.Amount.ToString(CultureInfo.InvariantCulture),
                 bookingCodeSORCode = sorCode.Code,
                 bookingCodeDescription = sorCode.LongDescription ?? sorCode.ShortDescription,
-                itemValue = sorCode.Cost?.ToString(CultureInfo.InvariantCulture) ?? "0",
                 itemNumberWithinBooking = index.ToString(CultureInfo.InvariantCulture),
                 trade = sorCode.TradeCode,
                 standardMinuteValue = sorCode.StandardMinuteValue.ToString()

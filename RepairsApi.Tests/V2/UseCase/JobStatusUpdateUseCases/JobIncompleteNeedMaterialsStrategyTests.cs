@@ -1,17 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
 using RepairsApi.Tests.V2.Gateways;
 using RepairsApi.V2;
-using RepairsApi.V2.Gateways;
-using RepairsApi.V2.Generated;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
-using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using JobStatusUpdate = RepairsApi.V2.Infrastructure.JobStatusUpdate;
 
 namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
 {
@@ -73,14 +71,11 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _repairsGatewayMock.VerifyChangesSaved();
         }
 
+
         private JobStatusUpdate BuildUpdate(WorkOrder workOrder)
         {
             var jobStatusUpdate = _fixture.Build<JobStatusUpdate>()
-                .With(jsu => jsu.RelatedWorkOrderReference,
-                    _fixture.Build<Reference>()
-                        .With(r => r.ID, workOrder.Id.ToString)
-                        .Create())
-                .Create();
+                .With(jsu => jsu.RelatedWorkOrder, workOrder).Create();
             return jobStatusUpdate;
         }
     }

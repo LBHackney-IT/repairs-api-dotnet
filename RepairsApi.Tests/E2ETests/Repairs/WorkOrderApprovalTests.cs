@@ -1,6 +1,7 @@
 using FluentAssertions;
 using NUnit.Framework;
 using RepairsApi.V2.Authorisation;
+using RepairsApi.V2.Generated.CustomTypes;
 using RepairsApi.V2.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,6 +69,19 @@ namespace RepairsApi.Tests.E2ETests.Repairs
 
             SetUserRole(UserGroups.AuthorisationManager);
             var code = await UpdateJob(result.Id, RepairsApi.V2.Generated.JobStatusUpdateTypeCode._190);
+
+            var wo = GetWorkOrderFromDB(result.Id);
+            code.Should().Be(HttpStatusCode.OK);
+            wo.StatusCode.Should().Be(WorkStatusCode.Canceled);
+        }
+
+        [Test]
+        public async Task CancelPendingWorkOrder()
+        {
+            SetUserRole(UserGroups.Agent);
+            var result = await CreateWorkOrder(r => r.WorkElement.Single().RateScheduleItem.Single().Quantity.Amount = new List<double> { 50000 });
+
+            var code = await CancelWorkOrder(result.Id);
 
             var wo = GetWorkOrderFromDB(result.Id);
             code.Should().Be(HttpStatusCode.OK);

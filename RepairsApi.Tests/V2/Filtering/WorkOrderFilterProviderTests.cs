@@ -10,6 +10,7 @@ using RepairsApi.V2.Filtering;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Services;
 using System.Threading.Tasks;
+using RepairsApi.V2.Helpers;
 using SorCodeTrade = RepairsApi.V2.Infrastructure.Hackney.SorCodeTrade;
 
 namespace RepairsApi.Tests.V2.Filtering

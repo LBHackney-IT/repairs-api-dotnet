@@ -86,7 +86,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
 
         private async Task<List<FilterOption>> GetFilters(string section)
         {
-            var (code, result) = await Get<Dictionary<string, List<FilterOption>>>("/api/v2/filter/WorkOrder");
+            var (_, result) = await Get<Dictionary<string, List<FilterOption>>>("/api/v2/filter/WorkOrder");
 
             return result[section];
         }

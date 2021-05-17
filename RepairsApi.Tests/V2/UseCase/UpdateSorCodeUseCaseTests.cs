@@ -9,20 +9,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using RepairsApi.V2.Helpers;
 
 namespace RepairsApi.Tests.V2.UseCase
 {
     public class UpdateSorCodeUseCaseTests
     {
-        private Mock<IScheduleOfRatesGateway> _sheduleOfRatesGateway;
         private UpdateSorCodesUseCase _classUnderTest;
 
         [SetUp]
         public void Setup()
         {
-            _sheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
-            _sheduleOfRatesGateway.Setup(g => g.GetCost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(10.0);
-            _classUnderTest = new UpdateSorCodesUseCase(_sheduleOfRatesGateway.Object);
+            _classUnderTest = new UpdateSorCodesUseCase();
         }
 
         [Test]
@@ -68,7 +66,7 @@ namespace RepairsApi.Tests.V2.UseCase
 
         private static WorkElement CreateWorkElement(WorkOrder workOrder)
         {
-            var workElement = workOrder.WorkElements.First().DeepClone();
+            var workElement = workOrder.WorkElements.First().JsonDeepClone();
             workElement.RateScheduleItem.ForEach(r => r.OriginalId = r.Id);
             return workElement;
         }

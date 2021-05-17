@@ -8,6 +8,7 @@ namespace RepairsApi.V2.Generated.DRS.BackgroundService
     public interface IDrsBackgroundService
     {
         [OperationContract]
+        // ReSharper disable once InconsistentNaming
         string ConfirmBookings(Bookings Bookings);
     }
 

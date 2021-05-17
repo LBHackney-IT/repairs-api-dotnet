@@ -1,4 +1,4 @@
-using RepairsApi.V2.Generated;
+using RepairsApi.V2.Infrastructure;
 
 namespace RepairsApi.V2.Helpers
 {

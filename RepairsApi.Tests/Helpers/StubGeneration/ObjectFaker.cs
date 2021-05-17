@@ -111,6 +111,13 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                 }
             }
 
+            if (actualType.IsArray)
+            {
+                var innerType = actualType.GetElementType();
+                _typeStack.Pop();
+                return CreateArray(innerType);
+            }
+
             var result = Activator.CreateInstance(actualType);
 
             foreach (var item in actualType.GetProperties())
@@ -147,6 +154,24 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
             for (int i = 0; i < limit; i++)
             {
                 list.Add(Run(type));
+            }
+
+            return list;
+        }
+
+        private object CreateArray(Type type)
+        {
+            var limit = new Random().Next(9) + 1;
+            var list = Array.CreateInstance(type, limit);
+
+            if (_listLengths.TryGetValue(type, out var listLength))
+            {
+                limit = listLength;
+            }
+
+            for (int i = 0; i < limit; i++)
+            {
+                list.SetValue(Run(type), i);
             }
 
             return list;

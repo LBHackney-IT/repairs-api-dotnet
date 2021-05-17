@@ -20,6 +20,7 @@
     <PackageReference Include="AWSXRayRecorder.Handlers.AspNetCore" Version="2.7.2" />
     <PackageReference Include="AWSXRayRecorder.Handlers.AwsSdk" Version="2.8.2" />
     <PackageReference Include="AWSXRayRecorder.Handlers.EntityFramework" Version="1.1.0" />
+    <PackageReference Include="DeepCloner" Version="0.10.2" />
     <PackageReference Include="EFCore.NamingConventions" Version="5.0.1" />
     <PackageReference Include="GovukNotify" Version="4.0.0" />
     <PackageReference Include="JWT" Version="7.3.1" />
@@ -36,6 +37,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="2.2.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
     <PackageReference Include="SoapCore" Version="1.1.0.8" />
     <PackageReference Include="NodaTime" Version="3.0.5" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.4.1" />

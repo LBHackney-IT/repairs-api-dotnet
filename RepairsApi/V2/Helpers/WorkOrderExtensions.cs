@@ -18,6 +18,11 @@ namespace RepairsApi.V2.Helpers
             if (wo.StatusCode == WorkStatusCode.VariationPendingApproval) throw new NotSupportedException("Work Orders with outstanding variations can not be completed.");
         }
 
+        public static void VerifyCanCancel(this WorkOrder wo)
+        {
+            if (wo.StatusCode == WorkStatusCode.VariationPendingApproval) throw new NotSupportedException("Work Orders with outstanding variations can not be cancelled.");
+        }
+
         public static void VerifyCanResumeJob(this WorkOrder wo)
         {
             if (

@@ -15,17 +15,18 @@ namespace RepairsApi.Tests.Helpers
             Setup(c => c.HasAnyGroup(It.Is<string[]>(s => s.Contains(group)))).Returns(isInGroup);
         }
 
-        public void SetContractor(string contractor)
+        public void SetContractor(params string[] contractors)
         {
-            Setup(m => m.TryGetContractor(out contractor)).Returns(true);
+            Setup(m => m.GetContractors()).Returns(contractors.ToList());
         }
 
-        public void SetUser(string id, string email, string name, string varyLimit = null, string raiseLimit = null)
+        public void SetUser(string id, string email, string name, string varyLimit = null, string raiseLimit = null, List<string> contractors = null)
         {
             var identity = new ClaimsIdentity();
             identity.AddClaim(new Claim(ClaimTypes.Email, email));
             identity.AddClaim(new Claim(ClaimTypes.PrimarySid, id));
             identity.AddClaim(new Claim(ClaimTypes.Name, name));
+            identity.AddClaims(contractors?.Select(c => new Claim(CustomClaimTypes.Contractor, c)) ?? new List<Claim>());
             if (!(varyLimit is null)) identity.AddClaim(new Claim(CustomClaimTypes.VaryLimit, varyLimit));
             if (!(raiseLimit is null)) identity.AddClaim(new Claim(CustomClaimTypes.RaiseLimit, raiseLimit));
 

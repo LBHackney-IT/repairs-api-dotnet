@@ -11,7 +11,7 @@ using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase;
 using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
-using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
+using JobStatusUpdate = RepairsApi.V2.Infrastructure.JobStatusUpdate;
 
 namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
 {

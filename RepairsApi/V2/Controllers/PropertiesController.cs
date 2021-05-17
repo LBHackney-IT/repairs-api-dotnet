@@ -65,7 +65,7 @@ namespace RepairsApi.V2.Controllers
             var properties = await _listPropertiesUseCase.ExecuteAsync(searchModel);
 
             List<PropertyListItem> response = properties.ToResponse();
-            _logger.LogInformation($"Found {response.Count} properties");
+            _logger.LogInformation("Found {count} properties", response.Count);
             return Ok(response);
         }
 
