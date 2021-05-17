@@ -38,7 +38,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _currentUserServiceMock = new CurrentUserServiceMock();
             _classUnderTest = new RejectVariationUseCase(
                 _repairsGatewayMock.Object,
-                _currentUserServiceMock.Object);
+                _currentUserServiceMock.Object, new NotificationMock());
         }
 
         private static IEnumerable<string> _testGroups = EnumerationHelper.GetStaticValues(typeof(UserGroups), UserGroups.ContractManager);

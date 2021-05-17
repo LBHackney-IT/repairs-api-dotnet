@@ -30,7 +30,8 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
             _currentUserServiceMock = new CurrentUserServiceMock();
             _classUnderTest = new RejectWorkOrderStrategy(
-                _currentUserServiceMock.Object
+                _currentUserServiceMock.Object,
+                new NotificationMock()
             );
         }
 

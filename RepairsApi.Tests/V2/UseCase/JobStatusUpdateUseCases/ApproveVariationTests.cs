@@ -44,7 +44,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
 
             _classUnderTest = new ApproveVariationUseCase(
                 _repairsGatewayMock.Object, _jobStatusUpdateGateway.Object,
-                _currentUserServiceMock.Object, _updateSorCodesUseCaseMock.Object);
+                _currentUserServiceMock.Object, _updateSorCodesUseCaseMock.Object, new NotificationMock());
         }
 
         [Test]
