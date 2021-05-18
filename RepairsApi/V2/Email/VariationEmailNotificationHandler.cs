@@ -64,31 +64,4 @@ namespace RepairsApi.V2.Email
                 () => _logger.LogInformation("Mail Sent for approval of high cost variation on work order {WorkOrderId}", data.Approval.RelatedWorkOrder.Id));
         }
     }
-
-    internal class HighCostVariationCreatedEmail : EmailRequest
-    {
-        public HighCostVariationCreatedEmail(string address, int id)
-            : base(address)
-        {
-            Set("workOrderId", id);
-        }
-    }
-
-    internal class VariationRejectedEmail : EmailRequest
-    {
-        public VariationRejectedEmail(string address, int id)
-            : base(address)
-        {
-            Set("workOrderId", id);
-        }
-    }
-
-    internal class VariationApprovedEmail : EmailRequest
-    {
-        public VariationApprovedEmail(string address, int id)
-            : base(address)
-        {
-            Set("workOrderId", id);
-        }
-    }
 }

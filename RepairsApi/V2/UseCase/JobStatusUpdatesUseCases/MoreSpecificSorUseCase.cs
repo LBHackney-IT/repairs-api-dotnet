@@ -20,6 +20,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
         private readonly ICurrentUserService _currentUserService;
         private readonly IUpdateSorCodesUseCase _updateSorCodesUseCase;
         private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
+        private readonly INotifier _notifier;
 
         public MoreSpecificSorUseCase(IAuthorizationService authorizationService,
             IFeatureManager featureManager,
@@ -33,6 +34,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             _currentUserService = currentUserService;
             _updateSorCodesUseCase = updateSorCodesUseCase;
             _scheduleOfRatesGateway = scheduleOfRatesGateway;
+            _notifier = notifier;
         }
 
         public async Task Execute(JobStatusUpdate jobStatusUpdate)
@@ -49,6 +51,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             {
                 workOrder.StatusCode = WorkStatusCode.VariationPendingApproval;
                 jobStatusUpdate.TypeCode = JobStatusUpdateTypeCode._180;
+                await _notifier.Notify(new HighCostVariationCreated(workOrder));
             }
             else
             {
