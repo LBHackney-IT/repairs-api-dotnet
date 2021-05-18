@@ -55,6 +55,36 @@ namespace RepairsApi.Tests.V2.Services
                 });
         }
 
+        public void UpdateBookingReturns(responseStatus status, string errorMsg = null)
+        {
+            Setup(x => x.updateBookingAsync(It.IsAny<updateBooking>()))
+                .ReturnsAsync(new updateBookingResponse
+                {
+                    @return = new xmbUpdateBookingResponse
+                    {
+                        status = status,
+                        errorMsg = errorMsg
+                    }
+                });
+        }
+
+        public void SelectOrderReturns(order order, responseStatus status = responseStatus.success, string error = "")
+        {
+            Setup(x => x.selectOrderAsync(It.IsAny<selectOrder>()))
+                .ReturnsAsync(new selectOrderResponse
+                {
+                    @return = new xmbSelectOrderResponse
+                    {
+                        status = status,
+                        errorMsg = error,
+                        theOrders = new[]
+                        {
+                            order
+                        }
+                    }
+                });
+        }
+
         public void VerifyOpenSession()
         {
             LastOpen.openSession1.login.Should().Be(_drsOptions.Value.Login);

@@ -14,7 +14,7 @@ namespace RepairsApi.V2.Authorisation
         {
             return claimsPrincipal.FindFirst(ClaimTypes.Email).Value;
         }
-        public static List<string> Groups(this ClaimsPrincipal claimsPrincipal)
+        public static List<string> Contractors(this ClaimsPrincipal claimsPrincipal)
         {
             return claimsPrincipal.FindAll(CustomClaimTypes.Contractor).Select(c => c.Value).ToList();
         }

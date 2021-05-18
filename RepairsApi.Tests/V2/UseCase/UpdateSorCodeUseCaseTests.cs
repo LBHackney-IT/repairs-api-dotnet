@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using RepairsApi.V2.Helpers;
 
 namespace RepairsApi.Tests.V2.UseCase
 {
@@ -65,7 +66,7 @@ namespace RepairsApi.Tests.V2.UseCase
 
         private static WorkElement CreateWorkElement(WorkOrder workOrder)
         {
-            var workElement = workOrder.WorkElements.First().DeepClone();
+            var workElement = workOrder.WorkElements.First().JsonDeepClone();
             workElement.RateScheduleItem.ForEach(r => r.OriginalId = r.Id);
             return workElement;
         }

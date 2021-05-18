@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using NUnit.Framework;
+using System.Security.Claims;
 
 namespace RepairsApi.Tests.V2.Controllers
 {

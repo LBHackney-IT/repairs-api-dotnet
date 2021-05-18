@@ -96,9 +96,10 @@ namespace RepairsApi.V2.Gateways
         {
             if (userService.HasAnyGroup(UserGroups.AuthorisationManager, UserGroups.ContractManager, UserGroups.Agent)) return source;
 
-            if (userService.TryGetContractor(out string contractor))
+            var contractors = userService.GetContractors();
+            if (contractors.Count > 0)
             {
-                return source.Where(wo => wo.AssignedToPrimary.ContractorReference == contractor && wo.StatusCode != WorkStatusCode.PendingApproval);
+                return source.Where(wo => contractors.Contains(wo.AssignedToPrimary.ContractorReference) && wo.StatusCode != WorkStatusCode.PendingApproval);
             }
 
             throw new UnauthorizedAccessException("Cannot access work orders");
@@ -108,9 +109,10 @@ namespace RepairsApi.V2.Gateways
         {
             if (userService.HasAnyGroup(UserGroups.Agent, UserGroups.ContractManager, UserGroups.AuthorisationManager)) return true;
 
-            if (userService.TryGetContractor(out string contractor))
+            var contractors = userService.GetContractors();
+            if (contractors.Count > 0)
             {
-                return workOrder.AssignedToPrimary.ContractorReference == contractor
+                return contractors.Contains(workOrder.AssignedToPrimary.ContractorReference)
                     && workOrder.StatusCode != WorkStatusCode.PendingApproval;
             }
 

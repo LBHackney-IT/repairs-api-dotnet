@@ -13,6 +13,9 @@ using RepairsApi.V2.Domain;
 using RepairsApi.V2.Gateways;
 using V2_Generated_DRS;
 using System;
+using RepairsApi.V2.Generated;
+using Trade = RepairsApi.V2.Infrastructure.Trade;
+using WorkElement = RepairsApi.V2.Infrastructure.WorkElement;
 
 namespace RepairsApi.Tests.V2.Notifications
 {
@@ -107,6 +110,47 @@ namespace RepairsApi.Tests.V2.Notifications
             await _classUnderTest.Notify(new WorkOrderCancelled(workOrder));
 
             _drsServiceMock.Verify(x => x.CancelOrder(workOrder), Times.Never);
+        }
+
+        [Test]
+        public async Task CompletesDRSOrder()
+        {
+            var workOrder = CreateWorkOrder();
+            var generator = new Generator<JobStatusUpdates>()
+                .AddDefaultGenerators();
+            var jsu = generator.Generate();
+
+            await _classUnderTest.Notify(new WorkOrderCompleted(workOrder, jsu));
+
+            _drsServiceMock.Verify(x => x.CompleteOrder(workOrder));
+        }
+
+        [Test]
+        public async Task DoesNotCompleteDRSOrder_When_FeatureFlagFalse()
+        {
+            FeatureEnabled(false);
+            var workOrder = CreateWorkOrder();
+            var generator = new Generator<JobStatusUpdates>()
+                .AddDefaultGenerators();
+            var jsu = generator.Generate();
+
+            await _classUnderTest.Notify(new WorkOrderCompleted(workOrder, jsu));
+
+            _drsServiceMock.Verify(x => x.CompleteOrder(workOrder), Times.Never);
+        }
+
+        [Test]
+        public async Task DoesNotCompleteDRSOrder_When_ContractorNotEnabled()
+        {
+            ContractorUsesExternalScheduler(false);
+            var workOrder = CreateWorkOrder();
+            var generator = new Generator<JobStatusUpdates>()
+                .AddDefaultGenerators();
+            var jsu = generator.Generate();
+
+            await _classUnderTest.Notify(new WorkOrderCompleted(workOrder, jsu));
+
+            _drsServiceMock.Verify(x => x.CompleteOrder(workOrder), Times.Never);
         }
 
         private static WorkOrder CreateWorkOrder()
