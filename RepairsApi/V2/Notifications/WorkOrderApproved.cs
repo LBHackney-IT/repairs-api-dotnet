@@ -8,11 +8,8 @@ namespace RepairsApi.V2.Notifications
 {
     public class WorkOrderApproved : INotification
     {
-        private WorkOrder _workOrder;
+        public WorkOrder WorkOrder { get; }
 
-        public WorkOrderApproved(WorkOrder workOrder)
-        {
-            _workOrder = workOrder;
-        }
+        public WorkOrderApproved(WorkOrder workOrder) => WorkOrder = workOrder;
     }
 }

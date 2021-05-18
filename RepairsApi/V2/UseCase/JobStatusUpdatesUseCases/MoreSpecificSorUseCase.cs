@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Force.DeepCloner;
 using JobStatusUpdateTypeCode = RepairsApi.V2.Generated.JobStatusUpdateTypeCode;
+using RepairsApi.V2.Notifications;
 
 namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 {
@@ -24,7 +25,8 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             IFeatureManager featureManager,
             ICurrentUserService currentUserService,
             IUpdateSorCodesUseCase updateSorCodesUseCase,
-            IScheduleOfRatesGateway scheduleOfRatesGateway)
+            IScheduleOfRatesGateway scheduleOfRatesGateway,
+            INotifier notifier)
         {
             _authorizationService = authorizationService;
             _featureManager = featureManager;
