@@ -6,6 +6,7 @@ using NUnit.Framework;
 using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Gateways.Models;
+using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase;
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ namespace RepairsApi.Tests.V2.Gateways
         public void SetUp()
         {
             _apiGatewayMock = new Mock<IApiGateway>();
-            _classUnderTest = new PropertyGateway(_apiGatewayMock.Object, new NullLogger<PropertyGateway>());
+            _classUnderTest = new PropertyGateway(_apiGatewayMock.Object, InMemoryDb.Instance, new NullLogger<PropertyGateway>());
         }
 
         [Test]

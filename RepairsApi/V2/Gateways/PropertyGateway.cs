@@ -4,11 +4,13 @@ using RepairsApi.V2.Domain;
 using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Gateways.Models;
+using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace RepairsApi.V2.Gateways
 {
@@ -17,11 +19,13 @@ namespace RepairsApi.V2.Gateways
     {
         private readonly IApiGateway _apiGateway;
         private readonly ILogger<PropertyGateway> _logger;
+        private readonly RepairsContext _repairsContext;
 
-        public PropertyGateway(IApiGateway apiGateway, ILogger<PropertyGateway> logger)
+        public PropertyGateway(IApiGateway apiGateway, RepairsContext repairsContext, ILogger<PropertyGateway> logger)
         {
             _apiGateway = apiGateway;
             _logger = logger;
+            _repairsContext = repairsContext;
         }
 
         public async Task<IEnumerable<PropertyModel>> GetByQueryAsync(PropertySearchModel searchModel)
@@ -54,7 +58,10 @@ namespace RepairsApi.V2.Gateways
                 throw new ApiException(response.Status, Resources.PropertyFailure);
             }
 
-            return response.Content.ToDomain();
+            var tmo = _repairsContext.Company.Where(c => c.CoCode.Equals(response.Content.CompAvail))
+                .SingleOrDefault()?.Name;
+
+            return response.Content.ToDomain(tmo);
         }
     }
 }
