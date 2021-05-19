@@ -58,7 +58,7 @@ namespace RepairsApi.V2.Gateways
                 throw new ApiException(response.Status, Resources.PropertyFailure);
             }
 
-            var tmo = _repairsContext.Company.Where(c => c.CoCode.Equals(response.Content.CompAvail))
+            string? tmo = _repairsContext.Company.Where(c => c.CoCode.Equals(response.Content.CompAvail))
                 .SingleOrDefault()?.Name;
 
             return response.Content.ToDomain(tmo);

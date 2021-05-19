@@ -65,8 +65,21 @@ namespace RepairsApi.Tests
                     SeedSorMap(ctx);
 
                     SeedSecurityGroups(ctx);
+
+                    SeedCompany(ctx);
                 }
             }
+        }
+
+        private static void SeedCompany(RepairsContext ctx)
+        {
+            ctx.Company.AddRange(new List<Company>
+            {
+                new Company {CoCode = "001", CompAvail = "001", Description = "TMO Address1", Name = "TMO Name1" },
+                new Company {CoCode = "002", CompAvail = "002", Description = "TMO Address2", Name = "TMO Name2" },
+                new Company {CoCode = "003", CompAvail = "003", Description = "TMO Address3", Name = "TMO Name3" },
+            });
+            ctx.SaveChanges();
         }
 
         private static void SeedSecurityGroups(RepairsContext ctx)

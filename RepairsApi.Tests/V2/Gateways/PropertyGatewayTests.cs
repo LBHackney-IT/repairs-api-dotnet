@@ -41,6 +41,7 @@ namespace RepairsApi.Tests.V2.Gateways
 
             // Assert
             result.Address.ShortAddress.Should().Be(stubData.Content.Address1);
+            result.TmoName.Should().Be(null);
         }
 
         [Test]
