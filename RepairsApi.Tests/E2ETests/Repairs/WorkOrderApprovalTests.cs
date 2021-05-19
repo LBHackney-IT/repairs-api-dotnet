@@ -73,6 +73,8 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             var wo = GetWorkOrderFromDB(result.Id);
             code.Should().Be(HttpStatusCode.OK);
             wo.StatusCode.Should().Be(WorkStatusCode.Canceled);
+
+            NotifyMock.LastEmail.Should().NotBeNull();
         }
 
         [Test]

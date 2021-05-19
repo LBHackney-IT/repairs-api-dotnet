@@ -47,6 +47,9 @@ using SoapCore;
 using V2_Generated_DRS;
 using BackgroundService = Microsoft.Extensions.Hosting.BackgroundService;
 using RepairsApi.V2.Notifications;
+using RepairsApi.V2.Email;
+using Notify.Interfaces;
+using Notify.Client;
 
 namespace RepairsApi
 {
@@ -202,13 +205,22 @@ namespace RepairsApi
             services.AddScoped<ICurrentUserLoader>(sp => sp.GetService<CurrentUserService>());
             services.AddTransient<ITransactionManager, TransactionManager>();
             services.AddSingleton<IAuthenticationService, ChallengeOnlyAuthenticationService>();
-            services.AddTransient<IGovUKNotifyWrapper, GovUKNotifyService>();
+            AddEmailService(services);
             services.AddFeatureManagement();
             services.AddFilteringConfig();
             ConfigureDRSSoap(services);
             services.AddTransient(typeof(Lazy<>), typeof(LazyWrapper<>));
 
             AddNotificationHandlers(services);
+        }
+
+        private void AddEmailService(IServiceCollection services)
+        {
+            NotifyOptions options = new NotifyOptions();
+            Configuration.Bind(nameof(NotifyOptions), options);
+
+            services.AddTransient<IEmailService, GovUKNotifyService>();
+            services.AddTransient<IAsyncNotificationClient>(sp => new NotificationClient(options.ApiKey));
         }
 
         private static void ConfigureDRSSoap(IServiceCollection services)

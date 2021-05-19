@@ -22,6 +22,7 @@ using RateScheduleItem = RepairsApi.V2.Generated.RateScheduleItem;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 using RepairsApi.V2.Services;
 using V2_Generated_DRS;
+using RepairsApi.V2.Email;
 
 namespace RepairsApi.Tests.E2ETests.Repairs
 {
@@ -194,7 +195,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             // Assert
             code.Should().Be(HttpStatusCode.OK);
             workOrder.StatusCode.Should().Be(WorkStatusCode.Complete);
-            NotifyMock.SentMails.Should().ContainSingle(m => m[WorkOrderCompletedEmailVariables.WorkOrderId].ToString() == result.Id.ToString());
+            NotifyMock.SentMails.Should().ContainSingle(m => m.Props[EmailVariables.WorkOrderId].ToString() == result.Id.ToString());
         }
 
         private async Task<HttpStatusCode> CompleteWorkOrder(int workOrderId)

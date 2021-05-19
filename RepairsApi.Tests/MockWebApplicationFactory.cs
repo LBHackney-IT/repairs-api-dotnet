@@ -22,6 +22,7 @@ using V2_Generated_DRS;
 using RepairsApi.Tests.Helpers;
 using NUnit.Framework;
 using RepairsApi.V2.Services;
+using Notify.Interfaces;
 
 namespace RepairsApi.Tests
 {
@@ -36,8 +37,8 @@ namespace RepairsApi.Tests
         private readonly SoapMock _soapMock = new SoapMock();
         protected SoapMock SoapMock => _soapMock;
 
-        private readonly MockGovUKNotifyWrapper _govUkNotifyMock = new MockGovUKNotifyWrapper();
-        protected MockGovUKNotifyWrapper NotifyMock => _govUkNotifyMock;
+        private readonly NotifyWrapper _notifyMock = new NotifyWrapper();
+        protected NotifyWrapper NotifyMock => _notifyMock;
 
         public MockWebApplicationFactory(string connection)
         {
@@ -82,8 +83,8 @@ namespace RepairsApi.Tests
                 services.RemoveAll<IApiGateway>();
                 services.AddTransient<IApiGateway, MockApiGateway>();
                 services.RemoveAll<SOAP>();
-                services.RemoveAll<IGovUKNotifyWrapper>();
-                services.AddTransient<IGovUKNotifyWrapper>(sp => _govUkNotifyMock);
+                services.RemoveAll<IAsyncNotificationClient>();
+                services.AddTransient(sp => _notifyMock.Object);
                 services.AddTransient(sp => _soapMock.Object);
             })
             .UseEnvironment("IntegrationTests");

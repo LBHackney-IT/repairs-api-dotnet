@@ -13,15 +13,18 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
     {
         private readonly IRepairsGateway _repairsGateway;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IJobStatusUpdateGateway _jobStatusUpdateGateway;
         private readonly INotifier _notifier;
 
         public RejectVariationUseCase(
             IRepairsGateway repairsGateway,
             ICurrentUserService currentUserService,
+            IJobStatusUpdateGateway jobStatusUpdateGateway,
             INotifier notifier)
         {
             _repairsGateway = repairsGateway;
             _currentUserService = currentUserService;
+            _jobStatusUpdateGateway = jobStatusUpdateGateway;
             _notifier = notifier;
         }
 
@@ -33,10 +36,12 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             if (!_currentUserService.HasGroup(UserGroups.ContractManager))
                 throw new UnauthorizedAccessException(Resources.InvalidPermissions);
 
+            var variationJobStatus = await _jobStatusUpdateGateway.GetOutstandingVariation(workOrder.Id);
+
             workOrder.StatusCode = WorkStatusCode.VariationRejected;
             jobStatusUpdate.PrefixComments(Resources.RejectedVariationPrepend);
 
-            await _notifier.Notify(new VariationRejected(workOrder));
+            await _notifier.Notify(new VariationRejected(variationJobStatus, jobStatusUpdate));
 
             await _repairsGateway.SaveChangesAsync();
         }

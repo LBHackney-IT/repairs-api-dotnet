@@ -35,14 +35,13 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             WorkOrder workOrder = jobStatusUpdate.RelatedWorkOrder;
             workOrder.VerifyCanApproveVariation();
 
-
             var variationJobStatus = await _jobStatusUpdateGateway.GetOutstandingVariation(workOrder.Id);
 
             await VaryWorkOrder(workOrder, variationJobStatus);
 
             jobStatusUpdate.Comments = $"{jobStatusUpdate.Comments} Approved By: {_currentUserService.GetHubUser().Name}";
 
-            await _notifier.Notify(new VariationApproved(workOrder));
+            await _notifier.Notify(new VariationApproved(variationJobStatus, jobStatusUpdate));
             await _repairsGateway.SaveChangesAsync();
         }
 

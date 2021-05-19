@@ -33,11 +33,20 @@ namespace RepairsApi.V2.Email
         {
             try
             {
-                return _notificationClientAsync.SendEmailAsync(request.Address, ResolveTemplateId<TRequest>(), request);
+                var requestName = typeof(TRequest).Name;
+                if (_options.TemplateIds.TryGetValue(requestName, out var templateId))
+                {
+                    return _notificationClientAsync.SendEmailAsync(request.Address, templateId, request);
+                }
+                else
+                {
+                    _logger.LogError("[EmailError] Could not resolve template for email {requestName}", requestName);
+                    return Task.CompletedTask;
+                }
             }
             catch (NotifyClientException ex)
             {
-                _logger.LogError($"[EmailError] Failed to send Email with error {ex.Message}");
+                _logger.LogError(ex, "[EmailError] Failed to send Email with error {ex.Message}", ex.Message);
                 return Task.CompletedTask;
             }
         }

@@ -50,7 +50,8 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
                 _featureManagerMock.Object,
                 _currentUserServiceMock.Object,
                 _updateSorCodesUseCaseMock.Object,
-                _sheduleOfRatesGateway.Object);
+                _sheduleOfRatesGateway.Object,
+                new NotificationMock());
         }
 
         [TestCase(WorkStatusCode.VariationPendingApproval)]

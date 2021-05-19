@@ -60,7 +60,7 @@ namespace RepairsApi.V2.Email
 
         public Task Notify(VariationApproved data)
         {
-            return SendMail(new VariationRejectedEmail(data.Variation.AuthorEmail, data.Approval.RelatedWorkOrder.Id),
+            return SendMail(new VariationApprovedEmail(data.Variation.AuthorEmail, data.Approval.RelatedWorkOrder.Id),
                 () => _logger.LogInformation("Mail Sent for approval of high cost variation on work order {WorkOrderId}", data.Approval.RelatedWorkOrder.Id));
         }
     }
