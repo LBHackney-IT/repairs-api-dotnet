@@ -1,14 +1,13 @@
 using Moq;
 using Notify.Interfaces;
-using RepairsApi.V2.Services;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Linq;
 
 namespace RepairsApi.Tests.Helpers
 {
     public class NotifyWrapper : Mock<IAsyncNotificationClient>
     {
-        public EmailRecord LastEmail { get; set; } = null;
+        public EmailRecord LastEmail => SentMails.LastOrDefault();
         public List<EmailRecord> SentMails { get; set; } = new List<EmailRecord>();
 
         public NotifyWrapper()
@@ -18,7 +17,6 @@ namespace RepairsApi.Tests.Helpers
                 {
                     var emailRecord = new EmailRecord(email, templateId, props, clientReference, replyTo);
                     SentMails.Add(emailRecord);
-                    LastEmail = emailRecord;
                 });
         }
     }
