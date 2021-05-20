@@ -1,11 +1,11 @@
-﻿namespace RepairsApi.V2.Email
+namespace RepairsApi.V2.Email
 {
     internal class WorkApprovedEmail : EmailRequest
     {
         public WorkApprovedEmail(string address, object id)
             : base(address)
         {
-            Set("workOrderId", id);
+            Set(EmailVariables.WorkOrderId, id);
         }
     }
 }
