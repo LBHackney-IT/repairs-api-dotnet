@@ -38,6 +38,7 @@ namespace RepairsApi.V2.Email
             {
                 return;
             }
+
             using (_logger.BeginScope(Guid.NewGuid()))
             {
                 logAction();

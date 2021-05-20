@@ -56,6 +56,11 @@ namespace RepairsApi.V2.Email
         {
             var emailAddress = await _scheduleOfRatesGateway.GetContractManagerEmail(data.WorkOrder.AssignedToPrimary.ContractorReference);
 
+            if (string.IsNullOrWhiteSpace(emailAddress))
+            {
+                return;
+            }
+
             await SendMail(new HighCostVariationCreatedEmail(emailAddress, data.WorkOrder.Id),
                 () => _logger.LogInformation("Sending Mail for raising of high cost variation on work order {WorkOrderId}", data.WorkOrder.Id));
         }
