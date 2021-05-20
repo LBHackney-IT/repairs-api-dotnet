@@ -44,6 +44,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             return jobStatusUpdate.OtherType switch
             {
                 CustomJobStatusUpdates.Resume => _activator.CreateInstance<ResumeJobStrategy>(),
+                CustomJobStatusUpdates.AddNote => null,
                 _ => throw new NotSupportedException($"This type code is not supported: {jobStatusUpdate.TypeCode} - {jobStatusUpdate.OtherType}"),
             };
         }

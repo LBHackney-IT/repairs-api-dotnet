@@ -224,6 +224,22 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         }
 
         [Test]
+        public async Task CreateDecimalQuantity()
+        {
+            // Arrange
+            var result = await CreateWorkOrder(wo =>
+            {
+                wo.WorkElement.First().RateScheduleItem.First().Quantity.Amount = 5.5.MakeArray();
+            });
+
+            // Act
+            var tasks = await GetTasks(result.Id);
+
+            // Assert
+            tasks.Should().ContainSingle(t => t.Quantity == 5.5);
+        }
+
+        [Test]
         public async Task UpdateSorCodes()
         {
             // Arrange
@@ -251,9 +267,11 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             // Arrange
             var expectedNote = "expectedComments";
             var result = await CreateWorkOrder();
-            await UpdateSorCodes(result.Id, req =>
+            await UpdateJob(result.Id, req =>
             {
                 req.Comments = expectedNote;
+                req.TypeCode = JobStatusUpdateTypeCode._0;
+                req.OtherType = CustomJobStatusUpdates.AddNote;
             });
 
             // Act
