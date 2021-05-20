@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Helpers;
@@ -14,14 +15,16 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
         private readonly IRepairsGateway _repairsGateway;
         private readonly ICurrentUserService _currentUserService;
         private readonly IUpdateSorCodesUseCase _updateSorCodesUseCase;
+        private readonly IAuthorizationService _authorizationService;
         private readonly IJobStatusUpdateGateway _jobStatusUpdateGateway;
 
         public ApproveVariationUseCase(IRepairsGateway repairsGateway, IJobStatusUpdateGateway jobStatusUpdateGateway,
-            ICurrentUserService currentUserService, IUpdateSorCodesUseCase updateSorCodesUseCase)
+            ICurrentUserService currentUserService, IUpdateSorCodesUseCase updateSorCodesUseCase, IAuthorizationService authorizationService)
         {
             _repairsGateway = repairsGateway;
             _currentUserService = currentUserService;
             _updateSorCodesUseCase = updateSorCodesUseCase;
+            _authorizationService = authorizationService;
             _jobStatusUpdateGateway = jobStatusUpdateGateway;
         }
 
@@ -32,8 +35,11 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             WorkOrder workOrder = jobStatusUpdate.RelatedWorkOrder;
             workOrder.VerifyCanApproveVariation();
 
-
             var variationJobStatus = await _jobStatusUpdateGateway.GetOutstandingVariation(workOrder.Id);
+
+            var authorised = await _authorizationService.AuthorizeAsync(_currentUserService.GetUser(), variationJobStatus, "VarySpendLimit");
+
+            if (!authorised.Succeeded) throw new UnauthorizedAccessException("Cannot Approve a Work Order Above Spend Limit");
 
             await VaryWorkOrder(workOrder, variationJobStatus);
 
