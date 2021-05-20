@@ -3,7 +3,7 @@ namespace RepairsApi.V2.Email
     public class HighCostWorkOrderEmail : EmailRequest
     {
         public HighCostWorkOrderEmail(string address, int id)
-            : base (address)
+            : base(address)
         {
             Set(EmailVariables.WorkOrderId, id);
         }
