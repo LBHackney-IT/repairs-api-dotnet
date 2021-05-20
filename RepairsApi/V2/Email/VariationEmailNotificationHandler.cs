@@ -16,13 +16,13 @@ namespace RepairsApi.V2.Email
         private IEmailService EmailService => _lazyGovUkService.Value;
         private readonly Lazy<IEmailService> _lazyGovUkService;
         private readonly IFeatureManager _featureManager;
-        private readonly ILogger<WorkOrderEmailNotificationHandler> _logger;
+        private readonly ILogger<VariationEmailNotificationHandler> _logger;
         private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
 
         public VariationEmailNotificationHandler(
             Lazy<IEmailService> lazyEmailService,
             IFeatureManager featureMananger,
-            ILogger<WorkOrderEmailNotificationHandler> logger,
+            ILogger<VariationEmailNotificationHandler> logger,
             IScheduleOfRatesGateway scheduleOfRatesGateway)
         {
             _lazyGovUkService = lazyEmailService;

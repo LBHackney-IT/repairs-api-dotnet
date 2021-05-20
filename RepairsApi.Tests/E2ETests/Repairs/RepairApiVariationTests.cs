@@ -28,7 +28,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             workOrder.StatusCode.Should().Be(WorkStatusCode.VariationPendingApproval);
             workOrder.JobStatusUpdates[0].TypeCode.Should().Be(JobStatusUpdateTypeCode._180);
 
-            VerifyEmailSent(TestEmailTemplateIds.HighCostVariationCreatedEmail);
+            VerifyEmailSent(TestEmailTemplateIds.HighCostVariationCreatedEmail, TestDataSeeder.Contractor_ContractManagerEmail);
         }
 
         public async Task WorkOrderRejectVariation()

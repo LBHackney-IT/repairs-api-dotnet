@@ -203,9 +203,9 @@ namespace RepairsApi.Tests
             return result.StatusCode;
         }
 
-        protected void VerifyEmailSent(string templateId)
+        protected void VerifyEmailSent(string templateId, string recipient = null)
         {
-            NotifyMock.LastEmail.Should().Match<EmailRecord>(r => r.TemplateId == templateId);
+            NotifyMock.LastEmail.Should().Match<EmailRecord>(r => r.TemplateId == templateId && (recipient == null || recipient == r.Email));
         }
     }
 
