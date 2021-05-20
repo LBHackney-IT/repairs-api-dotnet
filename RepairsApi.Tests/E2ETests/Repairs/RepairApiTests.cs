@@ -8,6 +8,7 @@ using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Generated.CustomTypes;
+using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase;
 using System;
