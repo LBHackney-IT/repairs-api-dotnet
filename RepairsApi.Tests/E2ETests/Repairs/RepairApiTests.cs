@@ -1,3 +1,4 @@
+using AutoFixture;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
@@ -8,21 +9,17 @@ using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Generated.CustomTypes;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.UseCase;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using AutoFixture;
-using RepairsApi.V2;
-using RepairsApi.V2.UseCase;
+using V2_Generated_DRS;
 using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
 using Quantity = RepairsApi.V2.Generated.Quantity;
 using RateScheduleItem = RepairsApi.V2.Generated.RateScheduleItem;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
-using RepairsApi.V2.Services;
-using V2_Generated_DRS;
-using RepairsApi.V2.Email;
 
 namespace RepairsApi.Tests.E2ETests.Repairs
 {

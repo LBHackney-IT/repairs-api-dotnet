@@ -28,7 +28,7 @@ namespace RepairsApi.V2.Email
             _notificationClientAsync = notificationClientAsync;
         }
 
-        public Task SendMailAsync<TRequest>(TRequest request)
+        public async Task SendMailAsync<TRequest>(TRequest request)
             where TRequest : EmailRequest
         {
             try
@@ -36,27 +36,18 @@ namespace RepairsApi.V2.Email
                 var requestName = typeof(TRequest).Name;
                 if (_options.TemplateIds.TryGetValue(requestName, out var templateId))
                 {
-                    return _notificationClientAsync.SendEmailAsync(request.Address, templateId, request);
+                    await _notificationClientAsync.SendEmailAsync(request.Address, templateId, request);
+                    _logger.LogInformation("Successfully Sent Email {requestName}", requestName);
                 }
                 else
                 {
                     _logger.LogError("[EmailError] Could not resolve template for email {requestName}", requestName);
-                    return Task.CompletedTask;
                 }
             }
             catch (NotifyClientException ex)
             {
                 _logger.LogError(ex, "[EmailError] Failed to send Email with error {ex.Message}", ex.Message);
-                return Task.CompletedTask;
             }
-        }
-
-        private string ResolveTemplateId<TRequest>()
-            where TRequest : EmailRequest
-        {
-            var requestName = typeof(TRequest).Name;
-
-            return _options.TemplateIds[requestName];
         }
     }
 }

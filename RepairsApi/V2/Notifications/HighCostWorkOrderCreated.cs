@@ -8,11 +8,11 @@ namespace RepairsApi.V2.Notifications
 {
     public class HighCostWorkOrderCreated : INotification
     {
+        public WorkOrder WorkOrder { get; }
+
         public HighCostWorkOrderCreated(WorkOrder workOrder)
         {
             WorkOrder = workOrder;
         }
-
-        public WorkOrder WorkOrder { get; }
     }
 }

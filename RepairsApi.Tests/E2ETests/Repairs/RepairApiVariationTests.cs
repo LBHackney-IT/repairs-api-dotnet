@@ -28,7 +28,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             workOrder.StatusCode.Should().Be(WorkStatusCode.VariationPendingApproval);
             workOrder.JobStatusUpdates[0].TypeCode.Should().Be(JobStatusUpdateTypeCode._180);
 
-            VerifyEmailSent("highCostVariation");
+            VerifyEmailSent(TestEmailTemplateIds.HighCostVariationCreatedEmail);
         }
 
         public async Task WorkOrderRejectVariation()
@@ -43,7 +43,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
 
             // Assert
             workOrder.StatusCode.Should().Be(WorkStatusCode.VariationRejected);
-            VerifyEmailSent("variationRejectTId");
+            VerifyEmailSent(TestEmailTemplateIds.VariationRejectedEmail);
         }
 
         public async Task WorkOrderApproveVariation()
@@ -58,7 +58,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
 
             // Assert
             workOrder.StatusCode.Should().Be(WorkStatusCode.VariationApproved);
-            VerifyEmailSent("variationApprovedTId");
+            VerifyEmailSent(TestEmailTemplateIds.VariationApprovedEmail);
         }
 
         [Test]

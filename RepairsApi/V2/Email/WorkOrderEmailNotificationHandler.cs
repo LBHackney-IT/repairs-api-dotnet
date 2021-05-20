@@ -38,28 +38,29 @@ namespace RepairsApi.V2.Email
             {
                 return;
             }
-
-            await EmailService.SendMailAsync(emailRequest);
-
-            logAction();
+            using (_logger.BeginScope(Guid.NewGuid()))
+            {
+                logAction();
+                await EmailService.SendMailAsync(emailRequest);
+            }
         }
 
         public Task Notify(HighCostWorkOrderCreated data)
         {
             return SendMail(new HighCostWorkOrderEmail(_options.Value.PendingWorkOrderRecipient, data.WorkOrder.Id),
-                () => _logger.LogInformation("Mail Sent for creation of high cost work order {WorkOrderId}", data.WorkOrder.Id));
+                () => _logger.LogInformation("Sending Mail for creation of high cost work order {WorkOrderId}", data.WorkOrder.Id));
         }
 
         public Task Notify(WorkOrderApproved data)
         {
             return SendMail(new WorkApprovedEmail(data.WorkOrder.AgentEmail, data.WorkOrder.Id),
-                () => _logger.LogInformation("Mail Sent for approval of high cost work order {WorkOrderId}", data.WorkOrder.Id));
+                () => _logger.LogInformation("Sending Mail for approval of high cost work order {WorkOrderId}", data.WorkOrder.Id));
         }
 
         public Task Notify(WorkOrderRejected data)
         {
             return SendMail(new WorkRejectedEmail(data.WorkOrder.AgentEmail, data.WorkOrder.Id),
-                () => _logger.LogInformation("Mail Sent for rejection of high cost work order {WorkOrderId}", data.WorkOrder.Id));
+                () => _logger.LogInformation("Sending Mail for rejection of high cost work order {WorkOrderId}", data.WorkOrder.Id));
         }
     }
 }

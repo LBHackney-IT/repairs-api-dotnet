@@ -39,15 +39,17 @@ namespace RepairsApi.V2.Email
                 return;
             }
 
-            await EmailService.SendMailAsync(emailRequest);
-
-            logAction();
+            using (_logger.BeginScope(Guid.NewGuid()))
+            {
+                logAction();
+                await EmailService.SendMailAsync(emailRequest);
+            }
         }
 
         public Task Notify(VariationRejected data)
         {
             return SendMail(new VariationRejectedEmail(data.Variation.AuthorEmail, data.Rejection.RelatedWorkOrder.Id),
-                () => _logger.LogInformation("Mail Sent for rejection of high cost variation on work order {WorkOrderId}", data.Rejection.RelatedWorkOrder.Id));
+                () => _logger.LogInformation("Sending Mail for rejection of high cost variation on work order {WorkOrderId}", data.Rejection.RelatedWorkOrder.Id));
         }
 
         public async Task Notify(HighCostVariationCreated data)
@@ -55,13 +57,13 @@ namespace RepairsApi.V2.Email
             var emailAddress = await _scheduleOfRatesGateway.GetContractManagerEmail(data.WorkOrder.AssignedToPrimary.ContractorReference);
 
             await SendMail(new HighCostVariationCreatedEmail(emailAddress, data.WorkOrder.Id),
-                () => _logger.LogInformation("Mail Sent for raising of high cost variation on work order {WorkOrderId}", data.WorkOrder.Id));
+                () => _logger.LogInformation("Sending Mail for raising of high cost variation on work order {WorkOrderId}", data.WorkOrder.Id));
         }
 
         public Task Notify(VariationApproved data)
         {
             return SendMail(new VariationApprovedEmail(data.Variation.AuthorEmail, data.Approval.RelatedWorkOrder.Id),
-                () => _logger.LogInformation("Mail Sent for approval of high cost variation on work order {WorkOrderId}", data.Approval.RelatedWorkOrder.Id));
+                () => _logger.LogInformation("Sending Mail for approval of high cost variation on work order {WorkOrderId}", data.Approval.RelatedWorkOrder.Id));
         }
     }
 }

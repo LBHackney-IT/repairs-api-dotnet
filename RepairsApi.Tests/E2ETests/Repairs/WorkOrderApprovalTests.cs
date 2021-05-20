@@ -20,7 +20,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             var wo = GetWorkOrderFromDB(result.Id);
 
             wo.StatusCode.Should().Be(WorkStatusCode.PendingApproval);
-            VerifyEmailSent("highCostWo");
+            VerifyEmailSent(TestEmailTemplateIds.HighCostWorkOrderEmail);
         }
 
         [TestCase(UserGroups.Agent)]
@@ -62,7 +62,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             code.Should().Be(HttpStatusCode.OK);
             wo.StatusCode.Should().Be(WorkStatusCode.Open);
 
-            VerifyEmailSent("woApprovedTId");
+            VerifyEmailSent(TestEmailTemplateIds.WorkApprovedEmail);
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             code.Should().Be(HttpStatusCode.OK);
             wo.StatusCode.Should().Be(WorkStatusCode.Canceled);
 
-            VerifyEmailSent("woRejectTId");
+            VerifyEmailSent(TestEmailTemplateIds.WorkRejectedEmail);
         }
 
         [Test]

@@ -14,6 +14,7 @@ using RepairsApi.Tests.V2.Gateways;
 using RepairsApi.V2;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Notifications;
 using RepairsApi.V2.UseCase;
 using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
 using Generated = RepairsApi.V2.Generated;
@@ -25,11 +26,12 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
     {
         private Fixture _fixture;
 
-        private Mock<IAuthorizationService> _authorisationMock;
+        private AuthorisationMock _authorisationMock;
         private CurrentUserServiceMock _currentUserServiceMock;
         private Mock<IUpdateSorCodesUseCase> _updateSorCodesUseCaseMock;
         private Mock<IScheduleOfRatesGateway> _sheduleOfRatesGateway;
-        private Mock<IFeatureManager> _featureManagerMock;
+        private FeatureManagerMock _featureManagerMock;
+        private NotificationMock _notifierMock;
         private MoreSpecificSorUseCase _classUnderTest;
 
         [SetUp]
@@ -38,20 +40,20 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _fixture = new Fixture();
             _fixture.Behaviors.Remove(new ThrowingRecursionBehavior());
             _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            _authorisationMock = new Mock<IAuthorizationService>();
-            _featureManagerMock = new Mock<IFeatureManager>();
-            _authorisationMock = new Mock<IAuthorizationService>();
+            _authorisationMock = new AuthorisationMock();
+            _featureManagerMock = new FeatureManagerMock();
             _currentUserServiceMock = new CurrentUserServiceMock();
             _updateSorCodesUseCaseMock = new Mock<IUpdateSorCodesUseCase>();
             _sheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
             _sheduleOfRatesGateway.Setup(g => g.GetCost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(10.0);
+            _notifierMock = new NotificationMock();
             _classUnderTest = new MoreSpecificSorUseCase(
                 _authorisationMock.Object,
                 _featureManagerMock.Object,
                 _currentUserServiceMock.Object,
                 _updateSorCodesUseCaseMock.Object,
                 _sheduleOfRatesGateway.Object,
-                new NotificationMock());
+                _notifierMock);
         }
 
         [TestCase(WorkStatusCode.VariationPendingApproval)]
@@ -76,10 +78,8 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             var workOrder = BuildWorkOrder(desiredWorkOrderId);
             workOrder.StatusCode = WorkStatusCode.Open;
             var request = BuildUpdate(workOrder);
-            _featureManagerMock.Setup(x => x.IsEnabledAsync(It.IsAny<string>()))
-                .ReturnsAsync(true);
-            _authorisationMock.Setup(x => x.AuthorizeAsync(It.IsAny<ClaimsPrincipal>(), It.IsAny<object>(), It.IsAny<string>()))
-                .ReturnsAsync(AuthorizationResult.Failed);
+            _featureManagerMock.SetFeature(FeatureFlags.SpendLimits, true);
+            _authorisationMock.SetPolicyResult("VarySpendLimit", false);
 
             await _classUnderTest.Execute(request);
 
@@ -97,10 +97,9 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             var workOrder = BuildWorkOrder(desiredWorkOrderId);
             workOrder.StatusCode = WorkStatusCode.Open;
             var request = BuildUpdate(workOrder);
-            _featureManagerMock.Setup(x => x.IsEnabledAsync(It.IsAny<string>()))
-                .ReturnsAsync(featureEnabled);
-            _authorisationMock.Setup(x => x.AuthorizeAsync(It.IsAny<ClaimsPrincipal>(), It.IsAny<object>(), It.IsAny<string>()))
-                .ReturnsAsync(authorisationRequired ? AuthorizationResult.Failed() : AuthorizationResult.Success());
+            _featureManagerMock.SetFeature(FeatureFlags.SpendLimits, featureEnabled);
+
+            _authorisationMock.SetPolicyResult("VarySpendLimit", !authorisationRequired);
 
             await _classUnderTest.Execute(request);
 
@@ -153,6 +152,21 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             {
                 rsi.CodeCost.Should().Be(cost);
             }
+        }
+
+        [Test]
+        public async Task HighCostNotificationSent()
+        {
+            const int desiredWorkOrderId = 42;
+            var workOrder = BuildWorkOrder(desiredWorkOrderId);
+            workOrder.StatusCode = WorkStatusCode.Open;
+            var request = BuildUpdate(workOrder);
+            _featureManagerMock.SetFeature(FeatureFlags.SpendLimits, true);
+            _authorisationMock.SetPolicyResult("VarySpendLimit", false);
+
+            await _classUnderTest.Execute(request);
+
+            _notifierMock.HaveHandlersBeenCalled<HighCostVariationCreated>().Should().BeTrue();
         }
 
         private WorkOrder BuildWorkOrder(int expectedId)
