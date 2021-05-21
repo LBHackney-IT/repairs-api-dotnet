@@ -107,6 +107,21 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         }
 
         [Test]
+        public async Task ThrowsUnauthorisedWhenAboveSpendLimit()
+        {
+            var workOrder = _fixture.Create<WorkOrder>();
+            workOrder.StatusCode = WorkStatusCode.PendingApproval;
+            var jobStatusUpdate = BuildUpdate(workOrder);
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.AuthorisationManager);
+
+            _authorisationMock.SetPolicyResult("RaiseSpendLimit", false);
+
+            Func<Task> act = async () => await _classUnderTest.Execute(jobStatusUpdate);
+
+            await act.Should().ThrowAsync<UnauthorizedAccessException>();
+        }
+
+        [Test]
         public async Task AppendUserToComments()
         {
             const string beforeComment = "expectedBeforeComment";

@@ -147,6 +147,22 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _notifierMock.HaveHandlersBeenCalled<VariationApproved>().Should().BeTrue();
         }
 
+        [Test]
+        public async Task ThrowsNotAuthorisedWhenAboveSpendLimit()
+        {
+            const int desiredWorkOrderId = 42;
+            var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
+            workOrder.StatusCode = WorkStatusCode.VariationPendingApproval;
+            var request = CreateJobStatusUpdateRequest(workOrder,
+                Generated.JobStatusUpdateTypeCode._10020);
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.ContractManager);
+
+            _authorisationMock.SetPolicyResult("VarySpendLimit", false);
+
+            Func<Task> fn = async () => await _classUnderTest.Execute(request);
+            await fn.Should().ThrowAsync<UnauthorizedAccessException>();
+        }
+
         private static JobStatusUpdate CreateJobStatusUpdateRequest(WorkOrder workOrder, Generated.JobStatusUpdateTypeCode jobStatus)
         {
             return new JobStatusUpdate
