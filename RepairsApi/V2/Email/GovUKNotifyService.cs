@@ -32,16 +32,16 @@ namespace RepairsApi.V2.Email
                 if (_options.TemplateIds.TryGetValue(requestName, out var templateId))
                 {
                     await _notificationClientAsync.SendEmailAsync(request.Address, templateId, request);
-                    _logger.LogInformation("Successfully Sent Email {requestName}", requestName);
+                    _logger.LogInformation(Resources.SuccessfullySentEmail, requestName);
                 }
                 else
                 {
-                    _logger.LogError("[EmailError] Could not resolve template for email {requestName}", requestName);
+                    _logger.LogError(Resources.ResolveTemplateError, requestName);
                 }
             }
             catch (NotifyClientException ex)
             {
-                _logger.LogError(ex, "[EmailError] Failed to send Email with error {ex.Message}", ex.Message);
+                _logger.LogError(ex, Resources.EmailFailed, ex.Message);
             }
         }
     }
