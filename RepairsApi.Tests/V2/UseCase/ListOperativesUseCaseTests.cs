@@ -1,11 +1,10 @@
-using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
-using Bogus;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using RepairsApi.V2.Factories;
+using RepairsApi.V2.Boundary.Request;
+using RepairsApi.V2.Filtering;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase;
@@ -17,6 +16,7 @@ namespace RepairsApi.Tests.V2.UseCase
     {
         private readonly Fixture _fixture = new Fixture();
         private Mock<IOperativeGateway> _operativeGateway;
+        private Mock<IFilterBuilder<OperativeRequest, Operative>> _filterBuilder;
         private ListOperativesUseCase _classUnderTest;
 
         [SetUp]
@@ -24,7 +24,8 @@ namespace RepairsApi.Tests.V2.UseCase
         {
             _fixture.Customize<Operative>(c => c.Without(operative => operative.WorkElement));
             _operativeGateway = new Mock<IOperativeGateway>();
-            _classUnderTest = new ListOperativesUseCase(_operativeGateway.Object);
+            _filterBuilder = new Mock<IFilterBuilder<OperativeRequest, Operative>>();
+            _classUnderTest = new ListOperativesUseCase(_operativeGateway.Object, _filterBuilder.Object);
         }
 
         [TestCase(0)]
@@ -34,9 +35,9 @@ namespace RepairsApi.Tests.V2.UseCase
             // Arrange
             var operatives = _fixture.CreateMany<Operative>(operativeCount);
             _operativeGateway
-                .Setup(gateway => gateway.GetByQueryAsync(It.IsAny<RepairsApi.V2.Boundary.Request.OperativeRequest>()))
+                .Setup(gateway => gateway.GetByFilterAsync(It.IsAny<IFilter<Operative>>()))
                 .ReturnsAsync(operatives);
-            var operativesSearchParams = new RepairsApi.V2.Boundary.Request.OperativeRequest();
+            var operativesSearchParams = new OperativeRequest();
 
             // Act
             var gatewayResult = await _classUnderTest.ExecuteAsync(operativesSearchParams);
