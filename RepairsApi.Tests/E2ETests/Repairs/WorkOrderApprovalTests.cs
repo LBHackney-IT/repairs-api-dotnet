@@ -26,6 +26,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         [TestCase(UserGroups.Agent)]
         [TestCase(UserGroups.Contractor)]
         [TestCase(UserGroups.ContractManager)]
+        [TestCase(TestDataSeeder.AuthorisationManager_Limit1000)]
         public async Task ApprovePendingWorkOrderShould401ForUnAuthorised(string userGroup)
         {
             var result = await CreateWorkOrder(r => r.WorkElement.Single().RateScheduleItem.Single().Quantity.Amount = new List<double> { 50000 });

@@ -81,6 +81,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
 
         [TestCase(UserGroups.Contractor, JobStatusUpdateTypeCode._10020)]
         [TestCase(UserGroups.Agent, JobStatusUpdateTypeCode._10020)]
+        [TestCase(TestDataSeeder.ContractManager_Limit1000, JobStatusUpdateTypeCode._10020)]
         [TestCase(UserGroups.Contractor, JobStatusUpdateTypeCode._125)]
         [TestCase(UserGroups.Agent, JobStatusUpdateTypeCode._125)]
         public async Task InvalidUserUpdatingVariationReturns401(string userGroup, JobStatusUpdateTypeCode updateCode)

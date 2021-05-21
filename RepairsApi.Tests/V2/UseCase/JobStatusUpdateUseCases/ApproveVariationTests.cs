@@ -26,6 +26,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         private MockRepairsGateway _repairsGatewayMock;
         private CurrentUserServiceMock _currentUserServiceMock;
         private NotificationMock _notifierMock;
+        private AuthorisationMock _authorisationMock;
         private ApproveVariationUseCase _classUnderTest;
         private Mock<IJobStatusUpdateGateway> _jobStatusUpdateGateway;
         private Mock<IUpdateSorCodesUseCase> _updateSorCodesUseCaseMock;
@@ -44,10 +45,13 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _expectedName = "Expected Name";
             _currentUserServiceMock.SetUser("1111", "expected@email.com", _expectedName);
             _notifierMock = new NotificationMock();
+            _authorisationMock = new AuthorisationMock();
+            _authorisationMock.SetPolicyResult("VarySpendLimit", true);
 
             _classUnderTest = new ApproveVariationUseCase(
                 _repairsGatewayMock.Object, _jobStatusUpdateGateway.Object,
-                _currentUserServiceMock.Object, _updateSorCodesUseCaseMock.Object, _notifierMock);
+                _currentUserServiceMock.Object, _updateSorCodesUseCaseMock.Object, _notifierMock,
+                _authorisationMock.Object);
         }
 
         [Test]
