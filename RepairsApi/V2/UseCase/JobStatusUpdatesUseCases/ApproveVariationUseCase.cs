@@ -3,6 +3,7 @@ using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Notifications;
 using RepairsApi.V2.Services;
 using System;
 using System.Threading.Tasks;
@@ -15,15 +16,17 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
         private readonly IRepairsGateway _repairsGateway;
         private readonly ICurrentUserService _currentUserService;
         private readonly IUpdateSorCodesUseCase _updateSorCodesUseCase;
+        private readonly INotifier _notifier;
         private readonly IAuthorizationService _authorizationService;
         private readonly IJobStatusUpdateGateway _jobStatusUpdateGateway;
 
         public ApproveVariationUseCase(IRepairsGateway repairsGateway, IJobStatusUpdateGateway jobStatusUpdateGateway,
-            ICurrentUserService currentUserService, IUpdateSorCodesUseCase updateSorCodesUseCase, IAuthorizationService authorizationService)
+            ICurrentUserService currentUserService, IUpdateSorCodesUseCase updateSorCodesUseCase, INotifier notifier, IAuthorizationService authorizationService)
         {
             _repairsGateway = repairsGateway;
             _currentUserService = currentUserService;
             _updateSorCodesUseCase = updateSorCodesUseCase;
+            _notifier = notifier;
             _authorizationService = authorizationService;
             _jobStatusUpdateGateway = jobStatusUpdateGateway;
         }
@@ -44,6 +47,8 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             await VaryWorkOrder(workOrder, variationJobStatus);
 
             jobStatusUpdate.Comments = $"{jobStatusUpdate.Comments} Approved By: {_currentUserService.GetHubUser().Name}";
+
+            await _notifier.Notify(new VariationApproved(variationJobStatus, jobStatusUpdate));
             await _repairsGateway.SaveChangesAsync();
         }
 

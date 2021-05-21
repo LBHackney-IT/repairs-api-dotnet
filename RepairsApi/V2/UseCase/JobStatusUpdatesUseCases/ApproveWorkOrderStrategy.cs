@@ -49,6 +49,8 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
         {
             var notification = new WorkOrderOpened(workOrder);
             await _notifier.Notify(notification);
+
+            await _notifier.Notify(new WorkOrderApproved(workOrder));
         }
     }
 }

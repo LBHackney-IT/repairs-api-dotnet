@@ -1,5 +1,6 @@
 using FluentAssertions;
 using NUnit.Framework;
+using RepairsApi.Tests.Helpers;
 using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Generated.CustomTypes;
 using RepairsApi.V2.Infrastructure;
@@ -19,6 +20,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             var wo = GetWorkOrderFromDB(result.Id);
 
             wo.StatusCode.Should().Be(WorkStatusCode.PendingApproval);
+            VerifyEmailSent(TestEmailTemplateIds.HighCostWorkOrderEmail);
         }
 
         [TestCase(UserGroups.Agent)]
@@ -59,6 +61,8 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             var wo = GetWorkOrderFromDB(result.Id);
             code.Should().Be(HttpStatusCode.OK);
             wo.StatusCode.Should().Be(WorkStatusCode.Open);
+
+            VerifyEmailSent(TestEmailTemplateIds.WorkApprovedEmail);
         }
 
         [Test]
@@ -73,6 +77,8 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             var wo = GetWorkOrderFromDB(result.Id);
             code.Should().Be(HttpStatusCode.OK);
             wo.StatusCode.Should().Be(WorkStatusCode.Canceled);
+
+            VerifyEmailSent(TestEmailTemplateIds.WorkRejectedEmail);
         }
 
         [Test]

@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using RepairsApi.V2;
 using Generated = RepairsApi.V2.Generated;
 using WorkElement = RepairsApi.V2.Infrastructure.WorkElement;
+using RepairsApi.V2.Notifications;
 
 namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
 {
@@ -26,6 +27,8 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
 
         private MockRepairsGateway _repairsGatewayMock;
         private CurrentUserServiceMock _currentUserServiceMock;
+        private Mock<IJobStatusUpdateGateway> _jobStatusUpdateGatewayMock;
+        private NotificationMock _notifier;
         private RejectVariationUseCase _classUnderTest;
 
         [SetUp]
@@ -36,12 +39,16 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
             _repairsGatewayMock = new MockRepairsGateway();
             _currentUserServiceMock = new CurrentUserServiceMock();
+            _jobStatusUpdateGatewayMock = new Mock<IJobStatusUpdateGateway>();
+            _notifier = new NotificationMock();
             _classUnderTest = new RejectVariationUseCase(
                 _repairsGatewayMock.Object,
-                _currentUserServiceMock.Object);
+                _currentUserServiceMock.Object,
+                _jobStatusUpdateGatewayMock.Object,
+                _notifier);
         }
 
-        private static IEnumerable<string> _testGroups = EnumerationHelper.GetStaticValues(typeof(UserGroups), UserGroups.ContractManager);
+        private static readonly IEnumerable<string> _testGroups = EnumerationHelper.GetStaticValues(typeof(UserGroups), UserGroups.ContractManager);
         [Test, TestCaseSource(nameof(_testGroups))]
         public async Task ThrowsUnauthorizedWhenUserNotInGroup(string userGroup)
         {
@@ -58,7 +65,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
 
         }
 
-        private static IEnumerable<WorkStatusCode> _testCodes = Enum.GetValues(typeof(WorkStatusCode)).Cast<WorkStatusCode>()
+        private static readonly IEnumerable<WorkStatusCode> _testCodes = Enum.GetValues(typeof(WorkStatusCode)).Cast<WorkStatusCode>()
             .Where(c => c != WorkStatusCode.VariationPendingApproval);
         [Test, TestCaseSource(nameof(_testCodes))]
         public async Task ThrowNotSupportedExceptionWhenWorkStatusNotPendingApproval(WorkStatusCode status)
@@ -125,6 +132,22 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             await _classUnderTest.Execute(request);
 
             request.Comments.Should().Be(expectedComments);
+        }
+
+        [Test]
+        public async Task SendsRejectedNotification()
+        {
+            const int desiredWorkOrderId = 42;
+            var workOrder = CreateReturnWorkOrder(desiredWorkOrderId);
+            workOrder.StatusCode = WorkStatusCode.VariationPendingApproval;
+            var request = CreateJobStatusUpdateRequest(workOrder,
+                Generated.JobStatusUpdateTypeCode._125);
+
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.ContractManager);
+
+            await _classUnderTest.Execute(request);
+
+            _notifier.HaveHandlersBeenCalled<VariationRejected>().Should().BeTrue();
         }
 
         private static JobStatusUpdate CreateJobStatusUpdateRequest

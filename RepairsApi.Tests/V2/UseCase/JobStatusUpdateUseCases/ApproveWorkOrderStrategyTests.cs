@@ -97,6 +97,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             await _classUnderTest.Execute(jobStatusUpdate);
 
             _notifierMock.HaveHandlersBeenCalled<WorkOrderOpened>().Should().BeTrue();
+            _notifierMock.HaveHandlersBeenCalled<WorkOrderApproved>().Should().BeTrue();
             _notifierMock.GetLastNotification<WorkOrderOpened>()
                 .WorkOrder.Id.Should().Be(workOrder.Id);
         }

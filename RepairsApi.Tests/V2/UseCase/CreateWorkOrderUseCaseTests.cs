@@ -32,12 +32,12 @@ namespace RepairsApi.Tests.V2.UseCase
     public class CreateWorkOrderUseCaseTests
     {
         private MockRepairsGateway _repairsGatewayMock;
-        private Mock<IAuthorizationService> _authMock;
+        private AuthorisationMock _authMock;
         private Mock<IScheduleOfRatesGateway> _scheduleOfRatesGateway;
         private CurrentUserServiceMock _currentUserServiceMock;
         private Mock<IFeatureManager> _featureManagerMock;
         private CreateWorkOrderUseCase _classUnderTest;
-        private NotificationMock _handlerMock;
+        private NotificationMock _notificationMock;
         private DrsOptions _drsOptions;
         private Fixture _fixture;
 
@@ -46,15 +46,14 @@ namespace RepairsApi.Tests.V2.UseCase
         {
             _fixture = new Fixture();
             _repairsGatewayMock = new MockRepairsGateway();
-            _authMock = new Mock<IAuthorizationService>();
-            _authMock.Setup(a => a.AuthorizeAsync(It.IsAny<ClaimsPrincipal>(), It.IsAny<object>(), It.IsAny<string>()))
-                .ReturnsAsync(AuthorizationResult.Success());
+            _authMock = new AuthorisationMock();
+            _authMock.SetPolicyResult("RaiseSpendLimit", true);
             _scheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
             ContractorUsesExternalScheduler(false);
             _currentUserServiceMock = new CurrentUserServiceMock();
             _featureManagerMock = new Mock<IFeatureManager>();
             _featureManagerMock.Setup(fm => fm.IsEnabledAsync(It.IsAny<string>())).ReturnsAsync(true);
-            _handlerMock = new NotificationMock();
+            _notificationMock = new NotificationMock();
             _drsOptions = new DrsOptions
             {
                 Login = "login",
@@ -69,7 +68,7 @@ namespace RepairsApi.Tests.V2.UseCase
                 _currentUserServiceMock.Object,
                 _authMock.Object,
                 _featureManagerMock.Object,
-                _handlerMock,
+                _notificationMock,
                 Options.Create(_drsOptions)
             );
         }
@@ -134,8 +133,7 @@ namespace RepairsApi.Tests.V2.UseCase
         [Test]
         public async Task InitialStatusIsPendingIfOverLimit()
         {
-            _authMock.Setup(a => a.AuthorizeAsync(It.IsAny<ClaimsPrincipal>(), It.IsAny<object>(), It.IsAny<string>()))
-                .ReturnsAsync(AuthorizationResult.Failed());
+            _authMock.SetPolicyResult("RaiseSpendLimit", false);
             int newId = 1;
             _repairsGatewayMock.ReturnWOId(newId);
             await _classUnderTest.Execute(new WorkOrder());
@@ -199,14 +197,26 @@ namespace RepairsApi.Tests.V2.UseCase
         }
 
         [Test]
-        public async Task HandlersCalled()
+        public async Task SendOpenedNotification()
         {
             int newId = 1;
             _repairsGatewayMock.ReturnWOId(newId);
 
             await _classUnderTest.Execute(new WorkOrder());
 
-            _handlerMock.HaveHandlersBeenCalled().Should().BeTrue();
+            _notificationMock.HaveHandlersBeenCalled<WorkOrderOpened>().Should().BeTrue();
+        }
+
+        [Test]
+        public async Task SendHighCostNotificationWhenOverSpendLimit()
+        {
+            int newId = 1;
+            _repairsGatewayMock.ReturnWOId(newId);
+            _authMock.SetPolicyResult("RaiseSpendLimit", false);
+
+            await _classUnderTest.Execute(new WorkOrder());
+
+            _notificationMock.HaveHandlersBeenCalled<HighCostWorkOrderCreated>().Should().BeTrue();
         }
 
         [Test]
