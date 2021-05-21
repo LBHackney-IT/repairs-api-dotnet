@@ -190,5 +190,13 @@ namespace RepairsApi.V2.Gateways
 
             return model.First();
         }
+
+        public Task<string> GetContractManagerEmail(string contractorReference)
+        {
+            return _context.Contractors
+                .Where(c => c.Reference == contractorReference)
+                .Select(c => c.ContractManagerEmail)
+                .SingleOrDefaultAsync();
+        }
     }
 }
