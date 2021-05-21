@@ -49,7 +49,7 @@ namespace RepairsApi.V2.Email
         public Task Notify(VariationRejected data)
         {
             return SendMail(new VariationRejectedEmail(data.Variation.AuthorEmail, data.Rejection.RelatedWorkOrder.Id),
-                () => _logger.LogInformation("Sending Mail for rejection of high cost variation on work order {WorkOrderId}", data.Rejection.RelatedWorkOrder.Id));
+                () => _logger.LogInformation(Resources.SendingHighCostVariationRejection, data.Rejection.RelatedWorkOrder.Id));
         }
 
         public async Task Notify(HighCostVariationCreated data)
@@ -62,13 +62,13 @@ namespace RepairsApi.V2.Email
             }
 
             await SendMail(new HighCostVariationCreatedEmail(emailAddress, data.WorkOrder.Id),
-                () => _logger.LogInformation("Sending Mail for raising of high cost variation on work order {WorkOrderId}", data.WorkOrder.Id));
+                () => _logger.LogInformation(Resources.SendingHighCostVariationCreation, data.WorkOrder.Id));
         }
 
         public Task Notify(VariationApproved data)
         {
             return SendMail(new VariationApprovedEmail(data.Variation.AuthorEmail, data.Approval.RelatedWorkOrder.Id),
-                () => _logger.LogInformation("Sending Mail for approval of high cost variation on work order {WorkOrderId}", data.Approval.RelatedWorkOrder.Id));
+                () => _logger.LogInformation(Resources.SendingHighCostVariationApproval, data.Approval.RelatedWorkOrder.Id));
         }
     }
 }

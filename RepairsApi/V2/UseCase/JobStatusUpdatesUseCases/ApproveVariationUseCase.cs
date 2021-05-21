@@ -42,7 +42,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
             var authorised = await _authorizationService.AuthorizeAsync(_currentUserService.GetUser(), variationJobStatus, "VarySpendLimit");
 
-            if (!authorised.Succeeded) throw new UnauthorizedAccessException("Cannot Approve a Work Order Above Spend Limit");
+            if (!authorised.Succeeded) throw new UnauthorizedAccessException(Resources.VariationApprovalAboveSpendLimit);
 
             await VaryWorkOrder(workOrder, variationJobStatus);
 

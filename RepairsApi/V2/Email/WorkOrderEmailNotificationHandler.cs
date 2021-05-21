@@ -49,19 +49,19 @@ namespace RepairsApi.V2.Email
         public Task Notify(HighCostWorkOrderCreated data)
         {
             return SendMail(new HighCostWorkOrderEmail(_options.Value.PendingWorkOrderRecipient, data.WorkOrder.Id),
-                () => _logger.LogInformation("Sending Mail for creation of high cost work order {WorkOrderId}", data.WorkOrder.Id));
+                () => _logger.LogInformation(Resources.SendingHighCostWorkOrderCreation, data.WorkOrder.Id));
         }
 
         public Task Notify(WorkOrderApproved data)
         {
             return SendMail(new WorkApprovedEmail(data.WorkOrder.AgentEmail, data.WorkOrder.Id),
-                () => _logger.LogInformation("Sending Mail for approval of high cost work order {WorkOrderId}", data.WorkOrder.Id));
+                () => _logger.LogInformation(Resources.SendingHighCostWorkOrderApproval, data.WorkOrder.Id));
         }
 
         public Task Notify(WorkOrderRejected data)
         {
             return SendMail(new WorkRejectedEmail(data.WorkOrder.AgentEmail, data.WorkOrder.Id),
-                () => _logger.LogInformation("Sending Mail for rejection of high cost work order {WorkOrderId}", data.WorkOrder.Id));
+                () => _logger.LogInformation(Resources.SendingHighCostWorkOrderRejection, data.WorkOrder.Id));
         }
     }
 }

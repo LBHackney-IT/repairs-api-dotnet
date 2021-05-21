@@ -37,7 +37,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
             var authorised = await _authorizationService.AuthorizeAsync(_currentUserService.GetUser(), workOrder, "RaiseSpendLimit");
 
-            if (!authorised.Succeeded) throw new UnauthorizedAccessException("Cannot Approve a work order above spend limit");
+            if (!authorised.Succeeded) throw new UnauthorizedAccessException(Resources.WorkOrderApprovalAboveSpendLimit);
 
             workOrder.StatusCode = WorkStatusCode.Open;
             jobStatusUpdate.Comments = $"{jobStatusUpdate.Comments} Approved By: {_currentUserService.GetHubUser().Name}";
