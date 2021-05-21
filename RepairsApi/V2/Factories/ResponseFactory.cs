@@ -6,6 +6,7 @@ using System.Linq;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Infrastructure.Extensions;
 using Address = RepairsApi.V2.Domain.Address;
+using Operative = RepairsApi.V2.Boundary.Response.Operative;
 using SORPriority = RepairsApi.V2.Domain.SORPriority;
 using WorkElement = RepairsApi.V2.Generated.WorkElement;
 
@@ -275,6 +276,16 @@ namespace RepairsApi.V2.Factories
             {
                 ContractorName = contractor.Name,
                 ContractorReference = contractor.Reference
+            };
+        }
+
+        public static Operative ToResponse(this Infrastructure.Operative operative)
+        {
+            return new Operative
+            {
+                PayrollNumber = operative.PayrollNumber,
+                Name = operative.Person.Name.Full,
+                Trades = new List<string>(operative.Trade.Select(tr => tr.CustomCode))
             };
         }
 
