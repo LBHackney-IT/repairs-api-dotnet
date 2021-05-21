@@ -34,9 +34,9 @@ namespace RepairsApi.Tests.V2.UseCase
             // Arrange
             var operatives = _fixture.CreateMany<Operative>(operativeCount);
             _operativeGateway
-                .Setup(gateway => gateway.GetByQueryAsync(It.IsAny<RepairsApi.V2.Boundary.Request.Operative>()))
+                .Setup(gateway => gateway.GetByQueryAsync(It.IsAny<RepairsApi.V2.Boundary.Request.OperativeRequest>()))
                 .ReturnsAsync(operatives);
-            var operativesSearchParams = new RepairsApi.V2.Boundary.Request.Operative();
+            var operativesSearchParams = new RepairsApi.V2.Boundary.Request.OperativeRequest();
 
             // Act
             var gatewayResult = await _classUnderTest.ExecuteAsync(operativesSearchParams);

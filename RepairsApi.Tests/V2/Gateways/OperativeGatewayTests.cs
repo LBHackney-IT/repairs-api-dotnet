@@ -32,7 +32,7 @@ namespace RepairsApi.Tests.V2.Gateways
         {
             // Arrange
             var operatives = _fixture.CreateMany<Operative>(count);
-            var operativesSearchParams = new RepairsApi.V2.Boundary.Request.Operative();
+            var operativesSearchParams = new RepairsApi.V2.Boundary.Request.OperativeRequest();
             await InMemoryDb.Instance.Operatives.AddRangeAsync(operatives);
             await InMemoryDb.Instance.SaveChangesAsync();
 

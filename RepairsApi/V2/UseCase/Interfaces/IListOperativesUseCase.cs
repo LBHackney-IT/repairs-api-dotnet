@@ -6,6 +6,6 @@ namespace RepairsApi.V2.UseCase.Interfaces
 {
     public interface IListOperativesUseCase
     {
-        Task<List<Operative>> ExecuteAsync(Boundary.Request.Operative searchModel);
+        Task<List<OperativeResponse>> ExecuteAsync(Boundary.Request.OperativeRequest searchModel);
     }
 }

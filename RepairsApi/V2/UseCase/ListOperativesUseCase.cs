@@ -17,7 +17,7 @@ namespace RepairsApi.V2.UseCase
             _operativeGateway = operativeGateway;
         }
 
-        public async Task<List<Operative>> ExecuteAsync(Boundary.Request.Operative searchModel)
+        public async Task<List<OperativeResponse>> ExecuteAsync(Boundary.Request.OperativeRequest searchModel)
         {
             var gatewayResponse = await _operativeGateway.GetByQueryAsync(searchModel);
             return gatewayResponse.Select(e => e.ToResponse()).ToList();

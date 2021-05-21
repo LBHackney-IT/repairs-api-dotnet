@@ -5,10 +5,10 @@ using Bogus;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using RepairsApi.V2.Boundary.Request;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Controllers;
 using RepairsApi.V2.UseCase.Interfaces;
-using OperativeSearchParams = RepairsApi.V2.Boundary.Request.Operative;
 
 namespace RepairsApi.Tests.V2.Controllers
 {
@@ -30,15 +30,15 @@ namespace RepairsApi.Tests.V2.Controllers
         public async Task ListsOperatives(int operativeCount)
         {
             // Arrange
-            var operatives = new Faker<Operative>().Generate(operativeCount);
+            var operatives = new Faker<OperativeResponse>().Generate(operativeCount);
             _listOperativesUseCaseMock
-                .Setup(m => m.ExecuteAsync(It.IsAny<OperativeSearchParams>()))
+                .Setup(m => m.ExecuteAsync(It.IsAny<OperativeRequest>()))
                 .ReturnsAsync(operatives);
-            var operativeSearchParams = new OperativeSearchParams();
+            var operativeSearchParams = new OperativeRequest();
 
             // Act
             var objectResult = await _classUnderTest.ListOperatives(operativeSearchParams);
-            var operativesResult = GetResultData<List<Operative>>(objectResult);
+            var operativesResult = GetResultData<List<OperativeResponse>>(objectResult);
             var statusCode = GetStatusCode(objectResult);
 
             // Assert

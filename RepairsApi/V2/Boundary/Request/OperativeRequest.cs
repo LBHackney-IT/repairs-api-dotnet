@@ -1,6 +1,6 @@
 namespace RepairsApi.V2.Boundary.Request
 {
-    public class Operative
+    public class OperativeRequest
     {
         public int? Id { get; set; }
         public string Name { get; set; }

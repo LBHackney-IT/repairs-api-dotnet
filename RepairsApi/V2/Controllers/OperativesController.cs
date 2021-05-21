@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -26,17 +25,16 @@ namespace RepairsApi.V2.Controllers
         /// <summary>
         /// Retrieves all matching operatives given the query params
         /// </summary>
-        /// <param name="operativeSearchParams">The search parameters object to match against</param>
+        /// <param name="operativeRequest">The search parameters object to match against</param>
         /// <response code="200">Operatives found</response>
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType(typeof(List<Operative>), 200)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status502BadGateway)]
+        [ProducesResponseType(typeof(List<OperativeRequest>), 200)]
         [ProducesDefaultResponseType]
         [Authorize(Roles = UserGroups.Agent + "," + UserGroups.ContractManager + "," + UserGroups.AuthorisationManager)]
-        public async Task<IActionResult> ListOperatives(Operative operativeSearchParams)
+        public async Task<IActionResult> ListOperatives(OperativeRequest operativeRequest)
         {
-            var result = await _listOperativesUseCase.ExecuteAsync(operativeSearchParams);
+            var result = await _listOperativesUseCase.ExecuteAsync(operativeRequest);
             return Ok(result);
         }
     }

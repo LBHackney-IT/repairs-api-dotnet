@@ -16,7 +16,7 @@ namespace RepairsApi.V2.Gateways
             _context = context;
         }
 
-        public async Task<IEnumerable<Operative>> GetByQueryAsync(Boundary.Request.Operative searchModel)
+        public async Task<IEnumerable<Operative>> GetByQueryAsync(Boundary.Request.OperativeRequest searchModel)
         {
             var query = _context.Operatives
                 .Where(operative => searchModel.Id == null || operative.Id == searchModel.Id)

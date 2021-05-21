@@ -6,6 +6,6 @@ namespace RepairsApi.V2.Gateways
 {
     public interface IOperativeGateway
     {
-        Task<IEnumerable<Operative>> GetByQueryAsync(Boundary.Request.Operative searchModel);
+        Task<IEnumerable<Operative>> GetByQueryAsync(Boundary.Request.OperativeRequest searchModel);
     }
 }

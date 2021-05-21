@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace RepairsApi.V2.Boundary.Response
 {
-    public class Operative
+    public class OperativeResponse
     {
         public string PayrollNumber { get; set; }
         public string Name { get; set; }
