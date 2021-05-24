@@ -36,7 +36,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(OperativeRequest), 200)]
         [ProducesDefaultResponseType]
         [Authorize(Roles = UserGroups.Agent + "," + UserGroups.ContractManager + "," + UserGroups.AuthorisationManager)]
-        public async Task<IActionResult> GetOperative([FromRoute] [Required] string operativePayrollNumber)
+        public async Task<IActionResult> GetOperative([FromRoute][Required] string operativePayrollNumber)
         {
             var result = await _getOperativeUseCase.ExecuteAsync(operativePayrollNumber);
             return Ok(result);
