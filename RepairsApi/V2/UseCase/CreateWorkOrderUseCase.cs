@@ -81,6 +81,8 @@ namespace RepairsApi.V2.UseCase
         {
             if (workOrder.StatusCode != WorkStatusCode.Open)
             {
+                await _notifier.Notify(new HighCostWorkOrderCreated(workOrder));
+
                 return null;
             }
 

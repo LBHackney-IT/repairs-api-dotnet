@@ -27,22 +27,38 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             // Assert
             workOrder.StatusCode.Should().Be(WorkStatusCode.VariationPendingApproval);
             workOrder.JobStatusUpdates[0].TypeCode.Should().Be(JobStatusUpdateTypeCode._180);
+
+            VerifyEmailSent(TestEmailTemplateIds.HighCostVariationCreatedEmail, TestDataSeeder.Contractor_ContractManagerEmail);
         }
 
-        [TestCase(JobStatusUpdateTypeCode._10020, WorkStatusCode.VariationApproved)]
-        [TestCase(JobStatusUpdateTypeCode._125, WorkStatusCode.VariationRejected)]
-        public async Task WorkOrderRejectVariation(JobStatusUpdateTypeCode updateCode, WorkStatusCode expectedStatus)
+        public async Task WorkOrderRejectVariation()
         {
             // Arrange
             int workOrderId = await CreateVariation();
 
             SetUserRole(UserGroups.ContractManager);
-            await UpdateJob(workOrderId, updateCode);
+            await UpdateJob(workOrderId, JobStatusUpdateTypeCode._125);
 
             var workOrder = GetWorkOrderFromDB(workOrderId);
 
             // Assert
-            workOrder.StatusCode.Should().Be(expectedStatus);
+            workOrder.StatusCode.Should().Be(WorkStatusCode.VariationRejected);
+            VerifyEmailSent(TestEmailTemplateIds.VariationRejectedEmail);
+        }
+
+        public async Task WorkOrderApproveVariation()
+        {
+            // Arrange
+            int workOrderId = await CreateVariation();
+
+            SetUserRole(UserGroups.ContractManager);
+            await UpdateJob(workOrderId, JobStatusUpdateTypeCode._10020);
+
+            var workOrder = GetWorkOrderFromDB(workOrderId);
+
+            // Assert
+            workOrder.StatusCode.Should().Be(WorkStatusCode.VariationApproved);
+            VerifyEmailSent(TestEmailTemplateIds.VariationApprovedEmail);
         }
 
         [Test]
@@ -65,6 +81,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
 
         [TestCase(UserGroups.Contractor, JobStatusUpdateTypeCode._10020)]
         [TestCase(UserGroups.Agent, JobStatusUpdateTypeCode._10020)]
+        [TestCase(TestDataSeeder.ContractManager_Limit1000, JobStatusUpdateTypeCode._10020)]
         [TestCase(UserGroups.Contractor, JobStatusUpdateTypeCode._125)]
         [TestCase(UserGroups.Agent, JobStatusUpdateTypeCode._125)]
         public async Task InvalidUserUpdatingVariationReturns401(string userGroup, JobStatusUpdateTypeCode updateCode)
@@ -83,7 +100,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
 
         [TestCase(UserGroups.Agent)]
         [TestCase(UserGroups.ContractManager)]
-        public async Task IvalidUserAcknowledgingWorkOrderReturns401(string userGroup)
+        public async Task InvalidUserAcknowledgingWorkOrderReturns401(string userGroup)
         {
             // Arrange
             int workOrderId = await CreateVariation();

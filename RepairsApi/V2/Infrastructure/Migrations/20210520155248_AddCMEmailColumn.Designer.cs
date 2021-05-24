@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RepairsApi.V2.Infrastructure;
@@ -9,9 +10,10 @@ using RepairsApi.V2.Infrastructure;
 namespace RepairsApi.V2.Infrastructure.Migrations
 {
     [DbContext(typeof(RepairsContext))]
-    partial class RepairsContextModelSnapshot : ModelSnapshot
+    [Migration("20210520155248_AddCMEmailColumn")]
+    partial class AddCMEmailColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -566,10 +568,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasColumnName("id")
                         .UseIdentityByDefaultColumn();
 
-                    b.Property<string>("PayrollNumber")
-                        .HasColumnType("text")
-                        .HasColumnName("payroll_number");
-
                     b.Property<int?>("PersonId")
                         .HasColumnType("integer")
                         .HasColumnName("person_id");
@@ -579,15 +577,15 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasColumnName("work_order_complete_id");
 
                     b.HasKey("Id")
-                        .HasName("pk_operatives");
+                        .HasName("pk_operative");
 
                     b.HasIndex("PersonId")
-                        .HasDatabaseName("ix_operatives_person_id");
+                        .HasDatabaseName("ix_operative_person_id");
 
                     b.HasIndex("WorkOrderCompleteId")
-                        .HasDatabaseName("ix_operatives_work_order_complete_id");
+                        .HasDatabaseName("ix_operative_work_order_complete_id");
 
-                    b.ToTable("operatives");
+                    b.ToTable("operative");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Organization", b =>
@@ -1564,12 +1562,12 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.HasOne("RepairsApi.V2.Infrastructure.Person", "Person")
                         .WithMany()
                         .HasForeignKey("PersonId")
-                        .HasConstraintName("fk_operatives_person_person_id");
+                        .HasConstraintName("fk_operative_person_person_id");
 
                     b.HasOne("RepairsApi.V2.Infrastructure.WorkOrderComplete", null)
                         .WithMany("OperativesUsed")
                         .HasForeignKey("WorkOrderCompleteId")
-                        .HasConstraintName("fk_operatives_work_order_completes_work_order_complete_id");
+                        .HasConstraintName("fk_operative_work_order_completes_work_order_complete_id");
 
                     b.Navigation("Person");
                 });
@@ -1969,7 +1967,7 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.HasOne("RepairsApi.V2.Infrastructure.Operative", null)
                         .WithMany("Trade")
                         .HasForeignKey("OperativeId")
-                        .HasConstraintName("fk_trade_operatives_operative_id");
+                        .HasConstraintName("fk_trade_operative_operative_id");
 
                     b.HasOne("RepairsApi.V2.Infrastructure.WorkElement", null)
                         .WithMany("Trade")
@@ -2030,7 +2028,7 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.HasOne("RepairsApi.V2.Infrastructure.Operative", null)
                         .WithMany("WorkElement")
                         .HasForeignKey("OperativeId")
-                        .HasConstraintName("fk_work_elements_operatives_operative_id");
+                        .HasConstraintName("fk_work_elements_operative_operative_id");
 
                     b.HasOne("RepairsApi.V2.Infrastructure.WorkOrderComplete", null)
                         .WithMany("CompletedWorkElements")

@@ -72,6 +72,7 @@ namespace RepairsApi.V2.Infrastructure.Hackney
         public string Name { get; set; }
         public bool UseExternalScheduleManager { get; set; }
         public virtual List<Contract> Contracts { get; set; }
+        public string ContractManagerEmail { get; set; }
     }
 
     public class SORContract

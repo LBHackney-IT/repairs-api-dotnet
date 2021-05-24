@@ -20,6 +20,6 @@ namespace RepairsApi.V2.Gateways
         Task<IEnumerable<Contractor>> GetLiveContractors();
         Task<Contractor> GetContractor(string contractorReference);
         Task<ScheduleOfRatesModel> GetCode(string sorCode, string propertyReference, string contractorReference);
+        Task<string> GetContractManagerEmail(string contractorReference);
     }
-
 }

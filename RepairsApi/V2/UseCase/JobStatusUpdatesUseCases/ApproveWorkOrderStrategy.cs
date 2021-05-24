@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Helpers;
@@ -14,13 +15,16 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
     {
         private readonly ICurrentUserService _currentUserService;
         private readonly INotifier _notifier;
+        private readonly IAuthorizationService _authorizationService;
 
         public ApproveWorkOrderStrategy(
             ICurrentUserService currentUserService,
-            INotifier notifier)
+            INotifier notifier,
+            IAuthorizationService authorizationService)
         {
             _currentUserService = currentUserService;
             _notifier = notifier;
+            _authorizationService = authorizationService;
         }
 
         public async Task Execute(JobStatusUpdate jobStatusUpdate)
@@ -30,6 +34,10 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
             if (!_currentUserService.HasGroup(UserGroups.AuthorisationManager))
                 throw new UnauthorizedAccessException(Resources.InvalidPermissions);
+
+            var authorised = await _authorizationService.AuthorizeAsync(_currentUserService.GetUser(), workOrder, "RaiseSpendLimit");
+
+            if (!authorised.Succeeded) throw new UnauthorizedAccessException(Resources.WorkOrderApprovalAboveSpendLimit);
 
             workOrder.StatusCode = WorkStatusCode.Open;
             jobStatusUpdate.Comments = $"{jobStatusUpdate.Comments} Approved By: {_currentUserService.GetHubUser().Name}";
@@ -41,6 +49,8 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
         {
             var notification = new WorkOrderOpened(workOrder);
             await _notifier.Notify(notification);
+
+            await _notifier.Notify(new WorkOrderApproved(workOrder));
         }
     }
 }
