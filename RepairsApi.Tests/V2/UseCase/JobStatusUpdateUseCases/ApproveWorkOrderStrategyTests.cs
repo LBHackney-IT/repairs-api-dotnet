@@ -23,6 +23,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
     {
         private CurrentUserServiceMock _currentUserServiceMock;
         private NotificationMock _notifierMock;
+        private AuthorisationMock _authorisationMock;
         private ApproveWorkOrderStrategy _classUnderTest;
         private Fixture _fixture;
         private string _expectedName;
@@ -37,9 +38,12 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _notifierMock = new NotificationMock();
             _expectedName = "Expected Name";
             _currentUserServiceMock.SetUser("1111", "expected@email.com", _expectedName);
+            _authorisationMock = new AuthorisationMock();
+            _authorisationMock.SetPolicyResult("RaiseSpendLimit", true);
             _classUnderTest = new ApproveWorkOrderStrategy(
                 _currentUserServiceMock.Object,
-                _notifierMock
+                _notifierMock,
+                _authorisationMock.Object
             );
         }
 
@@ -97,8 +101,24 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             await _classUnderTest.Execute(jobStatusUpdate);
 
             _notifierMock.HaveHandlersBeenCalled<WorkOrderOpened>().Should().BeTrue();
+            _notifierMock.HaveHandlersBeenCalled<WorkOrderApproved>().Should().BeTrue();
             _notifierMock.GetLastNotification<WorkOrderOpened>()
                 .WorkOrder.Id.Should().Be(workOrder.Id);
+        }
+
+        [Test]
+        public async Task ThrowsUnauthorisedWhenAboveSpendLimit()
+        {
+            var workOrder = _fixture.Create<WorkOrder>();
+            workOrder.StatusCode = WorkStatusCode.PendingApproval;
+            var jobStatusUpdate = BuildUpdate(workOrder);
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.AuthorisationManager);
+
+            _authorisationMock.SetPolicyResult("RaiseSpendLimit", false);
+
+            Func<Task> act = async () => await _classUnderTest.Execute(jobStatusUpdate);
+
+            await act.Should().ThrowAsync<UnauthorizedAccessException>();
         }
 
         [Test]

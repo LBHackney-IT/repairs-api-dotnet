@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Force.DeepCloner;
 using JobStatusUpdateTypeCode = RepairsApi.V2.Generated.JobStatusUpdateTypeCode;
+using RepairsApi.V2.Notifications;
 
 namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 {
@@ -19,18 +20,21 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
         private readonly ICurrentUserService _currentUserService;
         private readonly IUpdateSorCodesUseCase _updateSorCodesUseCase;
         private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
+        private readonly INotifier _notifier;
 
         public MoreSpecificSorUseCase(IAuthorizationService authorizationService,
             IFeatureManager featureManager,
             ICurrentUserService currentUserService,
             IUpdateSorCodesUseCase updateSorCodesUseCase,
-            IScheduleOfRatesGateway scheduleOfRatesGateway)
+            IScheduleOfRatesGateway scheduleOfRatesGateway,
+            INotifier notifier)
         {
             _authorizationService = authorizationService;
             _featureManager = featureManager;
             _currentUserService = currentUserService;
             _updateSorCodesUseCase = updateSorCodesUseCase;
             _scheduleOfRatesGateway = scheduleOfRatesGateway;
+            _notifier = notifier;
         }
 
         public async Task Execute(JobStatusUpdate jobStatusUpdate)
@@ -47,6 +51,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             {
                 workOrder.StatusCode = WorkStatusCode.VariationPendingApproval;
                 jobStatusUpdate.TypeCode = JobStatusUpdateTypeCode._180;
+                await _notifier.Notify(new HighCostVariationCreated(workOrder));
             }
             else
             {
