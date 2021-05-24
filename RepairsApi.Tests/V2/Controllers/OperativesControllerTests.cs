@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using AutoFixture;
 using Bogus;
 using FluentAssertions;
 using Moq;
@@ -15,14 +16,42 @@ namespace RepairsApi.Tests.V2.Controllers
     [TestFixture]
     public class OperativesControllerTests : ControllerTests
     {
-        private OperativesController _classUnderTest;
+        private readonly Fixture _fixture = new Fixture();
+
         private Mock<IListOperativesUseCase> _listOperativesUseCaseMock;
+        private Mock<IGetOperativeUseCase> _getOperativeUseCaseMock;
+
+        private OperativesController _classUnderTest;
 
         [SetUp]
         public void SetUp()
         {
             _listOperativesUseCaseMock = new Mock<IListOperativesUseCase>();
-            _classUnderTest = new OperativesController(_listOperativesUseCaseMock.Object);
+            _getOperativeUseCaseMock = new Mock<IGetOperativeUseCase>();
+
+            _classUnderTest = new OperativesController(
+                _listOperativesUseCaseMock.Object,
+                _getOperativeUseCaseMock.Object
+            );
+        }
+
+        [Test]
+        public async Task GetOperative()
+        {
+            // Arrange
+            var operative = _fixture.Create<OperativeResponse>();
+            _getOperativeUseCaseMock
+                .Setup(m => m.ExecuteAsync(It.IsAny<string>()))
+                .ReturnsAsync(operative);
+
+            // Act
+            var objectResult = await _classUnderTest.GetOperative(operative.PayrollNumber);
+            var operativesResult = GetResultData<OperativeResponse>(objectResult);
+            var statusCode = GetStatusCode(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            operativesResult.Should().BeEquivalentTo(operative);
         }
 
         [TestCase(0)]

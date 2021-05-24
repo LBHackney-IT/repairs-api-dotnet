@@ -44,5 +44,21 @@ namespace RepairsApi.Tests.V2.Gateways
             // Assert
             dbResult.Should().BeEquivalentTo(operatives);
         }
+
+        [Test]
+        public async Task RetrievesSingleOperative()
+        {
+            // Arrange
+            var operative = _fixture.Create<Operative>();
+            var operativePrn = operative.PayrollNumber;
+            await InMemoryDb.Instance.Operatives.AddAsync(operative);
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            // Act
+            var dbResult = await _classUnderTest.GetByPayrollNumberAsync(operativePrn);
+
+            // Assert
+            dbResult.Should().BeEquivalentTo(operative);
+        }
     }
 }

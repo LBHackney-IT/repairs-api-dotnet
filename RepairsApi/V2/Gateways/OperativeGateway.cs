@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using RepairsApi.V2.Filtering;
@@ -20,6 +21,13 @@ namespace RepairsApi.V2.Gateways
         {
             var query = filter.Apply(_context.Operatives);
             return await query.ToListAsync();
+        }
+
+        public async Task<Operative> GetByPayrollNumberAsync(string operativePrn)
+        {
+            var query = _context.Operatives
+                .Where(operative => operative.PayrollNumber == operativePrn);
+            return await query.SingleAsync();
         }
     }
 }
