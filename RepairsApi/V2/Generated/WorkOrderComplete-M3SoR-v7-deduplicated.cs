@@ -195,6 +195,9 @@ namespace RepairsApi.V2.Generated
         [System.Runtime.Serialization.EnumMember(Value = @"0")]
         _0 = 0,
 
+        /// <summary>
+        /// Operatives assigned: the operative or operatives that will carry out the job have been assigned
+        /// </summary>
         [System.Runtime.Serialization.EnumMember(Value = @"10")]
         _10 = 1,
 
@@ -217,7 +220,7 @@ namespace RepairsApi.V2.Generated
         _70 = 7,
 
         /// <summary>
-        /// More specific SOR Code - (means variation) 
+        /// More specific SOR Code - (means variation)
         /// </summary>
         [System.Runtime.Serialization.EnumMember(Value = @"80")]
         _80 = 8,
@@ -235,7 +238,7 @@ namespace RepairsApi.V2.Generated
         _10010 = 11,
 
         /// <summary>
-        /// Approve Variation approval 
+        /// Approve Variation approval
         /// </summary>
         [System.Runtime.Serialization.EnumMember(Value = @"100-20")]
         _10020 = 12,

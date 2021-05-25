@@ -32,6 +32,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _classUnderTest = new JobStatusUpdateStrategyFactory(_mockActivatorWrapper.Object);
         }
 
+        [GenericTestCase(typeof(AssignOperativesUseCase), JobStatusUpdateTypeCode._10)]
         [GenericTestCase(typeof(MoreSpecificSorUseCase), JobStatusUpdateTypeCode._80)]
         [GenericTestCase(typeof(ApproveVariationUseCase), JobStatusUpdateTypeCode._10020)]
         [GenericTestCase(typeof(RejectVariationUseCase), JobStatusUpdateTypeCode._125)]
@@ -62,7 +63,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             useCaseMock.Verify(x => x.Execute(It.IsAny<JobStatusUpdate>()));
         }
 
-        [TestCase(JobStatusUpdateTypeCode._10, "")]
+        [TestCase(JobStatusUpdateTypeCode._20, "")]
         [TestCase(JobStatusUpdateTypeCode._0, "notSupported")]
         public void ThrowUnsupportedWhenNonSupportedTypeCodes(JobStatusUpdateTypeCode typeCode, string otherTypeCode)
         {

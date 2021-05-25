@@ -10,7 +10,6 @@ using Microsoft.FeatureManagement;
 using Moq;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers;
-using RepairsApi.Tests.V2.Gateways;
 using RepairsApi.V2;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
