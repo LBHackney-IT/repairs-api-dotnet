@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -20,6 +21,7 @@ namespace RepairsApi.Tests.V2.Controllers
 
         private Mock<IListOperativesUseCase> _listOperativesUseCaseMock;
         private Mock<IGetOperativeUseCase> _getOperativeUseCaseMock;
+        private Mock<IDeleteOperativeUseCase> _deleteOperativeUseCaseMock;
 
         private OperativesController _classUnderTest;
 
@@ -28,10 +30,12 @@ namespace RepairsApi.Tests.V2.Controllers
         {
             _listOperativesUseCaseMock = new Mock<IListOperativesUseCase>();
             _getOperativeUseCaseMock = new Mock<IGetOperativeUseCase>();
+            _deleteOperativeUseCaseMock = new Mock<IDeleteOperativeUseCase>();
 
             _classUnderTest = new OperativesController(
                 _listOperativesUseCaseMock.Object,
-                _getOperativeUseCaseMock.Object
+                _getOperativeUseCaseMock.Object,
+                _deleteOperativeUseCaseMock.Object
             );
         }
 
@@ -73,6 +77,48 @@ namespace RepairsApi.Tests.V2.Controllers
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
             operativesResult.Should().HaveCount(operativeCount);
+        }
+
+        [Test]
+        public async Task DeletesOperatives()
+        {
+            // Arrange
+            const int count = 5;
+            var index = new Random().Next(0, count - 1);
+            var operatives = _fixture.CreateMany<OperativeResponse>(count);
+            _deleteOperativeUseCaseMock
+                .Setup(m => m.ExecuteAsync(It.IsAny<string>()))
+                .ReturnsAsync(true);
+            var operativePrn = operatives.ElementAt(index).PayrollNumber;
+
+            // Act
+            var objectResult = await _classUnderTest.DeleteOperative(operativePrn);
+            var operativePrnResult = GetResultData<string>(objectResult);
+            var statusCode = GetStatusCode(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            operativePrnResult.Should().BeEquivalentTo(operativePrn);
+        }
+
+        [Test]
+        public async Task DeleteReturns404IfOperativeNotFound()
+        {
+            // Arrange
+            const int count = 5;
+            var index = new Random().Next(0, count - 1);
+            var operatives = _fixture.CreateMany<OperativeResponse>(count);
+            _deleteOperativeUseCaseMock
+                .Setup(m => m.ExecuteAsync(It.IsAny<string>()))
+                .ReturnsAsync(false);
+            var operativePrn = operatives.ElementAt(index).PayrollNumber;
+
+            // Act
+            var objectResult = await _classUnderTest.DeleteOperative(operativePrn);
+            var statusCode = GetStatusCode(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.NotFound);
         }
     }
 }

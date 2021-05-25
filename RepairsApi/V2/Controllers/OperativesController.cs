@@ -17,11 +17,17 @@ namespace RepairsApi.V2.Controllers
     {
         private readonly IListOperativesUseCase _listOperativesUseCase;
         private readonly IGetOperativeUseCase _getOperativeUseCase;
+        private readonly IDeleteOperativeUseCase _deleteOperativeUse;
 
-        public OperativesController(IListOperativesUseCase listOperativesUseCase, IGetOperativeUseCase getOperativeUseCase)
+        public OperativesController(
+            IListOperativesUseCase listOperativesUseCase,
+            IGetOperativeUseCase getOperativeUseCase,
+            IDeleteOperativeUseCase deleteOperativeUse
+        )
         {
             _listOperativesUseCase = listOperativesUseCase;
             _getOperativeUseCase = getOperativeUseCase;
+            _deleteOperativeUse = deleteOperativeUse;
         }
 
         /// <summary>
@@ -55,6 +61,20 @@ namespace RepairsApi.V2.Controllers
         {
             var result = await _listOperativesUseCase.ExecuteAsync(operativeRequest);
             return Ok(result);
+        }
+
+        [HttpDelete]
+        [Route("{operativePayrollNumber}")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(OperativeRequest), 200)]
+        [ProducesDefaultResponseType]
+        [Authorize(Roles = UserGroups.Agent + "," + UserGroups.ContractManager + "," + UserGroups.AuthorisationManager)]
+        public async Task<IActionResult> DeleteOperative(string operativePayrollNumber)
+        {
+            if (await _deleteOperativeUse.ExecuteAsync(operativePayrollNumber))
+                return Ok(operativePayrollNumber);
+
+            return NotFound();
         }
     }
 }

@@ -26,8 +26,19 @@ namespace RepairsApi.V2.Gateways
         public async Task<Operative> GetAsync(string operativePrn)
         {
             var query = _context.Operatives
+                .IgnoreQueryFilters()
                 .Where(operative => operative.PayrollNumber == operativePrn);
-            return await query.SingleAsync();
+            return await query.SingleOrDefaultAsync();
+        }
+
+        public async Task<bool> ArchiveAsync(string operativePrn)
+        {
+            var operative = await _context.Operatives.SingleOrDefaultAsync(o => o.PayrollNumber == operativePrn);
+            if (operative is null) return false;
+
+            _context.Remove(operative);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

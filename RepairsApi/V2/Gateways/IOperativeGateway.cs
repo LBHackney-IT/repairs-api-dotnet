@@ -7,7 +7,8 @@ namespace RepairsApi.V2.Gateways
 {
     public interface IOperativeGateway
     {
-        Task<IEnumerable<Operative>> GetByFilterAsync(IFilter<Operative> filter);
-        Task<Operative> GetByPayrollNumberAsync(string operativePrn);
+        Task<IEnumerable<Operative>> ListByFilterAsync(IFilter<Operative> filter);
+        Task<Operative> GetAsync(string operativePrn);
+        Task<bool> ArchiveAsync(string operativePrn);
     }
 }

@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
@@ -20,7 +22,9 @@ namespace RepairsApi.Tests.V2.Gateways
         public void SetUp()
         {
             _filterBuilder = new FilterBuilder<OperativeRequest, Operative>();
-            _fixture.Customize<Operative>(c => c.Without(operative => operative.WorkElement));
+            _fixture.Customize<Operative>(c => c
+                .Without(operative => operative.WorkElement)
+                .With(operative => operative.IsArchived, false));
             _classUnderTest = new OperativeGateway(InMemoryDb.Instance);
         }
 
@@ -46,6 +50,26 @@ namespace RepairsApi.Tests.V2.Gateways
         }
 
         [Test]
+        public async Task ListDoesNotRetrieveArchivedOperatives()
+        {
+            // Arrange
+            const int count = 5;
+            var index = new Random().Next(0, count - 1);
+            var operatives = _fixture.CreateMany<Operative>(count);
+            var operativesSearchParams = new OperativeRequest();
+            var filter = _filterBuilder.BuildFilter(operativesSearchParams);
+            await InMemoryDb.Instance.Operatives.AddRangeAsync(operatives);
+            await InMemoryDb.Instance.SaveChangesAsync();
+            await _classUnderTest.ArchiveAsync(operatives.ElementAt(index).PayrollNumber);
+
+            // Act
+            var dbResult = await _classUnderTest.ListByFilterAsync(filter);
+
+            // Assert
+            dbResult.Count().Should().Be(count - 1);
+        }
+
+        [Test]
         public async Task RetrievesSingleOperative()
         {
             // Arrange
@@ -59,6 +83,55 @@ namespace RepairsApi.Tests.V2.Gateways
 
             // Assert
             dbResult.Should().BeEquivalentTo(operative);
+        }
+
+        [Test]
+        public async Task ArchivesOperativeAndReturnsTrue()
+        {
+            // Arrange
+            const int count = 5;
+            var index = new Random().Next(0, count - 1);
+            var operatives = _fixture.CreateMany<Operative>(count);
+            var operativePrn = operatives.ElementAt(index).PayrollNumber;
+            await InMemoryDb.Instance.Operatives.AddRangeAsync(operatives);
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            // Act
+            var dbResult = await _classUnderTest.ArchiveAsync(operativePrn);
+
+            // Assert
+            dbResult.Should().BeTrue($"operative with payroll number ${operativePrn} was found and archived");
+            InMemoryDb.Instance.Operatives.Count().Should().Be(count - 1);
+        }
+
+        [Test]
+        public async Task ReturnsFalseIfNotFound()
+        {
+            // Arrange
+            var operativePrn = _fixture.Create<Operative>().PayrollNumber;
+
+            // Act
+            var dbResult = await _classUnderTest.ArchiveAsync(operativePrn);
+
+            // Assert
+            dbResult.Should().BeFalse($"operative with payroll number ${operativePrn} should not exist");
+        }
+
+        [Test]
+        public async Task ArchivedOperativesAreNotDeleted()
+        {
+            // Arrange
+            var operative = _fixture.Create<Operative>();
+            var operativePrn = operative.PayrollNumber;
+            await InMemoryDb.Instance.Operatives.AddAsync(operative);
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            // Act
+            await _classUnderTest.ArchiveAsync(operativePrn);
+            var archivedOperative = await _classUnderTest.GetAsync(operativePrn);
+
+            // Assert
+            archivedOperative.Should().NotBeNull("operatives are only SOFT-deleted");
         }
     }
 }
