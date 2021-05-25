@@ -251,6 +251,7 @@ namespace RepairsApi
             services.AddTransient<ISorPriorityGateway, SorPriorityGateway>();
             services.AddTransient<IAppointmentsGateway, AppointmentGateway>();
             services.AddTransient<IGroupsGateway, GroupsGateway>();
+            services.AddTransient<IOperativesGateway, OperativesGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
@@ -272,6 +273,9 @@ namespace RepairsApi
             services.AddTransient<ICreateAppointmentUseCase, CreateAppointmentUseCase>();
             services.AddTransient<IListVariationTasksUseCase, ListVariationTasksUseCase>();
             services.AddTransient<IGetFilterUseCase, GetFilterUseCase>();
+            services.AddTransient<IListOperativesUseCase, ListOperativesUseCase>();
+            services.AddTransient<IGetOperativeUseCase, GetOperativeUseCase>();
+            services.AddTransient<IDeleteOperativeUseCase, DeleteOperativeUseCase>();
         }
 
         private void AddHttpClients(IServiceCollection services)
