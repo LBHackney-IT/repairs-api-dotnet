@@ -33,14 +33,14 @@ namespace RepairsApi.Tests.V2.UseCase
             // Arrange
             var operative = _fixture.Create<Operative>();
             _operativeGateway
-                .Setup(gateway => gateway.GetByPayrollNumberAsync(It.IsAny<string>()))
+                .Setup(gateway => gateway.GetAsync(It.IsAny<string>()))
                 .ReturnsAsync(operative);
 
             // Act
-            var gatewayResult = await _classUnderTest.ExecuteAsync(operative.PayrollNumber);
+            var useCaseResult = await _classUnderTest.ExecuteAsync(operative.PayrollNumber);
 
             // Assert
-            gatewayResult.Should().BeEquivalentTo(operative.ToResponse());
+            useCaseResult.Should().BeEquivalentTo(operative.ToResponse());
         }
     }
 }

@@ -1,8 +1,8 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoFixture;
-using Bogus;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
@@ -59,10 +59,10 @@ namespace RepairsApi.Tests.V2.Controllers
         public async Task ListsOperatives(int operativeCount)
         {
             // Arrange
-            var operatives = new Faker<OperativeResponse>().Generate(operativeCount);
+            var operatives = _fixture.CreateMany<OperativeResponse>(operativeCount);
             _listOperativesUseCaseMock
                 .Setup(m => m.ExecuteAsync(It.IsAny<OperativeRequest>()))
-                .ReturnsAsync(operatives);
+                .ReturnsAsync(operatives.ToList());
             var operativeSearchParams = new OperativeRequest();
 
             // Act

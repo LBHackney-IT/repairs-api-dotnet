@@ -25,7 +25,7 @@ namespace RepairsApi.V2.UseCase
         public async Task<List<OperativeResponse>> ExecuteAsync(OperativeRequest searchModel)
         {
             var filter = _filterBuilder.BuildFilter(searchModel);
-            var gatewayResponse = await _operativeGateway.GetByFilterAsync(filter);
+            var gatewayResponse = await _operativeGateway.ListByFilterAsync(filter);
             return gatewayResponse.Select(e => e.ToResponse()).ToList();
         }
     }

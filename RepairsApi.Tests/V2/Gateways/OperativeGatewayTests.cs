@@ -39,7 +39,7 @@ namespace RepairsApi.Tests.V2.Gateways
             await InMemoryDb.Instance.SaveChangesAsync();
 
             // Act
-            var dbResult = await _classUnderTest.GetByFilterAsync(filter);
+            var dbResult = await _classUnderTest.ListByFilterAsync(filter);
 
             // Assert
             dbResult.Should().BeEquivalentTo(operatives);
@@ -55,7 +55,7 @@ namespace RepairsApi.Tests.V2.Gateways
             await InMemoryDb.Instance.SaveChangesAsync();
 
             // Act
-            var dbResult = await _classUnderTest.GetByPayrollNumberAsync(operativePrn);
+            var dbResult = await _classUnderTest.GetAsync(operativePrn);
 
             // Assert
             dbResult.Should().BeEquivalentTo(operative);

@@ -17,7 +17,7 @@ namespace RepairsApi.V2.UseCase
 
         public async Task<OperativeResponse> ExecuteAsync(string operativePrn)
         {
-            var gatewayResponse = await _operativeGateway.GetByPayrollNumberAsync(operativePrn);
+            var gatewayResponse = await _operativeGateway.GetAsync(operativePrn);
             return gatewayResponse.ToResponse();
         }
     }

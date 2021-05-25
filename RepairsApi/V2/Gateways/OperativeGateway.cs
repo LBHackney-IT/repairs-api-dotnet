@@ -17,13 +17,13 @@ namespace RepairsApi.V2.Gateways
             _context = context;
         }
 
-        public async Task<IEnumerable<Operative>> GetByFilterAsync(IFilter<Operative> filter)
+        public async Task<IEnumerable<Operative>> ListByFilterAsync(IFilter<Operative> filter)
         {
             var query = filter.Apply(_context.Operatives);
             return await query.ToListAsync();
         }
 
-        public async Task<Operative> GetByPayrollNumberAsync(string operativePrn)
+        public async Task<Operative> GetAsync(string operativePrn)
         {
             var query = _context.Operatives
                 .Where(operative => operative.PayrollNumber == operativePrn);

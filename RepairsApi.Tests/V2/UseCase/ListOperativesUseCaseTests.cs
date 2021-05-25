@@ -35,15 +35,15 @@ namespace RepairsApi.Tests.V2.UseCase
             // Arrange
             var operatives = _fixture.CreateMany<Operative>(operativeCount);
             _operativeGateway
-                .Setup(gateway => gateway.GetByFilterAsync(It.IsAny<IFilter<Operative>>()))
+                .Setup(gateway => gateway.ListByFilterAsync(It.IsAny<IFilter<Operative>>()))
                 .ReturnsAsync(operatives);
             var operativesSearchParams = new OperativeRequest();
 
             // Act
-            var gatewayResult = await _classUnderTest.ExecuteAsync(operativesSearchParams);
+            var useCaseResult = await _classUnderTest.ExecuteAsync(operativesSearchParams);
 
             // Assert
-            gatewayResult.Should().HaveCount(operativeCount);
+            useCaseResult.Should().HaveCount(operativeCount);
         }
     }
 }
