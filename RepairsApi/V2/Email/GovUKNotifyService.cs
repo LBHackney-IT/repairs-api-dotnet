@@ -29,7 +29,7 @@ namespace RepairsApi.V2.Email
             try
             {
                 var requestName = typeof(TRequest).Name;
-                if (_options.TemplateIds.TryGetValue(requestName, out var templateId))
+                if (_options.GetTemplateIds().TryGetValue(requestName, out var templateId))
                 {
                     await _notificationClientAsync.SendEmailAsync(request.Address, templateId, request);
                     _logger.LogInformation(Resources.SuccessfullySentEmail, requestName);
