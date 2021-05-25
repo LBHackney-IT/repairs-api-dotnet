@@ -44,9 +44,9 @@ functions:
       DrsOptions__ManagementAddress: ${ssm:/${self:service}/${self:provider.stage}/drs-management-address}
       DrsOptions__Login: ${ssm:/${self:service}/${self:provider.stage}/drs-login}
       DrsOptions__Password: ${ssm:/${self:service}/${self:provider.stage}/drs-password}
-      NotifyOptions__EmailAddress: ${ssm:/${self:service}/${self:provider.stage}/notify-address}
-      NotifyOptions__CompletedTemplateId: ${ssm:/${self:service}/${self:provider.stage}/notify-template-id}
       NotifyOptions__ApiKey: ${ssm:/${self:service}/${self:provider.stage}/notify-api-key}
+      NotifyOptions__TemplateIds: ${ssm:/${self:service}/${self:provider.stage}/notify-template-ids}
+      EmailOptions__PendingWorkOrderRecipient: ${ssm:/${self:service}/${self:provider.stage}/email-pending-wo-address}
     events:
       - http:
           path: /{proxy+}

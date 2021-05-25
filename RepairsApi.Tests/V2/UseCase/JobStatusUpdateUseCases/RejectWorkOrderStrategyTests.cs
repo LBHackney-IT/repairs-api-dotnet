@@ -11,6 +11,7 @@ using RepairsApi.V2;
 using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Notifications;
 using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
 using JobStatusUpdate = RepairsApi.V2.Infrastructure.JobStatusUpdate;
 
@@ -19,6 +20,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
     public class RejectWorkOrderStrategyTests
     {
         private CurrentUserServiceMock _currentUserServiceMock;
+        private NotificationMock _notifierMock;
         private RejectWorkOrderStrategy _classUnderTest;
         private Fixture _fixture;
 
@@ -29,8 +31,10 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             _fixture.Behaviors.Remove(new ThrowingRecursionBehavior());
             _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
             _currentUserServiceMock = new CurrentUserServiceMock();
+            _notifierMock = new NotificationMock();
             _classUnderTest = new RejectWorkOrderStrategy(
-                _currentUserServiceMock.Object
+                _currentUserServiceMock.Object,
+                _notifierMock
             );
         }
 
@@ -108,6 +112,19 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             await _classUnderTest.Execute(jobStatusUpdate);
 
             jobStatusUpdate.Comments.Should().Be(expectedComments);
+        }
+
+        [Test]
+        public async Task SendsNotification()
+        {
+            var workOrder = _fixture.Create<WorkOrder>();
+            workOrder.StatusCode = WorkStatusCode.PendingApproval;
+            var jobStatusUpdate = BuildUpdate(workOrder);
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.AuthorisationManager);
+
+            await _classUnderTest.Execute(jobStatusUpdate);
+
+            _notifierMock.HaveHandlersBeenCalled<WorkOrderRejected>().Should().BeTrue();
         }
 
         private JobStatusUpdate BuildUpdate(WorkOrder workOrder)

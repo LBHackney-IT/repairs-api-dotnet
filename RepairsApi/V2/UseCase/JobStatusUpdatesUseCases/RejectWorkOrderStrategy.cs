@@ -2,6 +2,7 @@ using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Notifications;
 using RepairsApi.V2.Services;
 using System;
 using System.Threading.Tasks;
@@ -11,14 +12,16 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
     public class RejectWorkOrderStrategy : IJobStatusUpdateStrategy
     {
         private readonly ICurrentUserService _currentUserService;
+        private readonly INotifier _notifier;
 
         public RejectWorkOrderStrategy(
-            ICurrentUserService currentUserService)
+            ICurrentUserService currentUserService, INotifier notifier)
         {
             _currentUserService = currentUserService;
+            _notifier = notifier;
         }
 
-        public Task Execute(JobStatusUpdate jobStatusUpdate)
+        public async Task Execute(JobStatusUpdate jobStatusUpdate)
         {
             var workOrder = jobStatusUpdate.RelatedWorkOrder;
             workOrder.VerifyCanRejectWorkOrder();
@@ -29,7 +32,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             workOrder.StatusCode = WorkStatusCode.Canceled;
             jobStatusUpdate.PrefixComments(Resources.WorkOrderAuthorisationRejected);
 
-            return Task.CompletedTask;
+            await _notifier.Notify(new WorkOrderRejected(workOrder));
         }
     }
 }
