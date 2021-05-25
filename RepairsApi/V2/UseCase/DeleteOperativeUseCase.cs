@@ -6,15 +6,15 @@ namespace RepairsApi.V2.UseCase
 {
     public class DeleteOperativeUseCase : IDeleteOperativeUseCase
     {
-        private readonly IOperativeGateway _operativeGateway;
-        public DeleteOperativeUseCase(IOperativeGateway operativeGateway)
+        private readonly IOperativesGateway _operativesGateway;
+        public DeleteOperativeUseCase(IOperativesGateway operativesGateway)
         {
-            _operativeGateway = operativeGateway;
+            _operativesGateway = operativesGateway;
         }
 
         public async Task<bool> ExecuteAsync(string operativePrn)
         {
-            return await _operativeGateway.ArchiveAsync(operativePrn);
+            return await _operativesGateway.ArchiveAsync(operativePrn);
         }
     }
 }

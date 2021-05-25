@@ -8,11 +8,11 @@ using RepairsApi.V2.Infrastructure;
 
 namespace RepairsApi.V2.Gateways
 {
-    public class OperativeGateway : IOperativeGateway
+    public class OperativesGateway : IOperativesGateway
     {
         private readonly RepairsContext _context;
 
-        public OperativeGateway(RepairsContext context)
+        public OperativesGateway(RepairsContext context)
         {
             _context = context;
         }

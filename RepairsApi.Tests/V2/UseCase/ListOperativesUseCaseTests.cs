@@ -15,7 +15,7 @@ namespace RepairsApi.Tests.V2.UseCase
     public class ListOperativesUseCaseTests
     {
         private readonly Fixture _fixture = new Fixture();
-        private Mock<IOperativeGateway> _operativeGateway;
+        private Mock<IOperativesGateway> _operativeGateway;
         private Mock<IFilterBuilder<OperativeRequest, Operative>> _filterBuilder;
         private ListOperativesUseCase _classUnderTest;
 
@@ -23,7 +23,7 @@ namespace RepairsApi.Tests.V2.UseCase
         public void SetUp()
         {
             _fixture.Customize<Operative>(c => c.Without(operative => operative.WorkElement));
-            _operativeGateway = new Mock<IOperativeGateway>();
+            _operativeGateway = new Mock<IOperativesGateway>();
             _filterBuilder = new Mock<IFilterBuilder<OperativeRequest, Operative>>();
             _classUnderTest = new ListOperativesUseCase(_operativeGateway.Object, _filterBuilder.Object);
         }

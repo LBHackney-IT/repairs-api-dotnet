@@ -16,7 +16,7 @@ namespace RepairsApi.Tests.V2.Gateways
     {
         private FilterBuilder<OperativeRequest, Operative> _filterBuilder;
         private readonly Fixture _fixture = new Fixture();
-        private OperativeGateway _classUnderTest;
+        private OperativesGateway _classUnderTest;
 
         [SetUp]
         public void SetUp()
@@ -25,7 +25,7 @@ namespace RepairsApi.Tests.V2.Gateways
             _fixture.Customize<Operative>(c => c
                 .Without(operative => operative.WorkElement)
                 .With(operative => operative.IsArchived, false));
-            _classUnderTest = new OperativeGateway(InMemoryDb.Instance);
+            _classUnderTest = new OperativesGateway(InMemoryDb.Instance);
         }
 
         [TearDown]

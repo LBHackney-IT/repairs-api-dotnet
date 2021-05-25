@@ -16,14 +16,14 @@ namespace RepairsApi.Tests.V2.UseCase
     public class GetOperativeUseCaseTests
     {
         private readonly Fixture _fixture = new Fixture();
-        private Mock<IOperativeGateway> _operativeGateway;
+        private Mock<IOperativesGateway> _operativeGateway;
         private GetOperativeUseCase _classUnderTest;
 
         [SetUp]
         public void SetUp()
         {
             _fixture.Customize<Operative>(c => c.Without(operative => operative.WorkElement));
-            _operativeGateway = new Mock<IOperativeGateway>();
+            _operativeGateway = new Mock<IOperativesGateway>();
             _classUnderTest = new GetOperativeUseCase(_operativeGateway.Object);
         }
 

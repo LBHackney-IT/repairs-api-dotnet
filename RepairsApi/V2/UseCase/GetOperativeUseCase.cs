@@ -8,16 +8,16 @@ namespace RepairsApi.V2.UseCase
 {
     public class GetOperativeUseCase : IGetOperativeUseCase
     {
-        private readonly IOperativeGateway _operativeGateway;
+        private readonly IOperativesGateway _operativesGateway;
 
-        public GetOperativeUseCase(IOperativeGateway operativeGateway)
+        public GetOperativeUseCase(IOperativesGateway operativesGateway)
         {
-            _operativeGateway = operativeGateway;
+            _operativesGateway = operativesGateway;
         }
 
         public async Task<OperativeResponse> ExecuteAsync(string operativePrn)
         {
-            var gatewayResponse = await _operativeGateway.GetAsync(operativePrn);
+            var gatewayResponse = await _operativesGateway.GetAsync(operativePrn);
             return gatewayResponse.ToResponse();
         }
     }

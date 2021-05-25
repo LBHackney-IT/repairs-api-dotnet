@@ -13,19 +13,19 @@ namespace RepairsApi.V2.UseCase
 {
     public class ListOperativesUseCase : IListOperativesUseCase
     {
-        private readonly IOperativeGateway _operativeGateway;
+        private readonly IOperativesGateway _operativesGateway;
         private readonly IFilterBuilder<OperativeRequest, Operative> _filterBuilder;
 
-        public ListOperativesUseCase(IOperativeGateway operativeGateway, IFilterBuilder<OperativeRequest, Operative> filterBuilder)
+        public ListOperativesUseCase(IOperativesGateway operativesGateway, IFilterBuilder<OperativeRequest, Operative> filterBuilder)
         {
-            _operativeGateway = operativeGateway;
+            _operativesGateway = operativesGateway;
             _filterBuilder = filterBuilder;
         }
 
         public async Task<List<OperativeResponse>> ExecuteAsync(OperativeRequest searchModel)
         {
             var filter = _filterBuilder.BuildFilter(searchModel);
-            var gatewayResponse = await _operativeGateway.ListByFilterAsync(filter);
+            var gatewayResponse = await _operativesGateway.ListByFilterAsync(filter);
             return gatewayResponse.Select(e => e.ToResponse()).ToList();
         }
     }

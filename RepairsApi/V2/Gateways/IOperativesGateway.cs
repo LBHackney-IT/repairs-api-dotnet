@@ -5,7 +5,7 @@ using RepairsApi.V2.Infrastructure;
 
 namespace RepairsApi.V2.Gateways
 {
-    public interface IOperativeGateway
+    public interface IOperativesGateway
     {
         Task<IEnumerable<Operative>> ListByFilterAsync(IFilter<Operative> filter);
         Task<Operative> GetAsync(string operativePrn);

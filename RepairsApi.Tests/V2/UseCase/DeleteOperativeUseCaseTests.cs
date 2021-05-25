@@ -13,14 +13,14 @@ namespace RepairsApi.Tests.V2.UseCase
     public class DeleteOperativeUseCaseTests
     {
         private readonly Fixture _fixture = new Fixture();
-        private Mock<IOperativeGateway> _operativeGateway;
+        private Mock<IOperativesGateway> _operativeGateway;
         private DeleteOperativeUseCase _classUnderTest;
 
         [SetUp]
         public void SetUp()
         {
             _fixture.Customize<Operative>(c => c.Without(operative => operative.WorkElement));
-            _operativeGateway = new Mock<IOperativeGateway>();
+            _operativeGateway = new Mock<IOperativesGateway>();
             _classUnderTest = new DeleteOperativeUseCase(_operativeGateway.Object);
         }
 
