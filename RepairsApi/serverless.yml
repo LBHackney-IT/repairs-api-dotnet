@@ -19,6 +19,11 @@ provider:
     lambda: true
     apiGateway: true
   resourcePolicy:
+    - Effect: Allow
+      Principal: "*"
+      Action: execute-api:Invoke
+      Resource:
+        - ${ssm:/${self:service}/${self:provider.stage}/api-gateway-resource-arn}
     - Effect: Deny
       Principal: "*"
       Action: execute-api:Invoke
