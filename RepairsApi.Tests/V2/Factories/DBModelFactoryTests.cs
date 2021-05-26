@@ -1,6 +1,6 @@
 using FluentAssertions;
 using NUnit.Framework;
-using RepairsApi.Tests.V2.E2ETests;
+using RepairsApi.Tests.E2ETests;
 using RepairsApi.V2;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Generated;
@@ -116,7 +116,7 @@ namespace RepairsApi.Tests.V2.Factories
             db.WorkType.Should().Be(request.WorkType);
             db.WorkPriority.RequiredCompletionDateTime.Should().Be(request.Priority.RequiredCompletionDateTime);
             db.WorkPriority.PriorityDescription.Should().Be(request.Priority.PriorityDescription);
-            db.WorkPriority.PriorityCode.Should().Be(request.Priority.PriorityCode);
+            db.WorkPriority.PriorityCode.Should().Be((int) request.Priority.PriorityCode);
             db.WorkPriority.NumberOfDays.Should().Be(request.Priority.NumberOfDays);
             db.WorkPriority.Comments.Should().Be(request.Priority.Comments);
             db.WorkClass.WorkClassCode.Should().Be(request.WorkClass.WorkClassCode);

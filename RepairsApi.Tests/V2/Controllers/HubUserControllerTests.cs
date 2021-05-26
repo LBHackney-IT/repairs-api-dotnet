@@ -8,23 +8,25 @@ using RepairsApi.V2.Controllers;
 using RepairsApi.V2.Services;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using RepairsApi.Tests.Helpers;
+using System.Collections.Generic;
 
 namespace RepairsApi.Tests.V2.Controllers
 {
     public class HubUserControllerTests : ControllerTests
     {
         private HubUserController _classUnderTest;
-        private Mock<ICurrentUserService> _mockCurrentUserService;
+        private CurrentUserServiceMock _mockCurrentUserService;
 
         [SetUp]
         public void SetUp()
         {
-            _mockCurrentUserService = new Mock<ICurrentUserService>();
+            _mockCurrentUserService = new CurrentUserServiceMock();
             _classUnderTest = new HubUserController(_mockCurrentUserService.Object);
         }
 
         [Test]
-        public async Task GetHubUser()
+        public void GetHubUser()
         {
             // Arrange
             var hubUser = new HubUserModel
@@ -33,20 +35,13 @@ namespace RepairsApi.Tests.V2.Controllers
                 Email = "repairs@hackney.gov.uk",
                 Name = "Bob Repairs",
                 VaryLimit = "250",
-                RaiseLimit = "250"
+                RaiseLimit = "250",
+                Contractors = new List<string> { "contractor1", "contractor2" }
             };
 
-            var identity = new ClaimsIdentity();
-            identity.AddClaim(new Claim(ClaimTypes.Email, "repairs@hackney.gov.uk"));
-            identity.AddClaim(new Claim(ClaimTypes.PrimarySid, "222222"));
-            identity.AddClaim(new Claim(ClaimTypes.Name, "Bob Repairs"));
-            identity.AddClaim(new Claim(CustomClaimTypes.VARYLIMIT, "250"));
-            identity.AddClaim(new Claim(CustomClaimTypes.RAISELIMIT, "250"));
-            ClaimsPrincipal user = new ClaimsPrincipal(identity);
+            _mockCurrentUserService.SetUser(hubUser.Sub, hubUser.Email, hubUser.Name, hubUser.VaryLimit, hubUser.RaiseLimit, hubUser.Contractors);
 
-            _mockCurrentUserService.Setup(x => x.GetUser())
-                .Returns(user);
-            var response = await _classUnderTest.GetHubUser() as OkObjectResult;
+            var response = _classUnderTest.GetHubUser() as OkObjectResult;
 
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(200);

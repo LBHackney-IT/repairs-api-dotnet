@@ -116,7 +116,7 @@ namespace RepairsApi.V2.Factories
         {
             return new PersonAlertList
             {
-                Alerts = apiResponse.Contacts.First().Alerts.ToDomain()
+                Alerts = apiResponse.Contacts.FirstOrDefault()?.Alerts.ToDomain()
             };
         }
 

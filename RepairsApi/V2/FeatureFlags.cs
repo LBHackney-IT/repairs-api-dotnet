@@ -2,7 +2,8 @@ namespace RepairsApi.V2
 {
     public static class FeatureFlags
     {
-        public const string SPENDLIMITS = "SpendLimits";
-        public const string DRSINTEGRATION = "DrsIntegration";
+        public const string SpendLimits = "SpendLimits";
+        public const string DRSIntegration = "DrsIntegration";
+        public const string NotifyIntegration = "NotifyIntegration";
     }
 }

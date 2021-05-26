@@ -1,3 +1,4 @@
+using System.Globalization;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Services;
 
@@ -8,18 +9,18 @@ namespace RepairsApi.V2.Authorisation
         public static HubUserModel GetHubUser(this ICurrentUserService currentUserService)
         {
             var hubUser = new HubUserModel();
-            var _user = currentUserService.GetUser();
+            var user = currentUserService.GetUser();
 
-            hubUser.Sub = _user.Sub();
-            hubUser.Email = _user.Email();
-            hubUser.Name = _user.Name();
+            hubUser.Sub = user.Sub();
+            hubUser.Email = user.Email();
+            hubUser.Name = user.Name();
+            hubUser.Contractors = user.Contractors();
 
-            double number;
-            if (double.TryParse(_user.FindFirst(CustomClaimTypes.RAISELIMIT)?.Value, out number))
-                hubUser.RaiseLimit = number.ToString();
+            if (double.TryParse(user.FindFirst(CustomClaimTypes.RaiseLimit)?.Value, out var number))
+                hubUser.RaiseLimit = number.ToString(CultureInfo.InvariantCulture);
 
-            if (double.TryParse(_user.FindFirst(CustomClaimTypes.VARYLIMIT)?.Value, out number))
-                hubUser.VaryLimit = number.ToString();
+            if (double.TryParse(user.FindFirst(CustomClaimTypes.VaryLimit)?.Value, out number))
+                hubUser.VaryLimit = number.ToString(CultureInfo.InvariantCulture);
 
             return hubUser;
         }

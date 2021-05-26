@@ -29,6 +29,7 @@ namespace RepairsApi.V2.Infrastructure
         public DbSet<AvailableAppointmentDay> AvailableAppointmentDays { get; set; }
         public DbSet<Hackney.Appointment> Appointments { get; set; }
         public DbSet<SecurityGroup> SecurityGroups { get; set; }
+        public DbSet<Company> Company { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -83,6 +84,20 @@ namespace RepairsApi.V2.Infrastructure
 
             modelBuilder.Entity<Hackney.Appointment>()
                 .HasKey(a => new { a.DayId, a.WorkOrderId });
+
+            modelBuilder.Entity<WorkOrder>()
+                .OwnsOne(wo => wo.WorkPriority)
+                    .HasOne(wp => wp.Priority)
+                    .WithMany()
+                    .HasForeignKey(wp => wp.PriorityCode);
+
+            modelBuilder.Entity<SecurityGroup>()
+                .HasIndex(sg => sg.GroupName)
+                .IsUnique(false);
+
+            modelBuilder.Entity<SecurityGroup>()
+                .Property(sg => sg.GroupName)
+                .IsRequired();
         }
     }
 }

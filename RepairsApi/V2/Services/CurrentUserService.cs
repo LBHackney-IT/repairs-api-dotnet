@@ -8,6 +8,8 @@ using System.Globalization;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using RepairsApi.V2.Boundary.Response;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace RepairsApi.V2.Services
 {
@@ -32,6 +34,8 @@ namespace RepairsApi.V2.Services
                 var jwtUser = new JwtBuilder()
                         .Decode<User>(jwt);
 
+                _logger.LogInformation("User Loaded with {email}", jwtUser.Email);
+
                 _user = await MapUser(jwtUser);
             }
             catch (Exception e)
@@ -55,10 +59,9 @@ namespace RepairsApi.V2.Services
             return _user?.HasClaim(ClaimTypes.Role, groupName) ?? false;
         }
 
-        public bool TryGetContractor(out string contractor)
+        public List<string> GetContractors()
         {
-            contractor = _user?.FindFirst(CustomClaimTypes.CONTRACTOR)?.Value ?? string.Empty;
-            return !string.IsNullOrWhiteSpace(contractor);
+            return _user?.Contractors() ?? new List<string>();
         }
 
         private async Task<ClaimsPrincipal> MapUser(User user)
@@ -75,7 +78,7 @@ namespace RepairsApi.V2.Services
             foreach (var group in await _groupsGateway.GetMatchingGroups(user.Groups.ToArray()))
             {
                 if (!string.IsNullOrWhiteSpace(group.ContractorReference))
-                    identity.AddClaim(new Claim(CustomClaimTypes.CONTRACTOR, group.ContractorReference));
+                    identity.AddClaim(new Claim(CustomClaimTypes.Contractor, group.ContractorReference));
 
                 if (!string.IsNullOrWhiteSpace(group.UserType))
                     identity.AddClaim(new Claim(ClaimTypes.Role, group.UserType));
@@ -88,10 +91,15 @@ namespace RepairsApi.V2.Services
 
             }
 
-            identity.AddClaim(new Claim(CustomClaimTypes.RAISELIMIT, raiseLimit.ToString(CultureInfo.InvariantCulture)));
-            identity.AddClaim(new Claim(CustomClaimTypes.VARYLIMIT, varyLimit.ToString(CultureInfo.InvariantCulture)));
+            identity.AddClaim(new Claim(CustomClaimTypes.RaiseLimit, raiseLimit.ToString(CultureInfo.InvariantCulture)));
+            identity.AddClaim(new Claim(CustomClaimTypes.VaryLimit, varyLimit.ToString(CultureInfo.InvariantCulture)));
 
             return new ClaimsPrincipal(identity);
+        }
+
+        public bool HasAnyGroup(params string[] groups)
+        {
+            return groups.Any(g => HasGroup(g));
         }
     }
 }

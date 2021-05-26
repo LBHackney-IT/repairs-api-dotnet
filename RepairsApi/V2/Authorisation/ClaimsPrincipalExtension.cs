@@ -14,19 +14,19 @@ namespace RepairsApi.V2.Authorisation
         {
             return claimsPrincipal.FindFirst(ClaimTypes.Email).Value;
         }
-        public static List<string> Groups(this ClaimsPrincipal claimsPrincipal)
+        public static List<string> Contractors(this ClaimsPrincipal claimsPrincipal)
         {
-            return claimsPrincipal.FindAll(CustomClaimTypes.CONTRACTOR).Select(c => c.Value).ToList();
+            return claimsPrincipal.FindAll(CustomClaimTypes.Contractor).Select(c => c.Value).ToList();
         }
 
         public static string VaryLimit(this ClaimsPrincipal claimsPrincipal)
         {
-            return claimsPrincipal.FindFirst(CustomClaimTypes.VARYLIMIT).Value;
+            return claimsPrincipal.FindFirst(CustomClaimTypes.VaryLimit).Value;
         }
 
         public static string RaiseLimit(this ClaimsPrincipal claimsPrincipal)
         {
-            return claimsPrincipal.FindFirst(CustomClaimTypes.RAISELIMIT).Value;
+            return claimsPrincipal.FindFirst(CustomClaimTypes.RaiseLimit).Value;
         }
 
         public static string Sub(this ClaimsPrincipal claimsPrincipal)

@@ -19,6 +19,13 @@ using System.Threading.Tasks;
 using Moq;
 using Npgsql;
 using V2_Generated_DRS;
+using RepairsApi.Tests.Helpers;
+using NUnit.Framework;
+using RepairsApi.V2.Services;
+using Notify.Interfaces;
+using Microsoft.Extensions.Logging;
+using FluentAssertions;
+using System.Collections.Generic;
 
 namespace RepairsApi.Tests
 {
@@ -29,7 +36,15 @@ namespace RepairsApi.Tests
         : WebApplicationFactory<Startup>
     {
         private readonly string _connection = null;
-        private string _userGroup = UserGroups.AGENT;
+        private string _userGroup = UserGroups.Agent;
+        private readonly SoapMock _soapMock = new SoapMock();
+        protected SoapMock SoapMock => _soapMock;
+
+        private readonly NotifyWrapper _notifyMock = new NotifyWrapper();
+        protected NotifyWrapper NotifyMock => _notifyMock;
+
+        private readonly LogAggregator _log = new LogAggregator();
+        protected LogAggregator Logs => _log;
 
         public MockWebApplicationFactory(string connection)
         {
@@ -74,15 +89,12 @@ namespace RepairsApi.Tests
                 services.RemoveAll<IApiGateway>();
                 services.AddTransient<IApiGateway, MockApiGateway>();
                 services.RemoveAll<SOAP>();
-                services.AddTransient<SOAP>(sp =>
-                {
-                    var mock = new Mock<SOAP>();
-                    mock.Setup(x => x.openSessionAsync(It.IsAny<openSession>()))
-                        .ReturnsAsync(new openSessionResponse { @return = new xmbOpenSessionResponse { status = responseStatus.success } });
-                    mock.Setup(x => x.createOrderAsync(It.IsAny<createOrder>()))
-                        .ReturnsAsync(new createOrderResponse { @return = new xmbCreateOrderResponse { status = responseStatus.success } });
-                    return mock.Object;
-                });
+                services.RemoveAll<IAsyncNotificationClient>();
+                services.AddTransient(sp => _notifyMock.Object);
+                services.AddTransient(sp => _soapMock.Object);
+                services.RemoveAll(typeof(ILogger<>));
+                services.AddTransient(typeof(ILogger<>), typeof(MockLogger<>));
+                services.AddSingleton(_log);
             })
             .UseEnvironment("IntegrationTests");
         }
@@ -91,9 +103,12 @@ namespace RepairsApi.Tests
         {
             base.ConfigureClient(client);
 
-            if (_userGroup == UserGroups.AGENT) client.SetAgent();
-            if (_userGroup == UserGroups.CONTRACTOR) client.SetGroup(GetGroup(TestDataSeeder.Contractor));
-            if (_userGroup == UserGroups.CONTRACT_MANAGER) client.SetGroup(_userGroup);
+            switch (_userGroup)
+            {
+                case UserGroups.Agent: client.SetAgent(); break;
+                case UserGroups.Contractor: client.SetGroups(GetGroup(TestDataSeeder.Contractor)); break;
+                default: client.SetGroups(_userGroup); break;
+            }
         }
 
         protected void SetUserRole(string userGroup)
@@ -121,7 +136,7 @@ namespace RepairsApi.Tests
         protected string GetGroup(string contractor)
         {
             using var ctx = GetContext();
-            return ctx.DB.SecurityGroups.Where(sg => sg.ContractorReference == contractor).Select(sg => sg.GroupName).Single();
+            return ctx.DB.SecurityGroups.Where(sg => sg.ContractorReference == contractor).Select(sg => sg.GroupName).First();
         }
 
         public async Task<(HttpStatusCode statusCode, TResponse response)> Get<TResponse>(string uri)
@@ -152,10 +167,16 @@ namespace RepairsApi.Tests
         {
             var responseContent = await result.Content.ReadAsStringAsync();
 
-            object parseResponse = JsonConvert.DeserializeObject(responseContent, typeof(TResponse));
-
-            TResponse castedResponse = parseResponse != null && typeof(TResponse).IsAssignableFrom(parseResponse.GetType()) ? (TResponse) parseResponse : default;
-            return castedResponse;
+            try
+            {
+                object parseResponse = JsonConvert.DeserializeObject(responseContent, typeof(TResponse));
+                TResponse castedResponse = parseResponse != null && typeof(TResponse).IsAssignableFrom(parseResponse.GetType()) ? (TResponse) parseResponse : default;
+                return castedResponse;
+            }
+            catch (Exception e) when (e is JsonSerializationException || e is JsonReaderException)
+            {
+                throw new Exception($"Result Serialisation Failed. Response Had Code {result.StatusCode}", e);
+            }
         }
 
         public async Task<(HttpStatusCode statusCode, TResponse response)> Post<TResponse>(string uri, object data)
@@ -166,10 +187,10 @@ namespace RepairsApi.Tests
             return (result.StatusCode, response);
         }
 
-        private async Task<HttpResponseMessage> InternalPost(string uri, object data, string role = "agent")
+        private async Task<HttpResponseMessage> InternalPost(string uri, object data)
         {
             var client = CreateClient();
-            if (!role.Equals("agent")) client.SetGroup(role);
+
             var serializedContent = JsonConvert.SerializeObject(data);
             StringContent content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
 
@@ -177,10 +198,15 @@ namespace RepairsApi.Tests
             return result;
         }
 
-        public async Task<HttpStatusCode> Post(string uri, object data, string role = "agent")
+        public async Task<HttpStatusCode> Post(string uri, object data)
         {
-            HttpResponseMessage result = await InternalPost(uri, data, role);
+            HttpResponseMessage result = await InternalPost(uri, data);
             return result.StatusCode;
+        }
+
+        protected void VerifyEmailSent(string templateId, string recipient = null)
+        {
+            NotifyMock.LastEmail.Should().Match<EmailRecord>(r => r.TemplateId == templateId && (recipient == null || recipient == r.Email));
         }
     }
 

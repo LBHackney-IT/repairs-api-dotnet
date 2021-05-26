@@ -38,8 +38,6 @@ namespace RepairsApi.V2.MiddleWare
                 await httpContext.SetResponse(401, e.Message);
             }
         }
-
-
     }
 
     public static class ContextExtensions
@@ -48,6 +46,7 @@ namespace RepairsApi.V2.MiddleWare
         {
             await using var writer = new StreamWriter(httpContext.Response.Body);
             httpContext.Response.StatusCode = code;
+            httpContext.Response.ContentType = "text/plain";
             await writer.WriteAsync(message);
             await writer.FlushAsync();
         }

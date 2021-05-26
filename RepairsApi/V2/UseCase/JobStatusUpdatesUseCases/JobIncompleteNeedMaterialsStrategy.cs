@@ -1,5 +1,6 @@
 using RepairsApi.V2.Gateways;
-using RepairsApi.V2.Generated;
+using RepairsApi.V2.Helpers;
+using RepairsApi.V2.Infrastructure;
 using System.Threading.Tasks;
 
 namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
@@ -15,8 +16,8 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
         public async Task Execute(JobStatusUpdate jobStatusUpdate)
         {
-            var workOrderId = int.Parse(jobStatusUpdate.RelatedWorkOrderReference.ID);
-            var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
+            var workOrder = jobStatusUpdate.RelatedWorkOrder;
+            workOrder.VerifyCanMoveToJobIncomplete();
 
             workOrder.StatusCode = Infrastructure.WorkStatusCode.PendMaterial;
 

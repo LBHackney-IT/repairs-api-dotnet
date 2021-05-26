@@ -2,8 +2,9 @@ namespace RepairsApi.V2.Generated.CustomTypes
 {
     public static class CustomJobStatusUpdates
     {
-        public const string COMPLETED = "complete";
-        public const string CANCELLED = "cancel";
-        public const string RESUME = "resume";
+        public const string Completed = "complete";
+        public const string Cancelled = "cancel";
+        public const string Resume = "resume";
+        public const string AddNote = "addNote";
     }
 }

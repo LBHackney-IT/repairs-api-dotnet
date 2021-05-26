@@ -41,7 +41,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(List<AppointmentDayViewModel>), 200)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = UserGroups.AGENT)]
+        [Authorize(Roles = UserGroups.Agent + "," + UserGroups.AuthorisationManager)]
         public async Task<IActionResult> ListAppointments([FromQuery][Required] int workOrderReference, string fromDate, string toDate)
         {
             try
@@ -63,7 +63,7 @@ namespace RepairsApi.V2.Controllers
         {
             if (string.IsNullOrWhiteSpace(dateString)) return null;
 
-            return DateTime.ParseExact(dateString, DateExtensions.DATEFORMAT, null);
+            return DateTime.ParseExact(dateString, DateExtensions.DateFormat, null);
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(400)]
-        [Authorize(Roles = UserGroups.AGENT)]
+        [Authorize(Roles = UserGroups.Agent + "," + UserGroups.AuthorisationManager)]
         public async Task<IActionResult> CreateAppointment([FromBody] RequestAppointment appointmentRequest)
         {
             try

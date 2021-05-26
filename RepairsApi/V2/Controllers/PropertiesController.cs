@@ -51,7 +51,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(List<PropertyListItem>), 200)]
         [ProducesResponseType(typeof(string), StatusCodes.Status502BadGateway)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = UserGroups.AGENT + "," + UserGroups.CONTRACT_MANAGER)]
+        [Authorize(Roles = UserGroups.Agent + "," + UserGroups.ContractManager + "," + UserGroups.AuthorisationManager)]
         public async Task<IActionResult> ListProperties([FromQuery] string address, [FromQuery] string postcode, [FromQuery] string q)
         {
             PropertySearchModel searchModel = new PropertySearchModel
@@ -61,11 +61,11 @@ namespace RepairsApi.V2.Controllers
                 Query = q
             };
 
-            _logger.LogInformation("Listing properties");
+            _logger.LogInformation(Resources.ListingProperties);
             var properties = await _listPropertiesUseCase.ExecuteAsync(searchModel);
 
             List<PropertyListItem> response = properties.ToResponse();
-            _logger.LogInformation($"Found {response.Count} properties");
+            _logger.LogInformation(Resources.FoundProperties, response.Count);
             return Ok(response);
         }
 
@@ -82,7 +82,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(NotFoundResult), 404)]
         [ProducesResponseType(typeof(string), StatusCodes.Status502BadGateway)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = UserGroups.AGENT + "," + UserGroups.CONTRACTOR + "," + UserGroups.CONTRACT_MANAGER)]
+        [Authorize(Roles = UserGroups.Agent + "," + UserGroups.Contractor + "," + UserGroups.ContractManager + "," + UserGroups.AuthorisationManager)]
         public async Task<IActionResult> GetProperty([FromRoute][Required] string propertyReference)
         {
             var property = await _getPropertyUseCase.ExecuteAsync(propertyReference);
@@ -101,7 +101,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(CautionaryAlertResponseList), 200)]
         [ProducesResponseType(typeof(string), StatusCodes.Status502BadGateway)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = UserGroups.AGENT)]
+        [Authorize(Roles = UserGroups.Agent + "," + UserGroups.AuthorisationManager)]
         public async Task<IActionResult> ListCautionaryAlerts([FromRoute][Required] string propertyReference)
         {
             var alerts = await _listAlertsUseCase.ExecuteAsync(propertyReference);

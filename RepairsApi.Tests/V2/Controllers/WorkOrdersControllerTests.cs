@@ -23,6 +23,7 @@ using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 using RepairsApi.V2.Domain;
 using RepairsApi.Tests.Helpers;
 using Microsoft.FeatureManagement;
+using RepairsApi.V2.UseCase;
 
 namespace RepairsApi.Tests.V2.Controllers
 {
@@ -37,16 +38,12 @@ namespace RepairsApi.Tests.V2.Controllers
         private Mock<IGetWorkOrderUseCase> _getWorkOrderUseCase;
         private Mock<IListWorkOrderTasksUseCase> _listWorkOrderTasksUseCase;
         private Mock<IListWorkOrderNotesUseCase> _listWorkOrderNotesUseCase;
-        private Mock<IFeatureManager> _featureManager;
-        private Mock<IAuthorizationService> _authMock;
+        private Mock<IListVariationTasksUseCase> _listVariationsTaskUseCase;
 
         [SetUp]
         public void SetUp()
         {
             ConfigureGenerator();
-            _authMock = new Mock<IAuthorizationService>();
-            _authMock.Setup(a => a.AuthorizeAsync(It.IsAny<ClaimsPrincipal>(), It.IsAny<object>(), It.IsAny<string>()))
-                .ReturnsAsync(AuthorizationResult.Success());
             _createWorkOrderUseCaseMock = new Mock<ICreateWorkOrderUseCase>();
             _listWorkOrdersUseCase = new Mock<IListWorkOrdersUseCase>();
             _completeWorkOrderUseCase = new Mock<ICompleteWorkOrderUseCase>();
@@ -54,9 +51,8 @@ namespace RepairsApi.Tests.V2.Controllers
             _getWorkOrderUseCase = new Mock<IGetWorkOrderUseCase>();
             _listWorkOrderTasksUseCase = new Mock<IListWorkOrderTasksUseCase>();
             _listWorkOrderNotesUseCase = new Mock<IListWorkOrderNotesUseCase>();
-            _featureManager = new Mock<IFeatureManager>();
+            _listVariationsTaskUseCase = new Mock<IListVariationTasksUseCase>();
             _classUnderTest = new WorkOrdersController(
-                _authMock.Object,
                 _createWorkOrderUseCaseMock.Object,
                 _listWorkOrdersUseCase.Object,
                 _completeWorkOrderUseCase.Object,
@@ -64,7 +60,7 @@ namespace RepairsApi.Tests.V2.Controllers
                 _getWorkOrderUseCase.Object,
                 _listWorkOrderTasksUseCase.Object,
                 _listWorkOrderNotesUseCase.Object,
-                _featureManager.Object
+                _listVariationsTaskUseCase.Object
             );
         }
 
@@ -75,34 +71,20 @@ namespace RepairsApi.Tests.V2.Controllers
         }
 
         [Test]
-        public async Task ScheduleRepairReturnsOkWithInt()
+        public async Task ScheduleRepairReturnsOkWithObject()
         {
             // arrange
             const int newId = 2;
-            _createWorkOrderUseCaseMock.Setup(m => m.Execute(It.IsAny<WorkOrder>())).ReturnsAsync(newId);
+            _createWorkOrderUseCaseMock.Setup(m => m.Execute(It.IsAny<WorkOrder>()))
+                .ReturnsAsync(new CreateOrderResult(newId, WorkStatusCode.Open, string.Empty));
 
             // act
             var result = await _classUnderTest.ScheduleRepair(new ScheduleRepair());
 
             // assert
             result.Should().BeOfType<OkObjectResult>();
-            GetResultData<int>(result).Should().Be(newId);
-        }
-
-        [Test]
-        public async Task ScheduleRepairReturnsBadRequestWhenNotSupportedThrown()
-        {
-            // arrange
-            string expectedMessage = "message";
-            _createWorkOrderUseCaseMock.Setup(m => m.Execute(It.IsAny<WorkOrder>()))
-                .ThrowsAsync(new NotSupportedException(expectedMessage));
-
-            // act
-            var result = await _classUnderTest.ScheduleRepair(new ScheduleRepair());
-
-            // assert
-            result.Should().BeOfType<BadRequestObjectResult>();
-            GetResultData<string>(result).Should().Be(expectedMessage);
+            var createResult = GetResultData<CreateOrderResult>(result);
+            createResult.Id.Should().Be(newId);
         }
 
         [Test]
@@ -141,7 +123,13 @@ namespace RepairsApi.Tests.V2.Controllers
                 .Setup(uc => uc.Execute(It.IsAny<JobStatusUpdate>())).Returns(Task.CompletedTask);
 
             var response = await _classUnderTest.JobStatusUpdate(
-                new JobStatusUpdate { RelatedWorkOrderReference = new Reference { ID = "42" } });
+                new JobStatusUpdate
+                {
+                    RelatedWorkOrderReference = new Reference
+                    {
+                        ID = "42"
+                    }
+                });
 
             response.Should().BeOfType<OkResult>();
         }
@@ -168,6 +156,21 @@ namespace RepairsApi.Tests.V2.Controllers
 
             GetStatusCode(result).Should().Be(404);
             GetResultData<string>(result).Should().Be(expectedException.Message);
+        }
+
+        [Test]
+        public async Task VariationListReturns()
+        {
+            var expected = new Generator<GetVariationResponse>().AddDefaultGenerators().Generate();
+            _listVariationsTaskUseCase.Setup(uc => uc.Execute(1)).ReturnsAsync(expected);
+
+            var result = await _classUnderTest.GetWorkOrderVariations(1);
+
+            GetStatusCode(result).Should().Be(200);
+
+            var response = GetResultData<GetVariationResponse>(result);
+
+            response.Should().BeEquivalentTo(expected);
         }
 
         [Test]
@@ -204,7 +207,10 @@ namespace RepairsApi.Tests.V2.Controllers
         {
             var request = new WorkOrderComplete
             {
-                WorkOrderReference = new Reference { ID = expectedWorkOrderId.ToString() }
+                WorkOrderReference = new Reference
+                {
+                    ID = expectedWorkOrderId.ToString()
+                }
             };
             return request;
         }

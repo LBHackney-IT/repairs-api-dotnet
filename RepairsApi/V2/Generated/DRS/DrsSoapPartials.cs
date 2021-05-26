@@ -10,10 +10,22 @@ namespace V2_Generated_DRS
 {
     public partial class SOAPClient
     {
+        private const int MaxReceivedMessageSize = 262144;
         public SOAPClient(IOptions<DrsOptions> drsOptions) :
-            this(new BasicHttpsBinding(), new EndpointAddress(drsOptions.Value.Address))
+            this(new BasicHttpsBinding
+            {
+                MaxReceivedMessageSize = MaxReceivedMessageSize
+            }, new EndpointAddress(drsOptions.Value.APIAddress))
         {
             this.Endpoint.EndpointBehaviors.Add(new MyFaultLogger());
+        }
+    }
+
+    // ReSharper disable once InconsistentNaming
+    public partial class bookingCode : entity
+    {
+        public bookingCode()
+        {
         }
     }
 

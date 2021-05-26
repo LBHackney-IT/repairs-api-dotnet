@@ -2,8 +2,9 @@ namespace RepairsApi.V2.Authorisation
 {
     public static class UserGroups
     {
-        public const string AGENT = "agent";
-        public const string CONTRACTOR = "contractor";
-        public const string CONTRACT_MANAGER = "contract manager";
+        public const string Agent = "agent";
+        public const string Contractor = "contractor";
+        public const string ContractManager = "contract manager";
+        public const string AuthorisationManager = "authorisation_manager";
     }
 }

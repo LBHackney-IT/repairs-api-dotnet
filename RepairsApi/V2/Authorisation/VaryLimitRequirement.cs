@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.Gateways;
-using RepairsApi.V2.Generated;
+using RepairsApi.V2.Infrastructure;
 
 namespace RepairsApi.V2.Authorisation
 {
@@ -34,12 +34,11 @@ namespace RepairsApi.V2.Authorisation
             JobStatusUpdate resource
             )
         {
-            var workOrderId = int.Parse(resource.RelatedWorkOrderReference.ID);
-            var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
+            var workOrder = resource.RelatedWorkOrder;
             var contractorRef = workOrder.AssignedToPrimary.ContractorReference;
 
             var updatedCodes = resource.MoreSpecificSORCode.RateScheduleItem
-                .Select(rsi => new { rsi.CustomCode, Amount = rsi.Quantity.Amount.Sum() }).ToList();
+                .Select(rsi => new { rsi.CustomCode, Amount = rsi.Quantity.Amount }).ToList();
 
             var originalCodes = workOrder.WorkElements.SelectMany(we => we.RateScheduleItem).Where(rsi => rsi.Original).Select(rsi => new { rsi.OriginalQuantity, rsi.CustomCode });
 
@@ -49,7 +48,7 @@ namespace RepairsApi.V2.Authorisation
             double originalCost = 0;
             await originalCodes.ForEachAsync(async c => originalCost += c.OriginalQuantity.Value * await _sorGateway.GetCost(contractorRef, c.CustomCode));
 
-            var limit = double.Parse(context.User.FindFirst(CustomClaimTypes.VARYLIMIT).Value);
+            var limit = double.Parse(context.User.FindFirst(CustomClaimTypes.VaryLimit).Value);
 
             if (totalCost <= originalCost + limit)
             {

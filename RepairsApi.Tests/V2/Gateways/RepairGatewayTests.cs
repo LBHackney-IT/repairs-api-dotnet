@@ -60,12 +60,13 @@ namespace RepairsApi.Tests.V2.Gateways
             workOrders.Should().ContainSingle().Which.Should().BeEquivalentTo(expectedWorkOrders);
         }
 
-        [Test]
-        public async Task FilterOutBasedOnContractors()
+        [TestCase("contractor", "othercontractor")]
+        [TestCase("contractor", "othercontractor", "otherContractor2")]
+        public async Task FilterBasedOnContractors(string woContractor, params string[] userContractors)
         {
             // arrange
-            var expectedWorkOrders = CreateWorkOrder("contractor");
-            _userServiceMock.SetContractor("othercontractor");
+            var expectedWorkOrders = CreateWorkOrder(woContractor);
+            _userServiceMock.SetContractor(userContractors);
             await InMemoryDb.Instance.WorkOrders.AddAsync(expectedWorkOrders);
             await InMemoryDb.Instance.SaveChangesAsync();
 
@@ -74,6 +75,23 @@ namespace RepairsApi.Tests.V2.Gateways
 
             // assert
             workOrders.Should().BeEmpty();
+        }
+
+        [TestCase("contractor", "contractor")]
+        [TestCase("contractor", "contractor", "otherContractor")]
+        public async Task GetWorkOrdersForValidContractors(string woContractor, params string[] userContractors)
+        {
+            // arrange
+            var expectedWorkOrders = CreateWorkOrder(woContractor);
+            _userServiceMock.SetContractor(userContractors);
+            await InMemoryDb.Instance.WorkOrders.AddAsync(expectedWorkOrders);
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            // act
+            var workOrders = await _classUnderTest.GetWorkOrders();
+
+            // assert
+            workOrders.Should().Contain(expectedWorkOrders);
         }
 
         [Test]
@@ -111,11 +129,13 @@ namespace RepairsApi.Tests.V2.Gateways
             workOrders.Should().ContainSingle().Which.Should().BeEquivalentTo(expectedWorkOrder);
         }
 
-        [Test]
-        public async Task CanGetWorkOrderById()
+        [TestCase("contractor", "contractor")]
+        [TestCase("contractor", "contractor", "otherContractor")]
+        public async Task CanGetWorkOrderById(string woContractor, params string[] userContractors)
         {
             // arrange
-            var expectedWorkOrder = CreateWorkOrder("contractor");
+            var expectedWorkOrder = CreateWorkOrder(woContractor);
+            _userServiceMock.SetContractor(userContractors);
             await InMemoryDb.Instance.WorkOrders.AddAsync(expectedWorkOrder);
             await InMemoryDb.Instance.SaveChangesAsync();
 
@@ -126,12 +146,14 @@ namespace RepairsApi.Tests.V2.Gateways
             workOrders.Should().BeEquivalentTo(expectedWorkOrder);
         }
 
-        [Test]
-        public async Task ThrowsGettingOtherContractorsWorkOrder()
+
+        [TestCase("contractor", "othercontractor")]
+        [TestCase("contractor", "othercontractor", "otherContractor2")]
+        public async Task ThrowsGettingOtherContractorsWorkOrder(string woContractor, params string[] userContractors)
         {
             // arrange
-            var expectedWorkOrder = CreateWorkOrder("contractor");
-            _userServiceMock.SetContractor("othercontractor");
+            var expectedWorkOrder = CreateWorkOrder(woContractor);
+            _userServiceMock.SetContractor(userContractors);
             await InMemoryDb.Instance.WorkOrders.AddAsync(expectedWorkOrder);
             await InMemoryDb.Instance.SaveChangesAsync();
 
@@ -196,7 +218,7 @@ namespace RepairsApi.Tests.V2.Gateways
             {
                 WorkPriority = new WorkPriority
                 {
-                    PriorityCode = RepairsApi.V2.Generated.WorkPriorityCode._1,
+                    PriorityCode = 1,
                     RequiredCompletionDateTime = DateTime.UtcNow
                 },
                 WorkClass = new WorkClass
@@ -219,7 +241,7 @@ namespace RepairsApi.Tests.V2.Gateways
             {
                 WorkPriority = new WorkPriority
                 {
-                    PriorityCode = RepairsApi.V2.Generated.WorkPriorityCode._1,
+                    PriorityCode = 1,
                     RequiredCompletionDateTime = DateTime.UtcNow
                 },
                 WorkClass = new WorkClass

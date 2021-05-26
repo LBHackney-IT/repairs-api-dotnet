@@ -14,7 +14,9 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
         {
             return generator
                 .AddGenerator(new RandomStringGenerator(10))
+                .AddGenerator(new RandomCharGenerator())
                 .AddGenerator(new RandomDoubleGenerator(0, 50))
+                .AddGenerator(new RandomDateGenerator(20))
                 .AddGenerator(new RandomBoolGenerator());
         }
 
@@ -63,6 +65,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                 .AddValue(new string[] { "address", "line" }, (PropertyAddress addr) => addr.AddressLine)
                 .AddValue(new string[] { "address", "line" }, (Address addr) => addr.AddressLine)
                 .AddValue(GetSitePropertyUnitGenerator(), (RaiseRepair rr) => rr.SitePropertyUnit)
+                .AddValue("propref", (Property p) => p.PropertyReference)
                 .AddValue(new List<double> { 2.0 }, (Quantity q) => q.Amount)
                 .AddValue(contractorReference, (Organization o) => o.Reference)
                 .AddValue(TestDataSeeder.SorCode, (RateScheduleItem rsi) => rsi.CustomCode)
@@ -73,6 +76,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                     (GeographicalLocation q) => q.ElevationReferenceSystem)
                 .AddValue("trade", (Trade t) => t.CustomCode)
                 .SetListLength<WorkElement>(1)
+                .SetListLength<Trade>(1)
                 .SetListLength<RateScheduleItem>(1);
         }
 
@@ -93,7 +97,7 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                 .AddValue(null, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.WorkOrderComplete)
                 .AddValue(null, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.JobStatusUpdates)
                 .AddValue(false, (RepairsApi.V2.Infrastructure.RateScheduleItem rsi) => rsi.Original)
-                .AddValue(WorkPriorityCode._1, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.WorkPriority.PriorityCode)
+                .AddValue(1, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.WorkPriority.PriorityCode)
                 .AddValue(DateTime.UtcNow, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.WorkPriority.RequiredCompletionDateTime);
         }
 

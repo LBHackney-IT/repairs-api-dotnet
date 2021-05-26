@@ -57,22 +57,9 @@ namespace RepairsApi.V2.Gateways
                 throw new ResourceNotFoundException($"Unable to locate work order {id}");
             }
 
-            if (!UserCanAccess(workOrder)) throw new UnauthorizedAccessException($"Cannot access work order id {id}");
+            if (!workOrder.UserCanAccess(_currentUserService)) throw new UnauthorizedAccessException($"Cannot access work order id {id}");
 
             return workOrder;
-        }
-
-        private bool UserCanAccess(WorkOrder workOrder)
-        {
-            if (_currentUserService.HasGroup(UserGroups.AGENT) ||
-                _currentUserService.HasGroup(UserGroups.CONTRACT_MANAGER)) return true;
-
-            if (_currentUserService.TryGetContractor(out string contractor))
-            {
-                return workOrder.AssignedToPrimary.ContractorReference == contractor;
-            }
-
-            return false;
         }
 
         public async Task<IEnumerable<WorkElement>> GetWorkElementsForWorkOrder(WorkOrder workOrder)
@@ -107,15 +94,29 @@ namespace RepairsApi.V2.Gateways
     {
         public static IQueryable<WorkOrder> RestrictContractor(this IQueryable<WorkOrder> source, ICurrentUserService userService)
         {
-            if (userService.HasGroup(UserGroups.AGENT) ||
-                userService.HasGroup(UserGroups.CONTRACT_MANAGER)) return source;
+            if (userService.HasAnyGroup(UserGroups.AuthorisationManager, UserGroups.ContractManager, UserGroups.Agent)) return source;
 
-            if (userService.TryGetContractor(out string contractor))
+            var contractors = userService.GetContractors();
+            if (contractors.Count > 0)
             {
-                return source.Where(wo => wo.AssignedToPrimary.ContractorReference == contractor);
+                return source.Where(wo => contractors.Contains(wo.AssignedToPrimary.ContractorReference) && wo.StatusCode != WorkStatusCode.PendingApproval);
             }
 
             throw new UnauthorizedAccessException("Cannot access work orders");
+        }
+
+        public static bool UserCanAccess(this WorkOrder workOrder, ICurrentUserService userService)
+        {
+            if (userService.HasAnyGroup(UserGroups.Agent, UserGroups.ContractManager, UserGroups.AuthorisationManager)) return true;
+
+            var contractors = userService.GetContractors();
+            if (contractors.Count > 0)
+            {
+                return contractors.Contains(workOrder.AssignedToPrimary.ContractorReference)
+                    && workOrder.StatusCode != WorkStatusCode.PendingApproval;
+            }
+
+            return false;
         }
     }
 }

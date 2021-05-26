@@ -9,6 +9,8 @@ using RepairsApi.V2.Infrastructure.Hackney;
 using System.ComponentModel.DataAnnotations;
 using RepairsApi.V2.Authorisation;
 using Microsoft.AspNetCore.Authorization;
+using System.Linq;
+using System;
 
 namespace RepairsApi.V2.Controllers
 {
@@ -18,7 +20,6 @@ namespace RepairsApi.V2.Controllers
     [ApiVersion("2.0")]
     public class ScheduleOfRatesController : Controller
     {
-
         private readonly IListScheduleOfRatesUseCase _listScheduleOfRates;
         private readonly ISorPriorityGateway _priorityGateway;
         private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
@@ -38,7 +39,7 @@ namespace RepairsApi.V2.Controllers
         }
 
         /// <summary>
-        /// Returns paged list of SOR codes
+        /// Returns list of SOR codes
         /// </summary>
         /// <response code="200">Success. Returns a list of SOR codes</response>
         /// <response code="400">Invalid Query Parameter.</response>
@@ -47,8 +48,8 @@ namespace RepairsApi.V2.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = UserGroups.AGENT + "," + UserGroups.CONTRACT_MANAGER)]
-        public async Task<IActionResult> ListRecords([FromQuery][Required] string tradeCode, [FromQuery][Required] string propertyReference, [FromQuery][Required] string contractorReference)
+        [Authorize(Roles = UserGroups.Agent + "," + UserGroups.ContractManager + "," + UserGroups.AuthorisationManager)]
+        public async Task<IActionResult> ListSorCodes([FromQuery][Required] string tradeCode, [FromQuery][Required] string propertyReference, [FromQuery][Required] string contractorReference)
         {
             return Ok(await _listScheduleOfRates.Execute(tradeCode, propertyReference, contractorReference));
         }
@@ -58,6 +59,7 @@ namespace RepairsApi.V2.Controllers
         /// </summary>
         /// <param name="sorCode"></param>
         /// <param name="propertyReference"></param>
+        /// <param name="contractorReference"></param>
         /// <returns></returns>
         [ProducesResponseType(typeof(IEnumerable<ScheduleOfRatesModel>), StatusCodes.Status200OK)]
         [Route("codes/{sorCode}")]
@@ -65,12 +67,20 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = UserGroups.CONTRACTOR + "," + UserGroups.CONTRACT_MANAGER)]
-        public async Task<IActionResult> GetSorCode([Required] string sorCode, [FromQuery][Required] string propertyReference)
+        [Authorize(Roles = UserGroups.Contractor + "," + UserGroups.ContractManager)]
+        public async Task<IActionResult> GetSorCode([Required] string sorCode, [FromQuery][Required] string propertyReference, [FromQuery] string contractorReference = null)
         {
-            var contractorReference = User.FindFirst(CustomClaimTypes.CONTRACTOR).Value;
+            var validContractors = User.Contractors();
 
-            return Ok(await _scheduleOfRatesGateway.GetCode(sorCode, propertyReference, contractorReference));
+            if (string.IsNullOrWhiteSpace(contractorReference))
+            {
+                return Ok(await _scheduleOfRatesGateway.GetCode(sorCode, propertyReference, validContractors.First()));
+            }
+            else
+            {
+                if (!validContractors.Contains(contractorReference)) throw new UnauthorizedAccessException("You do not have access to codes for this contractor");
+                return Ok(await _scheduleOfRatesGateway.GetCode(sorCode, propertyReference, contractorReference));
+            }
         }
 
         /// <summary>
@@ -92,7 +102,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(IEnumerable<SORPriority>), StatusCodes.Status200OK)]
         [HttpGet]
         [Route("priorities")]
-        [Authorize(Roles = UserGroups.AGENT + "," + UserGroups.CONTRACT_MANAGER)]
+        [Authorize(Roles = UserGroups.Agent + "," + UserGroups.ContractManager + "," + UserGroups.AuthorisationManager)]
         public async Task<IActionResult> ListPriorities()
         {
             return Ok(await _priorityGateway.GetPriorities());

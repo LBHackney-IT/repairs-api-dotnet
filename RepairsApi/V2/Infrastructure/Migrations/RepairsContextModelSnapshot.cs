@@ -132,6 +132,34 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.ToTable("categorization");
                 });
 
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Company", b =>
+                {
+                    b.Property<string>("CoCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("co_code");
+
+                    b.Property<string>("CompAvail")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("comp_avail");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("name");
+
+                    b.HasKey("CoCode")
+                        .HasName("pk_company");
+
+                    b.ToTable("company");
+                });
+
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Contact", b =>
                 {
                     b.Property<int>("Id")
@@ -307,9 +335,17 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("reference");
 
+                    b.Property<string>("ContractManagerEmail")
+                        .HasColumnType("text")
+                        .HasColumnName("contract_manager_email");
+
                     b.Property<string>("Name")
                         .HasColumnType("text")
                         .HasColumnName("name");
+
+                    b.Property<bool>("UseExternalScheduleManager")
+                        .HasColumnType("boolean")
+                        .HasColumnName("use_external_schedule_manager");
 
                     b.HasKey("Reference")
                         .HasName("pk_contractors");
@@ -375,6 +411,10 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.Property<bool>("Enabled")
                         .HasColumnType("boolean")
                         .HasColumnName("enabled");
+
+                    b.Property<char>("PriorityCharacter")
+                        .HasColumnType("character(1)")
+                        .HasColumnName("priority_character");
 
                     b.HasKey("PriorityCode")
                         .HasName("pk_sor_priorities");
@@ -881,13 +921,20 @@ namespace RepairsApi.V2.Infrastructure.Migrations
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.SecurityGroup", b =>
                 {
-                    b.Property<string>("GroupName")
-                        .HasColumnType("text")
-                        .HasColumnName("group_name");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<string>("ContractorReference")
                         .HasColumnType("text")
                         .HasColumnName("contractor_reference");
+
+                    b.Property<string>("GroupName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("group_name");
 
                     b.Property<double?>("RaiseLimit")
                         .HasColumnType("double precision")
@@ -901,8 +948,11 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasColumnType("double precision")
                         .HasColumnName("vary_limit");
 
-                    b.HasKey("GroupName")
+                    b.HasKey("Id")
                         .HasName("pk_security_groups");
+
+                    b.HasIndex("GroupName")
+                        .HasDatabaseName("ix_security_groups_group_name");
 
                     b.ToTable("security_groups");
                 });
@@ -2189,11 +2239,21 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                             b1.HasKey("WorkOrderId")
                                 .HasName("pk_work_orders");
 
+                            b1.HasIndex("PriorityCode")
+                                .HasDatabaseName("ix_work_orders_work_priority_priority_code");
+
                             b1.ToTable("work_orders");
+
+                            b1.HasOne("RepairsApi.V2.Infrastructure.Hackney.SORPriority", "Priority")
+                                .WithMany()
+                                .HasForeignKey("PriorityCode")
+                                .HasConstraintName("fk_work_orders_sor_priorities_work_priority_priority_code1");
 
                             b1.WithOwner()
                                 .HasForeignKey("WorkOrderId")
                                 .HasConstraintName("fk_work_orders_work_orders_id");
+
+                            b1.Navigation("Priority");
                         });
 
                     b.Navigation("AccessInformation");

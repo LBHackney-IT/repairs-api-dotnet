@@ -61,6 +61,24 @@ namespace RepairsApi.V2 {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This action is not supported.
+        /// </summary>
+        public static string ActionUnsupported {
+            get {
+                return ResourceManager.GetString("ActionUnsupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot Resume Job.
+        /// </summary>
+        public static string CannotResumeJob {
+            get {
+                return ResourceManager.GetString("CannotResumeJob", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Could not find contacts.
         /// </summary>
         public static string Contacts_Not_Found {
@@ -88,6 +106,24 @@ namespace RepairsApi.V2 {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to [EmailError] Failed to send Email with error {message}.
+        /// </summary>
+        public static string EmailFailed {
+            get {
+                return ResourceManager.GetString("EmailFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Found {count} properties.
+        /// </summary>
+        public static string FoundProperties {
+            get {
+                return ResourceManager.GetString("FoundProperties", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to GeographicalLocation.Elevation, GeographicalLocation.Latitude and GeographicalLocation.Longitude must contain a single string that is a valid decimal number.
         /// </summary>
         public static string InvalidGeographicalLocation {
@@ -97,11 +133,47 @@ namespace RepairsApi.V2 {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You do not have the correct permissions for this action.
+        /// </summary>
+        public static string InvalidPermissions {
+            get {
+                return ResourceManager.GetString("InvalidPermissions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Listing properties.
+        /// </summary>
+        public static string ListingProperties {
+            get {
+                return ResourceManager.GetString("ListingProperties", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to fetch location alerts.
         /// </summary>
         public static string LocationAlertsFailure {
             get {
                 return ResourceManager.GetString("LocationAlertsFailure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not Authorised to cancel jobs.
+        /// </summary>
+        public static string NotAuthorisedToCancel {
+            get {
+                return ResourceManager.GetString("NotAuthorisedToCancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not Authorised to close jobs.
+        /// </summary>
+        public static string NotAuthorisedToClose {
+            get {
+                return ResourceManager.GetString("NotAuthorisedToClose", resourceCulture);
             }
         }
         
@@ -142,6 +214,87 @@ namespace RepairsApi.V2 {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Variation rejected: .
+        /// </summary>
+        public static string RejectedVariationPrepend {
+            get {
+                return ResourceManager.GetString("RejectedVariationPrepend", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [EmailError] Could not resolve template for email {requestName}.
+        /// </summary>
+        public static string ResolveTemplateError {
+            get {
+                return ResourceManager.GetString("ResolveTemplateError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sending Mail for approval of high cost variation on work order {WorkOrderId}.
+        /// </summary>
+        public static string SendingHighCostVariationApproval {
+            get {
+                return ResourceManager.GetString("SendingHighCostVariationApproval", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sending Mail for raising of high cost variation on work order {WorkOrderId}.
+        /// </summary>
+        public static string SendingHighCostVariationCreation {
+            get {
+                return ResourceManager.GetString("SendingHighCostVariationCreation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sending Mail for rejection of high cost variation on work order {WorkOrderId}.
+        /// </summary>
+        public static string SendingHighCostVariationRejection {
+            get {
+                return ResourceManager.GetString("SendingHighCostVariationRejection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sending Mail for approval of high cost work order {WorkOrderId}.
+        /// </summary>
+        public static string SendingHighCostWorkOrderApproval {
+            get {
+                return ResourceManager.GetString("SendingHighCostWorkOrderApproval", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sending Mail for creation of high cost work order {WorkOrderId}.
+        /// </summary>
+        public static string SendingHighCostWorkOrderCreation {
+            get {
+                return ResourceManager.GetString("SendingHighCostWorkOrderCreation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sending Mail for rejection of high cost work order {WorkOrderId}.
+        /// </summary>
+        public static string SendingHighCostWorkOrderRejection {
+            get {
+                return ResourceManager.GetString("SendingHighCostWorkOrderRejection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Successfully Sent Email {requestName}.
+        /// </summary>
+        public static string SuccessfullySentEmail {
+            get {
+                return ResourceManager.GetString("SuccessfullySentEmail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to fetch tenancy.
         /// </summary>
         public static string TenancyFailure {
@@ -156,6 +309,69 @@ namespace RepairsApi.V2 {
         public static string UnsupportedUHPriority {
             get {
                 return ResourceManager.GetString("UnsupportedUHPriority", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unsupported work order complete job status update code.
+        /// </summary>
+        public static string UnsupportedWorkOrderUpdate {
+            get {
+                return ResourceManager.GetString("UnsupportedWorkOrderUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot Approve a Variation Above Spend Limit.
+        /// </summary>
+        public static string VariationApprovalAboveSpendLimit {
+            get {
+                return ResourceManager.GetString("VariationApprovalAboveSpendLimit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Variation reason: .
+        /// </summary>
+        public static string VariationReason {
+            get {
+                return ResourceManager.GetString("VariationReason", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot Approve a Work Order Above Spend Limit.
+        /// </summary>
+        public static string WorkOrderApprovalAboveSpendLimit {
+            get {
+                return ResourceManager.GetString("WorkOrderApprovalAboveSpendLimit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Authorisation rejected: .
+        /// </summary>
+        public static string WorkOrderAuthorisationRejected {
+            get {
+                return ResourceManager.GetString("WorkOrderAuthorisationRejected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Work order is not pending approval.
+        /// </summary>
+        public static string WorkOrderNotPendingApproval {
+            get {
+                return ResourceManager.GetString("WorkOrderNotPendingApproval", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Work order is not scheduled.
+        /// </summary>
+        public static string WorkOrderNotScheduled {
+            get {
+                return ResourceManager.GetString("WorkOrderNotScheduled", resourceCulture);
             }
         }
         

@@ -17,8 +17,13 @@ namespace RepairsApi
             {
                 filter.AddFilter(
                     searchParams => searchParams.ContractorReference,
-                    contractorReference => !string.IsNullOrWhiteSpace(contractorReference),
-                    contractorReference => wo => wo.AssignedToPrimary.ContractorReference == contractorReference
+                    contractorReference => contractorReference?.Count > 0,
+                    contractorReference => wo => contractorReference.Contains(wo.AssignedToPrimary.ContractorReference)
+                )
+                .AddFilter(
+                    searchParams => searchParams.TradeCodes,
+                    tc => tc?.Count > 0,
+                    tc => wo => tc.Contains(wo.WorkElements.FirstOrDefault().Trade.FirstOrDefault().CustomCode)
                 )
                 .AddFilter(
                     searchParams => searchParams.PropertyReference,
@@ -33,11 +38,7 @@ namespace RepairsApi
                 .AddFilter(
                     searchParams => searchParams.Priorities,
                     codes => codes?.Count > 0,
-                    codes =>
-                    {
-                        var hactCodes = codes.GetHactCodes();
-                        return wo => wo.WorkPriority.PriorityCode.HasValue && hactCodes.Contains(wo.WorkPriority.PriorityCode.Value);
-                    }
+                    codes => wo => wo.WorkPriority.PriorityCode.HasValue && codes.Contains(wo.WorkPriority.PriorityCode.Value)
                 );
             });
         }

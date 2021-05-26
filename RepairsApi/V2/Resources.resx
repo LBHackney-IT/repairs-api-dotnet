@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -152,5 +152,77 @@
   </data>
   <data name="UnsupportedUHPriority" xml:space="preserve">
     <value>Un supported Priority character</value>
+  </data>
+  <data name="ActionUnsupported" xml:space="preserve">
+    <value>This action is not supported</value>
+  </data>
+  <data name="InvalidPermissions" xml:space="preserve">
+    <value>You do not have the correct permissions for this action</value>
+  </data>
+  <data name="WorkOrderNotPendingApproval" xml:space="preserve">
+    <value>Work order is not pending approval</value>
+  </data>
+  <data name="RejectedVariationPrepend" xml:space="preserve">
+    <value>Variation rejected: </value>
+  </data>
+  <data name="WorkOrderAuthorisationRejected" xml:space="preserve">
+    <value>Authorisation rejected: </value>
+  </data>
+  <data name="VariationReason" xml:space="preserve">
+    <value>Variation reason: </value>
+  </data>
+  <data name="UnsupportedWorkOrderUpdate" xml:space="preserve">
+    <value>Unsupported work order complete job status update code</value>
+  </data>
+  <data name="NotAuthorisedToClose" xml:space="preserve">
+    <value>Not Authorised to close jobs</value>
+  </data>
+  <data name="NotAuthorisedToCancel" xml:space="preserve">
+    <value>Not Authorised to cancel jobs</value>
+  </data>
+  <data name="CannotResumeJob" xml:space="preserve">
+    <value>Cannot Resume Job</value>
+  </data>
+  <data name="WorkOrderNotScheduled" xml:space="preserve">
+    <value>Work order is not scheduled</value>
+  </data>
+  <data name="EmailFailed" xml:space="preserve">
+    <value>[EmailError] Failed to send Email with error {message}</value>
+  </data>
+  <data name="FoundProperties" xml:space="preserve">
+    <value>Found {count} properties</value>
+  </data>
+  <data name="ListingProperties" xml:space="preserve">
+    <value>Listing properties</value>
+  </data>
+  <data name="ResolveTemplateError" xml:space="preserve">
+    <value>[EmailError] Could not resolve template for email {requestName}</value>
+  </data>
+  <data name="SendingHighCostVariationApproval" xml:space="preserve">
+    <value>Sending Mail for approval of high cost variation on work order {WorkOrderId}</value>
+  </data>
+  <data name="SendingHighCostVariationCreation" xml:space="preserve">
+    <value>Sending Mail for raising of high cost variation on work order {WorkOrderId}</value>
+  </data>
+  <data name="SendingHighCostVariationRejection" xml:space="preserve">
+    <value>Sending Mail for rejection of high cost variation on work order {WorkOrderId}</value>
+  </data>
+  <data name="SendingHighCostWorkOrderApproval" xml:space="preserve">
+    <value>Sending Mail for approval of high cost work order {WorkOrderId}</value>
+  </data>
+  <data name="SendingHighCostWorkOrderCreation" xml:space="preserve">
+    <value>Sending Mail for creation of high cost work order {WorkOrderId}</value>
+  </data>
+  <data name="SendingHighCostWorkOrderRejection" xml:space="preserve">
+    <value>Sending Mail for rejection of high cost work order {WorkOrderId}</value>
+  </data>
+  <data name="SuccessfullySentEmail" xml:space="preserve">
+    <value>Successfully Sent Email {requestName}</value>
+  </data>
+  <data name="VariationApprovalAboveSpendLimit" xml:space="preserve">
+    <value>Cannot Approve a Variation Above Spend Limit</value>
+  </data>
+  <data name="WorkOrderApprovalAboveSpendLimit" xml:space="preserve">
+    <value>Cannot Approve a Work Order Above Spend Limit</value>
   </data>
 </root>

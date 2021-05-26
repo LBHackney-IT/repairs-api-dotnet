@@ -37,8 +37,19 @@ using Amazon.XRay.Recorder.Handlers.AspNetCore.Internal;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using Castle.Core.Internal;
 using System.ServiceModel;
+using System.ServiceModel.Channels;
+using System.Text;
+using System.Xml;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Newtonsoft.Json;
+using RepairsApi.V2.Generated.DRS.BackgroundService;
+using SoapCore;
 using V2_Generated_DRS;
+using BackgroundService = Microsoft.Extensions.Hosting.BackgroundService;
+using RepairsApi.V2.Notifications;
+using RepairsApi.V2.Email;
+using Notify.Interfaces;
+using Notify.Client;
 
 namespace RepairsApi
 {
@@ -56,7 +67,7 @@ namespace RepairsApi
         }
 
         public IConfiguration Configuration { get; }
-        private static List<ApiVersionDescription> _apiVersions { get; set; }
+        private static List<ApiVersionDescription> ApiVersions { get; set; }
         private const string ApiName = "Repairs API";
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -154,7 +165,7 @@ namespace RepairsApi
                 });
 
                 //Get every ApiVersion attribute specified and create swagger docs for them
-                foreach (var apiVersion in _apiVersions)
+                foreach (var apiVersion in ApiVersions)
                 {
                     var version = $"v{apiVersion.ApiVersion}";
                     c.SwaggerDoc(version, new OpenApiInfo
@@ -180,6 +191,8 @@ namespace RepairsApi
             services.Configure<GatewayOptions>(Configuration.GetSection(nameof(GatewayOptions)));
             services.Configure<DrsOptions>(Configuration.GetSection(nameof(DrsOptions)));
             services.Configure<FilterConfiguration>(Configuration.GetSection(nameof(FilterConfiguration)));
+            services.Configure<NotifyOptions>(Configuration.GetSection(nameof(NotifyOptions)));
+            services.Configure<EmailOptions>(Configuration.GetSection(nameof(EmailOptions)));
 
             RegisterGateways(services);
             RegisterUseCases(services);
@@ -193,8 +206,36 @@ namespace RepairsApi
             services.AddScoped<ICurrentUserLoader>(sp => sp.GetService<CurrentUserService>());
             services.AddTransient<ITransactionManager, TransactionManager>();
             services.AddSingleton<IAuthenticationService, ChallengeOnlyAuthenticationService>();
+            AddEmailService(services);
             services.AddFeatureManagement();
             services.AddFilteringConfig();
+            ConfigureDRSSoap(services);
+            services.AddTransient(typeof(Lazy<>), typeof(LazyWrapper<>));
+
+            AddNotificationHandlers(services);
+        }
+
+        private void AddEmailService(IServiceCollection services)
+        {
+            NotifyOptions options = new NotifyOptions();
+            Configuration.Bind(nameof(NotifyOptions), options);
+
+            services.AddTransient<IEmailService, GovUKNotifyService>();
+            services.AddTransient<IAsyncNotificationClient>(sp => new NotificationClient(options.ApiKey));
+        }
+
+        private static void ConfigureDRSSoap(IServiceCollection services)
+        {
+            services.AddSoapCore();
+            services.TryAddSingleton<IDrsBackgroundService, DrsBackgroundService>();
+            services.AddSoapExceptionTransformer((ex) => ex.Message);
+        }
+
+        private static void AddNotificationHandlers(IServiceCollection services)
+        {
+            services.AddTransient<INotifier, Notifier>();
+
+            services.AddTransients(typeof(Notifier), typeof(INotificationHandler<>));
         }
 
         private static void RegisterGateways(IServiceCollection services)
@@ -226,10 +267,12 @@ namespace RepairsApi
             services.AddTransient<IGetWorkOrderUseCase, GetWorkOrderUseCase>();
             services.AddTransient<IListWorkOrderTasksUseCase, ListWorkOrderTasksUseCase>();
             services.AddTransient<IListSorTradesUseCase, ListSorTradesUseCase>();
-            services.AddTransient<IMoreSpecificSorUseCase, MoreSpecificSorUseCase>();
             services.AddTransient<IListWorkOrderNotesUseCase, ListWorkOrderNotesUseCase>();
+            services.AddTransient<IUpdateSorCodesUseCase, UpdateSorCodesUseCase>();
             services.AddTransient<IListAppointmentsUseCase, ListAppointmentsUseCase>();
             services.AddTransient<ICreateAppointmentUseCase, CreateAppointmentUseCase>();
+            services.AddTransient<IListVariationTasksUseCase, ListVariationTasksUseCase>();
+            services.AddTransient<IGetFilterUseCase, GetFilterUseCase>();
         }
 
         private void AddHttpClients(IServiceCollection services)
@@ -281,12 +324,12 @@ namespace RepairsApi
 
             //Get All ApiVersions,
             var api = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();
-            _apiVersions = api.ApiVersionDescriptions.ToList();
+            ApiVersions = api.ApiVersionDescriptions.ToList();
 
             //Swagger ui to view the swagger.json file
             app.UseSwaggerUI(c =>
             {
-                foreach (var apiVersionDescription in _apiVersions)
+                foreach (var apiVersionDescription in ApiVersions)
                 {
                     //Create a swagger endpoint for each swagger version
                     c.SwaggerEndpoint($"{apiVersionDescription.GetFormattedApiVersion()}/swagger.json",
@@ -303,7 +346,7 @@ namespace RepairsApi
                 // SwaggerGen won't find controllers that are routed via this technique.
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
             });
+            app.UseSoapEndpoint<IDrsBackgroundService>("/Service.asmx", new BasicHttpsBinding(), SoapSerializer.XmlSerializer);
         }
     }
-
 }

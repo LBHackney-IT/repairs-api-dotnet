@@ -27,7 +27,7 @@ namespace RepairsApi.Tests.V2.UseCase
         [SetUp]
         public void Setup()
         {
-            configureGenerator();
+            ConfigureGenerator();
             _repairsMock = new MockRepairsGateway();
             _classUnderTest = new ListWorkOrdersUseCase(_repairsMock.Object, CreateFilterBuilder());
         }
@@ -37,8 +37,8 @@ namespace RepairsApi.Tests.V2.UseCase
             return new FilterBuilder<WorkOrderSearchParameters, WorkOrder>()
                 .AddFilter(
                     searchParams => searchParams.ContractorReference,
-                    contractorReference => !string.IsNullOrWhiteSpace(contractorReference),
-                    contractorReference => wo => wo.AssignedToPrimary.ContractorReference == contractorReference
+                    contractorReference => contractorReference?.Count > 0,
+                    contractorReference => wo => contractorReference.Contains(wo.AssignedToPrimary.ContractorReference)
                 )
                 .AddFilter(
                     searchParams => searchParams.PropertyReference,
@@ -49,10 +49,15 @@ namespace RepairsApi.Tests.V2.UseCase
                     searchParams => searchParams.StatusCode,
                     codes => codes?.All(code => code > 0 && Enum.IsDefined(typeof(WorkStatusCode), code)) ?? false,
                     codes => wo => codes.Select(c => Enum.Parse<WorkStatusCode>(c.ToString())).Contains(wo.StatusCode)
+                )
+                .AddFilter(
+                    searchParams => searchParams.Priorities,
+                    codes => codes?.Count > 0,
+                    codes => wo => wo.WorkPriority.PriorityCode.HasValue && codes.Contains(wo.WorkPriority.PriorityCode.Value)
                 );
         }
 
-        private void configureGenerator()
+        private void ConfigureGenerator()
         {
             _generator = new Generator<WorkOrder>()
                 .AddInfrastructureWorkOrderGenerators();
@@ -155,7 +160,7 @@ namespace RepairsApi.Tests.V2.UseCase
             };
             var statusOrder = new[] {
                 WorkOrderStatus.InProgress,
-                WorkOrderStatus.PendApp,
+                WorkOrderStatus.VariationPendingApproval,
                 WorkOrderStatus.Cancelled,
                 WorkOrderStatus.Complete,
                 WorkOrderStatus.Unknown

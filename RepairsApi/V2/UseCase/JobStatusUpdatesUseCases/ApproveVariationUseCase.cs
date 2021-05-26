@@ -1,10 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
 using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Notifications;
 using RepairsApi.V2.Services;
 using System;
 using System.Threading.Tasks;
-using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
 
 
 namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
@@ -13,36 +15,47 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
     {
         private readonly IRepairsGateway _repairsGateway;
         private readonly ICurrentUserService _currentUserService;
-        private readonly IMoreSpecificSorUseCase _specificSorUseCase;
+        private readonly IUpdateSorCodesUseCase _updateSorCodesUseCase;
+        private readonly INotifier _notifier;
+        private readonly IAuthorizationService _authorizationService;
         private readonly IJobStatusUpdateGateway _jobStatusUpdateGateway;
 
         public ApproveVariationUseCase(IRepairsGateway repairsGateway, IJobStatusUpdateGateway jobStatusUpdateGateway,
-            ICurrentUserService currentUserService, IMoreSpecificSorUseCase specificSorUseCase)
+            ICurrentUserService currentUserService, IUpdateSorCodesUseCase updateSorCodesUseCase, INotifier notifier, IAuthorizationService authorizationService)
         {
             _repairsGateway = repairsGateway;
             _currentUserService = currentUserService;
-            _specificSorUseCase = specificSorUseCase;
+            _updateSorCodesUseCase = updateSorCodesUseCase;
+            _notifier = notifier;
+            _authorizationService = authorizationService;
             _jobStatusUpdateGateway = jobStatusUpdateGateway;
         }
 
         public async Task Execute(JobStatusUpdate jobStatusUpdate)
         {
-            var workOrderId = int.Parse(jobStatusUpdate.RelatedWorkOrderReference.ID);
+            if (!_currentUserService.HasGroup(UserGroups.ContractManager)) throw new UnauthorizedAccessException(Resources.InvalidPermissions);
 
-            var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
+            WorkOrder workOrder = jobStatusUpdate.RelatedWorkOrder;
+            workOrder.VerifyCanApproveVariation();
 
-            if (!_currentUserService.HasGroup(UserGroups.CONTRACT_MANAGER))
-                throw new UnauthorizedAccessException("You do not have the correct permissions for this action");
+            var variationJobStatus = await _jobStatusUpdateGateway.GetOutstandingVariation(workOrder.Id);
 
-            var variationJobStatus = await _jobStatusUpdateGateway.SelectLastJobStatusUpdate
-                (Generated.JobStatusUpdateTypeCode._180, workOrderId);
+            var authorised = await _authorizationService.AuthorizeAsync(_currentUserService.GetUser(), variationJobStatus, "VarySpendLimit");
 
-            await _specificSorUseCase.Execute(variationJobStatus.MoreSpecificSORCode, workOrder);
+            if (!authorised.Succeeded) throw new UnauthorizedAccessException(Resources.VariationApprovalAboveSpendLimit);
+
+            await VaryWorkOrder(workOrder, variationJobStatus);
+
             jobStatusUpdate.Comments = $"{jobStatusUpdate.Comments} Approved By: {_currentUserService.GetHubUser().Name}";
 
-            workOrder.StatusCode = WorkStatusCode.VariationApproved;
+            await _notifier.Notify(new VariationApproved(variationJobStatus, jobStatusUpdate));
             await _repairsGateway.SaveChangesAsync();
         }
 
+        private async Task VaryWorkOrder(WorkOrder workOrder, Infrastructure.JobStatusUpdate variationJobStatus)
+        {
+            await _updateSorCodesUseCase.Execute(workOrder, variationJobStatus.MoreSpecificSORCode);
+            workOrder.StatusCode = WorkStatusCode.VariationApproved;
+        }
     }
 }
