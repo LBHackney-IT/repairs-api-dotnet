@@ -37,12 +37,32 @@ namespace RepairsApi.Tests.V2.Gateways
             _apiGatewayMock.Setup(gw => gw.ExecuteRequest<PropertyApiResponse>(It.IsAny<string>(), It.IsAny<Uri>())).ReturnsAsync(stubData);
 
             // Act
-            SeedCompany();
             var result = await _classUnderTest.GetByReferenceAsync("");
 
             // Assert
             result.Address.ShortAddress.Should().Be(stubData.Content.Address1);
             result.TmoName.Should().Be(null);
+        }
+
+        [Test]
+        [TestCase("001", "TMO Name1")]
+        [TestCase("002", "TMO Name2")]
+        [TestCase("003", "TMO Name3")]
+        public async Task SendsRequestByIdAndGetsTMOName(string comp, string name)
+        {
+            // Arrange
+            var stubData = BuildResponse(StubPropertyApiResponse().Generate());
+            stubData.Content.CompAvail = comp;
+            _apiGatewayMock.Setup(gw => gw.ExecuteRequest<PropertyApiResponse>(It.IsAny<string>(), It.IsAny<Uri>())).ReturnsAsync(stubData);
+           
+
+            // Act
+            SeedCompany();
+            var result = await _classUnderTest.GetByReferenceAsync("");
+
+            // Assert
+            result.Address.ShortAddress.Should().Be(stubData.Content.Address1);
+            result.TmoName.Should().Be(name);
         }
 
         [Test]
