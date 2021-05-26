@@ -1,20 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers;
-using RepairsApi.Tests.V2.Gateways;
 using RepairsApi.V2;
 using RepairsApi.V2.Authorisation;
-using RepairsApi.V2.Boundary.Response;
-using RepairsApi.V2.Generated;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Notifications;
 using RepairsApi.V2.UseCase.JobStatusUpdatesUseCases;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using JobStatusUpdate = RepairsApi.V2.Infrastructure.JobStatusUpdate;
 
 namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
@@ -47,8 +43,8 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             );
         }
 
-        private static IEnumerable<WorkStatusCode> _testCodes = Enum.GetValues(typeof(WorkStatusCode)).Cast<WorkStatusCode>()
-            .Where(c => c != WorkStatusCode.PendingApproval);
+        private static List<WorkStatusCode> _testCodes = Enum.GetValues(typeof(WorkStatusCode)).Cast<WorkStatusCode>()
+            .Where(c => c != WorkStatusCode.PendingApproval).ToList();
         [Test, TestCaseSource(nameof(_testCodes))]
         public async Task ThrowsNotSupportedWhenWoInWrongState(WorkStatusCode status)
         {
@@ -62,7 +58,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
                 .Which.Message.Should().Be(Resources.WorkOrderNotPendingApproval);
         }
 
-        private static IEnumerable<string> _testGroups = EnumerationHelper.GetStaticValues(typeof(UserGroups), UserGroups.AuthorisationManager);
+        private static string[] _testGroups = EnumerationHelper.GetStaticValues(typeof(UserGroups), UserGroups.AuthorisationManager);
         [Test, TestCaseSource(nameof(_testGroups))]
         public async Task ThrowsUnauthorizedWhenUserNotInGroup(string userGroup)
         {

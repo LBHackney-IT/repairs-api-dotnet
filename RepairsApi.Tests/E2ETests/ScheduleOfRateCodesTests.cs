@@ -126,7 +126,7 @@ namespace RepairsApi.Tests.E2ETests
         {
             await AuthorisationHelper.VerifyContractorUnauthorised(
                 CreateClient(),
-                GetGroups(TestDataSeeder.Contractor),
+                GetGroup(TestDataSeeder.Contractor),
                 async client =>
                 {
                     return await client.GetAsync(new Uri(test, UriKind.Relative));

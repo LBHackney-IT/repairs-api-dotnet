@@ -133,7 +133,7 @@ namespace RepairsApi.Tests
             return new ScopedContext(Services);
         }
 
-        protected string[] GetGroup(string contractor)
+        protected string GetGroup(string contractor)
         {
             using var ctx = GetContext();
             return ctx.DB.SecurityGroups.Where(sg => sg.ContractorReference == contractor).Select(sg => sg.GroupName).First();
