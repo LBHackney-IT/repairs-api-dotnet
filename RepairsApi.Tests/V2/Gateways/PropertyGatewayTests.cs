@@ -37,6 +37,7 @@ namespace RepairsApi.Tests.V2.Gateways
             _apiGatewayMock.Setup(gw => gw.ExecuteRequest<PropertyApiResponse>(It.IsAny<string>(), It.IsAny<Uri>())).ReturnsAsync(stubData);
 
             // Act
+            SeedCompany();
             var result = await _classUnderTest.GetByReferenceAsync("");
 
             // Assert
@@ -73,6 +74,23 @@ namespace RepairsApi.Tests.V2.Gateways
 
             // Assert
             await actFunction.Should().ThrowAsync<ResourceNotFoundException>();
+        }
+
+        private static void SeedCompany()
+        {
+            InMemoryDb.Instance.Company.AddRange(new List<Company>
+            {
+                new Company {CoCode = "001", CompAvail = "001", Description = "TMO Address1", Name = "TMO Name1" },
+                new Company {CoCode = "002", CompAvail = "002", Description = "TMO Address2", Name = "TMO Name2" },
+                new Company {CoCode = "003", CompAvail = "003", Description = "TMO Address3", Name = "TMO Name3" },
+            });
+            InMemoryDb.Instance.SaveChanges();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            InMemoryDb.Teardown();
         }
 
         private static ApiResponse<T> BuildResponse<T>(T content) where T : class
