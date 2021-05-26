@@ -47,6 +47,9 @@ using SoapCore;
 using V2_Generated_DRS;
 using BackgroundService = Microsoft.Extensions.Hosting.BackgroundService;
 using RepairsApi.V2.Notifications;
+using RepairsApi.V2.Email;
+using Notify.Interfaces;
+using Notify.Client;
 
 namespace RepairsApi
 {
@@ -189,6 +192,7 @@ namespace RepairsApi
             services.Configure<DrsOptions>(Configuration.GetSection(nameof(DrsOptions)));
             services.Configure<FilterConfiguration>(Configuration.GetSection(nameof(FilterConfiguration)));
             services.Configure<NotifyOptions>(Configuration.GetSection(nameof(NotifyOptions)));
+            services.Configure<EmailOptions>(Configuration.GetSection(nameof(EmailOptions)));
 
             RegisterGateways(services);
             RegisterUseCases(services);
@@ -202,13 +206,22 @@ namespace RepairsApi
             services.AddScoped<ICurrentUserLoader>(sp => sp.GetService<CurrentUserService>());
             services.AddTransient<ITransactionManager, TransactionManager>();
             services.AddSingleton<IAuthenticationService, ChallengeOnlyAuthenticationService>();
-            services.AddTransient<IGovUKNotifyWrapper, GovUKNotifyWrapper>();
+            AddEmailService(services);
             services.AddFeatureManagement();
             services.AddFilteringConfig();
             ConfigureDRSSoap(services);
             services.AddTransient(typeof(Lazy<>), typeof(LazyWrapper<>));
 
             AddNotificationHandlers(services);
+        }
+
+        private void AddEmailService(IServiceCollection services)
+        {
+            NotifyOptions options = new NotifyOptions();
+            Configuration.Bind(nameof(NotifyOptions), options);
+
+            services.AddTransient<IEmailService, GovUKNotifyService>();
+            services.AddTransient<IAsyncNotificationClient>(sp => new NotificationClient(options.ApiKey));
         }
 
         private static void ConfigureDRSSoap(IServiceCollection services)
@@ -239,6 +252,7 @@ namespace RepairsApi
             services.AddTransient<ISorPriorityGateway, SorPriorityGateway>();
             services.AddTransient<IAppointmentsGateway, AppointmentGateway>();
             services.AddTransient<IGroupsGateway, GroupsGateway>();
+            services.AddTransient<IOperativesGateway, OperativesGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
@@ -260,6 +274,9 @@ namespace RepairsApi
             services.AddTransient<ICreateAppointmentUseCase, CreateAppointmentUseCase>();
             services.AddTransient<IListVariationTasksUseCase, ListVariationTasksUseCase>();
             services.AddTransient<IGetFilterUseCase, GetFilterUseCase>();
+            services.AddTransient<IListOperativesUseCase, ListOperativesUseCase>();
+            services.AddTransient<IGetOperativeUseCase, GetOperativeUseCase>();
+            services.AddTransient<IDeleteOperativeUseCase, DeleteOperativeUseCase>();
         }
 
         private void AddHttpClients(IServiceCollection services)

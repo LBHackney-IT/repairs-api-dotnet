@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using RepairsApi.V2.Infrastructure.Hackney;
 
 namespace RepairsApi.V2.Infrastructure
@@ -30,6 +31,7 @@ namespace RepairsApi.V2.Infrastructure
         public DbSet<Hackney.Appointment> Appointments { get; set; }
         public DbSet<SecurityGroup> SecurityGroups { get; set; }
         public DbSet<Company> Company { get; set; }
+        public DbSet<Operative> Operatives { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -132,6 +134,19 @@ namespace RepairsApi.V2.Infrastructure
                         });
                     });
 
+            modelBuilder.Entity<Operative>()
+                .HasQueryFilter(operative => EF.Property<bool>(operative, "IsArchived") == false);
+        }
+
+        public override EntityEntry<TEntity> Remove<TEntity>(TEntity entity)
+        {
+            if (entity is IArchivable archivable)
+            {
+                archivable.IsArchived = true;
+                return base.Update(entity);
+            }
+
+            return base.Remove(entity);
         }
     }
 }

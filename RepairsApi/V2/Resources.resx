@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!--
-    Microsoft ResX Schema
-
+  <!-- 
+    Microsoft ResX Schema 
+    
     Version 2.0
-
-    The primary goals of this format is to allow a simple XML format
-    that is mostly human readable. The generation and parsing of the
-    various data types are done through the TypeConverter classes
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
     associated with the data types.
-
+    
     Example:
-
+    
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-
-    There are any number of "resheader" rows that contain simple
+                
+    There are any number of "resheader" rows that contain simple 
     name/value pairs.
-
-    Each data row contains a name, and value. The row also contains a
-    type or mimetype. Type corresponds to a .NET class that support
-    text/value conversion through the TypeConverter architecture.
-    Classes that don't support this are serialized and stored with the
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
     mimetype set.
-
-    The mimetype is used for serialized objects, and tells the
-    ResXResourceReader how to depersist the object. This is currently not
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
     extensible. For a given mimetype the value must be set accordingly:
-
-    Note - application/x-microsoft.net.object.binary.base64 is the format
-    that the ResXResourceWriter will generate, however the reader can
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
     read any of the formats listed below.
-
+    
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-
+    
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array
+    value   : The object must be serialized into a byte array 
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -160,31 +160,70 @@
     <value>You do not have the correct permissions for this action</value>
   </data>
   <data name="WorkOrderNotPendingApproval" xml:space="preserve">
-      <value>Work order is not pending approval</value>
+    <value>Work order is not pending approval</value>
   </data>
   <data name="RejectedVariationPrepend" xml:space="preserve">
-      <value>Variation rejected: </value>
+    <value>Variation rejected: </value>
   </data>
   <data name="WorkOrderAuthorisationRejected" xml:space="preserve">
-      <value>Authorisation rejected: </value>
+    <value>Authorisation rejected: </value>
   </data>
   <data name="VariationReason" xml:space="preserve">
-      <value>Variation reason: </value>
+    <value>Variation reason: </value>
   </data>
   <data name="UnsupportedWorkOrderUpdate" xml:space="preserve">
-      <value>Unsupported work order complete job status update code</value>
+    <value>Unsupported work order complete job status update code</value>
   </data>
   <data name="NotAuthorisedToClose" xml:space="preserve">
-      <value>Not Authorised to close jobs</value>
+    <value>Not Authorised to close jobs</value>
   </data>
   <data name="NotAuthorisedToCancel" xml:space="preserve">
-      <value>Not Authorised to cancel jobs</value>
+    <value>Not Authorised to cancel jobs</value>
   </data>
   <data name="CannotResumeJob" xml:space="preserve">
-      <value>Cannot Resume Job</value>
+    <value>Cannot Resume Job</value>
   </data>
   <data name="WorkOrderNotScheduled" xml:space="preserve">
-      <value>Work order is not scheduled</value>
+    <value>Work order is not scheduled</value>
+  </data>
+  <data name="EmailFailed" xml:space="preserve">
+    <value>[EmailError] Failed to send Email with error {message}</value>
+  </data>
+  <data name="FoundProperties" xml:space="preserve">
+    <value>Found {count} properties</value>
+  </data>
+  <data name="ListingProperties" xml:space="preserve">
+    <value>Listing properties</value>
+  </data>
+  <data name="ResolveTemplateError" xml:space="preserve">
+    <value>[EmailError] Could not resolve template for email {requestName}</value>
+  </data>
+  <data name="SendingHighCostVariationApproval" xml:space="preserve">
+    <value>Sending Mail for approval of high cost variation on work order {WorkOrderId}</value>
+  </data>
+  <data name="SendingHighCostVariationCreation" xml:space="preserve">
+    <value>Sending Mail for raising of high cost variation on work order {WorkOrderId}</value>
+  </data>
+  <data name="SendingHighCostVariationRejection" xml:space="preserve">
+    <value>Sending Mail for rejection of high cost variation on work order {WorkOrderId}</value>
+  </data>
+  <data name="SendingHighCostWorkOrderApproval" xml:space="preserve">
+    <value>Sending Mail for approval of high cost work order {WorkOrderId}</value>
+  </data>
+  <data name="SendingHighCostWorkOrderCreation" xml:space="preserve">
+    <value>Sending Mail for creation of high cost work order {WorkOrderId}</value>
+  </data>
+  <data name="SendingHighCostWorkOrderRejection" xml:space="preserve">
+    <value>Sending Mail for rejection of high cost work order {WorkOrderId}</value>
+  </data>
+  <data name="SuccessfullySentEmail" xml:space="preserve">
+    <value>Successfully Sent Email {requestName}</value>
+  </data>
+  <data name="VariationApprovalAboveSpendLimit" xml:space="preserve">
+    <value>Cannot Approve a Variation Above Spend Limit</value>
+  </data>
+  <data name="WorkOrderApprovalAboveSpendLimit" xml:space="preserve">
+    <value>Cannot Approve a Work Order Above Spend Limit</value>
   </data>
   <data name="CannotCompleteWorkOrderTwice" xml:space="preserve">
       <value>Cannot complete a work order twice</value>

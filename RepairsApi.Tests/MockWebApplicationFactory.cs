@@ -22,6 +22,10 @@ using V2_Generated_DRS;
 using RepairsApi.Tests.Helpers;
 using NUnit.Framework;
 using RepairsApi.V2.Services;
+using Notify.Interfaces;
+using Microsoft.Extensions.Logging;
+using FluentAssertions;
+using System.Collections.Generic;
 
 namespace RepairsApi.Tests
 {
@@ -36,8 +40,11 @@ namespace RepairsApi.Tests
         private readonly SoapMock _soapMock = new SoapMock();
         protected SoapMock SoapMock => _soapMock;
 
-        private readonly MockGovUKNotifyWrapper _govUkNotifyMock = new MockGovUKNotifyWrapper();
-        protected MockGovUKNotifyWrapper NotifyMock => _govUkNotifyMock;
+        private readonly NotifyWrapper _notifyMock = new NotifyWrapper();
+        protected NotifyWrapper NotifyMock => _notifyMock;
+
+        private readonly LogAggregator _log = new LogAggregator();
+        protected LogAggregator Logs => _log;
 
         public MockWebApplicationFactory(string connection)
         {
@@ -82,9 +89,12 @@ namespace RepairsApi.Tests
                 services.RemoveAll<IApiGateway>();
                 services.AddTransient<IApiGateway, MockApiGateway>();
                 services.RemoveAll<SOAP>();
-                services.RemoveAll<IGovUKNotifyWrapper>();
-                services.AddTransient<IGovUKNotifyWrapper>(sp => _govUkNotifyMock);
+                services.RemoveAll<IAsyncNotificationClient>();
+                services.AddTransient(sp => _notifyMock.Object);
                 services.AddTransient(sp => _soapMock.Object);
+                services.RemoveAll(typeof(ILogger<>));
+                services.AddTransient(typeof(ILogger<>), typeof(MockLogger<>));
+                services.AddSingleton(_log);
             })
             .UseEnvironment("IntegrationTests");
         }
@@ -96,8 +106,8 @@ namespace RepairsApi.Tests
             switch (_userGroup)
             {
                 case UserGroups.Agent: client.SetAgent(); break;
-                case UserGroups.Contractor: client.SetGroup(GetGroup(TestDataSeeder.Contractor)); break;
-                default: client.SetGroup(_userGroup); break;
+                case UserGroups.Contractor: client.SetGroups(GetGroup(TestDataSeeder.Contractor)); break;
+                default: client.SetGroups(_userGroup); break;
             }
         }
 
@@ -126,7 +136,7 @@ namespace RepairsApi.Tests
         protected string GetGroup(string contractor)
         {
             using var ctx = GetContext();
-            return ctx.DB.SecurityGroups.Where(sg => sg.ContractorReference == contractor).Select(sg => sg.GroupName).Single();
+            return ctx.DB.SecurityGroups.Where(sg => sg.ContractorReference == contractor).Select(sg => sg.GroupName).First();
         }
 
         public async Task<(HttpStatusCode statusCode, TResponse response)> Get<TResponse>(string uri)
@@ -192,6 +202,11 @@ namespace RepairsApi.Tests
         {
             HttpResponseMessage result = await InternalPost(uri, data);
             return result.StatusCode;
+        }
+
+        protected void VerifyEmailSent(string templateId, string recipient = null)
+        {
+            NotifyMock.LastEmail.Should().Match<EmailRecord>(r => r.TemplateId == templateId && (recipient == null || recipient == r.Email));
         }
     }
 

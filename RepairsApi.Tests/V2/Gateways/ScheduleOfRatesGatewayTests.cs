@@ -193,6 +193,38 @@ namespace RepairsApi.Tests.V2.Gateways
             await GetAndValidateCodes(expectedProperty, expectedTrade, contractorReference, expectedCodes);
         }
 
+        [Test]
+        public async Task GetContractManagerEmail()
+        {
+            const string ExpectedEmail = "email@email.email";
+            const string Reference = "reference";
+            InMemoryDb.Instance.Contractors.Add(new Contractor
+            {
+                Reference = Reference,
+                Name = "contractor",
+                ContractManagerEmail = ExpectedEmail
+            });
+            await InMemoryDb.Instance.SaveChangesAsync();
+            var email = await _classUnderTest.GetContractManagerEmail(Reference);
+
+            email.Should().Be(ExpectedEmail);
+        }
+
+        [Test]
+        public async Task GetContractManagerEmailIsEmptyWhenNotSet()
+        {
+            const string Reference = "reference";
+            InMemoryDb.Instance.Contractors.Add(new Contractor
+            {
+                Reference = Reference,
+                Name = "contractor"
+            });
+            await InMemoryDb.Instance.SaveChangesAsync();
+            var email = await _classUnderTest.GetContractManagerEmail(Reference);
+
+            email.Should().BeNull();
+        }
+
         private static async Task SeedContractor(string contractorReference)
         {
             InMemoryDb.Instance.Contractors.Add(new Contractor

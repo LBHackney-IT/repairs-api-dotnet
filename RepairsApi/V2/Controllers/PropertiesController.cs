@@ -61,11 +61,11 @@ namespace RepairsApi.V2.Controllers
                 Query = q
             };
 
-            _logger.LogInformation("Listing properties");
+            _logger.LogInformation(Resources.ListingProperties);
             var properties = await _listPropertiesUseCase.ExecuteAsync(searchModel);
 
             List<PropertyListItem> response = properties.ToResponse();
-            _logger.LogInformation("Found {count} properties", response.Count);
+            _logger.LogInformation(Resources.FoundProperties, response.Count);
             return Ok(response);
         }
 
