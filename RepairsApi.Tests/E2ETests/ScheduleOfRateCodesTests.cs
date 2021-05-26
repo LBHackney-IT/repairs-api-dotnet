@@ -90,7 +90,7 @@ namespace RepairsApi.Tests.E2ETests
         public async Task GetCode()
         {
             var client = CreateClient();
-            client.SetGroup(GetGroup(TestDataSeeder.Contractor));
+            client.SetGroups(GetGroups(TestDataSeeder.Contractor));
 
             var propRef = TestDataSeeder.PropRef;
             var contractorRef = TestDataSeeder.Contractor;
@@ -110,7 +110,7 @@ namespace RepairsApi.Tests.E2ETests
         public async Task GetCode404()
         {
             var client = CreateClient();
-            client.SetGroup(GetGroup(TestDataSeeder.Contractor));
+            client.SetGroups(GetGroups(TestDataSeeder.Contractor));
 
             var propRef = TestDataSeeder.PropRef;
             var contractorRef = TestDataSeeder.Contractor;
@@ -126,7 +126,7 @@ namespace RepairsApi.Tests.E2ETests
         {
             await AuthorisationHelper.VerifyContractorUnauthorised(
                 CreateClient(),
-                GetGroup(TestDataSeeder.Contractor),
+                GetGroups(TestDataSeeder.Contractor),
                 async client =>
                 {
                     return await client.GetAsync(new Uri(test, UriKind.Relative));

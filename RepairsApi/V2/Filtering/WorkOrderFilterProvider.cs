@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Options;
 using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Configuration;
-using RepairsApi.V2.Filtering;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Services;
 using System.Collections.Generic;
@@ -41,11 +40,18 @@ namespace RepairsApi.V2.Filtering
 
         private async Task<List<FilterOption>> GetContractors()
         {
-            if (!_currentUserService.HasAnyGroup(UserGroups.Agent, UserGroups.AuthorisationManager, UserGroups.ContractManager))
-                return new List<FilterOption>();
-
             var liveContractors = await _scheduleOfRatesGateway.GetLiveContractors();
-            return new List<FilterOption>(liveContractors.Select(c => new FilterOption { Key = c.ContractorReference, Description = c.ContractorName }));
+            var filterOptions = new List<FilterOption>(liveContractors.Select(c => new FilterOption { Key = c.ContractorReference, Description = c.ContractorName }));
+
+            if (!_currentUserService.HasAnyGroup(UserGroups.Agent, UserGroups.AuthorisationManager, UserGroups.ContractManager))
+            {
+                var user = _currentUserService.GetUser();
+                var groups = user.Contractors();
+
+                return filterOptions.Where(fo => groups.Contains(fo.Key)).ToList();
+            }
+
+            return filterOptions;
         }
     }
 }

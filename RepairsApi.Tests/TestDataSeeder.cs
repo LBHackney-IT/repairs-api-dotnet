@@ -16,13 +16,14 @@ namespace RepairsApi.Tests
         public const string DRSContractReference = "DRScontract";
         public const string SorCode = "code";
         public const string PropRef = "propref";
-        public const string Contractor = "contractor";
-        public const string Contractor_ContractManagerEmail = "contractor";
+        public const string Contractor = "test_contractor";
+        public const string Contractor_ContractManagerEmail = "contractor_email";
         public const string DRSContractor = "DRScontractor";
-        public const string Agent = "agent";
+        public const string Agent = "test_agent";
         public const string Trade = "trade";
         public const string Priority = "priority";
         public const string ContractManager_Limit1000 = "ContractManager_Limit1000";
+        public const string MultiContractor = "MultiContractor";
         public const string AuthorisationManager_Limit1000 = "AuthorisationManager_Limit1000";
         private const int PriorityId = 1;
         private static readonly object _lockObj = new object();
@@ -76,14 +77,17 @@ namespace RepairsApi.Tests
         {
             ctx.SecurityGroups.AddRange(new List<SecurityGroup>
             {
-                new SecurityGroup { GroupName = UserGroups.Agent, UserType = UserGroups.Agent },
+                new SecurityGroup { GroupName = Agent, UserType = UserGroups.Agent },
                 new SecurityGroup { GroupName = UserGroups.ContractManager, UserType = UserGroups.ContractManager, VaryLimit = 10000000000 },
                 new SecurityGroup { GroupName = ContractManager_Limit1000, UserType = UserGroups.ContractManager, VaryLimit = 1000 },
-                new SecurityGroup { GroupName = UserGroups.Contractor, UserType = UserGroups.Contractor, ContractorReference = "contractor" },
+                new SecurityGroup { GroupName = Contractor, UserType = UserGroups.Contractor, ContractorReference = Contractor },
                 new SecurityGroup { GroupName = DRSContractor, UserType = UserGroups.Contractor, ContractorReference = DRSContractor },
                 new SecurityGroup { GroupName = UserGroups.AuthorisationManager, UserType = UserGroups.AuthorisationManager, RaiseLimit = 10000000000 },
                 new SecurityGroup { GroupName = AuthorisationManager_Limit1000, UserType = UserGroups.AuthorisationManager, RaiseLimit = 1000 },
                 new SecurityGroup { GroupName = UserGroups.AuthorisationManager, UserType = UserGroups.Agent },
+
+                new SecurityGroup { GroupName = MultiContractor, UserType = UserGroups.Contractor, ContractorReference = DRSContractor },
+                new SecurityGroup { GroupName = MultiContractor, UserType = UserGroups.Contractor, ContractorReference = Contractor },
 
                 new SecurityGroup { GroupName = "raise50", RaiseLimit = 50 },
                 new SecurityGroup { GroupName = "raise100", RaiseLimit = 100 },

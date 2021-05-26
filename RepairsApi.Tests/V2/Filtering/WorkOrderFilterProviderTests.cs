@@ -45,24 +45,24 @@ namespace RepairsApi.Tests.V2.Filtering
             ValidateFilterSection(result, FilterSectionConstants.Trades, TradeCode, TradeName);
         }
 
-        [Test]
-        public async Task NoContractorFilterForContractors()
-        {
-            const string ModelName = FilterConstants.WorkOrder;
+        //[Test]
+        //public async Task NoContractorFilterForContractors()
+        //{
+        //    const string ModelName = FilterConstants.WorkOrder;
 
-            var mockCurrentUserService = new CurrentUserServiceMock();
-            mockCurrentUserService.SetSecurityGroup(UserGroups.Contractor);
+        //    var mockCurrentUserService = new CurrentUserServiceMock();
+        //    mockCurrentUserService.SetSecurityGroup(UserGroups.Contractor);
 
-            var mockScheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
+        //    var mockScheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
 
-            var filter = new FilterConfigurationBuilder().AddModel(ModelName, b => { }).Build();
-            var sut = new WorkOrderFilterProvider(Options.Create(filter), mockScheduleOfRatesGateway.Object, mockCurrentUserService.Object);
+        //    var filter = new FilterConfigurationBuilder().AddModel(ModelName, b => { }).Build();
+        //    var sut = new WorkOrderFilterProvider(Options.Create(filter), mockScheduleOfRatesGateway.Object, mockCurrentUserService.Object);
 
-            var result = await sut.GetFilter();
+        //    var result = await sut.GetFilter();
 
-            result.Should().ContainKey(FilterSectionConstants.Contractors);
-            result[FilterSectionConstants.Contractors].Should().BeEmpty();
-        }
+        //    result.Should().ContainKey(FilterSectionConstants.Contractors);
+        //    result[FilterSectionConstants.Contractors].Should().BeEmpty();
+        //}
 
         private static void ValidateFilterSection(ModelFilterConfiguration result, string filterName, string filterOptionKey, string filterOptionValue)
         {

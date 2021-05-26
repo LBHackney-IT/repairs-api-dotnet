@@ -57,19 +57,20 @@ namespace RepairsApi.Tests
             });
         }
 
-        public static void SetGroup(this HttpClient client, string group)
+        public static void SetGroups(this HttpClient client, params string[] groups)
         {
+            var googleGroups = new List<string>(groups)
+            {
+                "raise50",
+                "vary50"
+            };
+
             client.SetUser(new RepairsApi.V2.Domain.User
             {
                 Sub = TestUserInformation.Sub,
                 Name = TestUserInformation.Name,
                 Email = TestUserInformation.Email,
-                Groups = new List<string>()
-                {
-                    group,
-                    "raise50",
-                    "vary50"
-                }
+                Groups = googleGroups
             });
         }
     }
