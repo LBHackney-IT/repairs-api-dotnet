@@ -18,6 +18,15 @@ provider:
   tracing:
     lambda: true
     apiGateway: true
+  resourcePolicy:
+    - Effect: Deny
+      Principal: "*"
+      Action: execute-api:Invoke
+      Resource:
+        - ${ssm:/${self:service}/${self:provider.stage}/drs-receiver-arn}
+      Condition:
+        NotIpAddress:
+          aws:SourceIp: ${ssm:/${self:service}/${self:provider.stage}/drs-receiver-allow-ips~split}
 
 package:
   artifact: ./bin/release/netcoreapp3.1/repairs-api.zip
