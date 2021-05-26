@@ -18,7 +18,7 @@ namespace RepairsApi.Tests.Helpers
 
         public static async Task VerifyContractorUnauthorised(HttpClient client, string group, Func<HttpClient, Task<HttpResponseMessage>> request)
         {
-            client.SetGroup(group);
+            client.SetGroups(group);
             var response = await request(client);
 
             response.StatusCode.Should().Be(401);
