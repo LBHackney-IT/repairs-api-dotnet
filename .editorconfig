@@ -153,5 +153,3 @@ dotnet_diagnostic.CA1707.severity = none
 # CA1308: Normalize strings to uppercase
 dotnet_diagnostic.CA1308.severity = none
 
-# CS8602: Dereference of a possibly null reference
-dotnet_diagnostic.CS8602.severity = none

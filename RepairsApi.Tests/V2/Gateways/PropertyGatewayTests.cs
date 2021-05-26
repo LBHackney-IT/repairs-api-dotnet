@@ -54,7 +54,7 @@ namespace RepairsApi.Tests.V2.Gateways
             var stubData = BuildResponse(StubPropertyApiResponse().Generate());
             stubData.Content.CompAvail = comp;
             _apiGatewayMock.Setup(gw => gw.ExecuteRequest<PropertyApiResponse>(It.IsAny<string>(), It.IsAny<Uri>())).ReturnsAsync(stubData);
-           
+
 
             // Act
             SeedCompany();
