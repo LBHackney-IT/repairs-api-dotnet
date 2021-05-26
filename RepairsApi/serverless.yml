@@ -66,6 +66,9 @@ functions:
           path: /{proxy+}
           method: ANY
           private: true
+      - http:
+          path: /Service.asmx
+          method: ANY
 resources:
   Resources:
     lambdaExecutionRole:
