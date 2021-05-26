@@ -106,7 +106,7 @@ namespace RepairsApi.Tests
             switch (_userGroup)
             {
                 case UserGroups.Agent: client.SetAgent(); break;
-                case UserGroups.Contractor: client.SetGroups(GetGroups(TestDataSeeder.Contractor).ToArray()); break;
+                case UserGroups.Contractor: client.SetGroups(GetGroup(TestDataSeeder.Contractor)); break;
                 default: client.SetGroups(_userGroup); break;
             }
         }
@@ -133,10 +133,10 @@ namespace RepairsApi.Tests
             return new ScopedContext(Services);
         }
 
-        protected string[] GetGroups(string contractor)
+        protected string[] GetGroup(string contractor)
         {
             using var ctx = GetContext();
-            return ctx.DB.SecurityGroups.Where(sg => sg.ContractorReference == contractor).Select(sg => sg.GroupName).ToArray();
+            return ctx.DB.SecurityGroups.Where(sg => sg.ContractorReference == contractor).Select(sg => sg.GroupName).First();
         }
 
         public async Task<(HttpStatusCode statusCode, TResponse response)> Get<TResponse>(string uri)

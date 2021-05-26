@@ -27,50 +27,26 @@ namespace RepairsApi.Tests
 
         public static void SetAgent(this HttpClient client)
         {
-            client.SetUser(new RepairsApi.V2.Domain.User
-            {
-                Sub = TestUserInformation.Sub,
-                Name = TestUserInformation.Name,
-                Email = TestUserInformation.Email,
-                Groups = new List<string>()
-                {
-                    "agent",
-                    "raise50",
-                    "vary50"
-                }
-            });
+            client.SetGroups("agent");
         }
 
         public static void SetAgent(this HttpClient client, string raiseLimit, string varyLimit)
         {
-            client.SetUser(new RepairsApi.V2.Domain.User
-            {
-                Sub = TestUserInformation.Sub,
-                Name = TestUserInformation.Name,
-                Email = TestUserInformation.Email,
-                Groups = new List<string>()
-                {
-                    "agent",
-                    raiseLimit,
-                    varyLimit
-                }
-            });
+            client.SetGroups("agent", raiseLimit, varyLimit);
         }
 
         public static void SetGroups(this HttpClient client, params string[] groups)
         {
-            var googleGroups = new List<string>(groups)
-            {
-                "raise50",
-                "vary50"
-            };
-
-            client.SetUser(new RepairsApi.V2.Domain.User
+            client.SetUser(new User
             {
                 Sub = TestUserInformation.Sub,
                 Name = TestUserInformation.Name,
                 Email = TestUserInformation.Email,
-                Groups = googleGroups
+                Groups = new List<string>(groups)
+                {
+                    "raise50",
+                    "vary50"
+                }
             });
         }
     }
