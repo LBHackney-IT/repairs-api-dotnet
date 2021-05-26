@@ -45,8 +45,7 @@ namespace RepairsApi.V2.Filtering
 
             if (!_currentUserService.HasAnyGroup(UserGroups.Agent, UserGroups.AuthorisationManager, UserGroups.ContractManager))
             {
-                var user = _currentUserService.GetUser();
-                var groups = user.Contractors();
+                var groups = _currentUserService.GetContractors();
 
                 return filterOptions.Where(fo => groups.Contains(fo.Key)).ToList();
             }

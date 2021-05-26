@@ -28,13 +28,13 @@ namespace RepairsApi.Tests.E2ETests
         [Test]
         public async Task GetUserContractorFilters()
         {
-            SetUserRole(TestDataSeeder.Contractor);
+            SetUserRole(TestDataSeeder.DRSContractor);
             var (code, result) = await Get<Dictionary<string, List<FilterOption>>>("/api/v2/filter/WorkOrder");
 
             code.Should().Be(HttpStatusCode.OK);
             result.Should().NotBeEmpty();
             result[FilterSectionConstants.Contractors].Should().HaveCount(1);
-            result[FilterSectionConstants.Contractors].Should().ContainSingle(fo => fo.Key == UserGroups.Contractor && fo.Description == UserGroups.Contractor);
+            result[FilterSectionConstants.Contractors].Should().ContainSingle(fo => fo.Key == TestDataSeeder.DRSContractor && fo.Description == TestDataSeeder.DRSContractor);
         }
     }
 }

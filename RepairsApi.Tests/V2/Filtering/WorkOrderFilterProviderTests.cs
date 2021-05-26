@@ -12,6 +12,9 @@ using RepairsApi.V2.Services;
 using System.Threading.Tasks;
 using RepairsApi.V2.Helpers;
 using SorCodeTrade = RepairsApi.V2.Infrastructure.Hackney.SorCodeTrade;
+using System.Collections.Generic;
+using System;
+using System.Linq;
 
 namespace RepairsApi.Tests.V2.Filtering
 {
@@ -45,24 +48,33 @@ namespace RepairsApi.Tests.V2.Filtering
             ValidateFilterSection(result, FilterSectionConstants.Trades, TradeCode, TradeName);
         }
 
-        //[Test]
-        //public async Task NoContractorFilterForContractors()
-        //{
-        //    const string ModelName = FilterConstants.WorkOrder;
+        [Test]
+        public async Task RestrictedContractorFilterForContractors()
+        {
+            const string ModelName = FilterConstants.WorkOrder;
 
-        //    var mockCurrentUserService = new CurrentUserServiceMock();
-        //    mockCurrentUserService.SetSecurityGroup(UserGroups.Contractor);
+            var mockCurrentUserService = new CurrentUserServiceMock();
+            mockCurrentUserService.SetSecurityGroup(UserGroups.Contractor);
+            mockCurrentUserService.SetContractor("c1", "c2", "c3");
 
-        //    var mockScheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
+            var mockScheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
+            mockScheduleOfRatesGateway.Setup(m => m.GetLiveContractors()).ReturnsAsync(BuildContractors("c1", "c3", "c4"));
 
-        //    var filter = new FilterConfigurationBuilder().AddModel(ModelName, b => { }).Build();
-        //    var sut = new WorkOrderFilterProvider(Options.Create(filter), mockScheduleOfRatesGateway.Object, mockCurrentUserService.Object);
+            var filter = new FilterConfigurationBuilder().AddModel(ModelName, b => { }).Build();
+            var sut = new WorkOrderFilterProvider(Options.Create(filter), mockScheduleOfRatesGateway.Object, mockCurrentUserService.Object);
 
-        //    var result = await sut.GetFilter();
+            var result = await sut.GetFilter();
 
-        //    result.Should().ContainKey(FilterSectionConstants.Contractors);
-        //    result[FilterSectionConstants.Contractors].Should().BeEmpty();
-        //}
+            result.Should().ContainKey(FilterSectionConstants.Contractors);
+            result[FilterSectionConstants.Contractors].Should().HaveCount(2);
+            result[FilterSectionConstants.Contractors].Should().ContainSingle(c => c.Key == "c1" && c.Description == "c1");
+            result[FilterSectionConstants.Contractors].Should().ContainSingle(c => c.Key == "c3" && c.Description == "c3");
+        }
+
+        private static IEnumerable<Contractor> BuildContractors(params string[] groups)
+        {
+            return groups.Select(g => new Contractor { ContractorName = g, ContractorReference = g });
+        }
 
         private static void ValidateFilterSection(ModelFilterConfiguration result, string filterName, string filterOptionKey, string filterOptionValue)
         {
