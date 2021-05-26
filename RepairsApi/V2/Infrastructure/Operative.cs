@@ -9,6 +9,9 @@ namespace RepairsApi.V2.Infrastructure
         public virtual Person Person { get; set; }
         public virtual List<Trade> Trade { get; set; }
         public virtual List<WorkElement> WorkElement { get; set; }
+
+        public virtual List<WorkOrderOperative> WorkOrderOperatives { get; set; }
+        public virtual List<WorkOrder> AssignedWorkOrders { get; set; }
     }
 }
 

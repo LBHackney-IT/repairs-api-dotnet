@@ -11,6 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Castle.Core.Internal;
+using Microsoft.FeatureManagement;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Notifications;
 using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
@@ -24,13 +26,15 @@ namespace RepairsApi.V2.UseCase
         private readonly ITransactionManager _transactionManager;
         private readonly ICurrentUserService _currentUserService;
         private readonly INotifier _notifier;
+        private readonly IFeatureManager _featureManager;
 
         public CompleteWorkOrderUseCase(
             IRepairsGateway repairsGateway,
             IWorkOrderCompletionGateway workOrderCompletionGateway,
             ITransactionManager transactionManager,
             ICurrentUserService currentUserService,
-            INotifier notifier
+            INotifier notifier,
+            IFeatureManager featureManager
         )
         {
             _repairsGateway = repairsGateway;
@@ -38,6 +42,7 @@ namespace RepairsApi.V2.UseCase
             _transactionManager = transactionManager;
             _currentUserService = currentUserService;
             _notifier = notifier;
+            _featureManager = featureManager;
         }
 
         public async Task Execute(WorkOrderComplete workOrderComplete)
@@ -46,7 +51,7 @@ namespace RepairsApi.V2.UseCase
 
             if (await _workOrderCompletionGateway.IsWorkOrderCompleted(workOrderId))
             {
-                throw new NotSupportedException("Cannot complete a work order twice");
+                throw new NotSupportedException(Resources.CannotCompleteWorkOrderTwice);
             }
 
             var workOrder = await _repairsGateway.GetWorkOrder(workOrderId);
@@ -88,6 +93,10 @@ namespace RepairsApi.V2.UseCase
             switch (update.OtherType)
             {
                 case CustomJobStatusUpdates.Completed:
+                    if (await _featureManager.IsEnabledAsync(FeatureFlags.EnforceAssignedOperative) && workOrder.AssignedOperatives.IsNullOrEmpty())
+                    {
+                        throw new NotSupportedException(Resources.CannotCompleteWithNoOperative);
+                    }
                     workOrder.VerifyCanComplete();
 
                     if (!_currentUserService.HasGroup(UserGroups.Contractor) &&

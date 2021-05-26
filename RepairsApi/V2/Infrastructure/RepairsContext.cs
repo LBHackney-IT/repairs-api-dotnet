@@ -47,10 +47,18 @@ namespace RepairsApi.V2.Infrastructure
                 .WithMany(workOrder => workOrder.JobStatusUpdates);
 
             modelBuilder.Entity<PropertyContract>()
-                .HasKey(pc => new { pc.ContractReference, pc.PropRef });
+                .HasKey(pc => new
+                {
+                    pc.ContractReference,
+                    pc.PropRef
+                });
 
             modelBuilder.Entity<SORContract>()
-                .HasKey(pc => new { pc.ContractReference, pc.SorCodeCode });
+                .HasKey(pc => new
+                {
+                    pc.ContractReference,
+                    pc.SorCodeCode
+                });
 
             modelBuilder.Entity<ScheduleOfRates>()
                 .HasOne<SorCodeTrade>(sor => sor.Trade)
@@ -83,13 +91,17 @@ namespace RepairsApi.V2.Infrastructure
                 .HasForeignKey(p => p.ContractReference);
 
             modelBuilder.Entity<Hackney.Appointment>()
-                .HasKey(a => new { a.DayId, a.WorkOrderId });
+                .HasKey(a => new
+                {
+                    a.DayId,
+                    a.WorkOrderId
+                });
 
             modelBuilder.Entity<WorkOrder>()
                 .OwnsOne(wo => wo.WorkPriority)
-                    .HasOne(wp => wp.Priority)
-                    .WithMany()
-                    .HasForeignKey(wp => wp.PriorityCode);
+                .HasOne(wp => wp.Priority)
+                .WithMany()
+                .HasForeignKey(wp => wp.PriorityCode);
 
             modelBuilder.Entity<SecurityGroup>()
                 .HasIndex(sg => sg.GroupName)
@@ -98,6 +110,28 @@ namespace RepairsApi.V2.Infrastructure
             modelBuilder.Entity<SecurityGroup>()
                 .Property(sg => sg.GroupName)
                 .IsRequired();
+
+            modelBuilder.Entity<WorkOrder>()
+                .HasMany(wo => wo.AssignedOperatives)
+                .WithMany(o => o.AssignedWorkOrders)
+                .UsingEntity<WorkOrderOperative>(
+                    j => j
+                        .HasOne(woo => woo.Operative)
+                        .WithMany(p => p.WorkOrderOperatives)
+                        .HasForeignKey(pt => pt.OperativeId),
+                    j => j
+                        .HasOne(woo => woo.WorkOrder)
+                        .WithMany(t => t.WorkOrderOperatives)
+                        .HasForeignKey(pt => pt.WorkOrderId),
+                    j =>
+                    {
+                        j.HasKey(t => new
+                        {
+                            t.WorkOrderId,
+                            t.OperativeId
+                        });
+                    });
+
         }
     }
 }

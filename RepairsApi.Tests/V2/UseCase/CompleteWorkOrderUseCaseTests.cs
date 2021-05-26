@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.FeatureManagement;
 using Moq;
 using NUnit.Framework;
+using RepairsApi.Tests.E2ETests;
 using RepairsApi.Tests.Helpers;
 using RepairsApi.V2.Enums;
 using RepairsApi.V2.Gateways;
@@ -29,28 +31,31 @@ namespace RepairsApi.Tests.V2.UseCase
         private Generator<WorkOrder> _generator;
         private MockWorkOrderCompletionGateway _workOrderCompletionGatewayMock;
         private NotificationMock _handlerMock;
+        private Mock<IFeatureManager> _featureManager;
 
         [SetUp]
         public void Setup()
         {
-            ConfigureGenerator();
+            _generator = CreateGenerator();
             _repairsGatewayMock = new Mock<IRepairsGateway>();
             _currentUserServiceMock = new CurrentUserServiceMock();
             _currentUserServiceMock.SetSecurityGroup(UserGroups.Agent, true);
             _currentUserServiceMock.SetSecurityGroup(UserGroups.Contractor, true);
             _workOrderCompletionGatewayMock = new MockWorkOrderCompletionGateway();
             _handlerMock = new NotificationMock();
+            _featureManager = new Mock<IFeatureManager>();
             _classUnderTest = new CompleteWorkOrderUseCase(
                 _repairsGatewayMock.Object,
                 _workOrderCompletionGatewayMock.Object,
                 InMemoryDb.TransactionManager,
                 _currentUserServiceMock.Object,
-                _handlerMock);
+                _handlerMock,
+                _featureManager.Object);
         }
 
-        private void ConfigureGenerator()
+        private static Generator<WorkOrder> CreateGenerator()
         {
-            _generator = new Generator<WorkOrder>()
+            return new Generator<WorkOrder>()
                 .AddWorkOrderGenerators();
         }
 
@@ -80,10 +85,12 @@ namespace RepairsApi.Tests.V2.UseCase
             await testFn.Should().ThrowAsync<NotSupportedException>();
         }
 
-        [Test]
-        public async Task CanCompleteWorkOrder()
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task CanCompleteWorkOrder(bool featureFlagOn)
         {
             // arrange
+            FeatureEnabled(featureFlagOn);
             var expectedWorkOrder = CreateWorkOrder();
             _currentUserServiceMock.SetSecurityGroup(UserGroups.Contractor, true);
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
@@ -113,7 +120,32 @@ namespace RepairsApi.Tests.V2.UseCase
             Func<Task> fn = async () => await _classUnderTest.Execute(CreateRequest(1));
 
             // assert
-            await fn.Should().ThrowAsync<NotSupportedException>();
+            await fn.Should().ThrowAsync<NotSupportedException>().WithMessage(Resources.CannotCompleteWorkOrderTwice);
+        }
+
+        [Test]
+        public async Task ThrowsWhenNotAssignedWhenFeatureOn()
+        {
+            // arrange
+            FeatureEnabled(true);
+            var generator = CreateGenerator()
+                .AddValue(null, (WorkOrder wo) => wo.AssignedOperatives);
+            var expectedWorkOrder = CreateWorkOrder(generator);
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.Contractor, true);
+            var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
+            workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
+            {
+                new Generated.JobStatusUpdates
+                {
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = CustomJobStatusUpdates.Completed, Comments = "expectedComment"
+                }
+            };
+
+            // act
+            Func<Task> fn = async () => await _classUnderTest.Execute(workOrderCompleteRequest);
+
+            // assert
+            await fn.Should().ThrowAsync<NotSupportedException>().WithMessage(Resources.CannotCompleteWithNoOperative);
         }
 
         [Test]
@@ -388,11 +420,15 @@ namespace RepairsApi.Tests.V2.UseCase
                 });
         }
 
-        [Test]
-        public async Task CanCancelPendingOrder()
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task CanCancelPendingOrder(bool featureFlagOn)
         {
             // arrange
-            var expectedWorkOrder = CreateWorkOrder();
+            FeatureEnabled(featureFlagOn);
+            var generator = CreateGenerator()
+                .AddValue(null, (WorkOrder wo) => wo.AssignedOperatives);
+            var expectedWorkOrder = CreateWorkOrder(generator);
             expectedWorkOrder.StatusCode = WorkStatusCode.PendingApproval;
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
             workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
@@ -423,11 +459,21 @@ namespace RepairsApi.Tests.V2.UseCase
 
         private WorkOrder CreateWorkOrder()
         {
+            return CreateWorkOrder(_generator);
+        }
 
-            var expectedWorkOrder = _generator.Generate();
+        private WorkOrder CreateWorkOrder(Generator<WorkOrder> generator)
+        {
+            var expectedWorkOrder = generator?.Generate();
             _repairsGatewayMock.Setup(r => r.GetWorkOrder(expectedWorkOrder.Id))
                 .ReturnsAsync(expectedWorkOrder);
             return expectedWorkOrder;
+        }
+
+        private void FeatureEnabled(bool enabled)
+        {
+            _featureManager.Setup(x => x.IsEnabledAsync(FeatureFlags.EnforceAssignedOperative))
+                .ReturnsAsync(enabled);
         }
     }
 

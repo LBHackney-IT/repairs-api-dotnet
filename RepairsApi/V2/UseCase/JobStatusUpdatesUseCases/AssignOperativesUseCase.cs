@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Infrastructure;
@@ -11,7 +12,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             var workOrder = jobStatusUpdate.RelatedWorkOrder;
             workOrder.VerifyCanAssignOperative();
 
-            workOrder.AssignedOperatives = jobStatusUpdate.OperativesAssigned;
+            var payrollNumbers = jobStatusUpdate.OperativesAssigned.Select(oa => oa.Identification.Number);
 
             return Task.CompletedTask;
         }

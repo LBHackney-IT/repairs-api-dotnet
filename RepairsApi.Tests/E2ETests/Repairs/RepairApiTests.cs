@@ -23,6 +23,7 @@ using WorkOrderComplete = RepairsApi.V2.Generated.WorkOrderComplete;
 using RepairsApi.V2.Services;
 using V2_Generated_DRS;
 using RepairsApi.V2.Helpers;
+using Person = RepairsApi.V2.Generated.Person;
 
 namespace RepairsApi.Tests.E2ETests.Repairs
 {

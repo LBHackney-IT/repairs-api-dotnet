@@ -36,7 +36,16 @@ namespace RepairsApi.V2.Infrastructure
         public string AgentEmail { get; set; }
         public WorkStatusCode StatusCode { get; set; } = WorkStatusCode.Open;
         public ReasonCode Reason { get; set; } = ReasonCode.FullyFunded;
-        public virtual List<Person> AssignedOperatives { get; set; }
+        public virtual List<WorkOrderOperative> WorkOrderOperatives { get; set; }
+        public virtual List<Operative> AssignedOperatives { get; set; }
+    }
+
+    public class WorkOrderOperative
+    {
+        public int WorkOrderId { get; set; }
+        public virtual WorkOrder WorkOrder { get; set; }
+        public int OperativeId { get; set; }
+        public virtual Operative Operative { get; set; }
     }
 
     public enum WorkStatusCode
