@@ -25,6 +25,7 @@ using RepairsApi.V2.Services;
 using Notify.Interfaces;
 using Microsoft.Extensions.Logging;
 using FluentAssertions;
+using System.Collections.Generic;
 
 namespace RepairsApi.Tests
 {
@@ -105,8 +106,8 @@ namespace RepairsApi.Tests
             switch (_userGroup)
             {
                 case UserGroups.Agent: client.SetAgent(); break;
-                case UserGroups.Contractor: client.SetGroup(GetGroup(TestDataSeeder.Contractor)); break;
-                default: client.SetGroup(_userGroup); break;
+                case UserGroups.Contractor: client.SetGroups(GetGroup(TestDataSeeder.Contractor)); break;
+                default: client.SetGroups(_userGroup); break;
             }
         }
 
@@ -135,7 +136,7 @@ namespace RepairsApi.Tests
         protected string GetGroup(string contractor)
         {
             using var ctx = GetContext();
-            return ctx.DB.SecurityGroups.Where(sg => sg.ContractorReference == contractor).Select(sg => sg.GroupName).Single();
+            return ctx.DB.SecurityGroups.Where(sg => sg.ContractorReference == contractor).Select(sg => sg.GroupName).First();
         }
 
         public async Task<(HttpStatusCode statusCode, TResponse response)> Get<TResponse>(string uri)

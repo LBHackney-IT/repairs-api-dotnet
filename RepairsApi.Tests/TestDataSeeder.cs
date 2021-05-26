@@ -23,6 +23,7 @@ namespace RepairsApi.Tests
         public const string Trade = "trade";
         public const string Priority = "priority";
         public const string ContractManager_Limit1000 = "ContractManager_Limit1000";
+        public const string MultiContractor = "MultiContractor";
         public const string AuthorisationManager_Limit1000 = "AuthorisationManager_Limit1000";
         private const int PriorityId = 1;
         private static readonly object _lockObj = new object();
@@ -85,6 +86,9 @@ namespace RepairsApi.Tests
                 new SecurityGroup { GroupName = UserGroups.AuthorisationManager, UserType = UserGroups.AuthorisationManager, RaiseLimit = 10000000000 },
                 new SecurityGroup { GroupName = AuthorisationManager_Limit1000, UserType = UserGroups.AuthorisationManager, RaiseLimit = 1000 },
                 new SecurityGroup { GroupName = UserGroups.AuthorisationManager, UserType = UserGroups.Agent },
+
+                new SecurityGroup { GroupName = MultiContractor, UserType = UserGroups.Contractor, ContractorReference = DRSContractor },
+                new SecurityGroup { GroupName = MultiContractor, UserType = UserGroups.Contractor, ContractorReference = Contractor },
 
                 new SecurityGroup { GroupName = "raise50", RaiseLimit = 50 },
                 new SecurityGroup { GroupName = "raise100", RaiseLimit = 100 },
