@@ -4,8 +4,8 @@ services:
   repairs-api:
     image: repairs-api
     build:
-      context: RepairsApi/
-      dockerfile: ./Dockerfile
+      context: .
+      dockerfile: RepairsApi/Dockerfile
     ports:
       - 3000:3000
     environment:
