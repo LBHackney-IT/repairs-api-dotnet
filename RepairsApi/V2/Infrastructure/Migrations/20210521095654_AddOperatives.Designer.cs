@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RepairsApi.V2.Infrastructure;
@@ -9,9 +10,10 @@ using RepairsApi.V2.Infrastructure;
 namespace RepairsApi.V2.Infrastructure.Migrations
 {
     [DbContext(typeof(RepairsContext))]
-    partial class RepairsContextModelSnapshot : ModelSnapshot
+    [Migration("20210521095654_AddOperatives")]
+    partial class AddOperatives
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -335,10 +337,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("reference");
 
-                    b.Property<string>("ContractManagerEmail")
-                        .HasColumnType("text")
-                        .HasColumnName("contract_manager_email");
-
                     b.Property<string>("Name")
                         .HasColumnType("text")
                         .HasColumnName("name");
@@ -565,10 +563,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("id")
                         .UseIdentityByDefaultColumn();
-
-                    b.Property<bool>("IsArchived")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_archived");
 
                     b.Property<string>("PayrollNumber")
                         .HasColumnType("text")

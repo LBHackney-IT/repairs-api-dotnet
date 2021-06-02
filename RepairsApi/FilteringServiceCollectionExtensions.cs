@@ -6,6 +6,7 @@ using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Infrastructure.Extensions;
 using System;
 using System.Linq;
+using RepairsApi.V2.Boundary.Request;
 
 namespace RepairsApi
 {
@@ -40,6 +41,26 @@ namespace RepairsApi
                     codes => codes?.Count > 0,
                     codes => wo => wo.WorkPriority.PriorityCode.HasValue && codes.Contains(wo.WorkPriority.PriorityCode.Value)
                 );
+            });
+
+            services.AddFilter<OperativeRequest, Operative>(filter =>
+            {
+                filter
+                    .AddFilter(
+                        searchModel => searchModel.PayrollNumber,
+                        payrollNumber => !string.IsNullOrWhiteSpace(payrollNumber),
+                        payrollNumber => operative => operative.PayrollNumber == payrollNumber
+                    )
+                    .AddFilter(
+                        searchModel => searchModel.Name,
+                        name => !string.IsNullOrWhiteSpace(name),
+                        name => operative => operative.Person.Name.Full.Contains(name)
+                    )
+                    .AddFilter(
+                        searchModel => searchModel.Trade,
+                        trade => !string.IsNullOrWhiteSpace(trade),
+                        trade => operative => operative.Trade.Any(tr => tr.CustomName == trade)
+                    );
             });
         }
 
