@@ -12,6 +12,8 @@ namespace RepairsApi.V2.Gateways.Models
 
         public string SubtypCode { get; set; }
 
+        public string CompAvail { get; set; }
+
         /*
                  public string PropRef { get; set; }
         public string LevelCode { get; set; }
@@ -115,7 +117,6 @@ namespace RepairsApi.V2.Gateways.Models
         public bool? SecToileta { get; set; }
         public string SecToiletb { get; set; }
         public string CookingFuel { get; set; }
-        public string CompAvail { get; set; }
         public string CompDisplay { get; set; }
         public short NoSingleBeds { get; set; }
         public short NoDoubleBeds { get; set; }
