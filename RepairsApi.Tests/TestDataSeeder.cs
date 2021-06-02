@@ -68,7 +68,6 @@ namespace RepairsApi.Tests
                     SeedSorMap(ctx);
 
                     SeedSecurityGroups(ctx);
-
                 }
             }
         }

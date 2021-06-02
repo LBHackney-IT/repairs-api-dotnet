@@ -21,6 +21,11 @@ namespace RepairsApi.Tests.V2.Gateways
     {
         private Mock<IApiGateway> _apiGatewayMock;
         private PropertyGateway _classUnderTest;
+        private static IList<Company> _tmos = new List<Company>
+            {
+                new Company {CoCode = "001", CompAvail = "001", Description = "TMO Address1", Name = "TMO Name1" },
+                new Company {CoCode = "002", CompAvail = "002", Description = "TMO Address2", Name = "TMO Name2" }
+            };
 
         [SetUp]
         public void SetUp()
@@ -45,16 +50,12 @@ namespace RepairsApi.Tests.V2.Gateways
         }
 
         [Test]
-        [TestCase("001", "TMO Name1")]
-        [TestCase("002", "TMO Name2")]
-        [TestCase("003", "TMO Name3")]
-        public async Task SendsRequestByIdAndGetsTMOName(string comp, string name)
+        public async Task SendsRequestByIdAndGetsTMOName()
         {
             // Arrange
             var stubData = BuildResponse(StubPropertyApiResponse().Generate());
-            stubData.Content.CompAvail = comp;
+            stubData.Content.CompAvail = _tmos[0].CompAvail;
             _apiGatewayMock.Setup(gw => gw.ExecuteRequest<PropertyApiResponse>(It.IsAny<string>(), It.IsAny<Uri>())).ReturnsAsync(stubData);
-
 
             // Act
             SeedCompany();
@@ -62,7 +63,7 @@ namespace RepairsApi.Tests.V2.Gateways
 
             // Assert
             result.Address.ShortAddress.Should().Be(stubData.Content.Address1);
-            result.TmoName.Should().Be(name);
+            result.TmoName.Should().Be(_tmos[0].Name);
         }
 
         [Test]
@@ -98,12 +99,7 @@ namespace RepairsApi.Tests.V2.Gateways
 
         private static void SeedCompany()
         {
-            InMemoryDb.Instance.Company.AddRange(new List<Company>
-            {
-                new Company {CoCode = "001", CompAvail = "001", Description = "TMO Address1", Name = "TMO Name1" },
-                new Company {CoCode = "002", CompAvail = "002", Description = "TMO Address2", Name = "TMO Name2" },
-                new Company {CoCode = "003", CompAvail = "003", Description = "TMO Address3", Name = "TMO Name3" },
-            });
+            InMemoryDb.Instance.Company.AddRange(_tmos);
             InMemoryDb.Instance.SaveChanges();
         }
 
