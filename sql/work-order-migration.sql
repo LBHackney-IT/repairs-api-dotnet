@@ -22,21 +22,30 @@ DECLARE work_element_id uuid;
 DECLARE person_id integer;
 DECLARE customer_id integer;
 BEGIN
--- Select work orders from UH
+-- Select priority records from UH
+ INSERT into public.sor_priorities(description, days_to_complete, enabled, priority_character)
+    SELECT desc_tion as description, days_to_issue as days_to_complete, false as enabled, priority as priority_character
+    FROM dbo.rmprior_uht_data_restore
+    WHERE priority NOT IN ('I','E','U','N','L2','L3','P1','P2','P3'); -- we either already have these priorities or they're not used in UH
+
+-- Select work orders from UH NOTE: there won't necessarily be a single work order record in this result set.
+-- requests could have multiple Work orders which could have multiple tasks - also, LEFT joined on users in case they didn't exist otherwise the
+-- record wouldn't be returned.
 	FOR wo_record IN
 		SELECT
 		wo.wo_ref,
 		req.prop_ref,
 		req.rq_problem,
 		wo.sup_ref,
-		req.rq_priority,
+		dbo.map_priority(req.rq_priority),--uses function to map priority
 		req.rq_date,
 		wo.completed,
-		wo.wo_status,
+		dbo.map_legacy_status(wo.wo_status),--uses function to map status
 		req.rq_name as client_name,
 		req.rq_phone as client_phone,
 		req.rq_date_due,
 		prop.short_address,
+    prop.post_code,
 		sup.sup_name,
 		trade.trade,
 		trade.trade_desc,
@@ -54,16 +63,17 @@ BEGIN
 			dbo.rmtask_uht_data_restore task ON task.wo_ref = wo.wo_ref
 		INNER JOIN
 			dbo.rmtrade_uht_data_restore trade ON trade.trade = task.trade
-		INNER JOIN
+		LEFT JOIN
 			dbo.auser_uht_data_restore uht_user ON uht_user.user_code = wo.user_code
-		INNER JOIN
+		LEFT JOIN
 			dbo."W2User_uhw_data_restore" uhw_user ON uht_user.user_login = uhw_user."User_ID"
 		WHERE task.task_no = 1
 		LIMIT amount
 	LOOP
 		INSERT INTO public.site DEFAULT VALUES RETURNING id INTO site_id;
 
-		INSERT INTO public.property_address (address_line) VALUES (wo_record.short_address) RETURNING id INTO address_id;
+		INSERT INTO public.property_address (address_line, postal_code) 
+            VALUES (wo_record.short_address, wo_record.post_code) RETURNING id INTO address_id;
 
 		INSERT INTO public.property_class (site_id, address_id, property_reference) 
 			VALUES (site_id, address_id, wo_record.prop_ref) 
@@ -81,7 +91,7 @@ BEGIN
 			VALUES (wo_record.client_name, person_id) 
 			RETURNING id INTO customer_id;
 
-		-- TODO - Priority, status
+
 		INSERT INTO public.work_orders (description_of_work, 
 										site_id, 
 										work_class_work_class_code, 
@@ -90,16 +100,17 @@ BEGIN
 										customer_id, 
 										instructed_by_id,
 										agent_name,
+                    work_priority_priority_code,
 										status_code)
-			VALUES (wo_record.rq_problem, site_id, 0, wo_record.rq_date, party_id, customer_id, NULL, wo_record.agent_name, 80) 
+			VALUES (wo_record.rq_problem, site_id, 0, wo_record.rq_date, party_id, customer_id, NULL, wo_record.agent_name,map_priority,map_legacy_status) 
 			RETURNING id INTO work_order_id;
-
+      
 		INSERT INTO public.work_elements (work_order_id) VALUES (work_order_id) RETURNING id INTO work_element_id;
 
 		INSERT INTO public.trade (code, custom_code, custom_name, work_element_id) 
 			VALUES (46, wo_record.trade, wo_record.trade_desc, work_element_id);
 
-		-- Create Completion
+		-- TODO Create Completion
 		
 		-- TODO Mark as original based on variation
 		INSERT INTO public.rate_schedule_items (custom_code, 
@@ -132,7 +143,18 @@ BEGIN
 			WHERE 
 				task.wo_ref = wo_record.wo_ref;
 
-	-- Select notes for work order id
+	-- Select notes for work order id and task and request
+  --select "KeyObject","KeyNumb", "KeyText", "NDate", "NoteText", "NoteID", note."UserID",
+		    --  uhw_user."User_Name" as agent_name,
+		    --  uhw_user."EMail" as agent_email
+      --from dbo."W2ObjectNote_uhw_data_restore" note
+      --left JOIN dbo."W2User_uhw_data_restore" uhw_user ON uhw_user."User_ID" = note."UserID"
+      --where 
+      --("KeyObject" = 'UHRepairsTask' AND "KeyNumb" = wo_record.rmtask_sid)
+      --OR
+      --("KeyObject" = 'UHOrder' AND "KeyNumb" = wo_record.rmworder_sid)
+      --OR
+      --("KeyObject" = 'UHRepair' AND "KeyNumb" = wo_record.rmreqst_sid)
 	------FOREACH note
 	-- Create Updates
 	--------ENDFOR note
