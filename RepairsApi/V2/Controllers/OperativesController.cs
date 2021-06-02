@@ -57,7 +57,7 @@ namespace RepairsApi.V2.Controllers
         [ProducesResponseType(typeof(List<OperativeRequest>), 200)]
         [ProducesDefaultResponseType]
         [Authorize(Roles = UserGroups.Agent + "," + UserGroups.ContractManager + "," + UserGroups.AuthorisationManager)]
-        public async Task<IActionResult> ListOperatives(OperativeRequest operativeRequest)
+        public async Task<IActionResult> ListOperatives([FromQuery] OperativeRequest operativeRequest)
         {
             var result = await _listOperativesUseCase.ExecuteAsync(operativeRequest);
             return Ok(result);
