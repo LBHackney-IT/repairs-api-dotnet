@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <PackageReference Include="NJsonSchema.CodeGeneration.CSharp" Version="10.3.2" />
+    <PackageReference Include="RecyclableMemoryStream" Version="1.0.0" />
   </ItemGroup>
 
 </Project>

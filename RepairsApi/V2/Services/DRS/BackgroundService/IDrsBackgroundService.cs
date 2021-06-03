@@ -1,15 +1,12 @@
-using System.Runtime.Serialization;
 using System.ServiceModel;
-using System.Xml.Linq;
+using System.Xml.Serialization;
 
 namespace RepairsApi.V2.Generated.DRS.BackgroundService
 {
-    [ServiceContract(Namespace = "http://www.sx3.com/XMB-CONFIRM-BOOKINGS"), XmlSerializerFormat]
+    [ServiceContract(Namespace = "")]
     public interface IDrsBackgroundService
     {
-        [OperationContract]
-        // ReSharper disable once InconsistentNaming
-        string ConfirmBookings(Bookings Bookings);
+        [OperationContract(Name = "ns1bookingConfirmation")]
+        string ConfirmBooking([XmlElement(ElementName = "bookingConfirmation")] bookingConfirmation bookingConfirmation);
     }
-
 }

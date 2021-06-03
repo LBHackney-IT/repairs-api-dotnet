@@ -13,13 +13,13 @@ namespace RepairsApi.V2.Generated.DRS.BackgroundService
             _logger = logger;
         }
 
-        public string ConfirmBookings(Bookings bookings)
+        public string ConfirmBooking(bookingConfirmation bookingConfirmation)
         {
-            var serialisedBookings = JsonConvert.SerializeObject(bookings);
+            var serialisedBookings = JsonConvert.SerializeObject(bookingConfirmation);
             Console.WriteLine(serialisedBookings);
             _logger.LogInformation(serialisedBookings);
 
-            return bookings.ToString();
+            return serialisedBookings;
         }
     }
 }
