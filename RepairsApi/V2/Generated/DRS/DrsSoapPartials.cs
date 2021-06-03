@@ -22,9 +22,9 @@ namespace V2_Generated_DRS
     }
 
     // ReSharper disable once InconsistentNaming
-    public partial class bookingCode : entity
+    public partial class BookingCode : entity
     {
-        public bookingCode()
+        public BookingCode()
         {
         }
     }

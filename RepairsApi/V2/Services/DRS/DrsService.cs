@@ -103,6 +103,28 @@ namespace RepairsApi.V2.Services
             await CompleteBooking(workOrder, drsOrder);
         }
 
+        public async Task UpdateBookingAsync(WorkOrder workOrder)
+        {
+            await CheckSession();
+
+            var drsOrder = await SelectOrder(workOrder);
+
+            var bookingWithPlannerComments = await _drsMapping.BuildPlannerCommentedUpdateBookingRequest(_sessionId, workOrder, drsOrder);
+
+            var response = await _drsSoap.updateBookingAsync(bookingWithPlannerComments);
+
+            LogResponseOnFailure(response);
+        }
+
+        private void LogResponseOnFailure(updateBookingResponse response)
+        {
+            if (response.@return.status != responseStatus.success)
+            {
+                _logger.LogError(response.@return.errorMsg);
+                throw new ApiException((int) response.@return.status, response.@return.errorMsg);
+            }
+        }
+
         private async Task CompleteBooking(WorkOrder workOrder, order drsOrder)
         {
             var updateBooking = await _drsMapping.BuildCompleteOrderUpdateBookingRequest(_sessionId, workOrder, drsOrder);
