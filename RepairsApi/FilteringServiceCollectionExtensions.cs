@@ -54,7 +54,7 @@ namespace RepairsApi
                     .AddFilter(
                         searchModel => searchModel.Name,
                         name => !string.IsNullOrWhiteSpace(name),
-                        name => operative => operative.Person.Name.Full.Contains(name)
+                        name => operative => operative.Name.Contains(name)
                     )
                     .AddFilter(
                         searchModel => searchModel.Trade,

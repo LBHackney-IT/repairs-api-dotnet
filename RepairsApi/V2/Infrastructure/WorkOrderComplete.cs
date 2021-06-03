@@ -10,7 +10,6 @@ namespace RepairsApi.V2.Infrastructure
         public virtual WorkOrder WorkOrder { get; set; }
         public virtual List<RateScheduleItem> BillOfMaterialItem { get; set; }
         public virtual List<WorkElement> CompletedWorkElements { get; set; }
-        public virtual List<Operative> OperativesUsed { get; set; }
         public virtual List<JobStatusUpdate> JobStatusUpdates { get; set; }
         public virtual List<WorkOrder> FollowOnWorkOrder { get; set; }
     }

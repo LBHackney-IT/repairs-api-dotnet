@@ -10,9 +10,8 @@ namespace RepairsApi.V2.Infrastructure
         [Key] public int Id { get; set; }
         public string PayrollNumber { get; set; }
         public bool IsArchived { get; set; }
-        public virtual Person Person { get; set; }
+        public string Name { get; set; }
         public virtual List<SorCodeTrade> Trades { get; set; }
-        public virtual List<WorkElement> WorkElement { get; set; }
     }
 }
 

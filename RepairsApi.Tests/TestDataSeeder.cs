@@ -261,6 +261,7 @@ namespace RepairsApi.Tests
         {
             var generator = new Generator<SorCodeTrade>()
                 .AddDefaultGenerators()
+                .Ignore((SorCodeTrade sct) => sct.Operatives)
                 .AddGenerator(() => SeedCode(TradeCodes), (SorCodeTrade sct) => sct.Code);
 
             ctx.Set<SorCodeTrade>().AddRange(generator.GenerateList(10));

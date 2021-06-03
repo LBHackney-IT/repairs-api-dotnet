@@ -305,9 +305,6 @@ namespace RepairsApi.V2.Generated
         [Newtonsoft.Json.JsonProperty("CompletedWorkElements", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<WorkElement> CompletedWorkElements { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("OperativesUsed", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<OperativesUsed> OperativesUsed { get; set; }
-
         [Newtonsoft.Json.JsonProperty("JobStatusUpdates", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<JobStatusUpdates> JobStatusUpdates { get; set; }
 
@@ -328,24 +325,6 @@ namespace RepairsApi.V2.Generated
 
         [Newtonsoft.Json.JsonProperty("Northing", Required = Newtonsoft.Json.Required.Always)]
         public double Northing { get; set; }
-
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.2.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class OperativesUsed
-    {
-        [Newtonsoft.Json.JsonProperty("Trade", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<Trade> Trade { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("WorkElementReference", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<Reference> WorkElementReference { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("Identification", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public Identification Identification { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("NameFull", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string NameFull { get; set; }
 
 
     }

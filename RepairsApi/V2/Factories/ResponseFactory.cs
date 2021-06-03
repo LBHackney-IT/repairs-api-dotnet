@@ -282,8 +282,8 @@ namespace RepairsApi.V2.Factories
             return new OperativeResponse
             {
                 PayrollNumber = operative.PayrollNumber,
-                Name = operative.Person.Name.Full,
-                Trades = new List<string>(operative.Trades.Select(tr => tr.Code))
+                Name = operative.Name,
+                Trades = operative.Trades.MapList(tr => tr.Code)
             };
         }
     }
