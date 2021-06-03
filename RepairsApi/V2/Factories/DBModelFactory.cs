@@ -556,7 +556,6 @@ namespace RepairsApi.V2.Factories
                         Full = operative.NameFull
                     }
                 },
-                Trade = operative.Trade.Select(t => t.ToDb()).ToList(),
                 WorkElement = workElements
             };
         }

@@ -59,7 +59,7 @@ namespace RepairsApi
                     .AddFilter(
                         searchModel => searchModel.Trade,
                         trade => !string.IsNullOrWhiteSpace(trade),
-                        trade => operative => operative.Trade.Any(tr => tr.CustomName == trade)
+                        trade => operative => operative.Trades.Any(tr => tr.Name == trade)
                     );
             });
         }
