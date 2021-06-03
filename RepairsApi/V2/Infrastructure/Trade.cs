@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using RepairsApi.V2.Generated;
 
@@ -9,5 +10,6 @@ namespace RepairsApi.V2.Infrastructure
         public TradeCode? Code { get; set; }
         public string CustomCode { get; set; }
         public string CustomName { get; set; }
+        public virtual List<Operative> Operatives { get; set; }
     }
 }
