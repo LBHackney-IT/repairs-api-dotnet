@@ -22,6 +22,7 @@ namespace RepairsApi.Tests.V2.UseCase
         public void Setup()
         {
             _fixture = new Fixture();
+            _fixture.Customize<SorCodeTrade>(c => c.Without(trade => trade.Operatives));
             _sorGatewayMock = new Mock<IScheduleOfRatesGateway>();
             _classUnderTest = new ListSorTradesUseCase(_sorGatewayMock.Object);
         }

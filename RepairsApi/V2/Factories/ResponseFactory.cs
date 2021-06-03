@@ -282,29 +282,9 @@ namespace RepairsApi.V2.Factories
             return new OperativeResponse
             {
                 PayrollNumber = operative.PayrollNumber,
-                Name = operative.Person.Name.Full,
-                Trades = new List<string>(operative.Trade.Select(tr => tr.CustomCode))
+                Name = operative.Name,
+                Trades = operative.Trades.MapList(tr => tr.Code)
             };
         }
-
-        //public static JobStatusUpdate ToResponse(
-        //   this Infrastructure.JobStatusUpdate jobStatusUpdate,
-        //   Infrastructure.WorkOrder workOrder)
-        //{
-        //    return new Generated.JobStatusUpdate
-        //    {
-        //        EventTime = DateTime.UtcNow,
-        //        TypeCode = jobStatusUpdate.TypeCode,
-        //        AdditionalWork = jobStatusUpdate.AdditionalWork?.ToDb(),
-        //        Comments = jobStatusUpdate.Comments,
-        //        CustomerCommunicationChannelAttempted = jobStatusUpdate.CustomerCommunicationChannelAttempted?.ToDb(),
-        //        CustomerFeedback = jobStatusUpdate.CustomerFeedback?.ToDb(),
-        //        MoreSpecificSORCode = jobStatusUpdate.MoreSpecificSORCode?.ToDb(),
-        //        OperativesAssigned = jobStatusUpdate.OperativesAssigned?.Select(oa => oa.ToDb()).ToList(),
-        //        OtherType = jobStatusUpdate.OtherType,
-        //        RefinedAppointmentWindow = jobStatusUpdate.RefinedAppointmentWindow?.ToDb(),
-        //        RelatedWorkOrder = workOrder
-        //    };
-        //}
     }
 }
