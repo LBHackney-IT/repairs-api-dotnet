@@ -65,14 +65,20 @@ namespace RepairsApi.V2.UseCase
             var notification = await NotifyHandlers(workOrder);
             var result = new CreateOrderResult(id, workOrder.StatusCode, workOrder.GetStatus());
 
+            _logger.LogInformation("Notification sent successfully for work order {workOrderId}", workOrder.Id);
+
             if (await workOrder.ContractorUsingDrs(_scheduleOfRatesGateway))
             {
+                _logger.LogInformation("Contractor using DRS: {workOrderId}", workOrder.Id);
+
                 result.ExternallyManagedAppointment = true;
                 var managementUri = new UriBuilder(_drsOptions.Value.ManagementAddress);
                 managementUri.Port = -1;
                 managementUri.Query = $"tokenId={notification.TokenId}";
                 result.ExternalAppointmentManagementUrl = managementUri.Uri;
             }
+
+            _logger.LogInformation("Successfully created work order {workOrderId}", workOrder.Id);
 
             return result;
         }
