@@ -89,6 +89,7 @@ namespace RepairsApi.Tests.V2.Services
         {
             var workOrder = CreateWorkOrderWithContractor(true);
             _drsSoapMock.CreateReturns(responseStatus.success);
+            _drsSoapMock.UpdateBookingReturns(responseStatus.success);
             _drsMappingMock.SetupMappings(workOrder);
 
             await _classUnderTest.CreateOrder(workOrder);
@@ -102,6 +103,7 @@ namespace RepairsApi.Tests.V2.Services
         {
             var workOrder = CreateWorkOrderWithContractor(true);
             _drsSoapMock.CreateReturns(responseStatus.success);
+            _drsSoapMock.UpdateBookingReturns(responseStatus.success);
             _drsMappingMock.SetupMappings(workOrder);
 
             await _classUnderTest.CreateOrder(workOrder);
@@ -115,6 +117,7 @@ namespace RepairsApi.Tests.V2.Services
         {
             var workOrder = CreateWorkOrderWithContractor(true);
             _drsSoapMock.CreateReturns(responseStatus.success);
+            _drsSoapMock.UpdateBookingReturns(responseStatus.success);
             _drsMappingMock.SetupMappings(workOrder);
 
             await _classUnderTest.CreateOrder(workOrder);
