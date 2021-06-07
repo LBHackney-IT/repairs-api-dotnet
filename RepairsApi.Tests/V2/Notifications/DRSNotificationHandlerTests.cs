@@ -80,8 +80,6 @@ namespace RepairsApi.Tests.V2.Notifications
             _drsServiceMock.Verify(x => x.CreateOrder(workOrder), Times.Never);
         }
 
-
-
         [Test]
         public async Task DeletesDRSOrder()
         {
