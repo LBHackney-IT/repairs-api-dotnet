@@ -81,6 +81,28 @@ namespace RepairsApi.Tests.V2.Notifications
         }
 
         [Test]
+        public async Task UpdatedDRSOrder_When_UsingDrs()
+        {
+            var workOrder = CreateWorkOrder();
+
+            await _classUnderTest.Notify(new WorkOrderUpdated(workOrder));
+
+            _drsServiceMock.Verify(x => x.UpdateBookingAsync(workOrder), Times.Once);
+        }
+
+        [Test]
+        public async Task DoesNotUpdateDRSBooking_When_ContractorNotusingDrs()
+        {
+            ContractorUsesExternalScheduler(false);
+            var workOrder = CreateWorkOrder();
+
+            await _classUnderTest.Notify(new WorkOrderUpdated(workOrder));
+
+            _drsServiceMock.Verify(x => x.UpdateBookingAsync(workOrder), Times.Never);
+        }
+
+
+        [Test]
         public async Task DeletesDRSOrder()
         {
             var workOrder = CreateWorkOrder();
