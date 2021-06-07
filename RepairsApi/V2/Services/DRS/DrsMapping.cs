@@ -169,8 +169,7 @@ namespace RepairsApi.V2.Services
                     sessionId = sessionId,
                     theBooking = booking,
                 }
-            }; 
-
+            };
             return await Task.FromResult(updateBooking);
         }
 
