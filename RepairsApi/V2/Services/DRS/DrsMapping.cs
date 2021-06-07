@@ -168,9 +168,7 @@ namespace RepairsApi.V2.Services
                     transactionType = transactionTypeType.PLANNED,
                     sessionId = sessionId,
                     theBooking = booking,
-                }
-            }; 
-
+                }};
             return await Task.FromResult(updateBooking);
         }
 
