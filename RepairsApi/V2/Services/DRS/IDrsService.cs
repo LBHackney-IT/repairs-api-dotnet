@@ -10,7 +10,6 @@ namespace RepairsApi.V2.Services
         Task<order> CreateOrder(WorkOrder workOrder);
         Task CancelOrder(WorkOrder workOrder);
         Task CompleteOrder(WorkOrder workOrder);
-        Task UpdateBookingAsync(WorkOrder workOrder);
     }
 
 }
