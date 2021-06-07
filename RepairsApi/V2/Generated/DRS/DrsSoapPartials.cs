@@ -8,6 +8,8 @@ using RepairsApi.V2.Services;
 
 namespace V2_Generated_DRS
 {
+#pragma warning disable IDE1006
+
     public partial class SOAPClient
     {
         private const int MaxReceivedMessageSize = 262144;
@@ -22,9 +24,9 @@ namespace V2_Generated_DRS
     }
 
     // ReSharper disable once InconsistentNaming
-    public partial class BookingCode : entity
+    public partial class bookingCode : entity
     {
-        public BookingCode()
+        public bookingCode()
         {
         }
     }
@@ -63,4 +65,5 @@ namespace V2_Generated_DRS
             return null;
         }
     }
+#pragma warning restore IDE1006
 }
