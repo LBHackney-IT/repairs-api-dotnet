@@ -50,6 +50,8 @@ namespace RepairsApi.V2.Infrastructure.Hackney
 
         [Key] public string Code { get; set; }
         public string Name { get; set; }
+
+        public virtual List<Operative> Operatives { get; set; }
     }
 
     public class Contract

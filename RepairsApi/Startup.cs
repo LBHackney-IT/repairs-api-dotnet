@@ -50,6 +50,7 @@ using RepairsApi.V2.Notifications;
 using RepairsApi.V2.Email;
 using Notify.Interfaces;
 using Notify.Client;
+using Serilog;
 
 namespace RepairsApi
 {
@@ -228,7 +229,12 @@ namespace RepairsApi
         {
             services.AddSoapCore();
             services.TryAddSingleton<IDrsBackgroundService, DrsBackgroundService>();
-            services.AddSoapExceptionTransformer((ex) => ex.Message);
+            services.AddSoapExceptionTransformer((ex) =>
+            {
+                Log.Logger.Information("Error handling SOAP request {ERROR}", ex.Message);
+                return ex.Message;
+            });
+
         }
 
         private static void AddNotificationHandlers(IServiceCollection services)
@@ -345,6 +351,7 @@ namespace RepairsApi
             app.UseRouting();
             app.UseAuthorization();
             app.UseMiddleware<ExceptionMiddleware>();
+            app.UseMiddleware<DrsBackgroundServiceLogger>();
             app.UseEndpoints(endpoints =>
             {
                 // SwaggerGen won't find controllers that are routed via this technique.

@@ -2,6 +2,7 @@ using Bogus;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Gateways.Models;
+using System;
 using System.Linq;
 
 namespace RepairsApi.Tests.V2
@@ -25,7 +26,8 @@ namespace RepairsApi.Tests.V2
             return new Faker<PropertyModel>()
                 .RuleFor(pm => pm.Address, f => addresse.Generate())
                 .RuleFor(pm => pm.PropertyReference, f => f.Random.Int(0).ToString())
-                .RuleFor(pm => pm.HierarchyType, f => hierarchyType.Generate());
+                .RuleFor(pm => pm.HierarchyType, f => hierarchyType.Generate())
+                .RuleFor(pm => pm.TmoName, f => f.Random.String());
         }
 
         public static Faker<HierarchyType> StubHierarchies()
@@ -87,6 +89,7 @@ namespace RepairsApi.Tests.V2
                 .RuleFor(res => res.PostCode, f => f.Random.String2(0, 100))
                 .RuleFor(res => res.LevelCode, f => f.Random.String2(0, 100))
                 .RuleFor(res => res.PropRef, f => f.Random.Int().ToString())
+                .RuleFor(res => res.CompAvail, f => $"00{f.Random.Int(1, 3)}")
                 .RuleFor(res => res.SubtypCode, f => f.PickRandom<string>(ApiToDomainFactory.HierarchyDescriptions.Keys));
         }
 

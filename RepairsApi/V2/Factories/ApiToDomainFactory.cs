@@ -75,13 +75,14 @@ namespace RepairsApi.V2.Factories
             return apiResponse.Select(property => property.ToDomain()).ToList();
         }
 
-        public static PropertyModel ToDomain(this PropertyApiResponse apiResponse)
+        public static PropertyModel ToDomain(this PropertyApiResponse apiResponse, string tmo = null)
         {
             return new PropertyModel
             {
                 PropertyReference = apiResponse.PropRef,
                 Address = apiResponse.ToDomainAddress(),
-                HierarchyType = apiResponse.ToDomainHierarachy()
+                HierarchyType = apiResponse.ToDomainHierarachy(),
+                TmoName = tmo
             };
         }
 

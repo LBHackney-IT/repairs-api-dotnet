@@ -23,9 +23,9 @@ namespace RepairsApi.Tests.V2.Gateways
         {
             _filterBuilder = new FilterBuilder<OperativeRequest, Operative>();
             _fixture.Customize<Operative>(c => c
-                .Without(operative => operative.WorkElement)
                 .Without(operative => operative.AssignedWorkOrders)
                 .Without(operative => operative.WorkOrderOperatives)
+                .Without(operative => operative.Trades)
                 .With(operative => operative.IsArchived, false));
             _classUnderTest = new OperativesGateway(InMemoryDb.Instance);
         }

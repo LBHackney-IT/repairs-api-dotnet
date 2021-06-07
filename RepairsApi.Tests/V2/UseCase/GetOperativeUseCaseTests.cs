@@ -23,9 +23,9 @@ namespace RepairsApi.Tests.V2.UseCase
         public void SetUp()
         {
             _fixture.Customize<Operative>(c => c
-                .Without(operative => operative.WorkElement)
                 .Without(operative => operative.AssignedWorkOrders)
                 .Without(operative => operative.WorkOrderOperatives)
+                .Without(operative => operative.Trades)
             );
             _operativeGateway = new Mock<IOperativesGateway>();
             _classUnderTest = new GetOperativeUseCase(_operativeGateway.Object);
