@@ -216,13 +216,13 @@ namespace RepairsApi.Tests.V2.Services
         private order GenerateDrsOrder(int expectedOrderNumber)
         {
             var index = 1;
-            var bookingCodesGenerator = new Helpers.StubGeneration.Generator<BookingCode[]>()
+            var bookingCodesGenerator = new Helpers.StubGeneration.Generator<bookingCode[]>()
                 .AddDefaultGenerators()
-                .AddValue(_fixture.Create<int>().ToString(), (BookingCode bc) => bc.quantity)
-                .AddValue(_fixture.Create<int>().ToString(), (BookingCode bc) => bc.standardMinuteValue)
-                .AddValue(_fixture.Create<int>().ToString(), (BookingCode bc) => bc.itemValue)
-                .AddValue(expectedOrderNumber.ToString(), (BookingCode bc) => bc.primaryOrderNumber)
-                .AddGenerator(() => (index++).ToString(), (BookingCode bc) => bc.itemNumberWithinBooking);
+                .AddValue(_fixture.Create<int>().ToString(), (bookingCode bc) => bc.quantity)
+                .AddValue(_fixture.Create<int>().ToString(), (bookingCode bc) => bc.standardMinuteValue)
+                .AddValue(_fixture.Create<int>().ToString(), (bookingCode bc) => bc.itemValue)
+                .AddValue(expectedOrderNumber.ToString(), (bookingCode bc) => bc.primaryOrderNumber)
+                .AddGenerator(() => (index++).ToString(), (bookingCode bc) => bc.itemNumberWithinBooking);
 
             var generator = new Helpers.StubGeneration.Generator<order>()
                 .AddDefaultGenerators()
@@ -360,7 +360,7 @@ namespace RepairsApi.Tests.V2.Services
             targetDate.Should().Be(local.WithZone(london).ToDateTimeUnspecified());
         }
 
-        private static void ValidateBookings(WorkOrder workOrder, IList<ScheduleOfRatesModel> sorCodes, BookingCode[] bookings)
+        private static void ValidateBookings(WorkOrder workOrder, IList<ScheduleOfRatesModel> sorCodes, bookingCode[] bookings)
         {
             var workElement = workOrder.WorkElements.FirstOrDefault();
 
@@ -378,7 +378,7 @@ namespace RepairsApi.Tests.V2.Services
             }
         }
 
-        private static void ValidateBookingCode(WorkOrder workOrder, RateScheduleItem rateScheduleItem, ScheduleOfRatesModel sorCode, BookingCode booking, int index)
+        private static void ValidateBookingCode(WorkOrder workOrder, RateScheduleItem rateScheduleItem, ScheduleOfRatesModel sorCode, bookingCode booking, int index)
         {
             booking.primaryOrderNumber.Should().Be(workOrder.Id.ToString(CultureInfo.InvariantCulture));
             booking.quantity.Should().Be(rateScheduleItem.Quantity.Amount.ToString(CultureInfo.InvariantCulture));

@@ -169,7 +169,8 @@ namespace RepairsApi.V2.Services
                     sessionId = sessionId,
                     theBooking = booking,
                 }
-            };
+            }; 
+
             return await Task.FromResult(updateBooking);
         }
 
@@ -204,7 +205,7 @@ namespace RepairsApi.V2.Services
             return local.WithZone(london).ToDateTimeUnspecified();
         }
 
-        private async Task<BookingCode[]> BuildBookingCodes(WorkOrder workOrder)
+        private async Task<bookingCode[]> BuildBookingCodes(WorkOrder workOrder)
         {
             var bookingIndex = 1;
             var workElement = workOrder.WorkElements.FirstOrDefault();
@@ -214,7 +215,7 @@ namespace RepairsApi.V2.Services
             return bookings;
         }
 
-        private async Task<BookingCode> CreateBookingCode(WorkOrder workOrder, RateScheduleItem rsi, int index)
+        private async Task<bookingCode> CreateBookingCode(WorkOrder workOrder, RateScheduleItem rsi, int index)
         {
             var sorCode = await _sorGateway.GetCode(
                 rsi.CustomCode,
@@ -222,7 +223,7 @@ namespace RepairsApi.V2.Services
                 workOrder.AssignedToPrimary.ContractorReference
             );
 
-            return new BookingCode
+            return new bookingCode
             {
                 primaryOrderNumber = workOrder.Id.ToString(CultureInfo.InvariantCulture),
                 quantity = rsi.Quantity.Amount.ToString(CultureInfo.InvariantCulture),

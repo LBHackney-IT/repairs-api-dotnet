@@ -72,8 +72,6 @@ namespace RepairsApi.V2.UseCase
                 managementUri.Port = -1;
                 managementUri.Query = $"tokenId={notification.TokenId}";
                 result.ExternalAppointmentManagementUrl = managementUri.Uri;
-
-                await _notifier.Notify<WorkOrderUpdated>(new WorkOrderUpdated(workOrder));
             }
 
             return result;
