@@ -59,6 +59,8 @@ namespace RepairsApi.V2.Services
         {
             await CheckSession();
 
+            _logger.LogInformation("DRS Order Creating for Work order {WorkOrderId}", workOrder.Id);
+
             var createOrder = await _drsMapping.BuildCreateOrderRequest(_sessionId, workOrder);
             var response = await _drsSoap.createOrderAsync(createOrder);
 
@@ -96,6 +98,8 @@ namespace RepairsApi.V2.Services
 
         public async Task CompleteOrder(WorkOrder workOrder)
         {
+            _logger.LogInformation("DRS completing work order {WorkOrderId}", workOrder.Id);
+
             await CheckSession();
 
             var drsOrder = await SelectOrder(workOrder);
@@ -108,6 +112,8 @@ namespace RepairsApi.V2.Services
             }
 
             await CompleteBooking(workOrder, drsOrder);
+
+            _logger.LogInformation("DRS completed work order {WorkOrderId}", workOrder.Id);
         }
 
         private void LogResponseOnFailure(updateBookingResponse response)
@@ -121,6 +127,8 @@ namespace RepairsApi.V2.Services
 
         private async Task CompleteBooking(WorkOrder workOrder, order drsOrder)
         {
+            _logger.LogInformation("DRS completing booking for work order {WorkOrderId}", workOrder.Id);
+
             var updateBooking = await _drsMapping.BuildCompleteOrderUpdateBookingRequest(_sessionId, workOrder, drsOrder);
             var response = await _drsSoap.updateBookingAsync(updateBooking);
             if (response.@return.status != responseStatus.success)
@@ -128,6 +136,8 @@ namespace RepairsApi.V2.Services
                 _logger.LogError(response.@return.errorMsg);
                 throw new ApiException((int) response.@return.status, response.@return.errorMsg);
             }
+
+            _logger.LogInformation("DRS completed booking for work order {WorkOrderId}", workOrder.Id);
         }
 
         private async Task<order> SelectOrder(WorkOrder workOrder)
