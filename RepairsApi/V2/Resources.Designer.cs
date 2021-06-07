@@ -115,6 +115,15 @@ namespace RepairsApi.V2 {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Externally Managed Appointment.
+        /// </summary>
+        public static string ExternallyManagedAppointment {
+            get {
+                return ResourceManager.GetString("ExternallyManagedAppointment", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Found {count} properties.
         /// </summary>
         public static string FoundProperties {

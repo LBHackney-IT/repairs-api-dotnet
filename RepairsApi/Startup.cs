@@ -229,7 +229,7 @@ namespace RepairsApi
         private static void ConfigureDRSSoap(IServiceCollection services)
         {
             services.AddSoapCore();
-            services.TryAddSingleton<IDrsBackgroundService, DrsBackgroundService>();
+            services.AddScoped<IDrsBackgroundService, DrsBackgroundService>();
             services.AddSoapExceptionTransformer((ex) =>
             {
                 Log.Logger.Error("Error handling SOAP request {ERROR}", ex.Message);
@@ -352,6 +352,7 @@ namespace RepairsApi
             app.UseRouting();
             app.UseAuthorization();
             app.UseMiddleware<ExceptionMiddleware>();
+            app.UseMiddleware<DrsBackgroundServiceLogger>();
             app.UseEndpoints(endpoints =>
             {
                 // SwaggerGen won't find controllers that are routed via this technique.

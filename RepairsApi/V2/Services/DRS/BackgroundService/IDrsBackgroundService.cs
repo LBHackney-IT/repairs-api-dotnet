@@ -1,4 +1,5 @@
 using System.ServiceModel;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace RepairsApi.V2.Generated.DRS.BackgroundService
@@ -7,6 +8,6 @@ namespace RepairsApi.V2.Generated.DRS.BackgroundService
     public interface IDrsBackgroundService
     {
         [OperationContract(Name = "ns1bookingConfirmation")]
-        string ConfirmBooking([XmlElement(ElementName = "bookingConfirmation")] bookingConfirmation bookingConfirmation);
+        Task<string> ConfirmBooking([XmlElement(ElementName = "bookingConfirmation")] bookingConfirmation bookingConfirmation);
     }
 }
