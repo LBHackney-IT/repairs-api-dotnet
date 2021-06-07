@@ -92,7 +92,6 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         [Test]
         public async Task CompletedInDRS()
         {
-            
             SetUserRole(UserGroups.ContractManager);
             var drsOrder = _fixture.Create<order>();
             drsOrder.status = orderStatus.PLANNED;
