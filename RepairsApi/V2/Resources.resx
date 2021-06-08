@@ -228,4 +228,10 @@
   <data name="ExternallyManagedAppointment" xml:space="preserve">
       <value>Externally Managed Appointment</value>
   </data>
+  <data name="DrsBackgroundService_AddedBooking" xml:space="preserve">
+      <value>Added booking</value>
+  </data>
+  <data name="DrsBackgroundServiceTests_UpdatedBooking" xml:space="preserve">
+      <value>Updated booking</value>
+  </data>
 </root>

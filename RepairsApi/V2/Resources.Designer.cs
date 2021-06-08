@@ -106,6 +106,24 @@ namespace RepairsApi.V2 {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Added booking.
+        /// </summary>
+        public static string DrsBackgroundService_AddedBooking {
+            get {
+                return ResourceManager.GetString("DrsBackgroundService_AddedBooking", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Updated booking.
+        /// </summary>
+        public static string DrsBackgroundServiceTests_UpdatedBooking {
+            get {
+                return ResourceManager.GetString("DrsBackgroundServiceTests_UpdatedBooking", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [EmailError] Failed to send Email with error {message}.
         /// </summary>
         public static string EmailFailed {

@@ -22,14 +22,25 @@ namespace RepairsApi.V2.Generated.DRS.BackgroundService
             var serialisedBookings = JsonConvert.SerializeObject(bookingConfirmation);
             Console.WriteLine(serialisedBookings);
             _logger.LogInformation(serialisedBookings);
+            var workOrderId = (int) bookingConfirmation.primaryOrderNumber;
+
+            var existingAppointment = await _appointmentsGateway.GetAppointment(workOrderId);
+
+            if (existingAppointment != null)
+            {
+                existingAppointment.Date = bookingConfirmation.planningWindowStart.Date;
+                existingAppointment.Start = bookingConfirmation.planningWindowStart;
+                existingAppointment.End = bookingConfirmation.planningWindowEnd;
+                return Resources.DrsBackgroundServiceTests_UpdatedBooking;
+            }
 
             await _appointmentsGateway.CreateTimedBooking(
-                (int) bookingConfirmation.primaryOrderNumber,
+                workOrderId,
                 bookingConfirmation.planningWindowStart,
                 bookingConfirmation.planningWindowEnd
             );
 
-            return serialisedBookings;
+            return Resources.DrsBackgroundService_AddedBooking;
         }
     }
 }
