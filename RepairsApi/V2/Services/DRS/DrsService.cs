@@ -110,15 +110,6 @@ namespace RepairsApi.V2.Services
             await CompleteBooking(workOrder, drsOrder);
         }
 
-        private void LogResponseOnFailure(updateBookingResponse response)
-        {
-            if (response.@return.status != responseStatus.success)
-            {
-                _logger.LogError(response.@return.errorMsg);
-                throw new ApiException((int) response.@return.status, response.@return.errorMsg);
-            }
-        }
-
         private async Task CompleteBooking(WorkOrder workOrder, order drsOrder)
         {
             var updateBooking = await _drsMapping.BuildCompleteOrderUpdateBookingRequest(_sessionId, workOrder, drsOrder);
