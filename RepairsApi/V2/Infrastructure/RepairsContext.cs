@@ -32,6 +32,7 @@ namespace RepairsApi.V2.Infrastructure
         public DbSet<SecurityGroup> SecurityGroups { get; set; }
         public DbSet<Company> Company { get; set; }
         public DbSet<Operative> Operatives { get; set; }
+        public DbSet<WorkOrderOperative> WorkOrderOperatives { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

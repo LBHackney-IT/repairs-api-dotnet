@@ -93,16 +93,7 @@ namespace RepairsApi.V2.UseCase
             switch (update.OtherType)
             {
                 case CustomJobStatusUpdates.Completed:
-                    if (await _featureManager.IsEnabledAsync(FeatureFlags.EnforceAssignedOperative) && workOrder.AssignedOperatives.IsNullOrEmpty())
-                    {
-                        throw new NotSupportedException(Resources.CannotCompleteWithNoOperative);
-                    }
-                    workOrder.VerifyCanComplete();
-
-                    if (!_currentUserService.HasGroup(UserGroups.Contractor) &&
-                        !_currentUserService.HasGroup(UserGroups.ContractManager))
-                        throw new UnauthorizedAccessException("Not Authorised to close jobs");
-
+                    await VerifyCanComplete(workOrder);
                     await _repairsGateway.UpdateWorkOrderStatus(workOrder.Id, WorkStatusCode.Complete);
                     await _notifier.Notify(new WorkOrderCompleted(workOrder, update));
                     break;
@@ -117,6 +108,19 @@ namespace RepairsApi.V2.UseCase
                     break;
                 default: throw new NotSupportedException(Resources.UnsupportedWorkOrderUpdate);
             }
+        }
+
+        private async Task VerifyCanComplete(WorkOrder workOrder)
+        {
+            if (await _featureManager.IsEnabledAsync(FeatureFlags.EnforceAssignedOperative) && workOrder.AssignedOperatives.IsNullOrEmpty())
+            {
+                ThrowHelper.ThrowUnsupported(Resources.CannotCompleteWithNoOperative);
+            }
+            workOrder.VerifyCanComplete();
+
+            if (!_currentUserService.HasGroup(UserGroups.Contractor) &&
+                !_currentUserService.HasGroup(UserGroups.ContractManager))
+                throw new UnauthorizedAccessException("Not Authorised to close jobs");
         }
 
         private static void ValidateRequest(WorkOrderComplete request)

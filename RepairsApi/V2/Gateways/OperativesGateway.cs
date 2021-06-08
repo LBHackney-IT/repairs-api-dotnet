@@ -31,14 +31,19 @@ namespace RepairsApi.V2.Gateways
             return await query.SingleOrDefaultAsync();
         }
 
-        public async Task<bool> ArchiveAsync(string operativePrn)
+        public async Task ArchiveAsync(string operativePrn)
         {
             var operative = await _context.Operatives.SingleOrDefaultAsync(o => o.PayrollNumber == operativePrn);
-            if (operative is null) return false;
+            if (operative is null) ThrowHelper.ThrowNotFound($"Operative with payroll {operativePrn} not found");
 
             _context.Remove(operative);
             await _context.SaveChangesAsync();
-            return true;
+        }
+
+        public async Task AssignOperatives(params WorkOrderOperative[] assignments)
+        {
+            await _context.WorkOrderOperatives.AddRangeAsync(assignments);
+            await _context.SaveChangesAsync();
         }
     }
 }
