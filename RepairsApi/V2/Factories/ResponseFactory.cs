@@ -40,7 +40,8 @@ namespace RepairsApi.V2.Factories
                 CanRaiseRepair = (tenure is null) || tenure.CanRaiseRepair, // If there is no tenure then we CAN raise repairs
                 PropertyReference = domain.PropertyReference,
                 Address = domain.Address.ToResponse(),
-                HierarchyType = domain.HierarchyType.ToResponse()
+                HierarchyType = domain.HierarchyType.ToResponse(),
+                TmoName = domain.TmoName
             };
         }
 
