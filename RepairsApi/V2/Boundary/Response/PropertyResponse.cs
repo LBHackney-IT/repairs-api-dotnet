@@ -50,6 +50,11 @@ namespace RepairsApi.V2.Boundary.Response
         public HierarchyTypeViewModel HierarchyType { get; set; }
 
         /// <summary>
+        /// Gets or Sets TmoName
+        /// </summary>
+        public string TmoName { get; set; }
+
+        /// <summary>
         /// Gets or Sets CanRaiseRepair
         /// </summary>
         public bool CanRaiseRepair { get; set; }

@@ -52,29 +52,38 @@ namespace RepairsApi.V2.UseCase
 
         public async Task<CreateOrderResult> Execute(WorkOrder workOrder)
         {
-            ValidateRequest(workOrder);
-            AttachUserInformation(workOrder);
-            workOrder.DateRaised = DateTime.UtcNow;
-
-            await SetStatus(workOrder);
-
-            await PopulateRateScheduleItems(workOrder);
-            var id = await _repairsGateway.CreateWorkOrder(workOrder);
-            _logger.LogInformation(Resources.CreatedWorkOrder);
-
-            var notification = await NotifyHandlers(workOrder);
-            var result = new CreateOrderResult(id, workOrder.StatusCode, workOrder.GetStatus());
-
-            if (await workOrder.ContractorUsingDrs(_scheduleOfRatesGateway))
+            using (_logger.BeginScope(Guid.NewGuid()))
             {
-                result.ExternallyManagedAppointment = true;
-                var managementUri = new UriBuilder(_drsOptions.Value.ManagementAddress);
-                managementUri.Port = -1;
-                managementUri.Query = $"tokenId={notification.TokenId}";
-                result.ExternalAppointmentManagementUrl = managementUri.Uri;
-            }
+                ValidateRequest(workOrder);
+                AttachUserInformation(workOrder);
+                workOrder.DateRaised = DateTime.UtcNow;
 
-            return result;
+                await SetStatus(workOrder);
+
+                await PopulateRateScheduleItems(workOrder);
+                var id = await _repairsGateway.CreateWorkOrder(workOrder);
+                _logger.LogInformation(Resources.CreatedWorkOrder);
+
+                var notification = await NotifyHandlers(workOrder);
+                var result = new CreateOrderResult(id, workOrder.StatusCode, workOrder.GetStatus());
+
+                _logger.LogInformation("Notification sent successfully for work order {workOrderId}", workOrder.Id);
+
+                if (await workOrder.ContractorUsingDrs(_scheduleOfRatesGateway))
+                {
+                    _logger.LogInformation("Contractor using DRS: {workOrderId}", workOrder.Id);
+
+                    result.ExternallyManagedAppointment = true;
+                    var managementUri = new UriBuilder(_drsOptions.Value.ManagementAddress);
+                    managementUri.Port = -1;
+                    managementUri.Query = $"tokenId={notification.TokenId}";
+                    result.ExternalAppointmentManagementUrl = managementUri.Uri;
+                }
+
+                _logger.LogInformation("Successfully created work order {workOrderId}", workOrder.Id);
+
+                return result;
+            }
         }
 
         private async Task<WorkOrderOpened> NotifyHandlers(WorkOrder workOrder)
