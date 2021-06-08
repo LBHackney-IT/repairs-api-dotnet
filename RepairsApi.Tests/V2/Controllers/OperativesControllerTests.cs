@@ -96,7 +96,7 @@ namespace RepairsApi.Tests.V2.Controllers
             var statusCode = GetStatusCode(objectResult);
 
             // Assert
-            statusCode.Should().Be((int)HttpStatusCode.OK);
+            statusCode.Should().Be((int) HttpStatusCode.OK);
         }
     }
 }
