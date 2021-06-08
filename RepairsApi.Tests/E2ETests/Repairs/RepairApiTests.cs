@@ -195,8 +195,10 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             workOrder.StatusCode.Should().Be(WorkStatusCode.Complete);
         }
 
-        private async Task<HttpStatusCode> CompleteWorkOrder(int workOrderId)
+        private async Task<HttpStatusCode> CompleteWorkOrder(int workOrderId, bool preAssignOperative = true)
         {
+            if (preAssignOperative) await AssignOperative(workOrderId, TestDataSeeder.OperativeId);
+
             var request = new Helpers.StubGeneration.Generator<WorkOrderComplete>()
                 .AddWorkOrderCompleteGenerators()
                 .AddValue(workOrderId.ToString(), (WorkOrderComplete woc) => woc.WorkOrderReference.ID)
@@ -316,6 +318,41 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             // Assert
             heldOrder.StatusCode.Should().Be(workOrderHoldCode);
             resumedOrder.StatusCode.Should().Be(WorkStatusCode.Open);
+        }
+
+        [Test]
+        public async Task OperativeGetsAssigned()
+        {
+            var result = await CreateWorkOrder();
+
+            await AssignOperative(result.Id, TestDataSeeder.OperativeId);
+
+            var order = GetWorkOrderFromDB(result.Id, wo => wo.AssignedOperatives.Load());
+
+            order.AssignedOperatives.Should().HaveCount(1);
+            order.AssignedOperatives.Should().ContainSingle(ao => ao.Id == TestDataSeeder.OperativeId);
+        }
+
+        [Test]
+        public async Task CompletionFailsWithNoOperative()
+        {
+            var result = await CreateWorkOrder();
+
+            var code = await CompleteWorkOrder(result.Id, preAssignOperative: false);
+
+            code.Should().Be(400);
+        }
+
+        private Task AssignOperative(int workOrderId, int operativeId)
+        {
+            return UpdateJob(workOrderId, jsu =>
+            {
+                jsu.TypeCode = JobStatusUpdateTypeCode._10;
+                jsu.OperativesAssigned = new List<OperativesAssigned>
+                {
+                    new OperativesAssigned(){ Identification = new RepairsApi.V2.Generated.Identification{ Number = operativeId.ToString() } }
+                };
+            });
         }
 
         private static RepairsApi.V2.Generated.WorkElement TransformTasksToWorkElement(IEnumerable<WorkOrderItemViewModel> tasks)

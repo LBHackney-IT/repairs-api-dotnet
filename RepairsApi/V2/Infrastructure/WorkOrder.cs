@@ -46,6 +46,18 @@ namespace RepairsApi.V2.Infrastructure
         public virtual WorkOrder WorkOrder { get; set; }
         public int OperativeId { get; set; }
         public virtual Operative Operative { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return obj is WorkOrderOperative other ?
+                WorkOrderId == other.WorkOrderId && OperativeId == other.OperativeId
+                : false;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(WorkOrderId, OperativeId);
+        }
     }
 
     public enum WorkStatusCode

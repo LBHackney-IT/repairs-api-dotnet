@@ -1,25 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.FeatureManagement;
 using Moq;
 using NUnit.Framework;
-using RepairsApi.Tests.E2ETests;
 using RepairsApi.Tests.Helpers;
-using RepairsApi.V2.Enums;
-using RepairsApi.V2.Gateways;
-using RepairsApi.V2.Infrastructure;
-using Generated = RepairsApi.V2.Generated;
-using RepairsApi.V2.UseCase;
 using RepairsApi.Tests.Helpers.StubGeneration;
 using RepairsApi.V2;
-using RepairsApi.V2.Generated.CustomTypes;
-using RepairsApi.V2.Exceptions;
-using RepairsApi.V2.Services;
 using RepairsApi.V2.Authorisation;
+using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Generated.CustomTypes;
+using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Notifications;
+using RepairsApi.V2.UseCase;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Generated = RepairsApi.V2.Generated;
 
 namespace RepairsApi.Tests.V2.UseCase
 {
@@ -44,6 +39,7 @@ namespace RepairsApi.Tests.V2.UseCase
             _workOrderCompletionGatewayMock = new MockWorkOrderCompletionGateway();
             _handlerMock = new NotificationMock();
             _featureManager = new Mock<IFeatureManager>();
+            OperativeRequired(false);
             _classUnderTest = new CompleteWorkOrderUseCase(
                 _repairsGatewayMock.Object,
                 _workOrderCompletionGatewayMock.Object,
@@ -85,12 +81,9 @@ namespace RepairsApi.Tests.V2.UseCase
             await testFn.Should().ThrowAsync<NotSupportedException>();
         }
 
-        [TestCase(true)]
-        [TestCase(false)]
-        public async Task CanCompleteWorkOrder(bool featureFlagOn)
+        public async Task CanCompleteWorkOrder()
         {
             // arrange
-            FeatureEnabled(featureFlagOn);
             var expectedWorkOrder = CreateWorkOrder();
             _currentUserServiceMock.SetSecurityGroup(UserGroups.Contractor, true);
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
@@ -127,7 +120,7 @@ namespace RepairsApi.Tests.V2.UseCase
         public async Task ThrowsWhenNotAssignedWhenFeatureOn()
         {
             // arrange
-            FeatureEnabled(true);
+            OperativeRequired(true);
             var generator = CreateGenerator()
                 .AddValue(null, (WorkOrder wo) => wo.AssignedOperatives);
             var expectedWorkOrder = CreateWorkOrder(generator);
@@ -425,7 +418,7 @@ namespace RepairsApi.Tests.V2.UseCase
         public async Task CanCancelPendingOrder(bool featureFlagOn)
         {
             // arrange
-            FeatureEnabled(featureFlagOn);
+            OperativeRequired(featureFlagOn);
             var generator = CreateGenerator()
                 .AddValue(null, (WorkOrder wo) => wo.AssignedOperatives);
             var expectedWorkOrder = CreateWorkOrder(generator);
@@ -470,7 +463,7 @@ namespace RepairsApi.Tests.V2.UseCase
             return expectedWorkOrder;
         }
 
-        private void FeatureEnabled(bool enabled)
+        private void OperativeRequired(bool enabled)
         {
             _featureManager.Setup(x => x.IsEnabledAsync(FeatureFlags.EnforceAssignedOperative))
                 .ReturnsAsync(enabled);

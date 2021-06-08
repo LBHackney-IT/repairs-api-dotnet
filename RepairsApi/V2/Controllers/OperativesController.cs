@@ -64,17 +64,15 @@ namespace RepairsApi.V2.Controllers
         }
 
         [HttpDelete]
-        [Route("{operativePayrollNumber}")]
         [Produces("application/json")]
-        [ProducesResponseType(typeof(OperativeRequest), 200)]
+        [ProducesResponseType(200)]
         [ProducesDefaultResponseType]
+        [Route("{operativePayrollNumber}")]
         [Authorize(Roles = UserGroups.Agent + "," + UserGroups.ContractManager + "," + UserGroups.AuthorisationManager)]
         public async Task<IActionResult> DeleteOperative(string operativePayrollNumber)
         {
-            if (await _deleteOperativeUse.ExecuteAsync(operativePayrollNumber))
-                return Ok(operativePayrollNumber);
-
-            return NotFound();
+            await _deleteOperativeUse.ExecuteAsync(operativePayrollNumber);
+            return Ok();
         }
     }
 }

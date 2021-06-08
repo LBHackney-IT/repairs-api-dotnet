@@ -37,7 +37,7 @@ namespace RepairsApi.V2.Helpers
             if (wo.StatusCode == WorkStatusCode.VariationPendingApproval ||
                 wo.StatusCode == WorkStatusCode.PendingApproval
             )
-                throw new InvalidOperationException(Resources.ActionUnsupported);
+                throw new NotSupportedException(Resources.ActionUnsupported);
         }
 
         public static void VerifyCanAssignOperative(this WorkOrder wo)
@@ -45,7 +45,7 @@ namespace RepairsApi.V2.Helpers
             if (wo.StatusCode == WorkStatusCode.VariationPendingApproval ||
                 wo.StatusCode == WorkStatusCode.PendingApproval
             )
-                throw new InvalidOperationException(Resources.ActionUnsupported);
+                throw new NotSupportedException(Resources.ActionUnsupported);
         }
 
         public static void VerifyCanApproveVariation(this WorkOrder wo)

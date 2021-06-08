@@ -65,7 +65,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             var request = BuildUpdate(workOrder);
 
             Func<Task> fn = () => _classUnderTest.Execute(request);
-            (await fn.Should().ThrowAsync<InvalidOperationException>())
+            (await fn.Should().ThrowAsync<NotSupportedException>())
                 .Which.Message.Should().Be(Resources.ActionUnsupported);
         }
 
