@@ -63,15 +63,22 @@ namespace RepairsApi.V2.Services
 
             var createOrder = await _drsMapping.BuildCreateOrderRequest(_sessionId, workOrder);
             var response = await _drsSoap.createOrderAsync(createOrder);
-            if (response.@return.status == responseStatus.success)
+
+            if (response.@return.status != responseStatus.success)
             {
-                _logger.LogInformation("DRS Order Created for Work order {WorkOrderId}", workOrder.Id);
-                return response.@return.theOrder;
+                _logger.LogError(response.@return.errorMsg);
+                throw new ApiException((int) response.@return.status, response.@return.errorMsg);
             }
 
-            _logger.LogError(response.@return.errorMsg);
-            throw new ApiException((int) response.@return.status, response.@return.errorMsg);
+            _logger.LogInformation("DRS Order Created for Work order {WorkOrderId}, updating to include planner comments", workOrder.Id);
 
+            var bookingWithPlannerComments = await _drsMapping.BuildPlannerCommentedUpdateBookingRequest(_sessionId, workOrder, response.@return.theOrder);
+
+            var responseUpdatedPlannerComments = await _drsSoap.updateBookingAsync(bookingWithPlannerComments);
+
+            _logger.LogInformation("Work order {WorkOrderId} updated to include planner comments, command result: {commandResult}", workOrder.Id, responseUpdatedPlannerComments.@return.status.ToString());
+
+            return response.@return.theOrder;
         }
 
         public async Task CancelOrder(WorkOrder workOrder)

@@ -140,6 +140,40 @@ namespace RepairsApi.V2.Services
             return Task.FromResult(updateBooking);
         }
 
+        public async Task<updateBooking> BuildPlannerCommentedUpdateBookingRequest(string sessionId, WorkOrder workOrder, order drsOrder)
+        {
+
+            var booking = drsOrder.theBookings.First();
+            var resource = booking.theResources?.First();
+
+            var property = workOrder.Site?.PropertyClass.FirstOrDefault();
+            var locationAlerts = property != null ? await _alertsGateway.GetLocationAlertsAsync(property.PropertyReference) : null;
+            var tenureInfo = property != null ? await _tenancyGateway.GetTenancyInformationAsync(property.PropertyReference) : null;
+            var personAlerts = tenureInfo != null ? await _alertsGateway.GetPersonAlertsAsync(tenureInfo.TenancyAgreementReference) : null;
+            var orderCommentsExtended = $"Property Alerts {locationAlerts?.Alerts.ToDescriptionString()} " +
+                                        $"Person Alerts {personAlerts?.Alerts.ToDescriptionString()}";
+
+            booking.theOrder = drsOrder;
+
+            booking.plannerComments = orderCommentsExtended;
+
+            var updateBooking = new updateBooking
+            {
+                updateBooking1 = new xmbUpdateBooking
+                {
+                    completeOrder = false,
+                    startDateAndTime = booking.assignedStart,
+                    endDateAndTime = booking.assignedEnd,
+                    resourceId = resource?.resourceID,
+                    transactionType = transactionTypeType.PLANNED,
+                    sessionId = sessionId,
+                    theBooking = booking
+                }
+            };
+
+            return await Task.FromResult(updateBooking);
+        }
+
         private static businessData[] SetBusinessData(businessData[] businessData, string name, string value)
         {
             var existingValue = businessData?.SingleOrDefault(bd => bd.name == name);

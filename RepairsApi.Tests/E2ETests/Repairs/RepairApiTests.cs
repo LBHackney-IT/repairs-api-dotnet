@@ -67,6 +67,8 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         [Test]
         public async Task ForwardedToDRS()
         {
+            SetupSoapMock();
+
             var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
 
             result.ExternallyManagedAppointment.Should().BeTrue();
@@ -78,6 +80,8 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         [Test]
         public async Task DeletesFromDRS()
         {
+            SetupSoapMock();
+
             var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
 
             await CancelWorkOrder(result.Id);
@@ -88,7 +92,6 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         [Test]
         public async Task CompletedInDRS()
         {
-            var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
             SetUserRole(UserGroups.ContractManager);
             var drsOrder = _fixture.Create<order>();
             drsOrder.status = orderStatus.PLANNED;
@@ -113,6 +116,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
                     }
                 });
 
+            var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
             await CompleteWorkOrder(result.Id);
 
             SoapMock.Verify(s => s.updateBookingAsync(It.IsAny<updateBooking>()));
@@ -429,6 +433,19 @@ namespace RepairsApi.Tests.E2ETests.Repairs
                 .AddValue(workElement, (JobStatusUpdate jsu) => jsu.MoreSpecificSORCode)
                 .AddValue("comments", (JobStatusUpdate jsu) => jsu.Comments)
                 .Generate();
+        }
+
+        private void SetupSoapMock()
+        {
+            SoapMock.Setup(s => s.updateBookingAsync(It.IsAny<updateBooking>()))
+                .ReturnsAsync(new updateBookingResponse
+                {
+                    @return = new xmbUpdateBookingResponse
+                    {
+                        status = responseStatus.success
+                    }
+                });
+
         }
 
         private static void AddRateScheduleItem(RepairsApi.V2.Generated.WorkElement workElement, string code, int quantity, string id = null)
