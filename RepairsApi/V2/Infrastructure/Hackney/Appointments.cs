@@ -6,11 +6,14 @@ namespace RepairsApi.V2.Infrastructure.Hackney
 {
     public class Appointment
     {
+        [Key] public int Id { get; set; }
         public virtual AvailableAppointmentDay Day { get; set; }
-        public int DayId { get; set; }
+        public int? DayId { get; set; }
         public virtual WorkOrder WorkOrder { get; set; }
         public int WorkOrderId { get; set; }
         public DateTime Date { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
     }
 
     public class AvailableAppointment

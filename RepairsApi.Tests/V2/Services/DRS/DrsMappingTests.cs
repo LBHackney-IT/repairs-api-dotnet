@@ -155,6 +155,22 @@ namespace RepairsApi.Tests.V2.Services
             ValidateBusinessData(request.updateBooking1.theBooking.theOrder.theBusinessData, DrsBusinessDataNames.Status, DrsBookingStatusCodes.Completed);
         }
 
+        [Test]
+        public async Task CreatesPlannerCommentedUpdateBookingRequest()
+        {
+            var expectedOrderNumber = _fixture.Create<int>();
+            var drsOrder = GenerateDrsOrder(expectedOrderNumber);
+            var workOrder = GenerateWorkOrder(drsOrder);
+            var sorCodes = SetupSORCodes(drsOrder);
+
+            var drsOrderCopy = drsOrder.DeepClone();
+            var request = await _classUnderTest.BuildPlannerCommentedUpdateBookingRequest(_sessionId, workOrder, drsOrderCopy);
+
+            request.updateBooking1.completeOrder.Should().BeFalse();
+            request.updateBooking1.transactionType.Should().Be(transactionTypeType.PLANNED);
+
+        }
+
         private static WorkOrder GenerateWorkOrder(order drsOrder)
         {
             var booking = drsOrder.theBookings.First();
