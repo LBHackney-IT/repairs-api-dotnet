@@ -41,7 +41,10 @@ namespace RepairsApi.V2.Notifications
                 return;
             }
             var order = await DrsService.CreateOrder(data.WorkOrder);
+
             data.TokenId = order.theBookings.Single().tokenId;
+
+            await DrsService.UpdateOrder(data.WorkOrder, order);
         }
 
         public async Task Notify(WorkOrderCancelled data)

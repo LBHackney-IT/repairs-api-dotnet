@@ -70,15 +70,18 @@ namespace RepairsApi.V2.Services
                 throw new ApiException((int) response.@return.status, response.@return.errorMsg);
             }
 
-            _logger.LogInformation("DRS Order Created for Work order {WorkOrderId}, updating to include planner comments", workOrder.Id);
+            return response.@return.theOrder;
+        }
 
-            var bookingWithPlannerComments = await _drsMapping.BuildPlannerCommentedUpdateBookingRequest(_sessionId, workOrder, response.@return.theOrder);
+        public async Task UpdateOrder(WorkOrder workOrder, order drsOrder)
+        {
+            _logger.LogInformation("Work order {WorkOrderId}, updating to include planner comments", workOrder.Id);
+
+            var bookingWithPlannerComments = await _drsMapping.BuildPlannerCommentedUpdateBookingRequest(_sessionId, workOrder, drsOrder);
 
             var responseUpdatedPlannerComments = await _drsSoap.updateBookingAsync(bookingWithPlannerComments);
 
             _logger.LogInformation("Work order {WorkOrderId} updated to include planner comments, command result: {commandResult}", workOrder.Id, responseUpdatedPlannerComments.@return.status.ToString());
-
-            return response.@return.theOrder;
         }
 
         public async Task CancelOrder(WorkOrder workOrder)
