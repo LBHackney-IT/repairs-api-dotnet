@@ -75,6 +75,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             result.ExternalAppointmentManagementUrl.Query.Should().Contain($"tokenId={SoapMock.ExpectedToken}");
 
             SoapMock.Verify(s => s.createOrderAsync(It.IsAny<V2_Generated_DRS.createOrder>()));
+            SoapMock.Verify(s => s.updateBookingAsync(It.IsAny<V2_Generated_DRS.updateBooking>()));
         }
 
         [Test]

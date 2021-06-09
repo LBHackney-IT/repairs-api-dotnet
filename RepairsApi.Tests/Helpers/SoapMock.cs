@@ -26,6 +26,11 @@ namespace RepairsApi.Tests.Helpers
                         }
                     }
                 });
+            Setup(x => x.updateBookingAsync(It.IsAny<updateBooking>()))
+                .ReturnsAsync(new updateBookingResponse
+                {
+                    @return = new xmbUpdateBookingResponse { status = responseStatus.success }
+                });
         }
     }
 }

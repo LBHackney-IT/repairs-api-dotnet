@@ -99,28 +99,31 @@ namespace RepairsApi.Tests.V2.Services
         }
 
         [Test]
-        public async Task CreateOrder_Fires_Update_Endpoint()
+        public async Task UpdateOrder_Fires_Update_Soap_Endpoint()
         {
             var workOrder = CreateWorkOrderWithContractor(true);
             _drsSoapMock.CreateReturns(responseStatus.success);
             _drsSoapMock.UpdateBookingReturns(responseStatus.success);
             _drsMappingMock.SetupMappings(workOrder);
 
-            await _classUnderTest.CreateOrder(workOrder);
+            var drsOrder = _fixture.Create<order>();
 
-            _drsSoapMock.VerifyOpenSession();
+            await _classUnderTest.UpdateOrder(workOrder, drsOrder);
+
             _drsSoapMock.Verify(x => x.updateBookingAsync(It.Is<updateBooking>(c => c.updateBooking1.id == workOrder.Id)), Times.Once);
         }
 
         [Test]
-        public async Task CreateOrder_UsesMapper()
+        public async Task UpdateOrder_UsesMapper()
         {
             var workOrder = CreateWorkOrderWithContractor(true);
             _drsSoapMock.CreateReturns(responseStatus.success);
             _drsSoapMock.UpdateBookingReturns(responseStatus.success);
             _drsMappingMock.SetupMappings(workOrder);
 
-            await _classUnderTest.CreateOrder(workOrder);
+            var drsOrder = _fixture.Create<order>();
+
+            await _classUnderTest.UpdateOrder(workOrder, drsOrder);
 
             _drsMappingMock.Verify(m => m.BuildPlannerCommentedUpdateBookingRequest(It.IsAny<string>(), It.IsAny<WorkOrder>(), It.IsAny<order>()), Times.Once);
         }
