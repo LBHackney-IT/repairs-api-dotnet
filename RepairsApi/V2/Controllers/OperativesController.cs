@@ -40,7 +40,7 @@ namespace RepairsApi.V2.Controllers
         [Produces("application/json")]
         [ProducesResponseType(typeof(OperativeRequest), 200)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = UserGroups.Agent + "," + UserGroups.ContractManager + "," + UserGroups.AuthorisationManager)]
+        [Authorize(Roles = UserGroups.OperativeManager)]
         public async Task<IActionResult> GetOperative([FromRoute][Required] string operativePayrollNumber)
         {
             var result = await _getOperativeUseCase.ExecuteAsync(operativePayrollNumber);
@@ -56,8 +56,8 @@ namespace RepairsApi.V2.Controllers
         [Produces("application/json")]
         [ProducesResponseType(typeof(List<OperativeRequest>), 200)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = UserGroups.Agent + "," + UserGroups.ContractManager + "," + UserGroups.AuthorisationManager)]
-        public async Task<IActionResult> ListOperatives(OperativeRequest operativeRequest)
+        [Authorize(Roles = UserGroups.OperativeManager)]
+        public async Task<IActionResult> ListOperatives([FromQuery] OperativeRequest operativeRequest)
         {
             var result = await _listOperativesUseCase.ExecuteAsync(operativeRequest);
             return Ok(result);
@@ -68,7 +68,7 @@ namespace RepairsApi.V2.Controllers
         [Produces("application/json")]
         [ProducesResponseType(typeof(OperativeRequest), 200)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = UserGroups.Agent + "," + UserGroups.ContractManager + "," + UserGroups.AuthorisationManager)]
+        [Authorize(Roles = UserGroups.OperativeManager)]
         public async Task<IActionResult> DeleteOperative(string operativePayrollNumber)
         {
             if (await _deleteOperativeUse.ExecuteAsync(operativePayrollNumber))
