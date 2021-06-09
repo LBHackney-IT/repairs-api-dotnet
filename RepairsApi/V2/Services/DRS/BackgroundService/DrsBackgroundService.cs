@@ -10,11 +10,17 @@ namespace RepairsApi.V2.Generated.DRS.BackgroundService
     {
         private readonly ILogger<DrsBackgroundService> _logger;
         private readonly IAppointmentsGateway _appointmentsGateway;
+        private readonly IRepairsGateway _repairsGateway;
 
-        public DrsBackgroundService(ILogger<DrsBackgroundService> logger, IAppointmentsGateway appointmentsGateway)
+        public DrsBackgroundService(
+            ILogger<DrsBackgroundService> logger,
+            IAppointmentsGateway appointmentsGateway,
+            IRepairsGateway repairsGateway
+            )
         {
             _logger = logger;
             _appointmentsGateway = appointmentsGateway;
+            _repairsGateway = repairsGateway;
         }
 
         public async Task<string> ConfirmBooking(bookingConfirmation bookingConfirmation)
@@ -23,6 +29,8 @@ namespace RepairsApi.V2.Generated.DRS.BackgroundService
             Console.WriteLine(serialisedBookings);
             _logger.LogInformation(serialisedBookings);
             var workOrderId = (int) bookingConfirmation.primaryOrderNumber;
+
+            await _repairsGateway.GetWorkOrder(workOrderId);
 
             var existingAppointment = await _appointmentsGateway.GetAppointment(workOrderId);
 

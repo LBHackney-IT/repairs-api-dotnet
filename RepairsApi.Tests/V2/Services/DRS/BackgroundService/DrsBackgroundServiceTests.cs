@@ -7,6 +7,7 @@ using NUnit.Framework;
 using RepairsApi.Tests.Helpers;
 using RepairsApi.Tests.Helpers.StubGeneration;
 using RepairsApi.V2;
+using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated.DRS.BackgroundService;
 using RepairsApi.V2.Infrastructure;
@@ -18,15 +19,18 @@ namespace RepairsApi.Tests.V2.Services.BackgroundService
         private Mock<ILogger<DrsBackgroundService>> _loggerMock;
         private Mock<IAppointmentsGateway> _appointmentsGatewayMock;
         private DrsBackgroundService _classUnderTest;
+        private Mock<IRepairsGateway> _repairsGatewayMock;
 
         [SetUp]
         public void Setup()
         {
             _loggerMock = new Mock<ILogger<DrsBackgroundService>>();
             _appointmentsGatewayMock = new Mock<IAppointmentsGateway>();
+            _repairsGatewayMock = new Mock<IRepairsGateway>();
             _classUnderTest = new DrsBackgroundService(
                 _loggerMock.Object,
-                _appointmentsGatewayMock.Object
+                _appointmentsGatewayMock.Object,
+                _repairsGatewayMock.Object
             );
         }
 
@@ -84,6 +88,27 @@ namespace RepairsApi.Tests.V2.Services.BackgroundService
             existingAppointment.Start.Should().Be(bookingConfirmation.planningWindowStart);
             existingAppointment.End.Should().Be(bookingConfirmation.planningWindowEnd);
             result.Should().Be(Resources.DrsBackgroundServiceTests_UpdatedBooking);
+        }
+
+        [Test]
+        public async Task ThrowsIfWorkOrderNotFound()
+        {
+            const int workOrderId = 1234;
+            ResourceNotFoundException expectedException = new ResourceNotFoundException("test");
+            _repairsGatewayMock.Setup(x => x.GetWorkOrder(workOrderId))
+                .ThrowsAsync(expectedException);
+
+            var bookingConfirmation = new bookingConfirmation
+            {
+                primaryOrderNumber = workOrderId,
+                planningWindowStart = DateTime.UtcNow,
+                planningWindowEnd = DateTime.UtcNow.AddHours(5)
+            };
+
+            Func<Task> act = () => _classUnderTest.ConfirmBooking(bookingConfirmation);
+
+            await act.Should().ThrowAsync<ResourceNotFoundException>()
+                .WithMessage(expectedException.Message);
         }
     }
 }
