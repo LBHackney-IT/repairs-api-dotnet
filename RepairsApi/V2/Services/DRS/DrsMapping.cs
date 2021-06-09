@@ -154,7 +154,7 @@ namespace RepairsApi.V2.Services
                                         $"Person Alerts {personAlerts?.Alerts.ToDescriptionString()}";
 
             booking.theOrder = drsOrder;
-            //booking.theOrder.theBookings = null;
+            booking.theOrder.theBookings = null;
 
             booking.plannerComments = plannerComments;
 
