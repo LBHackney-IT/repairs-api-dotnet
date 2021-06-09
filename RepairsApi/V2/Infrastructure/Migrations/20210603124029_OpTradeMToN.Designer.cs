@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RepairsApi.V2.Infrastructure;
@@ -9,9 +10,10 @@ using RepairsApi.V2.Infrastructure;
 namespace RepairsApi.V2.Infrastructure.Migrations
 {
     [DbContext(typeof(RepairsContext))]
-    partial class RepairsContextModelSnapshot : ModelSnapshot
+    [Migration("20210603124029_OpTradeMToN")]
+    partial class OpTradeMToN
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -237,37 +239,20 @@ namespace RepairsApi.V2.Infrastructure.Migrations
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Hackney.Appointment", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id")
-                        .UseIdentityByDefaultColumn();
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("date");
-
-                    b.Property<int?>("DayId")
+                    b.Property<int>("DayId")
                         .HasColumnType("integer")
                         .HasColumnName("day_id");
-
-                    b.Property<DateTime>("EndTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("end_time");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("start_time");
 
                     b.Property<int>("WorkOrderId")
                         .HasColumnType("integer")
                         .HasColumnName("work_order_id");
 
-                    b.HasKey("Id")
-                        .HasName("pk_appointments");
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("date");
 
-                    b.HasIndex("DayId")
-                        .HasDatabaseName("ix_appointments_day_id");
+                    b.HasKey("DayId", "WorkOrderId")
+                        .HasName("pk_appointments");
 
                     b.HasIndex("WorkOrderId")
                         .HasDatabaseName("ix_appointments_work_order_id");
@@ -1356,7 +1341,9 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.HasOne("RepairsApi.V2.Infrastructure.Hackney.AvailableAppointmentDay", "Day")
                         .WithMany("ExistingAppointments")
                         .HasForeignKey("DayId")
-                        .HasConstraintName("fk_appointments_available_appointment_days_day_id");
+                        .HasConstraintName("fk_appointments_available_appointment_days_day_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("RepairsApi.V2.Infrastructure.WorkOrder", "WorkOrder")
                         .WithMany()

@@ -6,6 +6,7 @@ using NUnit.Framework;
 using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Gateways.Models;
+using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase;
 using System;
 using System.Collections.Generic;
@@ -20,12 +21,17 @@ namespace RepairsApi.Tests.V2.Gateways
     {
         private Mock<IApiGateway> _apiGatewayMock;
         private PropertyGateway _classUnderTest;
+        private static IList<Company> _tmos = new List<Company>
+            {
+                new Company {CoCode = "001", CompAvail = "001", Description = "TMO Address1", Name = "TMO Name1" },
+                new Company {CoCode = "002", CompAvail = "002", Description = "TMO Address2", Name = "TMO Name2" }
+            };
 
         [SetUp]
         public void SetUp()
         {
             _apiGatewayMock = new Mock<IApiGateway>();
-            _classUnderTest = new PropertyGateway(_apiGatewayMock.Object, new NullLogger<PropertyGateway>());
+            _classUnderTest = new PropertyGateway(_apiGatewayMock.Object, InMemoryDb.Instance, new NullLogger<PropertyGateway>());
         }
 
         [Test]
@@ -40,6 +46,24 @@ namespace RepairsApi.Tests.V2.Gateways
 
             // Assert
             result.Address.ShortAddress.Should().Be(stubData.Content.Address1);
+            result.TmoName.Should().Be(null);
+        }
+
+        [Test]
+        public async Task SendsRequestByIdAndGetsTMOName()
+        {
+            // Arrange
+            var stubData = BuildResponse(StubPropertyApiResponse().Generate());
+            stubData.Content.CompAvail = _tmos[0].CompAvail;
+            _apiGatewayMock.Setup(gw => gw.ExecuteRequest<PropertyApiResponse>(It.IsAny<string>(), It.IsAny<Uri>())).ReturnsAsync(stubData);
+
+            // Act
+            SeedCompany();
+            var result = await _classUnderTest.GetByReferenceAsync("");
+
+            // Assert
+            result.Address.ShortAddress.Should().Be(stubData.Content.Address1);
+            result.TmoName.Should().Be(_tmos[0].Name);
         }
 
         [Test]
@@ -71,6 +95,18 @@ namespace RepairsApi.Tests.V2.Gateways
 
             // Assert
             await actFunction.Should().ThrowAsync<ResourceNotFoundException>();
+        }
+
+        private static void SeedCompany()
+        {
+            InMemoryDb.Instance.Company.AddRange(_tmos);
+            InMemoryDb.Instance.SaveChanges();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            InMemoryDb.Teardown();
         }
 
         private static ApiResponse<T> BuildResponse<T>(T content) where T : class
