@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using FluentAssertions;
+using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers.StubGeneration;
@@ -15,6 +16,7 @@ using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase;
+using V2_Generated_DRS;
 using Appointment = RepairsApi.V2.Infrastructure.Hackney.Appointment;
 using RateScheduleItem = RepairsApi.V2.Generated.RateScheduleItem;
 
@@ -25,6 +27,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         [SetUp]
         public void SetUp()
         {
+            SetupSoapMock();
             SetUserRole(UserGroups.Agent);
         }
 
@@ -132,6 +135,19 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             var repair = db.Appointments.SingleOrDefault(a => a.WorkOrderId == workOrderId);
             modifier?.Invoke(repair);
             return repair;
+        }
+
+        private void SetupSoapMock()
+        {
+            SoapMock.Setup(s => s.updateBookingAsync(It.IsAny<updateBooking>()))
+                .ReturnsAsync(new updateBookingResponse
+                {
+                    @return = new xmbUpdateBookingResponse
+                    {
+                        status = responseStatus.success
+                    }
+                });
+
         }
     }
 }
