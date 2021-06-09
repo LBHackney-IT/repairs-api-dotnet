@@ -11,6 +11,7 @@ using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated.DRS.BackgroundService;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Services.DRS.BackgroundService;
 
 namespace RepairsApi.Tests.V2.Services.BackgroundService
 {

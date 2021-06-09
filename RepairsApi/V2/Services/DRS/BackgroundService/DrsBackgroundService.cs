@@ -3,8 +3,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Generated.DRS.BackgroundService;
 
-namespace RepairsApi.V2.Generated.DRS.BackgroundService
+namespace RepairsApi.V2.Services.DRS.BackgroundService
 {
     public class DrsBackgroundService : IDrsBackgroundService
     {

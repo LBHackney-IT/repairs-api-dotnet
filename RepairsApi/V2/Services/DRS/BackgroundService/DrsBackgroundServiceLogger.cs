@@ -1,24 +1,20 @@
-using System;
 using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.IO;
 
-namespace RepairsApi.V2.Generated.DRS.BackgroundService
+namespace RepairsApi.V2.Services.DRS.BackgroundService
 {
 #pragma warning disable CA2000
     public class DrsBackgroundServiceLogger
     {
         private readonly RequestDelegate _next;
-        private readonly RecyclableMemoryStreamManager _recyclableMemoryStreamManager;
 
         public DrsBackgroundServiceLogger(RequestDelegate next)
         {
-            this._next = next;
-            _recyclableMemoryStreamManager = new RecyclableMemoryStreamManager();
+            _next = next;
         }
 
         public async Task Invoke(HttpContext context, ILogger<DrsBackgroundServiceLogger> logger)

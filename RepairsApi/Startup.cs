@@ -50,6 +50,7 @@ using RepairsApi.V2.Notifications;
 using RepairsApi.V2.Email;
 using Notify.Interfaces;
 using Notify.Client;
+using RepairsApi.V2.Services.DRS.BackgroundService;
 using Serilog;
 using SoapCore.Extensibility;
 
