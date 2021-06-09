@@ -9,7 +9,7 @@ using Microsoft.IO;
 
 namespace RepairsApi.V2.Generated.DRS.BackgroundService
 {
-#pragma warning disable // Disable all warnings
+#pragma warning disable CA2000
     public class DrsBackgroundServiceLogger
     {
         private readonly RequestDelegate _next;

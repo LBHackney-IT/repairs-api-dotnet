@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using RepairsApi.Tests.Helpers.StubGeneration;
 using RepairsApi.V2.Generated;
@@ -12,7 +13,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
                 .AddWorkOrderGenerators()
                 .AddValue(new List<double>
                 {
-                    0
+                    new Random().Next(100)
                 }, (RateScheduleItem rsi) => rsi.Quantity.Amount);
 
             return gen;
