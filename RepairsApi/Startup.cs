@@ -50,7 +50,9 @@ using RepairsApi.V2.Notifications;
 using RepairsApi.V2.Email;
 using Notify.Interfaces;
 using Notify.Client;
+using RepairsApi.V2.Services.DRS.BackgroundService;
 using Serilog;
+using SoapCore.Extensibility;
 
 namespace RepairsApi
 {
@@ -228,10 +230,10 @@ namespace RepairsApi
         private static void ConfigureDRSSoap(IServiceCollection services)
         {
             services.AddSoapCore();
-            services.TryAddSingleton<IDrsBackgroundService, DrsBackgroundService>();
+            services.AddScoped<IDrsBackgroundService, DrsBackgroundService>();
             services.AddSoapExceptionTransformer((ex) =>
             {
-                Log.Logger.Information("Error handling SOAP request {ERROR}", ex.Message);
+                Log.Logger.Error("Error handling SOAP request {ERROR}", ex.Message);
                 return ex.Message;
             });
 

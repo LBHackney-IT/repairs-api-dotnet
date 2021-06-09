@@ -150,13 +150,13 @@ namespace RepairsApi.V2.Services
             var locationAlerts = property != null ? await _alertsGateway.GetLocationAlertsAsync(property.PropertyReference) : null;
             var tenureInfo = property != null ? await _tenancyGateway.GetTenancyInformationAsync(property.PropertyReference) : null;
             var personAlerts = tenureInfo != null ? await _alertsGateway.GetPersonAlertsAsync(tenureInfo.TenancyAgreementReference) : null;
-            var orderCommentsExtended = $"Property Alerts {locationAlerts?.Alerts.ToDescriptionString()} " +
+            var plannerComments = $"Property Alerts {locationAlerts?.Alerts.ToDescriptionString()} " +
                                         $"Person Alerts {personAlerts?.Alerts.ToDescriptionString()}";
 
             booking.theOrder = drsOrder;
             //booking.theOrder.theBookings = null;
 
-            booking.plannerComments = orderCommentsExtended;
+            booking.plannerComments = plannerComments;
 
             var updateBooking = new updateBooking
             {
