@@ -225,6 +225,12 @@
   <data name="WorkOrderApprovalAboveSpendLimit" xml:space="preserve">
     <value>Cannot Approve a Work Order Above Spend Limit</value>
   </data>
+  <data name="CannotCompleteWorkOrderTwice" xml:space="preserve">
+      <value>Cannot complete a work order twice</value>
+  </data>
+  <data name="CannotCompleteWithNoOperative" xml:space="preserve">
+      <value>Cannot complete a work order before assigning an operative</value>
+  </data>
   <data name="ExternallyManagedAppointment" xml:space="preserve">
       <value>Externally Managed Appointment</value>
   </data>

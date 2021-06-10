@@ -4,6 +4,6 @@ namespace RepairsApi.V2.UseCase.Interfaces
 {
     public interface IDeleteOperativeUseCase
     {
-        Task<bool> ExecuteAsync(string operativePrn);
+        Task ExecuteAsync(string operativePrn);
     }
 }

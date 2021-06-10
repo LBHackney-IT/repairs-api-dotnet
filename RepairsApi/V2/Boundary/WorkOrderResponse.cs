@@ -1,5 +1,7 @@
+using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Generated;
 using System;
+using System.Collections.Generic;
 
 namespace RepairsApi.V2.Boundary
 {
@@ -23,6 +25,7 @@ namespace RepairsApi.V2.Boundary
         public string TradeCode { get; set; }
         public string TradeDescription { get; set; }
         public AppointmentResponse Appointment { get; set; }
+        public List<OperativeResponse> Operatives { get; set; }
         public string Action { get; set; }
     }
 }

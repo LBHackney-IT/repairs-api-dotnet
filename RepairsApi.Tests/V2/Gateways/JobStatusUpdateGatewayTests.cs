@@ -79,6 +79,8 @@ namespace RepairsApi.Tests.V2.Gateways
         {
             return _generator
                 .AddValue(null, (JobStatusUpdate jsu) => jsu.AuthorName)
+                .Ignore((WorkOrder wo) => wo.WorkOrderOperatives)
+                .Ignore((WorkOrder wo) => wo.AssignedOperatives)
                 .Generate();
         }
     }
