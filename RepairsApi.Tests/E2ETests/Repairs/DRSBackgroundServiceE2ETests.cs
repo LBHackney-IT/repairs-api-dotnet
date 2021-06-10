@@ -136,18 +136,5 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             modifier?.Invoke(repair);
             return repair;
         }
-
-        private void SetupSoapMock()
-        {
-            SoapMock.Setup(s => s.updateBookingAsync(It.IsAny<updateBooking>()))
-                .ReturnsAsync(new updateBookingResponse
-                {
-                    @return = new xmbUpdateBookingResponse
-                    {
-                        status = responseStatus.success
-                    }
-                });
-
-        }
     }
 }

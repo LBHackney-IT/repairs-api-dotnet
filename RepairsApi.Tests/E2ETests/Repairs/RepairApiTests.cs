@@ -327,7 +327,8 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         [Test]
         public async Task OperativeGetsAssigned()
         {
-            var result = await CreateWorkOrder();
+            SetupSoapMock();
+            var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
 
             await AssignOperative(result.Id, TestDataSeeder.OperativeId);
 
@@ -340,7 +341,8 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         [Test]
         public async Task CompletionFailsWithNoOperative()
         {
-            var result = await CreateWorkOrder();
+            SetupSoapMock();
+            var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
 
             var code = await CompleteWorkOrder(result.Id, preAssignOperative: false);
 
@@ -470,19 +472,6 @@ namespace RepairsApi.Tests.E2ETests.Repairs
                 .AddValue(workElement, (JobStatusUpdate jsu) => jsu.MoreSpecificSORCode)
                 .AddValue("comments", (JobStatusUpdate jsu) => jsu.Comments)
                 .Generate();
-        }
-
-        private void SetupSoapMock()
-        {
-            SoapMock.Setup(s => s.updateBookingAsync(It.IsAny<updateBooking>()))
-                .ReturnsAsync(new updateBookingResponse
-                {
-                    @return = new xmbUpdateBookingResponse
-                    {
-                        status = responseStatus.success
-                    }
-                });
-
         }
 
         private static void AddRateScheduleItem(RepairsApi.V2.Generated.WorkElement workElement, string code, int quantity, string id = null)

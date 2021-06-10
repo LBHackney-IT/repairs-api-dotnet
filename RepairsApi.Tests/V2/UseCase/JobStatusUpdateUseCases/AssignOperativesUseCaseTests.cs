@@ -24,6 +24,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         {
             _operativesGatewayMock = new Mock<IOperativesGateway>();
             _scheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
+            _scheduleOfRatesGateway.Setup(mock => mock.GetContractor(It.IsAny<string>())).ReturnsAsync(new RepairsApi.V2.Domain.Contractor { UseExternalScheduleManager = true });
 
             _classUnderTest = new AssignOperativesUseCase(_operativesGatewayMock.Object, _scheduleOfRatesGateway.Object);
         }
@@ -58,7 +59,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
 
         private static WorkOrder BuildWorkOrder(int expectedId)
         {
-            return new WorkOrder() { Id = expectedId };
+            return new WorkOrder() { Id = expectedId, AssignedToPrimary = new Party { ContractorReference = "test-contractor" } };
         }
 
         private static JobStatusUpdate BuildUpdate(WorkOrder workOrder)
