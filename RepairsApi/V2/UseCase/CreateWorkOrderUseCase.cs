@@ -96,10 +96,12 @@ namespace RepairsApi.V2.UseCase
             }
         }
 
-        private async Task NotifyUpdaters(WorkOrder workOrder)
+        private async Task<WorkOrderPlannerCommentsUpdated> NotifyUpdaters(WorkOrder workOrder)
         {
             var notification = new WorkOrderPlannerCommentsUpdated(workOrder);
             await _notifier.Notify(notification);
+
+            return notification;
         }
 
         private async Task<WorkOrderOpened> NotifyHandlers(WorkOrder workOrder)
