@@ -79,7 +79,15 @@ namespace RepairsApi.V2.UseCase
                     managementUri.Query = $"tokenId={notification.TokenId}";
                     result.ExternalAppointmentManagementUrl = managementUri.Uri;
 
-                    await NotifyUpdaters(workOrder);
+                    try
+                    {
+                        await NotifyUpdaters(workOrder);
+                    }
+                    catch (System.ServiceModel.CommunicationException)
+                    {
+                        _logger.LogError("Error serializing workorder update {workOrderId}", workOrder.Id);
+                    }
+
                 }
 
                 _logger.LogInformation("Successfully created work order {workOrderId}", workOrder.Id);
