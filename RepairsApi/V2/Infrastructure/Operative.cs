@@ -5,7 +5,6 @@ using RepairsApi.V2.Infrastructure.Hackney;
 
 namespace RepairsApi.V2.Infrastructure
 {
-    [Index(nameof(PayrollNumber), IsUnique = true)]
     public class Operative : IArchivable
     {
         [Key] public int Id { get; set; }
