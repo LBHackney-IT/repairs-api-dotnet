@@ -50,6 +50,9 @@ using RepairsApi.V2.Notifications;
 using RepairsApi.V2.Email;
 using Notify.Interfaces;
 using Notify.Client;
+using RepairsApi.V2.Services.DRS.BackgroundService;
+using Serilog;
+using SoapCore.Extensibility;
 
 namespace RepairsApi
 {
@@ -192,6 +195,7 @@ namespace RepairsApi
             services.Configure<DrsOptions>(Configuration.GetSection(nameof(DrsOptions)));
             services.Configure<FilterConfiguration>(Configuration.GetSection(nameof(FilterConfiguration)));
             services.Configure<NotifyOptions>(Configuration.GetSection(nameof(NotifyOptions)));
+            services.Configure<EmailOptions>(Configuration.GetSection(nameof(EmailOptions)));
 
             RegisterGateways(services);
             RegisterUseCases(services);
@@ -226,8 +230,13 @@ namespace RepairsApi
         private static void ConfigureDRSSoap(IServiceCollection services)
         {
             services.AddSoapCore();
-            services.TryAddSingleton<IDrsBackgroundService, DrsBackgroundService>();
-            services.AddSoapExceptionTransformer((ex) => ex.Message);
+            services.AddScoped<IDrsBackgroundService, DrsBackgroundService>();
+            services.AddSoapExceptionTransformer((ex) =>
+            {
+                Log.Logger.Error("Error handling SOAP request {ERROR}", ex.Message);
+                return ex.Message;
+            });
+
         }
 
         private static void AddNotificationHandlers(IServiceCollection services)
@@ -251,6 +260,7 @@ namespace RepairsApi
             services.AddTransient<ISorPriorityGateway, SorPriorityGateway>();
             services.AddTransient<IAppointmentsGateway, AppointmentGateway>();
             services.AddTransient<IGroupsGateway, GroupsGateway>();
+            services.AddTransient<IOperativesGateway, OperativesGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
@@ -272,6 +282,9 @@ namespace RepairsApi
             services.AddTransient<ICreateAppointmentUseCase, CreateAppointmentUseCase>();
             services.AddTransient<IListVariationTasksUseCase, ListVariationTasksUseCase>();
             services.AddTransient<IGetFilterUseCase, GetFilterUseCase>();
+            services.AddTransient<IListOperativesUseCase, ListOperativesUseCase>();
+            services.AddTransient<IGetOperativeUseCase, GetOperativeUseCase>();
+            services.AddTransient<IDeleteOperativeUseCase, DeleteOperativeUseCase>();
         }
 
         private void AddHttpClients(IServiceCollection services)
@@ -340,6 +353,7 @@ namespace RepairsApi
             app.UseRouting();
             app.UseAuthorization();
             app.UseMiddleware<ExceptionMiddleware>();
+            app.UseMiddleware<DrsBackgroundServiceLogger>();
             app.UseEndpoints(endpoints =>
             {
                 // SwaggerGen won't find controllers that are routed via this technique.

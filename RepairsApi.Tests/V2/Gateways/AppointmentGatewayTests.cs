@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using RepairsApi.V2;
 
 namespace RepairsApi.Tests.V2.Gateways
 {
@@ -24,11 +26,11 @@ namespace RepairsApi.Tests.V2.Gateways
         {
             SeedData("contractor", new DaySeedModel[]
             {
-                    new DaySeedModel(DateTime.UtcNow.DayOfWeek, 5),
+                new DaySeedModel(DateTime.UtcNow.DayOfWeek, 5),
             }, new AppointmentSeedModel[]
             {
-                    new AppointmentSeedModel("AM", new DateTime().AddHours(8), new DateTime().AddHours(12)),
-                    new AppointmentSeedModel("PM", new DateTime().AddHours(13), new DateTime().AddHours(18)),
+                new AppointmentSeedModel("AM", new DateTime().AddHours(8), new DateTime().AddHours(12)),
+                new AppointmentSeedModel("PM", new DateTime().AddHours(13), new DateTime().AddHours(18)),
             });
 
             var items = await _classUnderTest.ListAppointments("contractor", DateTime.UtcNow.AddDays(-1), DateTime.UtcNow.AddDays(1));
@@ -44,13 +46,12 @@ namespace RepairsApi.Tests.V2.Gateways
         {
             SeedData("contractor", new DaySeedModel[]
             {
-                    new DaySeedModel(DateTime.UtcNow.DayOfWeek, 5),
-                    new DaySeedModel(DateTime.UtcNow.AddDays(1).DayOfWeek, 5),
-                    new DaySeedModel(DateTime.UtcNow.AddDays(2).DayOfWeek, 5),
+                new DaySeedModel(DateTime.UtcNow.DayOfWeek, 5), new DaySeedModel(DateTime.UtcNow.AddDays(1).DayOfWeek, 5),
+                new DaySeedModel(DateTime.UtcNow.AddDays(2).DayOfWeek, 5),
             }, new AppointmentSeedModel[]
             {
-                    new AppointmentSeedModel("AM", new DateTime().AddHours(8), new DateTime().AddHours(12)),
-                    new AppointmentSeedModel("PM", new DateTime().AddHours(13), new DateTime().AddHours(18)),
+                new AppointmentSeedModel("AM", new DateTime().AddHours(8), new DateTime().AddHours(12)),
+                new AppointmentSeedModel("PM", new DateTime().AddHours(13), new DateTime().AddHours(18)),
             });
 
             var items = await _classUnderTest.ListAppointments("contractor", DateTime.UtcNow.AddDays(-1), DateTime.UtcNow);
@@ -65,11 +66,11 @@ namespace RepairsApi.Tests.V2.Gateways
         {
             SeedData("contractor", new DaySeedModel[]
             {
-                    new DaySeedModel(DateTime.UtcNow.DayOfWeek, 0),
+                new DaySeedModel(DateTime.UtcNow.DayOfWeek, 0),
             }, new AppointmentSeedModel[]
             {
-                    new AppointmentSeedModel("AM", new DateTime().AddHours(8), new DateTime().AddHours(12)),
-                    new AppointmentSeedModel("PM", new DateTime().AddHours(13), new DateTime().AddHours(18)),
+                new AppointmentSeedModel("AM", new DateTime().AddHours(8), new DateTime().AddHours(12)),
+                new AppointmentSeedModel("PM", new DateTime().AddHours(13), new DateTime().AddHours(18)),
             });
 
             var items = await _classUnderTest.ListAppointments("contractor", DateTime.UtcNow.AddDays(-1), DateTime.UtcNow.AddDays(1));
@@ -82,11 +83,11 @@ namespace RepairsApi.Tests.V2.Gateways
         {
             SeedData("contractor", new DaySeedModel[]
             {
-                    new DaySeedModel(DateTime.UtcNow.DayOfWeek, 5),
+                new DaySeedModel(DateTime.UtcNow.DayOfWeek, 5),
             }, new AppointmentSeedModel[]
             {
-                    new AppointmentSeedModel("AM", new DateTime().AddHours(8), new DateTime().AddHours(12)),
-                    new AppointmentSeedModel("PM", new DateTime().AddHours(13), new DateTime().AddHours(18)),
+                new AppointmentSeedModel("AM", new DateTime().AddHours(8), new DateTime().AddHours(12)),
+                new AppointmentSeedModel("PM", new DateTime().AddHours(13), new DateTime().AddHours(18)),
             });
 
             var items = await _classUnderTest.ListAppointments("otherContractor", DateTime.UtcNow.AddDays(-1), DateTime.UtcNow.AddDays(1));
@@ -104,22 +105,48 @@ namespace RepairsApi.Tests.V2.Gateways
 
 
         [Test]
-        public async Task BookAppointment()
+        public async Task BookSlotAppointment()
         {
+            var startTime = new DateTime().AddHours(8);
+            var endTime = new DateTime().AddHours(12);
             var ids = SeedData("contractor", new DaySeedModel[]
             {
-                    new DaySeedModel(DateTime.UtcNow.DayOfWeek, 1),
+                new DaySeedModel(DateTime.UtcNow.DayOfWeek, 1),
             }, new AppointmentSeedModel[]
             {
-                    new AppointmentSeedModel("AM", new DateTime().AddHours(8), new DateTime().AddHours(12))
+                new AppointmentSeedModel("AM", startTime, endTime)
             });
 
             var preBookItems = await _classUnderTest.ListAppointments("contractor", DateTime.UtcNow.AddDays(-1), DateTime.UtcNow.AddDays(1));
-            await _classUnderTest.Create(GenerateAppointmentRef(ids.First(), DateTime.UtcNow), 100001);
+            var appointmentRef = GenerateAppointmentRef(ids.First(), DateTime.UtcNow);
+            var workOrderId = 100001;
+            await _classUnderTest.CreateSlotBooking(appointmentRef, workOrderId);
             var postBookItems = await _classUnderTest.ListAppointments("contractor", DateTime.UtcNow.AddDays(-1), DateTime.UtcNow.AddDays(1));
+
+            var appointment = await InMemoryDb.Instance.Appointments.SingleOrDefaultAsync(a => a.WorkOrderId == workOrderId);
+            appointment.Should().NotBeNull();
+            appointment.StartTime.Should().Be(startTime);
+            appointment.EndTime.Should().Be(endTime);
 
             preBookItems.Should().HaveCount(1);
             postBookItems.Should().HaveCount(0);
+        }
+
+        [Test]
+        public async Task BookTimedAppointment()
+        {
+            const int workOrderId = 100001;
+            var startTime = DateTime.UtcNow;
+            var endTime = DateTime.UtcNow.AddHours(5);
+
+            await _classUnderTest.CreateTimedBooking(workOrderId, startTime, endTime);
+
+            var appointment = await InMemoryDb.Instance.Appointments.SingleOrDefaultAsync(a => a.WorkOrderId == workOrderId);
+            appointment.Should().NotBeNull();
+            appointment.WorkOrderId.Should().Be(workOrderId);
+            appointment.Date.Should().Be(startTime.Date);
+            appointment.StartTime.Should().Be(startTime);
+            appointment.EndTime.Should().Be(endTime);
         }
 
         private static string GenerateAppointmentRef(int id, DateTime date)
@@ -132,14 +159,14 @@ namespace RepairsApi.Tests.V2.Gateways
         {
             var ids = SeedData("contractor", new DaySeedModel[]
             {
-                    new DaySeedModel(DateTime.UtcNow.DayOfWeek, 1),
+                new DaySeedModel(DateTime.UtcNow.DayOfWeek, 1),
             }, new AppointmentSeedModel[]
             {
-                    new AppointmentSeedModel("AM", new DateTime().AddHours(8), new DateTime().AddHours(12))
+                new AppointmentSeedModel("AM", new DateTime().AddHours(8), new DateTime().AddHours(12))
             });
-            await _classUnderTest.Create(GenerateAppointmentRef(ids.First(), DateTime.UtcNow), 100001);
+            await _classUnderTest.CreateSlotBooking(GenerateAppointmentRef(ids.First(), DateTime.UtcNow), 100001);
 
-            Func<Task> testFunc = async () => await _classUnderTest.Create(GenerateAppointmentRef(ids.First(), DateTime.UtcNow), 100001);
+            Func<Task> testFunc = async () => await _classUnderTest.CreateSlotBooking(GenerateAppointmentRef(ids.First(), DateTime.UtcNow), 100001);
 
             await testFunc.Should().ThrowAsync<NotSupportedException>();
         }
@@ -150,15 +177,15 @@ namespace RepairsApi.Tests.V2.Gateways
         {
             var ids = SeedData("contractor", new DaySeedModel[]
             {
-                    new DaySeedModel(DateTime.UtcNow.DayOfWeek, 1),
+                new DaySeedModel(DateTime.UtcNow.DayOfWeek, 1),
             }, new AppointmentSeedModel[]
             {
-                    new AppointmentSeedModel("AM", new DateTime().AddHours(8), new DateTime().AddHours(12))
+                new AppointmentSeedModel("AM", new DateTime().AddHours(8), new DateTime().AddHours(12))
             });
-            await _classUnderTest.Create(GenerateAppointmentRef(ids.First(), DateTime.UtcNow), 100001);
+            await _classUnderTest.CreateSlotBooking(GenerateAppointmentRef(ids.First(), DateTime.UtcNow), 100001);
 
-            Func<Task> testFunc = async () => await _classUnderTest.Create(GenerateAppointmentRef(ids.First(), DateTime.UtcNow), 100001);
-            Func<Task> nextWeekTestFunc = async () => await _classUnderTest.Create(GenerateAppointmentRef(ids.First(), DateTime.UtcNow.AddDays(7)), 100001);
+            Func<Task> testFunc = async () => await _classUnderTest.CreateSlotBooking(GenerateAppointmentRef(ids.First(), DateTime.UtcNow), 100001);
+            Func<Task> nextWeekTestFunc = async () => await _classUnderTest.CreateSlotBooking(GenerateAppointmentRef(ids.First(), DateTime.UtcNow.AddDays(7)), 100001);
 
             await testFunc.Should().ThrowAsync<NotSupportedException>();
             await nextWeekTestFunc.Should().NotThrowAsync<NotSupportedException>();
@@ -168,13 +195,13 @@ namespace RepairsApi.Tests.V2.Gateways
         [Test]
         public async Task ThrowsWhenNoMatchingAppointment()
         {
-            Func<Task> testFunc = async () => await _classUnderTest.Create("1/2020-01-01", 100001);
+            Func<Task> testFunc = async () => await _classUnderTest.CreateSlotBooking("1/2020-01-01", 100001);
 
             await testFunc.Should().ThrowAsync<ResourceNotFoundException>();
         }
 
         [Test]
-        public async Task GetAppointment()
+        public async Task GetSlotAppointment()
         {
             var date = DateTime.UtcNow.Date;
             var start = new DateTime().AddHours(8);
@@ -189,7 +216,25 @@ namespace RepairsApi.Tests.V2.Gateways
             {
                 new AppointmentSeedModel(description, start, end)
             });
-            await _classUnderTest.Create(GenerateAppointmentRef(ids.First(), date), workOrderRef);
+            await _classUnderTest.CreateSlotBooking(GenerateAppointmentRef(ids.First(), date), workOrderRef);
+
+            var appointment = await _classUnderTest.GetAppointment(workOrderRef);
+
+            appointment.Description.Should().Be(description);
+            appointment.Start.Should().Be(start);
+            appointment.End.Should().Be(end);
+            appointment.Date.Should().Be(date);
+        }
+
+        [Test]
+        public async Task GetTimedAppointment()
+        {
+            var date = DateTime.UtcNow.Date;
+            var start = DateTime.UtcNow.AddHours(8);
+            var end = DateTime.UtcNow.AddHours(12);
+            var description = Resources.ExternallyManagedAppointment;
+            var workOrderRef = 100001;
+            await _classUnderTest.CreateTimedBooking(workOrderRef, start, end);
 
             var appointment = await _classUnderTest.GetAppointment(workOrderRef);
 

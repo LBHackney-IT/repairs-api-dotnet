@@ -36,6 +36,28 @@ namespace RepairsApi.V2.Infrastructure
         public string AgentEmail { get; set; }
         public WorkStatusCode StatusCode { get; set; } = WorkStatusCode.Open;
         public ReasonCode Reason { get; set; } = ReasonCode.FullyFunded;
+        public virtual List<WorkOrderOperative> WorkOrderOperatives { get; set; }
+        public virtual List<Operative> AssignedOperatives { get; set; }
+    }
+
+    public class WorkOrderOperative
+    {
+        public int WorkOrderId { get; set; }
+        public virtual WorkOrder WorkOrder { get; set; }
+        public int OperativeId { get; set; }
+        public virtual Operative Operative { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return obj is WorkOrderOperative other ?
+                WorkOrderId == other.WorkOrderId && OperativeId == other.OperativeId
+                : false;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(WorkOrderId, OperativeId);
+        }
     }
 
     public enum WorkStatusCode

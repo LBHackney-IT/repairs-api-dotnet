@@ -19,6 +19,25 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
                 .HasAnnotation("ProductVersion", "5.0.2");
 
+            modelBuilder.Entity("OperativeSorCodeTrade", b =>
+                {
+                    b.Property<int>("OperativesId")
+                        .HasColumnType("integer")
+                        .HasColumnName("operatives_id");
+
+                    b.Property<string>("TradesCode")
+                        .HasColumnType("text")
+                        .HasColumnName("trades_code");
+
+                    b.HasKey("OperativesId", "TradesCode")
+                        .HasName("pk_operative_sor_code_trade");
+
+                    b.HasIndex("TradesCode")
+                        .HasDatabaseName("ix_operative_sor_code_trade_trades_code");
+
+                    b.ToTable("operative_sor_code_trade");
+                });
+
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.AlertRegardingLocation", b =>
                 {
                     b.Property<int>("Id")
@@ -218,20 +237,37 @@ namespace RepairsApi.V2.Infrastructure.Migrations
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Hackney.Appointment", b =>
                 {
-                    b.Property<int>("DayId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasColumnName("day_id");
-
-                    b.Property<int>("WorkOrderId")
-                        .HasColumnType("integer")
-                        .HasColumnName("work_order_id");
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("date");
 
-                    b.HasKey("DayId", "WorkOrderId")
+                    b.Property<int?>("DayId")
+                        .HasColumnType("integer")
+                        .HasColumnName("day_id");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("end_time");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("start_time");
+
+                    b.Property<int>("WorkOrderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("work_order_id");
+
+                    b.HasKey("Id")
                         .HasName("pk_appointments");
+
+                    b.HasIndex("DayId")
+                        .HasDatabaseName("ix_appointments_day_id");
 
                     b.HasIndex("WorkOrderId")
                         .HasDatabaseName("ix_appointments_work_order_id");
@@ -566,24 +602,27 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasColumnName("id")
                         .UseIdentityByDefaultColumn();
 
-                    b.Property<int?>("PersonId")
-                        .HasColumnType("integer")
-                        .HasColumnName("person_id");
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_archived");
 
-                    b.Property<int?>("WorkOrderCompleteId")
-                        .HasColumnType("integer")
-                        .HasColumnName("work_order_complete_id");
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<string>("PayrollNumber")
+                        .HasColumnType("text")
+                        .HasColumnName("payroll_number");
+
+                    b.Property<string>("ResourceId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("resource_id");
 
                     b.HasKey("Id")
-                        .HasName("pk_operative");
+                        .HasName("pk_operatives");
 
-                    b.HasIndex("PersonId")
-                        .HasDatabaseName("ix_operative_person_id");
-
-                    b.HasIndex("WorkOrderCompleteId")
-                        .HasDatabaseName("ix_operative_work_order_complete_id");
-
-                    b.ToTable("operative");
+                    b.ToTable("operatives");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Organization", b =>
@@ -995,19 +1034,12 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("custom_name");
 
-                    b.Property<int?>("OperativeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("operative_id");
-
                     b.Property<Guid?>("WorkElementId")
                         .HasColumnType("uuid")
                         .HasColumnName("work_element_id");
 
                     b.HasKey("Id")
                         .HasName("pk_trade");
-
-                    b.HasIndex("OperativeId")
-                        .HasDatabaseName("ix_trade_operative_id");
 
                     b.HasIndex("WorkElementId")
                         .HasDatabaseName("ix_trade_work_element_id");
@@ -1058,10 +1090,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("job_status_update_id");
 
-                    b.Property<int?>("OperativeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("operative_id");
-
                     b.Property<int?>("ServiceChargeSubject")
                         .HasColumnType("integer")
                         .HasColumnName("service_charge_subject");
@@ -1079,9 +1107,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
 
                     b.HasIndex("JobStatusUpdateId")
                         .HasDatabaseName("ix_work_elements_job_status_update_id");
-
-                    b.HasIndex("OperativeId")
-                        .HasDatabaseName("ix_work_elements_operative_id");
 
                     b.HasIndex("WorkOrderCompleteId")
                         .HasDatabaseName("ix_work_elements_work_order_complete_id");
@@ -1219,6 +1244,42 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.ToTable("work_order_completes");
                 });
 
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrderOperative", b =>
+                {
+                    b.Property<int>("WorkOrderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("work_order_id");
+
+                    b.Property<int>("OperativeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("operative_id");
+
+                    b.HasKey("WorkOrderId", "OperativeId")
+                        .HasName("pk_work_order_operatives");
+
+                    b.HasIndex("OperativeId")
+                        .HasDatabaseName("ix_work_order_operatives_operative_id");
+
+                    b.ToTable("work_order_operatives");
+                });
+
+            modelBuilder.Entity("OperativeSorCodeTrade", b =>
+                {
+                    b.HasOne("RepairsApi.V2.Infrastructure.Operative", null)
+                        .WithMany()
+                        .HasForeignKey("OperativesId")
+                        .HasConstraintName("fk_operative_sor_code_trade_operatives_operatives_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RepairsApi.V2.Infrastructure.Hackney.SorCodeTrade", null)
+                        .WithMany()
+                        .HasForeignKey("TradesCode")
+                        .HasConstraintName("fk_operative_sor_code_trade_trades_trades_code")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.AlertRegardingLocation", b =>
                 {
                     b.HasOne("RepairsApi.V2.Infrastructure.WorkOrder", null)
@@ -1319,9 +1380,7 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.HasOne("RepairsApi.V2.Infrastructure.Hackney.AvailableAppointmentDay", "Day")
                         .WithMany("ExistingAppointments")
                         .HasForeignKey("DayId")
-                        .HasConstraintName("fk_appointments_available_appointment_days_day_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasConstraintName("fk_appointments_available_appointment_days_day_id");
 
                     b.HasOne("RepairsApi.V2.Infrastructure.WorkOrder", "WorkOrder")
                         .WithMany()
@@ -1553,21 +1612,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.Navigation("RefinedAppointmentWindow");
 
                     b.Navigation("RelatedWorkOrder");
-                });
-
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Operative", b =>
-                {
-                    b.HasOne("RepairsApi.V2.Infrastructure.Person", "Person")
-                        .WithMany()
-                        .HasForeignKey("PersonId")
-                        .HasConstraintName("fk_operative_person_person_id");
-
-                    b.HasOne("RepairsApi.V2.Infrastructure.WorkOrderComplete", null)
-                        .WithMany("OperativesUsed")
-                        .HasForeignKey("WorkOrderCompleteId")
-                        .HasConstraintName("fk_operative_work_order_completes_work_order_complete_id");
-
-                    b.Navigation("Person");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Party", b =>
@@ -1962,11 +2006,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Trade", b =>
                 {
-                    b.HasOne("RepairsApi.V2.Infrastructure.Operative", null)
-                        .WithMany("Trade")
-                        .HasForeignKey("OperativeId")
-                        .HasConstraintName("fk_trade_operative_operative_id");
-
                     b.HasOne("RepairsApi.V2.Infrastructure.WorkElement", null)
                         .WithMany("Trade")
                         .HasForeignKey("WorkElementId")
@@ -2022,11 +2061,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .WithMany("RelatedWorkElement")
                         .HasForeignKey("JobStatusUpdateId")
                         .HasConstraintName("fk_work_elements_job_status_updates_job_status_update_id");
-
-                    b.HasOne("RepairsApi.V2.Infrastructure.Operative", null)
-                        .WithMany("WorkElement")
-                        .HasForeignKey("OperativeId")
-                        .HasConstraintName("fk_work_elements_operative_operative_id");
 
                     b.HasOne("RepairsApi.V2.Infrastructure.WorkOrderComplete", null)
                         .WithMany("CompletedWorkElements")
@@ -2283,6 +2317,27 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.Navigation("WorkOrder");
                 });
 
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrderOperative", b =>
+                {
+                    b.HasOne("RepairsApi.V2.Infrastructure.Operative", "Operative")
+                        .WithMany("WorkOrderOperatives")
+                        .HasForeignKey("OperativeId")
+                        .HasConstraintName("fk_work_order_operatives_operatives_operative_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkOrder", "WorkOrder")
+                        .WithMany("WorkOrderOperatives")
+                        .HasForeignKey("WorkOrderId")
+                        .HasConstraintName("fk_work_order_operatives_work_orders_work_order_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Operative");
+
+                    b.Navigation("WorkOrder");
+                });
+
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Contact", b =>
                 {
                     b.Navigation("Address");
@@ -2324,9 +2379,7 @@ namespace RepairsApi.V2.Infrastructure.Migrations
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Operative", b =>
                 {
-                    b.Navigation("Trade");
-
-                    b.Navigation("WorkElement");
+                    b.Navigation("WorkOrderOperatives");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Organization", b =>
@@ -2371,6 +2424,8 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.Navigation("WorkElements");
 
                     b.Navigation("WorkOrderComplete");
+
+                    b.Navigation("WorkOrderOperatives");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrderComplete", b =>
@@ -2382,8 +2437,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.Navigation("FollowOnWorkOrder");
 
                     b.Navigation("JobStatusUpdates");
-
-                    b.Navigation("OperativesUsed");
                 });
 #pragma warning restore 612, 618
         }

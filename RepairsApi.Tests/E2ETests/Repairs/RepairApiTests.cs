@@ -47,7 +47,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         {
             // Arrange
             SetUserRole(userGroup);
-            var request = GenerateWorkOrder<ScheduleRepair>()
+            var request = WorkOrderHelpers.CreateWorkOrderGenerator<ScheduleRepair>()
                 .AddValue(new List<double>
                 {
                     1
@@ -67,6 +67,8 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         [Test]
         public async Task ForwardedToDRS()
         {
+            SetupSoapMock();
+
             var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
 
             result.ExternallyManagedAppointment.Should().BeTrue();
@@ -78,6 +80,8 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         [Test]
         public async Task DeletesFromDRS()
         {
+            SetupSoapMock();
+
             var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
 
             await CancelWorkOrder(result.Id);
@@ -88,7 +92,6 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         [Test]
         public async Task CompletedInDRS()
         {
-            var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
             SetUserRole(UserGroups.ContractManager);
             var drsOrder = _fixture.Create<order>();
             drsOrder.status = orderStatus.PLANNED;
@@ -113,6 +116,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
                     }
                 });
 
+            var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
             await CompleteWorkOrder(result.Id);
 
             SoapMock.Verify(s => s.updateBookingAsync(It.IsAny<updateBooking>()));
@@ -139,7 +143,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         public async Task BadRequestWhenMultipleAmountsProvided()
         {
             // Arrange
-            var request = GenerateWorkOrder<ScheduleRepair>().Generate();
+            var request = WorkOrderHelpers.CreateWorkOrderGenerator<ScheduleRepair>().Generate();
             request.WorkElement.First().RateScheduleItem.First().Quantity.Amount.Add(3.5);
 
             // Act
@@ -195,8 +199,10 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             workOrder.StatusCode.Should().Be(WorkStatusCode.Complete);
         }
 
-        private async Task<HttpStatusCode> CompleteWorkOrder(int workOrderId)
+        private async Task<HttpStatusCode> CompleteWorkOrder(int workOrderId, bool preAssignOperative = true)
         {
+            if (preAssignOperative) await AssignOperative(workOrderId, TestDataSeeder.OperativeId);
+
             var request = new Helpers.StubGeneration.Generator<WorkOrderComplete>()
                 .AddWorkOrderCompleteGenerators()
                 .AddValue(workOrderId.ToString(), (WorkOrderComplete woc) => woc.WorkOrderReference.ID)
@@ -318,6 +324,41 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             resumedOrder.StatusCode.Should().Be(WorkStatusCode.Open);
         }
 
+        [Test]
+        public async Task OperativeGetsAssigned()
+        {
+            var result = await CreateWorkOrder();
+
+            await AssignOperative(result.Id, TestDataSeeder.OperativeId);
+
+            var order = GetWorkOrderFromDB(result.Id, wo => wo.AssignedOperatives.Load());
+
+            order.AssignedOperatives.Should().HaveCount(1);
+            order.AssignedOperatives.Should().ContainSingle(ao => ao.Id == TestDataSeeder.OperativeId);
+        }
+
+        [Test]
+        public async Task CompletionFailsWithNoOperative()
+        {
+            var result = await CreateWorkOrder();
+
+            var code = await CompleteWorkOrder(result.Id, preAssignOperative: false);
+
+            code.Should().Be(400);
+        }
+
+        private Task AssignOperative(int workOrderId, int operativeId)
+        {
+            return UpdateJob(workOrderId, jsu =>
+            {
+                jsu.TypeCode = JobStatusUpdateTypeCode._10;
+                jsu.OperativesAssigned = new List<OperativesAssigned>
+                {
+                    new OperativesAssigned(){ Identification = new RepairsApi.V2.Generated.Identification{ Number = operativeId.ToString() } }
+                };
+            });
+        }
+
         private static RepairsApi.V2.Generated.WorkElement TransformTasksToWorkElement(IEnumerable<WorkOrderItemViewModel> tasks)
         {
             return new RepairsApi.V2.Generated.WorkElement
@@ -342,25 +383,6 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         {
             using var ctx = GetContext();
             TestDataSeeder.AddCode(ctx.DB, expectedCode);
-        }
-
-        private Helpers.StubGeneration.Generator<T> GenerateWorkOrder<T>()
-        {
-            Helpers.StubGeneration.Generator<T> gen = new Helpers.StubGeneration.Generator<T>();
-
-            using (var ctx = GetContext())
-            {
-                var db = ctx.DB;
-                gen = new Helpers.StubGeneration.Generator<T>()
-                    .AddWorkOrderGenerators()
-                    .AddValue(new List<double>
-                    {
-                        0
-                    }, (RateScheduleItem rsi) => rsi.Quantity.Amount);
-            }
-            ;
-
-            return gen;
         }
 
         public WorkOrder GetWorkOrderFromDB(int id, Action<WorkOrder> modifier = null)
@@ -418,7 +440,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
 
         private async Task<CreateOrderResult> CreateWorkOrder(Action<ScheduleRepair> interceptor = null)
         {
-            var request = GenerateWorkOrder<ScheduleRepair>()
+            var request = WorkOrderHelpers.CreateWorkOrderGenerator<ScheduleRepair>()
                 .AddValue(new List<double>
                 {
                     1
@@ -448,6 +470,19 @@ namespace RepairsApi.Tests.E2ETests.Repairs
                 .AddValue(workElement, (JobStatusUpdate jsu) => jsu.MoreSpecificSORCode)
                 .AddValue("comments", (JobStatusUpdate jsu) => jsu.Comments)
                 .Generate();
+        }
+
+        private void SetupSoapMock()
+        {
+            SoapMock.Setup(s => s.updateBookingAsync(It.IsAny<updateBooking>()))
+                .ReturnsAsync(new updateBookingResponse
+                {
+                    @return = new xmbUpdateBookingResponse
+                    {
+                        status = responseStatus.success
+                    }
+                });
+
         }
 
         private static void AddRateScheduleItem(RepairsApi.V2.Generated.WorkElement workElement, string code, int quantity, string id = null)

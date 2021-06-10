@@ -2,7 +2,6 @@ using RepairsApi.V2.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using RepairsApi.V2.Boundary.Response;
 using Newtonsoft.Json;
 
 namespace RepairsApi.V2.Factories
@@ -355,13 +354,6 @@ namespace RepairsApi.V2.Factories
             };
         }
 
-        public static List<TResult> MapList<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> map)
-        {
-            if (source is null) return new List<TResult>();
-
-            return source.Select(map).ToList();
-        }
-
         public static CustomerSatisfaction ToDb(this Generated.CustomerFeedback customerFeedback)
         {
             return new CustomerSatisfaction
@@ -538,27 +530,10 @@ namespace RepairsApi.V2.Factories
             return new WorkOrderComplete
             {
                 WorkOrder = workOrder,
-                OperativesUsed = request.OperativesUsed.MapList(ou => ou.ToDb(null)),
                 CompletedWorkElements = request.CompletedWorkElements.MapList(cwe => cwe.ToDb()),
                 JobStatusUpdates = request.JobStatusUpdates.MapList(jsu => jsu.ToDb(workOrder)),
                 BillOfMaterialItem = request.BillOfMaterialItem.MapList(bom => bom.ToDb()),
                 FollowOnWorkOrder = followOnWorkOrders
-            };
-        }
-
-        public static Operative ToDb(this Generated.OperativesUsed operative, List<WorkElement> workElements)
-        {
-            return new Operative
-            {
-                Person = new Person
-                {
-                    Name = new PersonName
-                    {
-                        Full = operative.NameFull
-                    }
-                },
-                Trade = operative.Trade.Select(t => t.ToDb()).ToList(),
-                WorkElement = workElements
             };
         }
     }

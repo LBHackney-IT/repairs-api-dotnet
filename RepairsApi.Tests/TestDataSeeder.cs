@@ -13,6 +13,7 @@ namespace RepairsApi.Tests
     public static class TestDataSeeder
     {
         public const string ContractReference = "contract";
+        public const int OperativeId = 1;
         public const string DRSContractReference = "DRScontract";
         public const string SorCode = "code";
         public const string PropRef = "propref";
@@ -23,6 +24,7 @@ namespace RepairsApi.Tests
         public const string Trade = "trade";
         public const string Priority = "priority";
         public const string ContractManager_Limit1000 = "ContractManager_Limit1000";
+        public const string MultiContractor = "MultiContractor";
         public const string AuthorisationManager_Limit1000 = "AuthorisationManager_Limit1000";
         private const int PriorityId = 1;
         private static readonly object _lockObj = new object();
@@ -68,8 +70,19 @@ namespace RepairsApi.Tests
                     SeedSorMap(ctx);
 
                     SeedSecurityGroups(ctx);
+
+                    SeedOperatives(ctx);
                 }
             }
+        }
+
+        private static void SeedOperatives(RepairsContext ctx)
+        {
+            ctx.Operatives.AddRange(new List<Operative>()
+            {
+                new Operative { Id = OperativeId, IsArchived = false, Name = "James o Operative", PayrollNumber = "P00000" }
+            });
+            ctx.SaveChanges();
         }
 
         private static void SeedSecurityGroups(RepairsContext ctx)
@@ -84,6 +97,9 @@ namespace RepairsApi.Tests
                 new SecurityGroup { GroupName = UserGroups.AuthorisationManager, UserType = UserGroups.AuthorisationManager, RaiseLimit = 10000000000 },
                 new SecurityGroup { GroupName = AuthorisationManager_Limit1000, UserType = UserGroups.AuthorisationManager, RaiseLimit = 1000 },
                 new SecurityGroup { GroupName = UserGroups.AuthorisationManager, UserType = UserGroups.Agent },
+
+                new SecurityGroup { GroupName = MultiContractor, UserType = UserGroups.Contractor, ContractorReference = DRSContractor },
+                new SecurityGroup { GroupName = MultiContractor, UserType = UserGroups.Contractor, ContractorReference = Contractor },
 
                 new SecurityGroup { GroupName = "raise50", RaiseLimit = 50 },
                 new SecurityGroup { GroupName = "raise100", RaiseLimit = 100 },
@@ -257,6 +273,7 @@ namespace RepairsApi.Tests
         {
             var generator = new Generator<SorCodeTrade>()
                 .AddDefaultGenerators()
+                .Ignore((SorCodeTrade sct) => sct.Operatives)
                 .AddGenerator(() => SeedCode(TradeCodes), (SorCodeTrade sct) => sct.Code);
 
             ctx.Set<SorCodeTrade>().AddRange(generator.GenerateList(10));

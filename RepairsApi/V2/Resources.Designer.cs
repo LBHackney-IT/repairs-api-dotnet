@@ -70,6 +70,24 @@ namespace RepairsApi.V2 {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot complete a work order before assigning an operative.
+        /// </summary>
+        public static string CannotCompleteWithNoOperative {
+            get {
+                return ResourceManager.GetString("CannotCompleteWithNoOperative", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot complete a work order twice.
+        /// </summary>
+        public static string CannotCompleteWorkOrderTwice {
+            get {
+                return ResourceManager.GetString("CannotCompleteWorkOrderTwice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot Resume Job.
         /// </summary>
         public static string CannotResumeJob {
@@ -106,11 +124,38 @@ namespace RepairsApi.V2 {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Added booking.
+        /// </summary>
+        public static string DrsBackgroundService_AddedBooking {
+            get {
+                return ResourceManager.GetString("DrsBackgroundService_AddedBooking", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Updated booking.
+        /// </summary>
+        public static string DrsBackgroundServiceTests_UpdatedBooking {
+            get {
+                return ResourceManager.GetString("DrsBackgroundServiceTests_UpdatedBooking", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [EmailError] Failed to send Email with error {message}.
         /// </summary>
         public static string EmailFailed {
             get {
                 return ResourceManager.GetString("EmailFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Externally Managed Appointment.
+        /// </summary>
+        public static string ExternallyManagedAppointment {
+            get {
+                return ResourceManager.GetString("ExternallyManagedAppointment", resourceCulture);
             }
         }
         

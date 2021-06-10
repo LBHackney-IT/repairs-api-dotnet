@@ -6,7 +6,6 @@ using System.Linq;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Infrastructure.Extensions;
 using Address = RepairsApi.V2.Domain.Address;
-using SORPriority = RepairsApi.V2.Domain.SORPriority;
 using WorkElement = RepairsApi.V2.Generated.WorkElement;
 
 namespace RepairsApi.V2.Factories
@@ -41,7 +40,8 @@ namespace RepairsApi.V2.Factories
                 CanRaiseRepair = (tenure is null) || tenure.CanRaiseRepair, // If there is no tenure then we CAN raise repairs
                 PropertyReference = domain.PropertyReference,
                 Address = domain.Address.ToResponse(),
-                HierarchyType = domain.HierarchyType.ToResponse()
+                HierarchyType = domain.HierarchyType.ToResponse(),
+                TmoName = domain.TmoName
             };
         }
 
@@ -153,7 +153,8 @@ namespace RepairsApi.V2.Factories
                     Description = appointment.Description,
                     Start = appointment.Start.ToTime(),
                     End = appointment.End.ToTime()
-                }
+                },
+                Operatives = workOrder.AssignedOperatives.MapList(o => o.ToResponse())
             };
         }
 
@@ -278,24 +279,15 @@ namespace RepairsApi.V2.Factories
             };
         }
 
-        //public static JobStatusUpdate ToResponse(
-        //   this Infrastructure.JobStatusUpdate jobStatusUpdate,
-        //   Infrastructure.WorkOrder workOrder)
-        //{
-        //    return new Generated.JobStatusUpdate
-        //    {
-        //        EventTime = DateTime.UtcNow,
-        //        TypeCode = jobStatusUpdate.TypeCode,
-        //        AdditionalWork = jobStatusUpdate.AdditionalWork?.ToDb(),
-        //        Comments = jobStatusUpdate.Comments,
-        //        CustomerCommunicationChannelAttempted = jobStatusUpdate.CustomerCommunicationChannelAttempted?.ToDb(),
-        //        CustomerFeedback = jobStatusUpdate.CustomerFeedback?.ToDb(),
-        //        MoreSpecificSORCode = jobStatusUpdate.MoreSpecificSORCode?.ToDb(),
-        //        OperativesAssigned = jobStatusUpdate.OperativesAssigned?.Select(oa => oa.ToDb()).ToList(),
-        //        OtherType = jobStatusUpdate.OtherType,
-        //        RefinedAppointmentWindow = jobStatusUpdate.RefinedAppointmentWindow?.ToDb(),
-        //        RelatedWorkOrder = workOrder
-        //    };
-        //}
+        public static OperativeResponse ToResponse(this Infrastructure.Operative operative)
+        {
+            return new OperativeResponse
+            {
+                Id = operative.Id,
+                PayrollNumber = operative.PayrollNumber,
+                Name = operative.Name,
+                Trades = operative.Trades.MapList(tr => tr.Code)
+            };
+        }
     }
 }
