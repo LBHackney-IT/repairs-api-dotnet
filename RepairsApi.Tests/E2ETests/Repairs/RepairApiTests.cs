@@ -92,34 +92,16 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         [Test]
         public async Task CompletedInDRS()
         {
+            SetupSoapMock();
             SetUserRole(UserGroups.ContractManager);
             var drsOrder = _fixture.Create<order>();
             drsOrder.status = orderStatus.PLANNED;
-            SoapMock.Setup(s => s.selectOrderAsync(It.IsAny<selectOrder>()))
-                .ReturnsAsync(new selectOrderResponse
-                {
-                    @return = new xmbSelectOrderResponse
-                    {
-                        status = responseStatus.success,
-                        theOrders = new[]
-                        {
-                            drsOrder
-                        }
-                    }
-                });
-            SoapMock.Setup(s => s.updateBookingAsync(It.IsAny<updateBooking>()))
-                .ReturnsAsync(new updateBookingResponse
-                {
-                    @return = new xmbUpdateBookingResponse
-                    {
-                        status = responseStatus.success
-                    }
-                });
 
             var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
             await CompleteWorkOrder(result.Id);
 
             SoapMock.Verify(s => s.updateBookingAsync(It.IsAny<updateBooking>()));
+
         }
 
         [Test]
