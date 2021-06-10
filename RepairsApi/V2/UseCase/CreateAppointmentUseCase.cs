@@ -30,7 +30,7 @@ namespace RepairsApi.V2.UseCase
 
             workOrder.VerifyCanBookAppointment();
 
-            await _appointmentsGateway.Create(appointmentRef, workOrderId);
+            await _appointmentsGateway.CreateSlotBooking(appointmentRef, workOrderId);
         }
     }
 }

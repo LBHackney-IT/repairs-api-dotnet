@@ -39,6 +39,20 @@ namespace RepairsApi.Tests.V2.Services
                         }
                     }
                 });
+            Setup(x => x.BuildPlannerCommentedUpdateBookingRequest(It.IsAny<string>(), It.IsAny<WorkOrder>(), It.IsAny<order>()))
+                .ReturnsAsync(new updateBooking
+                {
+                    updateBooking1 = new xmbUpdateBooking
+                    {
+                        theBooking = new booking
+                        {
+                            theOrder = new order
+                            {
+                                orderId = workOrder.Id
+                            }
+                        }
+                    }
+                });
         }
     }
 }

@@ -3,8 +3,10 @@ FROM mcr.microsoft.com/dotnet/core/sdk:3.1
 WORKDIR /app
 
 # Copy csproj and restore as distinct layers
-COPY *.csproj ./
-RUN dotnet restore
+COPY ./RepairsApi.sln ./
+COPY ./RepairsApi/RepairsApi.csproj ./RepairsApi/
+
+RUN dotnet restore ./RepairsApi/RepairsApi.csproj
 
 # Copy everything else and build
 COPY . ./

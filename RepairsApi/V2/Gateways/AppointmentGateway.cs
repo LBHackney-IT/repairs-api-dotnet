@@ -20,28 +20,45 @@ namespace RepairsApi.V2.Gateways
             _repairsContext = repairsContext;
         }
 
-        public async Task Create(string appointmentRef, int workOrderId)
+        public async Task CreateSlotBooking(string appointmentRef, int workOrderId)
         {
             var refArray = appointmentRef.Split('/', 2);
             var slotId = int.Parse(refArray[0]);
             var slotDate = DateTime.ParseExact(refArray[1], DateExtensions.DateFormat, null);
 
-            var appoinment = await _repairsContext.AvailableAppointmentDays
+            var appointment = await _repairsContext.AvailableAppointmentDays
                 .Where(a => a.Id == slotId)
                 .Select(a =>
                 new
                 {
-                    HasOpenSlots = a.ExistingAppointments.Where(ea => ea.Date.Date == slotDate.Date).Count() < a.AvailableCount
+                    HasOpenSlots = a.ExistingAppointments.Count(ea => ea.Date.Date == slotDate.Date) < a.AvailableCount,
+                    StartTime = a.AvailableAppointment.StartTime,
+                    EndTime = a.AvailableAppointment.EndTime
                 }).SingleOrDefaultAsync();
 
-            if (appoinment is null) throw new ResourceNotFoundException("No Appointment Exists");
-            if (!appoinment.HasOpenSlots) throw new NotSupportedException("Appointment slot over capacity");
+            if (appointment is null) throw new ResourceNotFoundException("No Appointment Exists");
+            if (!appointment.HasOpenSlots) throw new NotSupportedException("Appointment slot over capacity");
 
             await _repairsContext.Appointments.AddAsync(new Infrastructure.Hackney.Appointment
             {
                 WorkOrderId = workOrderId,
                 DayId = slotId,
-                Date = slotDate
+                Date = slotDate,
+                StartTime = appointment.StartTime,
+                EndTime = appointment.EndTime
+            });
+
+            await _repairsContext.SaveChangesAsync();
+        }
+
+        public async Task CreateTimedBooking(int workOrderId, DateTime startTime, DateTime endTime)
+        {
+            await _repairsContext.Appointments.AddAsync(new Infrastructure.Hackney.Appointment
+            {
+                WorkOrderId = workOrderId,
+                Date = startTime.Date,
+                StartTime = startTime,
+                EndTime = endTime
             });
 
             await _repairsContext.SaveChangesAsync();
@@ -54,9 +71,9 @@ namespace RepairsApi.V2.Gateways
                 .Select(a => new AppointmentDetails
                 {
                     Date = a.Date,
-                    Description = a.Day.AvailableAppointment.Description,
-                    Start = a.Day.AvailableAppointment.StartTime,
-                    End = a.Day.AvailableAppointment.EndTime
+                    Description = a.Day != null ? a.Day.AvailableAppointment.Description : Resources.ExternallyManagedAppointment,
+                    Start = a.StartTime,
+                    End = a.EndTime
                 }).FirstOrDefaultAsync();
         }
 

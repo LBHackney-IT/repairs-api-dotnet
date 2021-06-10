@@ -92,14 +92,6 @@ namespace RepairsApi.V2.Infrastructure
                 .HasOne(p => p.Contract)
                 .WithMany(c => c.PropertyMap)
                 .HasForeignKey(p => p.ContractReference);
-
-            modelBuilder.Entity<Hackney.Appointment>()
-                .HasKey(a => new
-                {
-                    a.DayId,
-                    a.WorkOrderId
-                });
-
             modelBuilder.Entity<WorkOrder>()
                 .OwnsOne(wo => wo.WorkPriority)
                 .HasOne(wp => wp.Priority)

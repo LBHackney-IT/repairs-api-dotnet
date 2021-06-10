@@ -45,7 +45,7 @@ namespace RepairsApi.Tests.V2.UseCase
 
             await _classUnderTest.Execute(appointmentId, workOrderId);
 
-            _appointmentsGatewayMock.Verify(agm => agm.Create(appointmentId, workOrderId));
+            _appointmentsGatewayMock.Verify(agm => agm.CreateSlotBooking(appointmentId, workOrderId));
         }
     }
 }

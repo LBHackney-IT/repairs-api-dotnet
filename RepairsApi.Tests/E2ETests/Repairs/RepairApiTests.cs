@@ -47,7 +47,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         {
             // Arrange
             SetUserRole(userGroup);
-            var request = GenerateWorkOrder<ScheduleRepair>()
+            var request = WorkOrderHelpers.CreateWorkOrderGenerator<ScheduleRepair>()
                 .AddValue(new List<double>
                 {
                     1
@@ -67,6 +67,8 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         [Test]
         public async Task ForwardedToDRS()
         {
+            SetupSoapMock();
+
             var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
 
             result.ExternallyManagedAppointment.Should().BeTrue();
@@ -78,6 +80,8 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         [Test]
         public async Task DeletesFromDRS()
         {
+            SetupSoapMock();
+
             var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
 
             await CancelWorkOrder(result.Id);
@@ -88,7 +92,6 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         [Test]
         public async Task CompletedInDRS()
         {
-            var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
             SetUserRole(UserGroups.ContractManager);
             var drsOrder = _fixture.Create<order>();
             drsOrder.status = orderStatus.PLANNED;
@@ -113,6 +116,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
                     }
                 });
 
+            var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
             await CompleteWorkOrder(result.Id);
 
             SoapMock.Verify(s => s.updateBookingAsync(It.IsAny<updateBooking>()));
@@ -139,7 +143,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         public async Task BadRequestWhenMultipleAmountsProvided()
         {
             // Arrange
-            var request = GenerateWorkOrder<ScheduleRepair>().Generate();
+            var request = WorkOrderHelpers.CreateWorkOrderGenerator<ScheduleRepair>().Generate();
             request.WorkElement.First().RateScheduleItem.First().Quantity.Amount.Add(3.5);
 
             // Act
@@ -381,25 +385,6 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             TestDataSeeder.AddCode(ctx.DB, expectedCode);
         }
 
-        private Helpers.StubGeneration.Generator<T> GenerateWorkOrder<T>()
-        {
-            Helpers.StubGeneration.Generator<T> gen = new Helpers.StubGeneration.Generator<T>();
-
-            using (var ctx = GetContext())
-            {
-                var db = ctx.DB;
-                gen = new Helpers.StubGeneration.Generator<T>()
-                    .AddWorkOrderGenerators()
-                    .AddValue(new List<double>
-                    {
-                        0
-                    }, (RateScheduleItem rsi) => rsi.Quantity.Amount);
-            }
-            ;
-
-            return gen;
-        }
-
         public WorkOrder GetWorkOrderFromDB(int id, Action<WorkOrder> modifier = null)
         {
             using var ctx = GetContext();
@@ -455,7 +440,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
 
         private async Task<CreateOrderResult> CreateWorkOrder(Action<ScheduleRepair> interceptor = null)
         {
-            var request = GenerateWorkOrder<ScheduleRepair>()
+            var request = WorkOrderHelpers.CreateWorkOrderGenerator<ScheduleRepair>()
                 .AddValue(new List<double>
                 {
                     1
@@ -485,6 +470,19 @@ namespace RepairsApi.Tests.E2ETests.Repairs
                 .AddValue(workElement, (JobStatusUpdate jsu) => jsu.MoreSpecificSORCode)
                 .AddValue("comments", (JobStatusUpdate jsu) => jsu.Comments)
                 .Generate();
+        }
+
+        private void SetupSoapMock()
+        {
+            SoapMock.Setup(s => s.updateBookingAsync(It.IsAny<updateBooking>()))
+                .ReturnsAsync(new updateBookingResponse
+                {
+                    @return = new xmbUpdateBookingResponse
+                    {
+                        status = responseStatus.success
+                    }
+                });
+
         }
 
         private static void AddRateScheduleItem(RepairsApi.V2.Generated.WorkElement workElement, string code, int quantity, string id = null)

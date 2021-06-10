@@ -52,6 +52,8 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         [Test]
         public async Task GetFilteredListOfWorkOrders_Contractors()
         {
+            SetupSoapMock();
+
             var filters = await GetFilters(FilterSectionConstants.Contractors);
             string contractorCode1 = filters[0].Key;
             string contractorCode2 = filters[1].Key;
