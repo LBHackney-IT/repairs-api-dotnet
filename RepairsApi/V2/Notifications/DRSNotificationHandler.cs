@@ -61,5 +61,14 @@ namespace RepairsApi.V2.Notifications
             }
             await DrsService.CompleteOrder(data.WorkOrder);
         }
+
+        public async Task Notify(WorkOrderPlannerCommentsUpdated data)
+        {
+            if (await UseDrs(data.WorkOrder))
+            {
+                return;
+            }
+            await DrsService.UpdateOrder(data.WorkOrder);
+        }
     }
 }

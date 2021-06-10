@@ -78,12 +78,20 @@ namespace RepairsApi.V2.UseCase
                     managementUri.Port = -1;
                     managementUri.Query = $"tokenId={notification.TokenId}";
                     result.ExternalAppointmentManagementUrl = managementUri.Uri;
+
+                    await NotifyUpdaters(workOrder);
                 }
 
                 _logger.LogInformation("Successfully created work order {workOrderId}", workOrder.Id);
 
                 return result;
             }
+        }
+
+        private async Task NotifyUpdaters(WorkOrder workOrder)
+        {
+            var notification = new WorkOrderPlannerCommentsUpdated(workOrder);
+            await _notifier.Notify(notification);
         }
 
         private async Task<WorkOrderOpened> NotifyHandlers(WorkOrder workOrder)
