@@ -22,7 +22,11 @@ namespace RepairsApi.Tests.V2.UseCase
         [SetUp]
         public void SetUp()
         {
-            _fixture.Customize<Operative>(c => c.Without(operative => operative.Trades));
+            _fixture.Customize<Operative>(c => c
+                .Without(operative => operative.AssignedWorkOrders)
+                .Without(operative => operative.WorkOrderOperatives)
+                .Without(operative => operative.Trades)
+            );
             _operativeGateway = new Mock<IOperativesGateway>();
             _classUnderTest = new GetOperativeUseCase(_operativeGateway.Object);
         }

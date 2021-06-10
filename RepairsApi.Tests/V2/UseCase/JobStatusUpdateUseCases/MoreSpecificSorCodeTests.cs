@@ -10,7 +10,6 @@ using Microsoft.FeatureManagement;
 using Moq;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers;
-using RepairsApi.Tests.V2.Gateways;
 using RepairsApi.V2;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
@@ -66,7 +65,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             var request = BuildUpdate(workOrder);
 
             Func<Task> fn = () => _classUnderTest.Execute(request);
-            (await fn.Should().ThrowAsync<InvalidOperationException>())
+            (await fn.Should().ThrowAsync<NotSupportedException>())
                 .Which.Message.Should().Be(Resources.ActionUnsupported);
         }
 

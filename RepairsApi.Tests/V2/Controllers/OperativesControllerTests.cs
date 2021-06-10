@@ -87,8 +87,7 @@ namespace RepairsApi.Tests.V2.Controllers
             var index = new Random().Next(0, count - 1);
             var operatives = _fixture.CreateMany<OperativeResponse>(count);
             _deleteOperativeUseCaseMock
-                .Setup(m => m.ExecuteAsync(It.IsAny<string>()))
-                .ReturnsAsync(true);
+                .Setup(m => m.ExecuteAsync(It.IsAny<string>()));
             var operativePrn = operatives.ElementAt(index).PayrollNumber;
 
             // Act
@@ -98,27 +97,6 @@ namespace RepairsApi.Tests.V2.Controllers
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
-            operativePrnResult.Should().BeEquivalentTo(operativePrn);
-        }
-
-        [Test]
-        public async Task DeleteReturns404IfOperativeNotFound()
-        {
-            // Arrange
-            const int count = 5;
-            var index = new Random().Next(0, count - 1);
-            var operatives = _fixture.CreateMany<OperativeResponse>(count);
-            _deleteOperativeUseCaseMock
-                .Setup(m => m.ExecuteAsync(It.IsAny<string>()))
-                .ReturnsAsync(false);
-            var operativePrn = operatives.ElementAt(index).PayrollNumber;
-
-            // Act
-            var objectResult = await _classUnderTest.DeleteOperative(operativePrn);
-            var statusCode = GetStatusCode(objectResult);
-
-            // Assert
-            statusCode.Should().Be((int) HttpStatusCode.NotFound);
         }
     }
 }

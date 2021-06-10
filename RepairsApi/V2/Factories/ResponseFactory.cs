@@ -153,7 +153,8 @@ namespace RepairsApi.V2.Factories
                     Description = appointment.Description,
                     Start = appointment.Start.ToTime(),
                     End = appointment.End.ToTime()
-                }
+                },
+                Operatives = workOrder.AssignedOperatives.MapList(o => o.ToResponse())
             };
         }
 
@@ -282,6 +283,7 @@ namespace RepairsApi.V2.Factories
         {
             return new OperativeResponse
             {
+                Id = operative.Id,
                 PayrollNumber = operative.PayrollNumber,
                 Name = operative.Name,
                 Trades = operative.Trades.MapList(tr => tr.Code)
