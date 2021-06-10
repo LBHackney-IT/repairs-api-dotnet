@@ -30,7 +30,7 @@ namespace RepairsApi.V2.Services.DRS.BackgroundService
                 var notModified = true;
                 try
                 {
-                    var newBody = originalContent.Replace("ns1:bookingConfirmation", "ns1bookingConfirmation");
+                    var newBody = originalContent.Replace("ns1:bookingConfirmation", "bookingConfirmationContainer");
                     logger.LogInformation("Transformed request: {request}", newBody);
                     var requestContent = new StringContent(newBody, Encoding.UTF8, "application/json");
                     await stream.DisposeAsync();
