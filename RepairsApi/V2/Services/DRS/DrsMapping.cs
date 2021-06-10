@@ -56,8 +56,11 @@ namespace RepairsApi.V2.Services
             var locationAlerts = property != null ? await _alertsGateway.GetLocationAlertsAsync(property.PropertyReference) : null;
             var tenureInfo = property != null ? await _tenancyGateway.GetTenancyInformationAsync(property.PropertyReference) : null;
             var personAlerts = tenureInfo != null ? await _alertsGateway.GetPersonAlertsAsync(tenureInfo.TenancyAgreementReference) : null;
-            var orderCommentsExtended = $"Property Alerts {locationAlerts?.Alerts.ToDescriptionString()} " +
-                                        $"Person Alerts {personAlerts?.Alerts.ToDescriptionString()}";
+            var orderComments = $"Property Alerts {locationAlerts?.Alerts.ToDescriptionString()} " +
+                                        $"Person Alerts {personAlerts?.Alerts.ToDescriptionString()} - " +
+                                        $"{workOrder.DescriptionOfWork}";
+            var orderCommentsExtended = $"Property Alerts {locationAlerts?.Alerts.ToCommentsExtendedString()} " +
+                                        $"Person Alerts {personAlerts?.Alerts.ToCommentsExtendedString()}";
 
             char priorityCharacter = workOrder.WorkPriority.PriorityCode.HasValue
                 ? await _sorPriorityGateway.GetLegacyPriorityCode(workOrder.WorkPriority.PriorityCode.Value)
@@ -68,7 +71,7 @@ namespace RepairsApi.V2.Services
             {
                 status = orderStatus.PLANNED,
                 primaryOrderNumber = workOrder.Id.ToString(CultureInfo.InvariantCulture),
-                orderComments = workOrder.DescriptionOfWork,
+                orderComments = orderComments,
                 contract = workOrder.AssignedToPrimary.ContractorReference,
                 locationID = workOrder.Site?.PropertyClass.FirstOrDefault()?.PropertyReference,
                 priority = priorityCharacter.ToString(),

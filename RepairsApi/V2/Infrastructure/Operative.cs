@@ -11,7 +11,9 @@ namespace RepairsApi.V2.Infrastructure
         public string PayrollNumber { get; set; }
         public bool IsArchived { get; set; }
         public string Name { get; set; }
+        [Required] public string ResourceId { get; set; }
         public virtual List<SorCodeTrade> Trades { get; set; }
+        public virtual List<WorkOrderOperative> WorkOrderOperatives { get; set; }
+        public virtual List<WorkOrder> AssignedWorkOrders { get; set; }
     }
 }
-

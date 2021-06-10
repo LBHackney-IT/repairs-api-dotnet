@@ -13,6 +13,7 @@ namespace RepairsApi.Tests
     public static class TestDataSeeder
     {
         public const string ContractReference = "contract";
+        public const int OperativeId = 1;
         public const string DRSContractReference = "DRScontract";
         public const string SorCode = "code";
         public const string PropRef = "propref";
@@ -69,8 +70,19 @@ namespace RepairsApi.Tests
                     SeedSorMap(ctx);
 
                     SeedSecurityGroups(ctx);
+
+                    SeedOperatives(ctx);
                 }
             }
+        }
+
+        private static void SeedOperatives(RepairsContext ctx)
+        {
+            ctx.Operatives.AddRange(new List<Operative>()
+            {
+                new Operative { Id = OperativeId, IsArchived = false, Name = "James o Operative", PayrollNumber = "P00000" }
+            });
+            ctx.SaveChanges();
         }
 
         private static void SeedSecurityGroups(RepairsContext ctx)

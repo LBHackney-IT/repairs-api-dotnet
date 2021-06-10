@@ -12,9 +12,9 @@ namespace RepairsApi.V2.UseCase
             _operativesGateway = operativesGateway;
         }
 
-        public async Task<bool> ExecuteAsync(string operativePrn)
+        public Task ExecuteAsync(string operativePrn)
         {
-            return await _operativesGateway.ArchiveAsync(operativePrn);
+            return _operativesGateway.ArchiveAsync(operativePrn);
         }
     }
 }

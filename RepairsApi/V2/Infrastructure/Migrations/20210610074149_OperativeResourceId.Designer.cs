@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RepairsApi.V2.Infrastructure;
@@ -9,9 +10,10 @@ using RepairsApi.V2.Infrastructure;
 namespace RepairsApi.V2.Infrastructure.Migrations
 {
     [DbContext(typeof(RepairsContext))]
-    partial class RepairsContextModelSnapshot : ModelSnapshot
+    [Migration("20210610074149_OperativeResourceId")]
+    partial class OperativeResourceId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1244,25 +1246,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.ToTable("work_order_completes");
                 });
 
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrderOperative", b =>
-                {
-                    b.Property<int>("WorkOrderId")
-                        .HasColumnType("integer")
-                        .HasColumnName("work_order_id");
-
-                    b.Property<int>("OperativeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("operative_id");
-
-                    b.HasKey("WorkOrderId", "OperativeId")
-                        .HasName("pk_work_order_operatives");
-
-                    b.HasIndex("OperativeId")
-                        .HasDatabaseName("ix_work_order_operatives_operative_id");
-
-                    b.ToTable("work_order_operatives");
-                });
-
             modelBuilder.Entity("OperativeSorCodeTrade", b =>
                 {
                     b.HasOne("RepairsApi.V2.Infrastructure.Operative", null)
@@ -2317,27 +2300,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.Navigation("WorkOrder");
                 });
 
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrderOperative", b =>
-                {
-                    b.HasOne("RepairsApi.V2.Infrastructure.Operative", "Operative")
-                        .WithMany("WorkOrderOperatives")
-                        .HasForeignKey("OperativeId")
-                        .HasConstraintName("fk_work_order_operatives_operatives_operative_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("RepairsApi.V2.Infrastructure.WorkOrder", "WorkOrder")
-                        .WithMany("WorkOrderOperatives")
-                        .HasForeignKey("WorkOrderId")
-                        .HasConstraintName("fk_work_order_operatives_work_orders_work_order_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Operative");
-
-                    b.Navigation("WorkOrder");
-                });
-
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Contact", b =>
                 {
                     b.Navigation("Address");
@@ -2375,11 +2337,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.Navigation("OperativesAssigned");
 
                     b.Navigation("RelatedWorkElement");
-                });
-
-            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Operative", b =>
-                {
-                    b.Navigation("WorkOrderOperatives");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Organization", b =>
@@ -2424,8 +2381,6 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.Navigation("WorkElements");
 
                     b.Navigation("WorkOrderComplete");
-
-                    b.Navigation("WorkOrderOperatives");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrderComplete", b =>
