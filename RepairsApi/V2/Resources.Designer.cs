@@ -205,6 +205,15 @@ namespace RepairsApi.V2 {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The contractor for this work order does not support operative assignment.
+        /// </summary>
+        public static string NonOperativeContractor {
+            get {
+                return ResourceManager.GetString("NonOperativeContractor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Not Authorised to cancel jobs.
         /// </summary>
         public static string NotAuthorisedToCancel {

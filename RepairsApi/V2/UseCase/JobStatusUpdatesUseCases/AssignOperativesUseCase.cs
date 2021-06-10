@@ -9,16 +9,20 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
     public class AssignOperativesUseCase : IJobStatusUpdateStrategy
     {
         private readonly IOperativesGateway _operativesGateway;
+        private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
 
-        public AssignOperativesUseCase(IOperativesGateway operativesGateway)
+        public AssignOperativesUseCase(IOperativesGateway operativesGateway, IScheduleOfRatesGateway scheduleOfRatesGateway)
         {
             _operativesGateway = operativesGateway;
+            _scheduleOfRatesGateway = scheduleOfRatesGateway;
         }
 
         public async Task Execute(JobStatusUpdate jobStatusUpdate)
         {
             var workOrder = jobStatusUpdate.RelatedWorkOrder;
             workOrder.VerifyCanAssignOperative();
+
+            if (!await workOrder.ContractorUsingDrs(_scheduleOfRatesGateway)) ThrowHelper.ThrowUnsupported(Resources.NonOperativeContractor);
 
             var operativeIds = jobStatusUpdate.OperativesAssigned.Select(oa => int.Parse(oa.Identification.Number));
 

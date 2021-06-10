@@ -27,6 +27,7 @@ namespace RepairsApi.V2.UseCase
         private readonly ICurrentUserService _currentUserService;
         private readonly INotifier _notifier;
         private readonly IFeatureManager _featureManager;
+        private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
 
         public CompleteWorkOrderUseCase(
             IRepairsGateway repairsGateway,
@@ -34,7 +35,8 @@ namespace RepairsApi.V2.UseCase
             ITransactionManager transactionManager,
             ICurrentUserService currentUserService,
             INotifier notifier,
-            IFeatureManager featureManager
+            IFeatureManager featureManager,
+            IScheduleOfRatesGateway scheduleOfRatesGateway
         )
         {
             _repairsGateway = repairsGateway;
@@ -43,6 +45,7 @@ namespace RepairsApi.V2.UseCase
             _currentUserService = currentUserService;
             _notifier = notifier;
             _featureManager = featureManager;
+            _scheduleOfRatesGateway = scheduleOfRatesGateway;
         }
 
         public async Task Execute(WorkOrderComplete workOrderComplete)
@@ -112,7 +115,9 @@ namespace RepairsApi.V2.UseCase
 
         private async Task VerifyCanComplete(WorkOrder workOrder)
         {
-            if (await _featureManager.IsEnabledAsync(FeatureFlags.EnforceAssignedOperative) && workOrder.AssignedOperatives.IsNullOrEmpty())
+            if (await workOrder.ContractorUsingDrs(_scheduleOfRatesGateway)
+                    && await _featureManager.IsEnabledAsync(FeatureFlags.EnforceAssignedOperative)
+                    && workOrder.AssignedOperatives.IsNullOrEmpty())
             {
                 ThrowHelper.ThrowUnsupported(Resources.CannotCompleteWithNoOperative);
             }
