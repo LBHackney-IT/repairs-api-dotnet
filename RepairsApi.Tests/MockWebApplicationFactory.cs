@@ -208,6 +208,19 @@ namespace RepairsApi.Tests
         {
             NotifyMock.LastEmail.Should().Match<EmailRecord>(r => r.TemplateId == templateId && (recipient == null || recipient == r.Email));
         }
+
+        protected void SetupSoapMock()
+        {
+            SoapMock.Setup(s => s.updateBookingAsync(It.IsAny<updateBooking>()))
+                .ReturnsAsync(new updateBookingResponse
+                {
+                    @return = new xmbUpdateBookingResponse
+                    {
+                        status = responseStatus.success
+                    }
+                });
+
+        }
     }
 
     public sealed class ScopedContext : IDisposable
