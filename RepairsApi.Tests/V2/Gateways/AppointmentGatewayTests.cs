@@ -241,7 +241,6 @@ namespace RepairsApi.Tests.V2.Gateways
             appointment.Description.Should().Be(description);
             appointment.Start.Should().Be(start);
             appointment.End.Should().Be(end);
-            appointment.Date.Should().Be(date);
         }
 
         private static List<int> SeedData(string contractor, DaySeedModel[] days, AppointmentSeedModel[] appointments)
