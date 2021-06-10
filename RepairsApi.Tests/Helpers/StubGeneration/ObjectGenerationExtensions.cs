@@ -4,7 +4,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using RepairsApi.V2.Infrastructure;
+using GeographicalLocation = RepairsApi.V2.Generated.GeographicalLocation;
 using JobStatusUpdate = RepairsApi.V2.Infrastructure.JobStatusUpdate;
+using Organization = RepairsApi.V2.Generated.Organization;
+using PropertyAddress = RepairsApi.V2.Generated.PropertyAddress;
+using Quantity = RepairsApi.V2.Generated.Quantity;
+using RateScheduleItem = RepairsApi.V2.Generated.RateScheduleItem;
+using Trade = RepairsApi.V2.Generated.Trade;
+using WorkElement = RepairsApi.V2.Generated.WorkElement;
 
 namespace RepairsApi.Tests.Helpers.StubGeneration
 {
@@ -77,7 +85,9 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                 .AddValue("trade", (Trade t) => t.CustomCode)
                 .SetListLength<WorkElement>(1)
                 .SetListLength<Trade>(1)
-                .SetListLength<RateScheduleItem>(1);
+                .SetListLength<RateScheduleItem>(1)
+                .Ignore((WorkOrder wo) => wo.AssignedOperatives)
+                .Ignore((WorkOrder wo) => wo.WorkOrderOperatives);
         }
 
         public static Generator<T> WithSorCodes<T>(this Generator<T> generator, params string[] sorCodes)
@@ -98,7 +108,9 @@ namespace RepairsApi.Tests.Helpers.StubGeneration
                 .AddValue(null, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.JobStatusUpdates)
                 .AddValue(false, (RepairsApi.V2.Infrastructure.RateScheduleItem rsi) => rsi.Original)
                 .AddValue(1, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.WorkPriority.PriorityCode)
-                .AddValue(DateTime.UtcNow, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.WorkPriority.RequiredCompletionDateTime);
+                .AddValue(DateTime.UtcNow, (RepairsApi.V2.Infrastructure.WorkOrder wo) => wo.WorkPriority.RequiredCompletionDateTime)
+                .Ignore((WorkOrder wo) => wo.AssignedOperatives)
+                .Ignore((WorkOrder wo) => wo.WorkOrderOperatives);
         }
 
         private static ICollection<SitePropertyUnit> GetSitePropertyUnitGenerator()

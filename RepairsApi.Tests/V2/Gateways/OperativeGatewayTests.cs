@@ -5,6 +5,7 @@ using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
 using RepairsApi.V2.Boundary.Request;
+using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Filtering;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
@@ -23,6 +24,8 @@ namespace RepairsApi.Tests.V2.Gateways
         {
             _filterBuilder = new FilterBuilder<OperativeRequest, Operative>();
             _fixture.Customize<Operative>(c => c
+                .Without(operative => operative.AssignedWorkOrders)
+                .Without(operative => operative.WorkOrderOperatives)
                 .Without(operative => operative.Trades)
                 .With(operative => operative.IsArchived, false));
             _classUnderTest = new OperativesGateway(InMemoryDb.Instance);
@@ -97,24 +100,22 @@ namespace RepairsApi.Tests.V2.Gateways
             await InMemoryDb.Instance.SaveChangesAsync();
 
             // Act
-            var dbResult = await _classUnderTest.ArchiveAsync(operativePrn);
+            await _classUnderTest.ArchiveAsync(operativePrn);
 
             // Assert
-            dbResult.Should().BeTrue($"operative with payroll number ${operativePrn} was found and archived");
             InMemoryDb.Instance.Operatives.Count().Should().Be(count - 1);
         }
 
         [Test]
-        public async Task ReturnsFalseIfNotFound()
+        public async Task ThrowsIfNotFound()
         {
             // Arrange
             var operativePrn = _fixture.Create<Operative>().PayrollNumber;
 
             // Act
-            var dbResult = await _classUnderTest.ArchiveAsync(operativePrn);
+            Func<Task> testFn = () => _classUnderTest.ArchiveAsync(operativePrn);
 
-            // Assert
-            dbResult.Should().BeFalse($"operative with payroll number ${operativePrn} should not exist");
+            await testFn.Should().ThrowAsync<ResourceNotFoundException>();
         }
 
         [Test]
@@ -132,6 +133,15 @@ namespace RepairsApi.Tests.V2.Gateways
 
             // Assert
             archivedOperative.Should().NotBeNull("operatives are only SOFT-deleted");
+        }
+
+        [Test]
+        public async Task AssignsOperatives()
+        {
+            var assignment = new WorkOrderOperative() { OperativeId = 1, WorkOrderId = 1 };
+            await _classUnderTest.AssignOperatives(assignment);
+
+            InMemoryDb.Instance.WorkOrderOperatives.Should().Contain(assignment);
         }
     }
 }

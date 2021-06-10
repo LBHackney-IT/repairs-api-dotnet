@@ -22,6 +22,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
         {
             IJobStatusUpdateStrategy strategy = jobStatusUpdate.TypeCode switch
             {
+                JobStatusUpdateTypeCode._10 => _activator.CreateInstance<AssignOperativesUseCase>(),
                 JobStatusUpdateTypeCode._80 => _activator.CreateInstance<MoreSpecificSorUseCase>(),
                 JobStatusUpdateTypeCode._10020 => _activator.CreateInstance<ApproveVariationUseCase>(),
                 JobStatusUpdateTypeCode._125 => _activator.CreateInstance<RejectVariationUseCase>(),

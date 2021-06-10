@@ -9,6 +9,7 @@ namespace RepairsApi.V2.Gateways
     {
         Task<IEnumerable<Operative>> ListByFilterAsync(IFilter<Operative> filter);
         Task<Operative> GetAsync(string operativePrn);
-        Task<bool> ArchiveAsync(string operativePrn);
+        Task ArchiveAsync(string operativePrn);
+        Task AssignOperatives(params WorkOrderOperative[] assignments);
     }
 }
