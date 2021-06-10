@@ -16,14 +16,16 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
     public class AssignOperativesUseCaseTests
     {
         private Mock<IOperativesGateway> _operativesGatewayMock;
+        private Mock<IScheduleOfRatesGateway> _scheduleOfRatesGateway;
         private AssignOperativesUseCase _classUnderTest;
 
         [SetUp]
         public void Setup()
         {
             _operativesGatewayMock = new Mock<IOperativesGateway>();
+            _scheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
 
-            _classUnderTest = new AssignOperativesUseCase(_operativesGatewayMock.Object);
+            _classUnderTest = new AssignOperativesUseCase(_operativesGatewayMock.Object, _scheduleOfRatesGateway.Object);
         }
 
         [TestCase(WorkStatusCode.VariationPendingApproval)]

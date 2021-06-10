@@ -49,9 +49,7 @@ namespace RepairsApi.V2.Infrastructure
 
         public override bool Equals(object obj)
         {
-            return obj is WorkOrderOperative other ?
-                WorkOrderId == other.WorkOrderId && OperativeId == other.OperativeId
-                : false;
+            return obj is WorkOrderOperative other && WorkOrderId == other.WorkOrderId && OperativeId == other.OperativeId;
         }
 
         public override int GetHashCode()

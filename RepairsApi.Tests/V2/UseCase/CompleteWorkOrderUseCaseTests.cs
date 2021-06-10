@@ -21,6 +21,7 @@ namespace RepairsApi.Tests.V2.UseCase
     public class CompleteWorkOrderUseCaseTests
     {
         private Mock<IRepairsGateway> _repairsGatewayMock;
+        private Mock<IScheduleOfRatesGateway> _scheduleOfRatesGateway;
         private CurrentUserServiceMock _currentUserServiceMock;
         private CompleteWorkOrderUseCase _classUnderTest;
         private Generator<WorkOrder> _generator;
@@ -33,6 +34,7 @@ namespace RepairsApi.Tests.V2.UseCase
         {
             _generator = CreateGenerator();
             _repairsGatewayMock = new Mock<IRepairsGateway>();
+            _scheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
             _currentUserServiceMock = new CurrentUserServiceMock();
             _currentUserServiceMock.SetSecurityGroup(UserGroups.Agent, true);
             _currentUserServiceMock.SetSecurityGroup(UserGroups.Contractor, true);
@@ -46,7 +48,8 @@ namespace RepairsApi.Tests.V2.UseCase
                 InMemoryDb.TransactionManager,
                 _currentUserServiceMock.Object,
                 _handlerMock,
-                _featureManager.Object);
+                _featureManager.Object,
+                _scheduleOfRatesGateway.Object);
         }
 
         private static Generator<WorkOrder> CreateGenerator()
