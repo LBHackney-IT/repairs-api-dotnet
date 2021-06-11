@@ -146,21 +146,24 @@ namespace RepairsApi.Tests.V2.Gateways
             await VerifyAssignment(workOrderId, operativeIds);
         }
 
-        [Test]
-        public async Task OverwritesOperatives()
+        [TestCase(new[] { 1, 2, 3 }, new[] { 4, 5, 6 })]
+        [TestCase(new[] { 1, 2, 3 }, new[] { 1, 2, 3, 4 })]
+        [TestCase(new[] { 1, 2, 3 }, new[] { 1, 4 })]
+        public async Task OverwritesOperatives(int[] existingOperatives, int[] newOperatives)
         {
             const int workOrderId = 1234;
-            const int operativeId = 1;
-            await InMemoryDb.Instance.WorkOrderOperatives.AddAsync(new WorkOrderOperative
-            {
-                WorkOrderId = workOrderId,
-                OperativeId = operativeId + 1
-            });
+            await InMemoryDb.Instance.WorkOrderOperatives.AddRangeAsync(
+                existingOperatives.Select(o => new WorkOrderOperative
+                {
+                    OperativeId = o,
+                    WorkOrderId = workOrderId
+                }));
+
             await InMemoryDb.Instance.SaveChangesAsync();
 
-            await _classUnderTest.AssignOperatives(workOrderId, operativeId);
+            await _classUnderTest.AssignOperatives(workOrderId, newOperatives);
 
-            await VerifyAssignment(workOrderId, operativeId);
+            await VerifyAssignment(workOrderId, newOperatives);
         }
 
         private static async Task VerifyAssignment(int workOrderId, params int[] operativeIds)
@@ -170,6 +173,7 @@ namespace RepairsApi.Tests.V2.Gateways
                 .Select(woo => woo.OperativeId)
                 .ToListAsync();
 
+            workOrderOperative.Should().HaveCount(operativeIds.Length);
             workOrderOperative.Should().Contain(operativeIds);
         }
     }
