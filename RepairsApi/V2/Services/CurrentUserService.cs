@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using RepairsApi.V2.Boundary.Response;
 using System.Linq;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 
 namespace RepairsApi.V2.Services
 {
@@ -18,25 +19,32 @@ namespace RepairsApi.V2.Services
     {
         private readonly ILogger<CurrentUserService> _logger;
         private readonly IGroupsGateway _groupsGateway;
-        private ClaimsPrincipal? _user = null;
+        private readonly IHttpContextAccessor _context;
+        private ClaimsPrincipal? User
+        {
+            get => _context.HttpContext.User;
+            set => _context.HttpContext.User = value;
+        }
 
-        public CurrentUserService(ILogger<CurrentUserService> logger, IGroupsGateway groupsGateway)
+        public CurrentUserService(ILogger<CurrentUserService> logger, IGroupsGateway groupsGateway, IHttpContextAccessor context)
         {
             _logger = logger;
             _groupsGateway = groupsGateway;
+            _context = context;
         }
 
         public async Task LoadUser(string jwt)
         {
             if (string.IsNullOrWhiteSpace(jwt)) return;
+
             try
             {
                 var jwtUser = new JwtBuilder()
-                        .Decode<User>(jwt);
+                    .Decode<User>(jwt);
 
                 _logger.LogInformation("User Loaded with {email}", jwtUser.Email);
 
-                _user = await MapUser(jwtUser);
+                User = await MapUser(jwtUser);
             }
             catch (Exception e)
             {
@@ -46,22 +54,22 @@ namespace RepairsApi.V2.Services
 
         public bool IsUserPresent()
         {
-            return _user != null;
+            return User != null;
         }
 
         public ClaimsPrincipal? GetUser()
         {
-            return _user;
+            return User;
         }
 
         public bool HasGroup(string groupName)
         {
-            return _user?.HasClaim(ClaimTypes.Role, groupName) ?? false;
+            return User?.HasClaim(ClaimTypes.Role, groupName) ?? false;
         }
 
         public List<string> GetContractors()
         {
-            return _user?.Contractors() ?? new List<string>();
+            return User?.Contractors() ?? new List<string>();
         }
 
         private async Task<ClaimsPrincipal> MapUser(User user)

@@ -201,6 +201,7 @@ namespace RepairsApi
             RegisterUseCases(services);
             services.AddTransient<IJobStatusUpdateStrategyFactory, JobStatusUpdateStrategyFactory>();
             services.AddTransient(typeof(IActivatorWrapper<>), typeof(ActivatorWrapper<>));
+            services.AddHttpContextAccessor();
             services.AddScoped<CurrentUserService>();
             services.AddScoped<IDrsService, DrsService>();
             services.AddScoped<IDrsMapping, DrsMapping>();
