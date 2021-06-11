@@ -14,6 +14,7 @@ namespace RepairsApi.Tests
     {
         public const string ContractReference = "contract";
         public const int OperativeId = 1;
+        public const string OperativePayrollId = "abc123";
         public const string DRSContractReference = "DRScontract";
         public const string SorCode = "code";
         public const string PropRef = "propref";
@@ -80,7 +81,7 @@ namespace RepairsApi.Tests
         {
             ctx.Operatives.AddRange(new List<Operative>()
             {
-                new Operative { Id = OperativeId, IsArchived = false, Name = "James o Operative", PayrollNumber = "P00000" }
+                new Operative { Id = OperativeId, IsArchived = false, Name = "James o Operative", PayrollNumber = OperativePayrollId }
             });
             ctx.SaveChanges();
         }
