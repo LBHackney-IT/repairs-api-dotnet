@@ -51,15 +51,31 @@ namespace RepairsApi.V2.Gateways
             await _repairsContext.SaveChangesAsync();
         }
 
-        public async Task CreateTimedBooking(int workOrderId, DateTime startTime, DateTime endTime)
+        public async Task SetTimedBooking(int workOrderId, DateTime startTime, DateTime endTime)
         {
-            await _repairsContext.Appointments.AddAsync(new Infrastructure.Hackney.Appointment
+            if (!await _repairsContext.WorkOrders.AnyAsync(wo => wo.Id == workOrderId))
             {
-                WorkOrderId = workOrderId,
-                Date = startTime.Date,
-                StartTime = startTime,
-                EndTime = endTime
-            });
+                throw new ResourceNotFoundException(Resources.WorkOrderNotFound);
+            }
+
+            var existingAppointment = await _repairsContext.Appointments.Where(a => a.WorkOrderId == workOrderId).SingleOrDefaultAsync();
+
+            if (existingAppointment is null)
+            {
+                await _repairsContext.Appointments.AddAsync(new Infrastructure.Hackney.Appointment
+                {
+                    WorkOrderId = workOrderId,
+                    Date = startTime.Date,
+                    StartTime = startTime,
+                    EndTime = endTime
+                });
+            }
+            else
+            {
+                existingAppointment.Date = startTime.Date;
+                existingAppointment.StartTime = startTime;
+                existingAppointment.EndTime = endTime;
+            }
 
             await _repairsContext.SaveChangesAsync();
         }
