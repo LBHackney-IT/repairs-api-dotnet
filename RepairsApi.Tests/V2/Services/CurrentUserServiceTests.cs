@@ -43,14 +43,36 @@ namespace RepairsApi.Tests.V2.Services
         }
 
         [Test]
-        public async Task NullUserFromBadJWT()
+        public async Task UserWithNoClaimsFromBadJWT()
         {
             const string JWT = "NotAValidJWT";
             await _classUnderTest.LoadUser(JWT);
 
             var user = _classUnderTest.GetUser();
 
-            user.Should().BeNull();
+            user.Claims.Should().BeNullOrEmpty();
+        }
+
+        [Test]
+        public async Task UserIsPresent()
+        {
+            const string Jwt = TestUserInformation.Jwt;
+            await _classUnderTest.LoadUser(Jwt);
+
+            var userPresent = _classUnderTest.IsUserPresent();
+
+            userPresent.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task UserNotPresentFromBadJWT()
+        {
+            const string JWT = "NotAValidJWT";
+            await _classUnderTest.LoadUser(JWT);
+
+            var userPresent = _classUnderTest.IsUserPresent();
+
+            userPresent.Should().BeFalse();
         }
     }
 }

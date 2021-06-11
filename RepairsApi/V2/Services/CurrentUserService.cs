@@ -54,7 +54,7 @@ namespace RepairsApi.V2.Services
 
         public bool IsUserPresent()
         {
-            return User != null;
+            return User?.Claims.Any() ?? false;
         }
 
         public ClaimsPrincipal? GetUser()
