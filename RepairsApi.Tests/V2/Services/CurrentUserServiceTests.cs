@@ -6,6 +6,7 @@ using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Services;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace RepairsApi.Tests.V2.Services
 {
@@ -17,8 +18,12 @@ namespace RepairsApi.Tests.V2.Services
         [SetUp]
         public void SetUp()
         {
+            var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+            var context = new DefaultHttpContext();
+            mockHttpContextAccessor.Setup(_ => _.HttpContext).Returns(context);
+
             _groupGatewayMock = new Mock<IGroupsGateway>();
-            _classUnderTest = new CurrentUserService(new NullLogger<CurrentUserService>(), _groupGatewayMock.Object);
+            _classUnderTest = new CurrentUserService(new NullLogger<CurrentUserService>(), _groupGatewayMock.Object, mockHttpContextAccessor.Object);
         }
 
         [Test]
