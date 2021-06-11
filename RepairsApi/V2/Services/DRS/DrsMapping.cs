@@ -56,9 +56,7 @@ namespace RepairsApi.V2.Services
             var locationAlerts = property != null ? await _alertsGateway.GetLocationAlertsAsync(property.PropertyReference) : null;
             var tenureInfo = property != null ? await _tenancyGateway.GetTenancyInformationAsync(property.PropertyReference) : null;
             var personAlerts = tenureInfo != null ? await _alertsGateway.GetPersonAlertsAsync(tenureInfo.TenancyAgreementReference) : null;
-            var orderComments = $"Property Alerts {locationAlerts?.Alerts.ToDescriptionString()} " +
-                                        $"Person Alerts {personAlerts?.Alerts.ToDescriptionString()} - " +
-                                        $"{workOrder.DescriptionOfWork}";
+            var orderComments = $"{workOrder.DescriptionOfWork}";
             var orderCommentsExtended = $"Property Alerts {locationAlerts?.Alerts.ToCommentsExtendedString()} " +
                                         $"Person Alerts {personAlerts?.Alerts.ToCommentsExtendedString()}";
 

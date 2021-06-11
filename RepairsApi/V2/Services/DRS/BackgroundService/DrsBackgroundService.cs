@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -11,14 +12,20 @@ namespace RepairsApi.V2.Services.DRS.BackgroundService
     {
         private readonly ILogger<DrsBackgroundService> _logger;
         private readonly IAppointmentsGateway _appointmentsGateway;
+        private readonly IDrsService _drsService;
+        private readonly IOperativesGateway _operativesGateway;
 
         public DrsBackgroundService(
             ILogger<DrsBackgroundService> logger,
-            IAppointmentsGateway appointmentsGateway
-            )
+            IAppointmentsGateway appointmentsGateway,
+            IDrsService drsService,
+            IOperativesGateway operativesGateway
+        )
         {
             _logger = logger;
             _appointmentsGateway = appointmentsGateway;
+            _drsService = drsService;
+            _operativesGateway = operativesGateway;
         }
 
         public async Task<string> ConfirmBooking(bookingConfirmation bookingConfirmation)
@@ -34,7 +41,22 @@ namespace RepairsApi.V2.Services.DRS.BackgroundService
                 bookingConfirmation.planningWindowEnd
             );
 
+            await UpdateAssignedOperative(workOrderId);
+
             return Resources.DrsBackgroundService_BookingAccepted;
+        }
+
+        private async Task UpdateAssignedOperative(int workOrderId)
+        {
+            var order = await _drsService.SelectOrder(workOrderId);
+
+            if (order is null) ThrowHelper.ThrowNotFound(Resources.WorkOrderNotFound);
+
+            var theResources = order.theBookings.First().theResources;
+            var operativePayrollIds = theResources.Select(r => r.externalResourceCode);
+            var operatives = await Task.WhenAll(operativePayrollIds.Select(i => _operativesGateway.GetAsync(i)));
+
+            await _operativesGateway.AssignOperatives(workOrderId, operatives.Select(o => o.Id).ToArray());
         }
     }
 }

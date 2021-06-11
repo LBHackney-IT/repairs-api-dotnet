@@ -282,6 +282,21 @@ namespace RepairsApi.Tests.V2.Services
             _drsSoapMock.Verify(x => x.deleteOrderAsync(It.Is<deleteOrder>(d => d.deleteOrder1.id == workOrder.Id)));
         }
 
+        [Test]
+        public async Task SelectsOrder()
+        {
+            var workOrder = CreateWorkOrderWithContractor(true);
+            var drsOrder = _fixture.Create<order>();
+
+            _drsSoapMock.SelectOrderReturns(drsOrder);
+
+            var result = await _classUnderTest.SelectOrder(workOrder.Id);
+
+            _drsSoapMock.VerifyOpenSession();
+            _drsSoapMock.Verify(x => x.selectOrderAsync(It.Is<selectOrder>(s => s.selectOrder1.primaryOrderNumber.Contains(workOrder.Id.ToString()))));
+            result.Should().BeEquivalentTo(drsOrder);
+        }
+
         private static WorkOrder CreateWorkOrderWithContractor(bool useExternal)
         {
             var expectedContractor = CreateContractor(useExternal);
