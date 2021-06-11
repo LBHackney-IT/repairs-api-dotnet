@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using RepairsApi.V2.Boundary.Request;
 using RepairsApi.V2.Exceptions;
@@ -135,13 +136,41 @@ namespace RepairsApi.Tests.V2.Gateways
             archivedOperative.Should().NotBeNull("operatives are only SOFT-deleted");
         }
 
-        [Test]
-        public async Task AssignsOperatives()
+        [TestCase(1)]
+        [TestCase(1, 2, 4)]
+        public async Task AssignsOperatives(params int[] operativeIds)
         {
-            var assignment = new WorkOrderOperative() { OperativeId = 1, WorkOrderId = 1 };
-            await _classUnderTest.AssignOperatives(assignment);
+            const int workOrderId = 1234;
+            await _classUnderTest.AssignOperatives(workOrderId, operativeIds);
 
-            InMemoryDb.Instance.WorkOrderOperatives.Should().Contain(assignment);
+            await VerifyAssignment(workOrderId, operativeIds);
+        }
+
+        [Test]
+        public async Task OverwritesOperatives()
+        {
+            const int workOrderId = 1234;
+            const int operativeId = 1;
+            await InMemoryDb.Instance.WorkOrderOperatives.AddAsync(new WorkOrderOperative
+            {
+                WorkOrderId = workOrderId,
+                OperativeId = operativeId + 1
+            });
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            await _classUnderTest.AssignOperatives(workOrderId, operativeId);
+
+            await VerifyAssignment(workOrderId, operativeId);
+        }
+
+        private static async Task VerifyAssignment(int workOrderId, params int[] operativeIds)
+        {
+            var workOrderOperative = await InMemoryDb.Instance.WorkOrderOperatives
+                .Where(woo => woo.WorkOrderId == workOrderId)
+                .Select(woo => woo.OperativeId)
+                .ToListAsync();
+
+            workOrderOperative.Should().Contain(operativeIds);
         }
     }
 }
