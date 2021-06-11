@@ -1,9 +1,11 @@
 using System.IO;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using RepairsApi.V2.Authorisation;
 
 namespace RepairsApi.V2.Services.DRS.BackgroundService
 {
@@ -33,6 +35,10 @@ namespace RepairsApi.V2.Services.DRS.BackgroundService
                     var newBody = originalContent.Replace("ns1:bookingConfirmation", "bookingConfirmationContainer");
                     context.Request.Headers["SOAPAction"] = "bookingConfirmationContainer";
                     logger.LogInformation("Transformed request: {request}", newBody);
+
+                    //add in service user permissions
+                    context.User = CreateServiceUser();
+
                     var requestContent = new StringContent(newBody, Encoding.UTF8, "application/json");
                     await stream.DisposeAsync();
                     stream = await requestContent.ReadAsStreamAsync();//modified stream
@@ -52,6 +58,20 @@ namespace RepairsApi.V2.Services.DRS.BackgroundService
                 request.Body = stream;
             }
             await _next(context);
+        }
+
+        private static ClaimsPrincipal CreateServiceUser()
+        {
+            var identity = new ClaimsIdentity();
+
+            identity.AddClaim(new Claim(ClaimTypes.Email, "serviceUser"));
+            identity.AddClaim(new Claim(ClaimTypes.Name, "serviceUser"));
+            identity.AddClaim(new Claim(ClaimTypes.PrimarySid, "serviceUser"));
+            identity.AddClaim(new Claim(CustomClaimTypes.RaiseLimit, "0"));
+            identity.AddClaim(new Claim(CustomClaimTypes.VaryLimit, "0"));
+            identity.AddClaim(new Claim(ClaimTypes.Role, UserGroups.Service));
+
+            return new ClaimsPrincipal(identity);
         }
     }
 }
