@@ -31,6 +31,7 @@ namespace RepairsApi.V2.Services.DRS.BackgroundService
                 try
                 {
                     var newBody = originalContent.Replace("ns1:bookingConfirmation", "bookingConfirmationContainer");
+                    context.Request.Headers["SOAPAction"] = "bookingConfirmationContainer";
                     logger.LogInformation("Transformed request: {request}", newBody);
                     var requestContent = new StringContent(newBody, Encoding.UTF8, "application/json");
                     await stream.DisposeAsync();
