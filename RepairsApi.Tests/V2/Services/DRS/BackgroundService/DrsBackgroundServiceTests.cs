@@ -88,7 +88,26 @@ namespace RepairsApi.Tests.V2.Services.BackgroundService
         }
 
         [Test]
-        public async Task ThrowsWhenOrderNotFound()
+        public async Task DoesNotAssignWhenOrderHasNoResource()
+        {
+            const int workOrderId = 1234;
+            const int operativeId = 5678;
+            const string operativePayrollId = "Z123";
+            var bookingConfirmation = CreateBookingConfirmation(workOrderId);
+            ReturnsWorkOrder(workOrderId);
+            _operativesGatewayMock.Setup(x => x.GetAsync(operativePayrollId))
+                .ReturnsAsync(new Operative
+                {
+                    Id = operativeId
+                });
+
+            await _classUnderTest.ConfirmBooking(bookingConfirmation);
+
+            _operativesGatewayMock.Verify(x => x.AssignOperatives(It.IsAny<int>(), It.IsAny<int[]>()), Times.Never);
+        }
+
+        [Test]
+        public async Task ThrowsAndLogsWhenOrderNotFound()
         {
             const int workOrderId = 1234;
             const int operativeId = 5678;
@@ -104,6 +123,7 @@ namespace RepairsApi.Tests.V2.Services.BackgroundService
 
             await testFunc.Should().ThrowAsync<ResourceNotFoundException>()
                 .WithMessage(Resources.WorkOrderNotFound);
+            _loggerMock.VerifyLog(LogLevel.Error);
         }
 
         private static order CreateDrsOrder(params string[] payrollIds)
@@ -137,7 +157,6 @@ namespace RepairsApi.Tests.V2.Services.BackgroundService
 
         private void ReturnsWorkOrder(int workOrderId, params string[] operativePayrollId)
         {
-
             _drsServiceMock.Setup(x => x.SelectOrder(workOrderId))
                 .ReturnsAsync(CreateDrsOrder(operativePayrollId));
         }

@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using Castle.Core.Internal;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RepairsApi.V2.Gateways;
@@ -50,9 +52,16 @@ namespace RepairsApi.V2.Services.DRS.BackgroundService
         {
             var order = await _drsService.SelectOrder(workOrderId);
 
-            if (order is null) ThrowHelper.ThrowNotFound(Resources.WorkOrderNotFound);
+            if (order is null)
+            {
+                _logger.LogError($"Unable to fetch order from DRS {workOrderId}", workOrderId);
+                ThrowHelper.ThrowNotFound(Resources.WorkOrderNotFound);
+            }
 
             var theResources = order.theBookings.First().theResources;
+
+            if (theResources.IsNullOrEmpty()) return;
+
             var operativePayrollIds = theResources.Select(r => r.externalResourceCode);
             var operatives = await Task.WhenAll(operativePayrollIds.Select(i => _operativesGateway.GetAsync(i)));
 
