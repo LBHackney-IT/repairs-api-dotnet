@@ -11,17 +11,14 @@ namespace RepairsApi.V2.Services.DRS.BackgroundService
     {
         private readonly ILogger<DrsBackgroundService> _logger;
         private readonly IAppointmentsGateway _appointmentsGateway;
-        private readonly IRepairsGateway _repairsGateway;
 
         public DrsBackgroundService(
             ILogger<DrsBackgroundService> logger,
-            IAppointmentsGateway appointmentsGateway,
-            IRepairsGateway repairsGateway
+            IAppointmentsGateway appointmentsGateway
             )
         {
             _logger = logger;
             _appointmentsGateway = appointmentsGateway;
-            _repairsGateway = repairsGateway;
         }
 
         public async Task<string> ConfirmBooking(bookingConfirmation bookingConfirmation)
@@ -31,25 +28,13 @@ namespace RepairsApi.V2.Services.DRS.BackgroundService
             _logger.LogInformation(serialisedBookings);
             var workOrderId = (int) bookingConfirmation.primaryOrderNumber;
 
-            await _repairsGateway.GetWorkOrder(workOrderId);
-
-            var existingAppointment = await _appointmentsGateway.GetAppointment(workOrderId);
-
-            if (existingAppointment != null)
-            {
-                existingAppointment.Date = bookingConfirmation.planningWindowStart.Date;
-                existingAppointment.Start = bookingConfirmation.planningWindowStart;
-                existingAppointment.End = bookingConfirmation.planningWindowEnd;
-                return Resources.DrsBackgroundServiceTests_UpdatedBooking;
-            }
-
-            await _appointmentsGateway.CreateTimedBooking(
+            await _appointmentsGateway.SetTimedBooking(
                 workOrderId,
                 bookingConfirmation.planningWindowStart,
                 bookingConfirmation.planningWindowEnd
             );
 
-            return Resources.DrsBackgroundService_AddedBooking;
+            return Resources.DrsBackgroundService_BookingAccepted;
         }
     }
 }

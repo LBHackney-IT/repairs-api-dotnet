@@ -46,7 +46,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             var appointment = GetAppointmentFromDB(result.Id);
 
             response.Should().NotBeNull();
-            response.InnerText.Should().Be(Resources.DrsBackgroundService_AddedBooking);
+            response.InnerText.Should().Be(Resources.DrsBackgroundService_BookingAccepted);
             appointment.Should().NotBeNull();
             appointment.StartTime.Should().Be(startTime);
             appointment.EndTime.Should().Be(endTime);
@@ -73,10 +73,10 @@ namespace RepairsApi.Tests.E2ETests.Repairs
 
             var appointment = GetAppointmentFromDB(result.Id);
             response.Should().NotBeNull();
-            response.InnerText.Should().Be(Resources.DrsBackgroundServiceTests_UpdatedBooking);
+            response.InnerText.Should().Be(Resources.DrsBackgroundService_BookingAccepted);
             appointment.Should().NotBeNull();
-            appointment.StartTime.Should().Be(startTime1);
-            appointment.EndTime.Should().Be(endTime1);
+            appointment.StartTime.Should().Be(startTime2);
+            appointment.EndTime.Should().Be(endTime2);
         }
 
         private async Task<XmlElement> CreateAppointment(CreateOrderResult result, DateTime startTime, DateTime endTime)
