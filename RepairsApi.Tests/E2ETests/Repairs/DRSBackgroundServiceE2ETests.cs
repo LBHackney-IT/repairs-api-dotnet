@@ -28,7 +28,6 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         public void SetUp()
         {
             SetupSoapMock();
-            SetUserRole(UserGroups.Agent);
         }
 
         [Test]
@@ -38,8 +37,10 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             startTime = startTime.AddTicks(-(startTime.Ticks % TimeSpan.TicksPerSecond));
             var endTime = startTime.AddHours(5);
 
+            SetUserRole(UserGroups.Agent);
             var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
 
+            SetUserRole(UserGroups.Service);
             var response = await CreateAppointment(result, startTime, endTime);
 
             var appointment = GetAppointmentFromDB(result.Id);
@@ -60,9 +61,11 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             var startTime2 = startTime1.AddDays(7);
             var endTime2 = endTime1.AddDays(7);
 
+            SetUserRole(UserGroups.Agent);
             var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
 
             // create first appointment
+            SetUserRole(UserGroups.Service);
             await CreateAppointment(result, startTime1, endTime1);
 
             // update the appointment

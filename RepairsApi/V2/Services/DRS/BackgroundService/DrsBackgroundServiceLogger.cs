@@ -69,7 +69,7 @@ namespace RepairsApi.V2.Services.DRS.BackgroundService
             identity.AddClaim(new Claim(ClaimTypes.PrimarySid, "serviceUser"));
             identity.AddClaim(new Claim(CustomClaimTypes.RaiseLimit, "0"));
             identity.AddClaim(new Claim(CustomClaimTypes.VaryLimit, "0"));
-            identity.AddClaim(new Claim(ClaimTypes.Role, UserGroups.Agent));
+            identity.AddClaim(new Claim(ClaimTypes.Role, UserGroups.Service));
 
             return new ClaimsPrincipal(identity);
         }
