@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
+using Castle.Core.Internal;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RepairsApi.V2.Gateways;
@@ -11,14 +14,20 @@ namespace RepairsApi.V2.Services.DRS.BackgroundService
     {
         private readonly ILogger<DrsBackgroundService> _logger;
         private readonly IAppointmentsGateway _appointmentsGateway;
+        private readonly IDrsService _drsService;
+        private readonly IOperativesGateway _operativesGateway;
 
         public DrsBackgroundService(
             ILogger<DrsBackgroundService> logger,
-            IAppointmentsGateway appointmentsGateway
-            )
+            IAppointmentsGateway appointmentsGateway,
+            IDrsService drsService,
+            IOperativesGateway operativesGateway
+        )
         {
             _logger = logger;
             _appointmentsGateway = appointmentsGateway;
+            _drsService = drsService;
+            _operativesGateway = operativesGateway;
         }
 
         public async Task<string> ConfirmBooking(bookingConfirmation bookingConfirmation)
@@ -34,7 +43,29 @@ namespace RepairsApi.V2.Services.DRS.BackgroundService
                 bookingConfirmation.planningWindowEnd
             );
 
+            await UpdateAssignedOperative(workOrderId);
+
             return Resources.DrsBackgroundService_BookingAccepted;
+        }
+
+        private async Task UpdateAssignedOperative(int workOrderId)
+        {
+            var order = await _drsService.SelectOrder(workOrderId);
+
+            if (order is null)
+            {
+                _logger.LogError($"Unable to fetch order from DRS {workOrderId}", workOrderId);
+                ThrowHelper.ThrowNotFound(Resources.WorkOrderNotFound);
+            }
+
+            var theResources = order.theBookings.First().theResources;
+
+            if (theResources.IsNullOrEmpty()) return;
+
+            var operativePayrollIds = theResources.Select(r => r.externalResourceCode);
+            var operatives = await Task.WhenAll(operativePayrollIds.Select(i => _operativesGateway.GetAsync(i)));
+
+            await _operativesGateway.AssignOperatives(workOrderId, operatives.Select(o => o.Id).ToArray());
         }
     }
 }

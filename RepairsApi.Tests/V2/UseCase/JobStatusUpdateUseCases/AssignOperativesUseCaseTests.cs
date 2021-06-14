@@ -60,7 +60,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
 
             await _classUnderTest.Execute(request);
 
-            _operativesGatewayMock.Verify(mock => mock.AssignOperatives(It.Is<WorkOrderOperative[]>(assignment => assignment.Length == expectedAssignments.Length)));
+            _operativesGatewayMock.Verify(mock => mock.AssignOperatives(desiredWorkOrderId, It.Is<int[]>(assignment => assignment.Length == expectedAssignments.Length)));
         }
 
         [Test]
