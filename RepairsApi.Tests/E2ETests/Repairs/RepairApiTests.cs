@@ -78,13 +78,29 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         }
 
         [Test]
-        public async Task DeletesFromDRS()
+        public async Task Cancelled_DeletesFromDRS()
         {
             SetupSoapMock();
 
             var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
 
             await CancelWorkOrder(result.Id);
+
+            SoapMock.Verify(s => s.deleteOrderAsync(It.IsAny<V2_Generated_DRS.deleteOrder>()));
+        }
+
+        [Test]
+        public async Task NoAccess_DeletesFromDRS()
+        {
+            SetupSoapMock();
+
+            var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
+
+            await CompleteWorkOrder(result.Id, true, woc =>
+            {
+                woc.JobStatusUpdates.Single().TypeCode = JobStatusUpdateTypeCode._70;
+                woc.JobStatusUpdates.Single().OtherType = string.Empty;
+            });
 
             SoapMock.Verify(s => s.deleteOrderAsync(It.IsAny<V2_Generated_DRS.deleteOrder>()));
         }
@@ -183,7 +199,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             workOrder.StatusCode.Should().Be(WorkStatusCode.Complete);
         }
 
-        private async Task<HttpStatusCode> CompleteWorkOrder(int workOrderId, bool preAssignOperative = true)
+        private async Task<HttpStatusCode> CompleteWorkOrder(int workOrderId, bool preAssignOperative = true, Action<WorkOrderComplete> interceptor = null)
         {
             if (preAssignOperative) await AssignOperative(workOrderId, TestDataSeeder.OperativeId);
 
@@ -194,6 +210,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
                 .AddValue(JobStatusUpdateTypeCode._0, (JobStatusUpdates jsu) => jsu.TypeCode)
                 .AddValue(CustomJobStatusUpdates.Completed, (JobStatusUpdates jsu) => jsu.OtherType)
                 .Generate();
+            interceptor?.Invoke(request);
 
             // Act
             var response = await Post("/api/v2/workOrderComplete", request);

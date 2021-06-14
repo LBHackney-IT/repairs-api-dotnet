@@ -13,6 +13,7 @@ using RepairsApi.V2.Notifications;
 using RepairsApi.V2.UseCase;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Generated = RepairsApi.V2.Generated;
 
@@ -88,6 +89,7 @@ namespace RepairsApi.Tests.V2.UseCase
         public async Task CanCompleteWorkOrder()
         {
             // arrange
+            const string Comment = "expectedComment";
             var expectedWorkOrder = CreateWorkOrder();
             _currentUserServiceMock.SetSecurityGroup(UserGroups.Contractor, true);
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
@@ -95,7 +97,7 @@ namespace RepairsApi.Tests.V2.UseCase
             {
                 new Generated.JobStatusUpdates
                 {
-                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = CustomJobStatusUpdates.Completed, Comments = "expectedComment"
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = CustomJobStatusUpdates.Completed, Comments = Comment
                 }
             };
 
@@ -105,6 +107,7 @@ namespace RepairsApi.Tests.V2.UseCase
             var lastWorkOrderComplete = _workOrderCompletionGatewayMock.LastWorkOrderComplete;
             lastWorkOrderComplete.Should().NotBeNull();
             lastWorkOrderComplete.JobStatusUpdates.Should().HaveCount(workOrderCompleteRequest.JobStatusUpdates.Count);
+            lastWorkOrderComplete.JobStatusUpdates.Single().Comments.Should().Be(Resources.WorkOrderCompletedPrefix + Comment);
         }
 
         [Test]
@@ -236,6 +239,7 @@ namespace RepairsApi.Tests.V2.UseCase
         public async Task UpdatesWorkOrderStatusCancelled()
         {
             // arrange
+            const string Comment = "expectedComment";
             string customUpdateType = CustomJobStatusUpdates.Cancelled;
             WorkStatusCode expectedNewStatus = WorkStatusCode.Canceled;
             var expectedWorkOrder = CreateWorkOrder();
@@ -244,7 +248,7 @@ namespace RepairsApi.Tests.V2.UseCase
             {
                 new Generated.JobStatusUpdates
                 {
-                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = customUpdateType, Comments = "expectedComment"
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = customUpdateType, Comments = Comment
                 }
             };
 
@@ -252,7 +256,9 @@ namespace RepairsApi.Tests.V2.UseCase
             await _classUnderTest.Execute(workOrderCompleteRequest);
 
             // assert
+            var lastWorkOrderComplete = _workOrderCompletionGatewayMock.LastWorkOrderComplete;
             _repairsGatewayMock.Verify(rgm => rgm.UpdateWorkOrderStatus(expectedWorkOrder.Id, expectedNewStatus));
+            lastWorkOrderComplete.JobStatusUpdates.Single().Comments.Should().Be(Resources.WorkOrderCancelledPrefix + Comment);
         }
 
         [Test]
@@ -268,7 +274,7 @@ namespace RepairsApi.Tests.V2.UseCase
             {
                 new Generated.JobStatusUpdates
                 {
-                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = customUpdateType, Comments = "expectedComment"
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = customUpdateType, Comments = ""
                 }
             };
 
@@ -283,6 +289,7 @@ namespace RepairsApi.Tests.V2.UseCase
         public async Task ContractorUpdatesWorkOrderStatusNoAccess()
         {
             // arrange
+            const string Comment = "expectedComment";
             const Generated.JobStatusUpdateTypeCode NoAccess = Generated.JobStatusUpdateTypeCode._70;
             WorkStatusCode expectedNewStatus = WorkStatusCode.NoAccess;
             _currentUserServiceMock.SetSecurityGroup(UserGroups.Contractor, true);
@@ -292,7 +299,7 @@ namespace RepairsApi.Tests.V2.UseCase
             {
                 new Generated.JobStatusUpdates
                 {
-                    TypeCode = NoAccess, Comments = "expectedComment"
+                    TypeCode = NoAccess, Comments = Comment
                 }
             };
 
@@ -300,7 +307,10 @@ namespace RepairsApi.Tests.V2.UseCase
             await _classUnderTest.Execute(workOrderCompleteRequest);
 
             // assert
+
+            var lastWorkOrderComplete = _workOrderCompletionGatewayMock.LastWorkOrderComplete;
             _repairsGatewayMock.Verify(rgm => rgm.UpdateWorkOrderStatus(expectedWorkOrder.Id, expectedNewStatus));
+            lastWorkOrderComplete.JobStatusUpdates.Single().Comments.Should().Be(Resources.WorkOrderNoAccessPrefix + Comment);
         }
 
         [Test]
