@@ -43,14 +43,22 @@ namespace RepairsApi.V2.Filtering
             var liveContractors = await _scheduleOfRatesGateway.GetLiveContractors();
             var filterOptions = new List<FilterOption>(liveContractors.Select(c => new FilterOption { Key = c.ContractorReference, Description = c.ContractorName }));
 
-            if (!_currentUserService.HasAnyGroup(UserGroups.Agent, UserGroups.AuthorisationManager, UserGroups.ContractManager))
+            if (_currentUserService.HasAnyGroup(UserGroups.AuthorisationManager, UserGroups.ContractManager))
             {
+                // Authorisation and contract managers can see all work orders
+                return filterOptions;
+            }
+            else if (_currentUserService.HasGroup(UserGroups.Agent) && !_currentUserService.HasGroup(UserGroups.Contractor))
+            {
+                // Agents can see all work orders unless they have contractor restrictions
+                return filterOptions;
+            }
+            else
+            {
+                // Users with contractor restrictions can only see their work orders
                 var groups = _currentUserService.GetContractors();
-
                 return filterOptions.Where(fo => groups.Contains(fo.Key)).ToList();
             }
-
-            return filterOptions;
         }
     }
 }
