@@ -13,7 +13,6 @@ using RepairsApi.V2.Domain;
 using RepairsApi.V2.Gateways;
 using V2_Generated_DRS;
 using System;
-using RepairsApi.V2.Generated;
 using Trade = RepairsApi.V2.Infrastructure.Trade;
 using WorkElement = RepairsApi.V2.Infrastructure.WorkElement;
 
@@ -113,10 +112,42 @@ namespace RepairsApi.Tests.V2.Notifications
         }
 
         [Test]
+        public async Task NoAccess_DeletesDRSOrder()
+        {
+            var workOrder = CreateWorkOrder();
+
+            await _classUnderTest.Notify(new WorkOrderNoAccess(workOrder));
+
+            _drsServiceMock.Verify(x => x.CancelOrder(workOrder));
+        }
+
+        [Test]
+        public async Task NoAccess_DoesNotDeleteDRSOrder_When_FeatureFlagFalse()
+        {
+            FeatureEnabled(false);
+            var workOrder = CreateWorkOrder();
+
+            await _classUnderTest.Notify(new WorkOrderNoAccess(workOrder));
+
+            _drsServiceMock.Verify(x => x.CancelOrder(workOrder), Times.Never);
+        }
+
+        [Test]
+        public async Task NoAccess_DoesNotDeleteDRSOrder_When_ContractorNotEnabled()
+        {
+            ContractorUsesExternalScheduler(false);
+            var workOrder = CreateWorkOrder();
+
+            await _classUnderTest.Notify(new WorkOrderNoAccess(workOrder));
+
+            _drsServiceMock.Verify(x => x.CancelOrder(workOrder), Times.Never);
+        }
+
+        [Test]
         public async Task CompletesDRSOrder()
         {
             var workOrder = CreateWorkOrder();
-            var generator = new Generator<JobStatusUpdates>()
+            var generator = new Generator<JobStatusUpdate>()
                 .AddDefaultGenerators();
             var jsu = generator.Generate();
 
@@ -130,7 +161,7 @@ namespace RepairsApi.Tests.V2.Notifications
         {
             FeatureEnabled(false);
             var workOrder = CreateWorkOrder();
-            var generator = new Generator<JobStatusUpdates>()
+            var generator = new Generator<JobStatusUpdate>()
                 .AddDefaultGenerators();
             var jsu = generator.Generate();
 
@@ -144,7 +175,7 @@ namespace RepairsApi.Tests.V2.Notifications
         {
             ContractorUsesExternalScheduler(false);
             var workOrder = CreateWorkOrder();
-            var generator = new Generator<JobStatusUpdates>()
+            var generator = new Generator<JobStatusUpdate>()
                 .AddDefaultGenerators();
             var jsu = generator.Generate();
 

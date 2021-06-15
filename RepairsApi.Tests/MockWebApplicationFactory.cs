@@ -60,43 +60,43 @@ namespace RepairsApi.Tests
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.ConfigureServices(services =>
-            {
-                services.RemoveAll(typeof(DbContextOptions<RepairsContext>));
-
-                services.AddDbContext<RepairsContext>(options =>
                 {
-                    if (_connection != null)
+                    services.RemoveAll(typeof(DbContextOptions<RepairsContext>));
+
+                    services.AddDbContext<RepairsContext>(options =>
                     {
-                        options.UseNpgsql(_connection)
-                        .UseSnakeCaseNamingConvention()
-                            .UseLazyLoadingProxies();
-                    }
-                    else
-                    {
-                        options.UseInMemoryDatabase("integration")
-                            .UseLazyLoadingProxies()
-                            .UseSnakeCaseNamingConvention();
-                        options.ConfigureWarnings(warningOptions =>
+                        if (_connection != null)
                         {
-                            warningOptions.Ignore(InMemoryEventId.TransactionIgnoredWarning);
-                        });
-                    }
-                });
+                            options.UseNpgsql(_connection)
+                                .UseSnakeCaseNamingConvention()
+                                .UseLazyLoadingProxies();
+                        }
+                        else
+                        {
+                            options.UseInMemoryDatabase("integration")
+                                .UseLazyLoadingProxies()
+                                .UseSnakeCaseNamingConvention();
+                            options.ConfigureWarnings(warningOptions =>
+                            {
+                                warningOptions.Ignore(InMemoryEventId.TransactionIgnoredWarning);
+                            });
+                        }
+                    });
 
-                var serviceProvider = services.BuildServiceProvider();
-                InitialiseDB(serviceProvider);
+                    var serviceProvider = services.BuildServiceProvider();
+                    InitialiseDB(serviceProvider);
 
-                services.RemoveAll<IApiGateway>();
-                services.AddTransient<IApiGateway, MockApiGateway>();
-                services.RemoveAll<SOAP>();
-                services.RemoveAll<IAsyncNotificationClient>();
-                services.AddTransient(sp => _notifyMock.Object);
-                services.AddTransient(sp => _soapMock.Object);
-                services.RemoveAll(typeof(ILogger<>));
-                services.AddTransient(typeof(ILogger<>), typeof(MockLogger<>));
-                services.AddSingleton(_log);
-            })
-            .UseEnvironment("IntegrationTests");
+                    services.RemoveAll<IApiGateway>();
+                    services.AddTransient<IApiGateway, MockApiGateway>();
+                    services.RemoveAll<SOAP>();
+                    services.RemoveAll<IAsyncNotificationClient>();
+                    services.AddTransient(sp => _notifyMock.Object);
+                    services.AddTransient(sp => _soapMock.Object);
+                    services.RemoveAll(typeof(ILogger<>));
+                    services.AddTransient(typeof(ILogger<>), typeof(MockLogger<>));
+                    services.AddSingleton(_log);
+                })
+                .UseEnvironment("IntegrationTests");
         }
 
         protected override void ConfigureClient(HttpClient client)
@@ -105,9 +105,15 @@ namespace RepairsApi.Tests
 
             switch (_userGroup)
             {
-                case UserGroups.Agent: client.SetAgent(); break;
-                case UserGroups.Contractor: client.SetGroups(GetGroup(TestDataSeeder.Contractor)); break;
-                default: client.SetGroups(_userGroup); break;
+                case UserGroups.Agent:
+                    client.SetAgent();
+                    break;
+                case UserGroups.Contractor:
+                    client.SetGroups(GetGroup(TestDataSeeder.Contractor));
+                    break;
+                default:
+                    client.SetGroups(_userGroup);
+                    break;
             }
         }
 
@@ -207,6 +213,48 @@ namespace RepairsApi.Tests
         protected void VerifyEmailSent(string templateId, string recipient = null)
         {
             NotifyMock.LastEmail.Should().Match<EmailRecord>(r => r.TemplateId == templateId && (recipient == null || recipient == r.Email));
+        }
+
+        protected void SetupSoapMock()
+        {
+            SoapMock.Setup(s => s.updateBookingAsync(It.IsAny<updateBooking>()))
+                .ReturnsAsync(new updateBookingResponse
+                {
+                    @return = new xmbUpdateBookingResponse
+                    {
+                        status = responseStatus.success
+                    }
+                });
+            SoapMock.Setup(x => x.selectOrderAsync(It.IsAny<selectOrder>()))
+                .ReturnsAsync(() => new selectOrderResponse
+                {
+                    @return = new xmbSelectOrderResponse
+                    {
+                        status = responseStatus.success,
+                        theOrders = new order[]
+                        {
+                            new order
+                            {
+                                theBookings = new[]
+                                {
+                                    new booking
+                                    {
+                                        tokenId = SoapMock.ExpectedToken,
+                                        theResources = new[]
+                                        {
+                                            new resource
+                                            {
+                                                externalResourceCode = TestDataSeeder.OperativePayrollId
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                });
+
         }
     }
 

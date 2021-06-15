@@ -28,7 +28,6 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         public void SetUp()
         {
             SetupSoapMock();
-            SetUserRole(UserGroups.Agent);
         }
 
         [Test]
@@ -38,14 +37,16 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             startTime = startTime.AddTicks(-(startTime.Ticks % TimeSpan.TicksPerSecond));
             var endTime = startTime.AddHours(5);
 
+            SetUserRole(UserGroups.Agent);
             var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
 
+            SetUserRole(UserGroups.Service);
             var response = await CreateAppointment(result, startTime, endTime);
 
             var appointment = GetAppointmentFromDB(result.Id);
 
             response.Should().NotBeNull();
-            response.InnerText.Should().Be(Resources.DrsBackgroundService_AddedBooking);
+            response.InnerText.Should().Be(Resources.DrsBackgroundService_BookingAccepted);
             appointment.Should().NotBeNull();
             appointment.StartTime.Should().Be(startTime);
             appointment.EndTime.Should().Be(endTime);
@@ -60,9 +61,11 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             var startTime2 = startTime1.AddDays(7);
             var endTime2 = endTime1.AddDays(7);
 
+            SetUserRole(UserGroups.Agent);
             var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
 
             // create first appointment
+            SetUserRole(UserGroups.Service);
             await CreateAppointment(result, startTime1, endTime1);
 
             // update the appointment
@@ -70,10 +73,10 @@ namespace RepairsApi.Tests.E2ETests.Repairs
 
             var appointment = GetAppointmentFromDB(result.Id);
             response.Should().NotBeNull();
-            response.InnerText.Should().Be(Resources.DrsBackgroundServiceTests_UpdatedBooking);
+            response.InnerText.Should().Be(Resources.DrsBackgroundService_BookingAccepted);
             appointment.Should().NotBeNull();
-            appointment.StartTime.Should().Be(startTime1);
-            appointment.EndTime.Should().Be(endTime1);
+            appointment.StartTime.Should().Be(startTime2);
+            appointment.EndTime.Should().Be(endTime2);
         }
 
         private async Task<XmlElement> CreateAppointment(CreateOrderResult result, DateTime startTime, DateTime endTime)
@@ -135,19 +138,6 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             var repair = db.Appointments.SingleOrDefault(a => a.WorkOrderId == workOrderId);
             modifier?.Invoke(repair);
             return repair;
-        }
-
-        private void SetupSoapMock()
-        {
-            SoapMock.Setup(s => s.updateBookingAsync(It.IsAny<updateBooking>()))
-                .ReturnsAsync(new updateBookingResponse
-                {
-                    @return = new xmbUpdateBookingResponse
-                    {
-                        status = responseStatus.success
-                    }
-                });
-
         }
     }
 }

@@ -56,9 +56,7 @@ namespace RepairsApi.V2.Services
             var locationAlerts = property != null ? await _alertsGateway.GetLocationAlertsAsync(property.PropertyReference) : null;
             var tenureInfo = property != null ? await _tenancyGateway.GetTenancyInformationAsync(property.PropertyReference) : null;
             var personAlerts = tenureInfo != null ? await _alertsGateway.GetPersonAlertsAsync(tenureInfo.TenancyAgreementReference) : null;
-            var orderComments = $"Property Alerts {locationAlerts?.Alerts.ToDescriptionString()} " +
-                                        $"Person Alerts {personAlerts?.Alerts.ToDescriptionString()} - " +
-                                        $"{workOrder.DescriptionOfWork}";
+            var orderComments = $"{workOrder.DescriptionOfWork}";
             var orderCommentsExtended = $"Property Alerts {locationAlerts?.Alerts.ToCommentsExtendedString()} " +
                                         $"Person Alerts {personAlerts?.Alerts.ToCommentsExtendedString()}";
 
@@ -119,10 +117,7 @@ namespace RepairsApi.V2.Services
             booking.bookingCompletionStatus = DrsBookingStatusCodes.Completed;
             booking.bookingLifeCycleStatus = transactionTypeType.COMPLETED;
             booking.theBusinessData = SetBusinessData(booking.theBusinessData, DrsBusinessDataNames.TaskLifeCycleStatus, DrsTaskLifeCycleCodes.Completed);
-            foreach (var bookingCode in booking.theBookingCodes)
-            {
-                bookingCode.itemValue = null;
-            }
+            booking.theBookingCodes?.ToList().ForEach(bc => bc.itemValue = null);
             var resource = booking.theResources?.First();
 
             var updateBooking = new updateBooking
@@ -154,9 +149,10 @@ namespace RepairsApi.V2.Services
             var tenureInfo = property != null ? await _tenancyGateway.GetTenancyInformationAsync(property.PropertyReference) : null;
             var personAlerts = tenureInfo != null ? await _alertsGateway.GetPersonAlertsAsync(tenureInfo.TenancyAgreementReference) : null;
             var plannerComments = $"Property Alerts {locationAlerts?.Alerts.ToDescriptionString()} " +
-                                        $"Person Alerts {personAlerts?.Alerts.ToDescriptionString()}";
+                                  $"Person Alerts {personAlerts?.Alerts.ToDescriptionString()}";
 
             booking.theOrder = drsOrder;
+            booking.theOrder.theBookings = null;
 
             booking.plannerComments = plannerComments;
 

@@ -99,21 +99,22 @@ namespace RepairsApi.Tests.V2.Services
         }
 
         [Test]
-        public async Task CreateOrder_Fires_Update_Endpoint()
+        public async Task UpdateOrder_Fires_Update_Endpoint()
         {
             var workOrder = CreateWorkOrderWithContractor(true);
             _drsSoapMock.CreateReturns(responseStatus.success);
             _drsSoapMock.UpdateBookingReturns(responseStatus.success);
             _drsMappingMock.SetupMappings(workOrder);
+            _drsSoapMock.SelectOrderReturns(_fixture.Create<order>(), responseStatus.success);
 
-            await _classUnderTest.CreateOrder(workOrder);
+            await _classUnderTest.UpdateOrder(workOrder);
 
             _drsSoapMock.VerifyOpenSession();
             _drsSoapMock.Verify(x => x.updateBookingAsync(It.Is<updateBooking>(c => c.updateBooking1.id == workOrder.Id)), Times.Once);
         }
 
         [Test]
-        public async Task CreateOrder_UsesMapper()
+        public async Task CreateOrder_DoesNotUseUpdateMapper()
         {
             var workOrder = CreateWorkOrderWithContractor(true);
             _drsSoapMock.CreateReturns(responseStatus.success);
@@ -121,6 +122,20 @@ namespace RepairsApi.Tests.V2.Services
             _drsMappingMock.SetupMappings(workOrder);
 
             await _classUnderTest.CreateOrder(workOrder);
+
+            _drsMappingMock.Verify(m => m.BuildPlannerCommentedUpdateBookingRequest(It.IsAny<string>(), It.IsAny<WorkOrder>(), It.IsAny<order>()), Times.Never);
+        }
+
+        [Test]
+        public async Task UpdateOrder_UsesMapper()
+        {
+            var workOrder = CreateWorkOrderWithContractor(true);
+            _drsSoapMock.CreateReturns(responseStatus.success);
+            _drsSoapMock.SelectOrderReturns(_fixture.Create<order>(), responseStatus.success);
+            _drsSoapMock.UpdateBookingReturns(responseStatus.success);
+            _drsMappingMock.SetupMappings(workOrder);
+
+            await _classUnderTest.UpdateOrder(workOrder);
 
             _drsMappingMock.Verify(m => m.BuildPlannerCommentedUpdateBookingRequest(It.IsAny<string>(), It.IsAny<WorkOrder>(), It.IsAny<order>()), Times.Once);
         }
@@ -232,6 +247,23 @@ namespace RepairsApi.Tests.V2.Services
                 .Which.StatusCode.Should().Be((int) drsResponse);
         }
 
+        [TestCase(responseStatus.failure)]
+        [TestCase(responseStatus.error)]
+        [TestCase(responseStatus.undefined)]
+        public async Task ThrowsApiError_When_UpdateOrderHasDrsError(responseStatus drsResponse)
+        {
+            var workOrder = CreateWorkOrderWithContractor(true);
+            var drsOrder = _fixture.Create<order>();
+            drsOrder.status = orderStatus.PLANNED;
+            const string errorMsg = "message";
+            _drsSoapMock.SelectOrderReturns(null, drsResponse, errorMsg);
+
+            Func<Task> act = () => _classUnderTest.UpdateOrder(workOrder);
+
+            (await act.Should().ThrowAsync<ApiException>().WithMessage(errorMsg))
+                .Which.StatusCode.Should().Be((int) drsResponse);
+        }
+
         [Test]
         public async Task CancelsWhenOrderNotPlanned()
         {
@@ -248,6 +280,21 @@ namespace RepairsApi.Tests.V2.Services
             await _classUnderTest.CompleteOrder(workOrder);
 
             _drsSoapMock.Verify(x => x.deleteOrderAsync(It.Is<deleteOrder>(d => d.deleteOrder1.id == workOrder.Id)));
+        }
+
+        [Test]
+        public async Task SelectsOrder()
+        {
+            var workOrder = CreateWorkOrderWithContractor(true);
+            var drsOrder = _fixture.Create<order>();
+
+            _drsSoapMock.SelectOrderReturns(drsOrder);
+
+            var result = await _classUnderTest.SelectOrder(workOrder.Id);
+
+            _drsSoapMock.VerifyOpenSession();
+            _drsSoapMock.Verify(x => x.selectOrderAsync(It.Is<selectOrder>(s => s.selectOrder1.primaryOrderNumber.Contains(workOrder.Id.ToString()))));
+            result.Should().BeEquivalentTo(drsOrder);
         }
 
         private static WorkOrder CreateWorkOrderWithContractor(bool useExternal)

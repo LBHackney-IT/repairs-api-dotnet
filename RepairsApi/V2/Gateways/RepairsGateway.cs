@@ -107,7 +107,7 @@ namespace RepairsApi.V2.Gateways
 
         public static bool UserCanAccess(this WorkOrder workOrder, ICurrentUserService userService)
         {
-            if (userService.HasAnyGroup(UserGroups.Agent, UserGroups.ContractManager, UserGroups.AuthorisationManager)) return true;
+            if (userService.HasAnyGroup(UserGroups.Agent, UserGroups.ContractManager, UserGroups.AuthorisationManager, UserGroups.Service)) return true;
 
             var contractors = userService.GetContractors();
             if (contractors.Count > 0)

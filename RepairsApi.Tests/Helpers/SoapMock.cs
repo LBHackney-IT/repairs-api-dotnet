@@ -26,6 +26,22 @@ namespace RepairsApi.Tests.Helpers
                         }
                     }
                 });
+            Setup(x => x.selectOrderAsync(It.IsAny<selectOrder>()))
+                .ReturnsAsync(new selectOrderResponse
+                {
+                    @return = new xmbSelectOrderResponse
+                    {
+                        status = responseStatus.success,
+                        theOrders = new order[]
+                        {
+                            new order
+                            {
+                                theBookings = new[] { new booking { tokenId = ExpectedToken } }
+                            }
+                        }
+
+                    }
+                });
         }
     }
 }

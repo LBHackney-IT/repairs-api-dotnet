@@ -10,6 +10,8 @@ namespace RepairsApi.V2.Services
         Task<order> CreateOrder(WorkOrder workOrder);
         Task CancelOrder(WorkOrder workOrder);
         Task CompleteOrder(WorkOrder workOrder);
+        Task UpdateOrder(WorkOrder workOrder);
+        Task<order> SelectOrder(int workOrderId);
     }
 
 }

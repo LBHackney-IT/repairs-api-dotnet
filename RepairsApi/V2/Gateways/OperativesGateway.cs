@@ -40,8 +40,15 @@ namespace RepairsApi.V2.Gateways
             await _context.SaveChangesAsync();
         }
 
-        public async Task AssignOperatives(params WorkOrderOperative[] assignments)
+        public async Task AssignOperatives(int workOrderId, params int[] operativeIds)
         {
+            var workOrderOperatives = _context.WorkOrderOperatives.Where(woo => woo.WorkOrderId == workOrderId).AsEnumerable();
+            _context.WorkOrderOperatives.RemoveRange(workOrderOperatives);
+            var assignments = operativeIds.Select(o => new WorkOrderOperative
+            {
+                OperativeId = o,
+                WorkOrderId = workOrderId
+            });
             await _context.WorkOrderOperatives.AddRangeAsync(assignments);
             await _context.SaveChangesAsync();
         }

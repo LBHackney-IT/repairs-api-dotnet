@@ -7,7 +7,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using RepairsApi.V2;
+using RepairsApi.V2.Infrastructure;
+using Appointment = RepairsApi.V2.Infrastructure.Hackney.Appointment;
 
 namespace RepairsApi.Tests.V2.Gateways
 {
@@ -136,10 +139,11 @@ namespace RepairsApi.Tests.V2.Gateways
         public async Task BookTimedAppointment()
         {
             const int workOrderId = 100001;
+            await CreateWorkOrder(workOrderId);
             var startTime = DateTime.UtcNow;
             var endTime = DateTime.UtcNow.AddHours(5);
 
-            await _classUnderTest.CreateTimedBooking(workOrderId, startTime, endTime);
+            await _classUnderTest.SetTimedBooking(workOrderId, startTime, endTime);
 
             var appointment = await InMemoryDb.Instance.Appointments.SingleOrDefaultAsync(a => a.WorkOrderId == workOrderId);
             appointment.Should().NotBeNull();
@@ -147,6 +151,57 @@ namespace RepairsApi.Tests.V2.Gateways
             appointment.Date.Should().Be(startTime.Date);
             appointment.StartTime.Should().Be(startTime);
             appointment.EndTime.Should().Be(endTime);
+        }
+
+        [Test]
+        public async Task UpdateTimedAppointment()
+        {
+            const int workOrderId = 100001;
+            await CreateWorkOrder(workOrderId);
+            var existingAppointment = new Appointment
+            {
+                Date = DateTime.UtcNow,
+                StartTime = DateTime.UtcNow,
+                EndTime = DateTime.UtcNow.AddHours(5),
+                WorkOrderId = workOrderId
+            };
+            await InMemoryDb.Instance.Appointments.AddAsync(existingAppointment);
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            var startTime = existingAppointment.StartTime.AddDays(7);
+            var endTime = existingAppointment.EndTime.AddDays(7);
+
+            await _classUnderTest.SetTimedBooking(workOrderId, startTime, endTime);
+
+            var appointment = await InMemoryDb.Instance.Appointments.SingleOrDefaultAsync(a => a.WorkOrderId == workOrderId);
+            appointment.Should().NotBeNull();
+            appointment.WorkOrderId.Should().Be(workOrderId);
+            appointment.Date.Should().Be(startTime.Date);
+            appointment.StartTime.Should().Be(startTime);
+            appointment.EndTime.Should().Be(endTime);
+        }
+
+        private static async Task CreateWorkOrder(int workOrderId)
+        {
+            await InMemoryDb.Instance.WorkOrders.AddAsync(new WorkOrder
+            {
+                Id = workOrderId
+            });
+
+            await InMemoryDb.Instance.SaveChangesAsync();
+        }
+
+        [Test]
+        public async Task ThrowsIfWorkOrderNotFound()
+        {
+            const int workOrderId = 1234;
+            var startTime = DateTime.UtcNow;
+            var endTime = DateTime.UtcNow.AddHours(5);
+
+            Func<Task> act = () => _classUnderTest.SetTimedBooking(workOrderId, startTime, endTime);
+
+            await act.Should().ThrowAsync<ResourceNotFoundException>()
+                .WithMessage(Resources.WorkOrderNotFound);
         }
 
         private static string GenerateAppointmentRef(int id, DateTime date)
@@ -234,14 +289,14 @@ namespace RepairsApi.Tests.V2.Gateways
             var end = DateTime.UtcNow.AddHours(12);
             var description = Resources.ExternallyManagedAppointment;
             var workOrderRef = 100001;
-            await _classUnderTest.CreateTimedBooking(workOrderRef, start, end);
+            await CreateWorkOrder(workOrderRef);
+            await _classUnderTest.SetTimedBooking(workOrderRef, start, end);
 
             var appointment = await _classUnderTest.GetAppointment(workOrderRef);
 
             appointment.Description.Should().Be(description);
             appointment.Start.Should().Be(start);
             appointment.End.Should().Be(end);
-            appointment.Date.Should().Be(date);
         }
 
         private static List<int> SeedData(string contractor, DaySeedModel[] days, AppointmentSeedModel[] appointments)
