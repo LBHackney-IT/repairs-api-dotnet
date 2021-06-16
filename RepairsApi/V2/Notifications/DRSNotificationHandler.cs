@@ -14,7 +14,6 @@ namespace RepairsApi.V2.Notifications
         INotificationHandler<WorkOrderOpened>,
         INotificationHandler<WorkOrderCancelled>,
         INotificationHandler<WorkOrderCompleted>,
-        INotificationHandler<WorkOrderPlannerCommentsUpdated>,
         INotificationHandler<WorkOrderNoAccess>
     {
         private readonly IFeatureManager _featureManager;
@@ -65,15 +64,6 @@ namespace RepairsApi.V2.Notifications
                 return;
             }
             await DrsService.CompleteOrder(data.WorkOrder);
-        }
-
-        public async Task Notify(WorkOrderPlannerCommentsUpdated data)
-        {
-            if (await UseDrs(data.WorkOrder))
-            {
-                return;
-            }
-            await DrsService.UpdateOrder(data.WorkOrder);
         }
 
         public Task Notify(WorkOrderNoAccess data)

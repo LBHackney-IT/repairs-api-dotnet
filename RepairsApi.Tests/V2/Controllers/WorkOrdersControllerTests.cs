@@ -137,7 +137,10 @@ namespace RepairsApi.Tests.V2.Controllers
         [Test]
         public async Task ReturnsObjectFromUseCase()
         {
-            var expectedWorkOrderResponse = new Generator<WorkOrderResponse>().AddWorkOrderGenerators().Generate();
+            var expectedWorkOrderResponse = new Generator<WorkOrderResponse>()
+                .AddWorkOrderGenerators()
+                .Ignore((WorkOrderResponse r) => r.ExternalAppointmentManagementUrl)
+                .Generate();
             _getWorkOrderUseCase.Setup(uc => uc.Execute(It.IsAny<int>())).ReturnsAsync(expectedWorkOrderResponse);
 
             var result = await _classUnderTest.Get(1);
