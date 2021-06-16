@@ -77,9 +77,9 @@ BEGIN
 			dbo.rmtask_uht_data_restore task ON task.wo_ref = wo.wo_ref
 		INNER JOIN
 			dbo.rmtrade_uht_data_restore trade ON trade.trade = task.trade
-		INNER JOIN
+		LEFT JOIN
 			dbo.auser_uht_data_restore uht_user ON uht_user.user_code = wo.user_code
-		INNER JOIN
+		LEFT JOIN
 			dbo."W2User_uhw_data_restore" uhw_user ON uht_user.user_login = uhw_user."User_ID"
 		WHERE task.task_no = 1
 		LIMIT amount
