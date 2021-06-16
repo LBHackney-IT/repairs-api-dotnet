@@ -74,10 +74,14 @@ namespace RepairsApi.V2.UseCase
                     _logger.LogInformation("Contractor using DRS: {workOrderId}", workOrder.Id);
 
                     result.ExternallyManagedAppointment = true;
-                    var managementUri = new UriBuilder(_drsOptions.Value.ManagementAddress);
-                    managementUri.Port = -1;
-                    managementUri.Query = $"tokenId={notification.TokenId}";
+                    var managementUri = new UriBuilder(_drsOptions.Value.ManagementAddress)
+                    {
+                        Port = -1,
+                        Query = $"tokenId={notification.TokenId}"
+                    };
                     result.ExternalAppointmentManagementUrl = managementUri.Uri;
+                    workOrder.ExternalSchedulerReference = notification.TokenId;
+                    await _repairsGateway.SaveChangesAsync();
 
                     try
                     {
