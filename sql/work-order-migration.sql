@@ -131,7 +131,7 @@ BEGIN
 										customer_id, 
 										NULL,
 										wo_record.agent_name, 
-										80) 
+										80) --Need to decide on special "migrated - complete / migrated - complaint" status
 			RETURNING id INTO work_order_id;
 
 		INSERT INTO public.work_elements (id, work_order_id) VALUES (gen_random_uuid(), work_order_id) RETURNING id INTO work_element_id;
