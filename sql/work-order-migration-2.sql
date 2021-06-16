@@ -3,13 +3,13 @@
 --select count(*) from public.work_elements --561 -> 562
 --select count(*) from public.work_orders --379 -> 380
 
-with corequery as (
-select 'FRONTEND -->' As SourceType, wo1.* from public.work_orders wo1 where id in ('10000380','10000362')
-union 
-select 'MIGRATION -->' As SourceType, wo2.* from public.work_orders wo2 where id in ('1000021')
-) select * from corequery order by SourceType
+--with corequery as (
+--select 'FRONTEND -->' As SourceType, wo1.* from public.work_orders wo1 where id in ('10000380','10000362')
+--union 
+--select 'MIGRATION -->' As SourceType, wo2.* from public.work_orders wo2 where id in ('1000022')
+--) select * from corequery order by SourceType
 
---select * from public.work_orders where id = '1000021'
+--select * from public.work_orders where id = '1000022'
 --select * from public.work_elements where work_order_id = '1000021'
 
 -- PROCEDURE: dbo.migrate_work_orders(integer)
@@ -42,7 +42,7 @@ BEGIN
 		req.prop_ref,
 		req.rq_problem,
 		wo.sup_ref,
-		req.rq_priority,
+		req.rq_priority, --The LETTER of the priority
 		req.rq_date,
 		wo.completed,
 		wo.wo_status,
@@ -54,7 +54,9 @@ BEGIN
 		trade.trade,
 		trade.trade_desc,
 		uhw_user."User_Name" as agent_name,
-		uhw_user."EMail" as agent_email
+		uhw_user."EMail" as agent_email,
+		wo.created As wo_creation,
+		wo.expected_completion
 		FROM 
 			dbo.rmreqst_uht_data_restore req
 		INNER JOIN 
@@ -95,16 +97,33 @@ BEGIN
 			RETURNING id INTO customer_id;
 
 		-- TODO - Priority, status
-		INSERT INTO public.work_orders (description_of_work, 
+		INSERT INTO public.work_orders (description_of_work,
+										work_priority_priority_code,
 										site_id, 
-										work_class_work_class_code, 
+										work_class_work_class_code,
+										work_priority_number_of_days,
+										work_priority_priority_description,
 										date_raised, 
 										assigned_to_primary_id, 
 										customer_id, 
 										instructed_by_id,
 										agent_name,
 										status_code)
-			VALUES (wo_record.rq_problem, site_id, 0, wo_record.rq_date, party_id, customer_id, NULL, wo_record.agent_name, 80) 
+			VALUES (					
+										wo_record.rq_problem,
+										(SELECT priority_code FROM public.sor_priorities where priority_character = wo_record.rq_priority LIMIT 1),
+										site_id,
+										0,
+										CASE WHEN wo_record.wo_creation > wo_record.expected_completion THEN 0
+											ELSE DATE_PART('day', wo_record.expected_completion - wo_record.wo_creation) 
+										END,
+										(SELECT description FROM public.sor_priorities where priority_character = wo_record.rq_priority LIMIT 1),
+										wo_record.rq_date,
+										party_id,
+										customer_id, 
+										NULL,
+										wo_record.agent_name, 
+										80) 
 			RETURNING id INTO work_order_id;
 
 		INSERT INTO public.work_elements (id, work_order_id) VALUES (gen_random_uuid(), work_order_id) RETURNING id INTO work_element_id;
