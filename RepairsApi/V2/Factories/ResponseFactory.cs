@@ -127,11 +127,11 @@ namespace RepairsApi.V2.Factories
         {
             Infrastructure.PropertyClass propertyClass = workOrder.Site?.PropertyClass?.FirstOrDefault();
             string addressLine = propertyClass?.Address?.AddressLine;
-            var managementUri = new UriBuilder(drsManagementAddress)
+            var managementUri = workOrder.ExternalSchedulerReference is null ? null : new UriBuilder(drsManagementAddress)
             {
                 Port = -1,
                 Query = $"tokenId={workOrder.ExternalSchedulerReference}"
-            };
+            }.Uri;
             return new WorkOrderResponse
             {
                 Reference = workOrder.Id,
@@ -160,7 +160,7 @@ namespace RepairsApi.V2.Factories
                     Start = appointment.Start.ToTime(),
                     End = appointment.End.ToTime()
                 },
-                ExternalAppointmentManagementUrl = managementUri.Uri,
+                ExternalAppointmentManagementUrl = managementUri,
                 Operatives = workOrder.AssignedOperatives.MapList(o => o.ToResponse())
             };
         }
