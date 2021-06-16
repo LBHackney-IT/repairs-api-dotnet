@@ -43,5 +43,26 @@ namespace RepairsApi.Tests.V2.Factories
             response.Property.Should().Be(addressLine);
             response.ExternalAppointmentManagementUrl.ToString().Should().Contain(workOrder.ExternalSchedulerReference);
         }
+
+        [Test]
+        public void DoesNotSetExternalAppointmentManagementUrlWhenNotDrs()
+        {
+            var workOrder = new Generator<WorkOrder>()
+                .AddDefaultGenerators()
+                .Generate();
+
+            workOrder.ExternalSchedulerReference = null;
+
+            AppointmentDetails appointment = new AppointmentDetails
+            {
+                Date = DateTime.UtcNow,
+                Description = "test",
+                End = DateTime.UtcNow,
+                Start = DateTime.UtcNow
+            };
+            var response = workOrder.ToResponse(appointment, new Uri("https://managementAddress.none"));
+
+            response.ExternalAppointmentManagementUrl.Should().BeNull();
+        }
     }
 }
