@@ -262,6 +262,34 @@ namespace RepairsApi.Tests.V2.UseCase
             workOrder.AgentName.Should().Be(expectedName);
         }
 
+        [Test]
+        public async Task StoresExternalSchedulerRef()
+        {
+            const int newId = 1;
+            const string expectedTokenId = "externalRef";
+            _repairsGatewayMock.ReturnWOId(newId);
+            ContractorUsesExternalScheduler(true);
+            _notificationMock.AddHandler<WorkOrderOpened>(workOrderOpened =>
+            {
+                workOrderOpened.TokenId = expectedTokenId;
+            });
+            var generator = new Helpers.StubGeneration.Generator<WorkOrder>()
+                .AddInfrastructureWorkOrderGenerators()
+                .AddValue(new List<Trade>
+                {
+                    new Trade
+                    {
+                        Code = TradeCode.B2
+                    }
+                }, (WorkElement we) => we.Trade);
+            var workOrder = generator.Generate();
+
+            var result = await _classUnderTest.Execute(workOrder);
+
+            workOrder.ExternalSchedulerReference.Should().Be(expectedTokenId);
+            _repairsGatewayMock.VerifyChangesSaved();
+        }
+
         private void ContractorUsesExternalScheduler(bool external)
         {
             _scheduleOfRatesGateway.Setup(x => x.GetContractor(It.IsAny<string>()))

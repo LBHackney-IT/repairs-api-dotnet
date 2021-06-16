@@ -4,6 +4,8 @@ using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.UseCase.Interfaces;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using RepairsApi.V2.Services;
 
 namespace RepairsApi.V2.UseCase
 {
@@ -11,11 +13,13 @@ namespace RepairsApi.V2.UseCase
     {
         private readonly IRepairsGateway _repairsGateway;
         private readonly IAppointmentsGateway _appointmentGateway;
+        private readonly IOptions<DrsOptions> _drsOptions;
 
-        public GetWorkOrderUseCase(IRepairsGateway repairsGateway, IAppointmentsGateway appointmentGateway)
+        public GetWorkOrderUseCase(IRepairsGateway repairsGateway, IAppointmentsGateway appointmentGateway, IOptions<DrsOptions> drsOptions)
         {
             _repairsGateway = repairsGateway;
             _appointmentGateway = appointmentGateway;
+            _drsOptions = drsOptions;
         }
 
         public async Task<WorkOrderResponse> Execute(int id)
@@ -24,7 +28,7 @@ namespace RepairsApi.V2.UseCase
 
             var appointment = await _appointmentGateway.GetAppointment(workOrder.Id);
 
-            return workOrder.ToResponse(appointment);
+            return workOrder.ToResponse(appointment, _drsOptions.Value.ManagementAddress);
         }
     }
 }

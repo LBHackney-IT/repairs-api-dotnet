@@ -13,8 +13,8 @@ begin
 		ELSE
 			archived := true;
 		END IF;
-		INSERT INTO public.operatives (payroll_number, is_archived, name)
-			VALUES (operative_record."ExternalResourceCode", archived, operative_record."ResourceName")
+		INSERT INTO public.operatives (payroll_number, is_archived, name, resource_id)
+			VALUES (operative_record."ExternalResourceCode", archived, operative_record."ResourceName", operative_record."ResourceId")
 			RETURNING id INTO operative_id;
 	end loop;
 end; $$

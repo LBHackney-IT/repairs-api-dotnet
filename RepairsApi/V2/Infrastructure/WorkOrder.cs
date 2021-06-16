@@ -38,6 +38,7 @@ namespace RepairsApi.V2.Infrastructure
         public ReasonCode Reason { get; set; } = ReasonCode.FullyFunded;
         public virtual List<WorkOrderOperative> WorkOrderOperatives { get; set; }
         public virtual List<Operative> AssignedOperatives { get; set; }
+        public string ExternalSchedulerReference { get; set; }
     }
 
     public class WorkOrderOperative
