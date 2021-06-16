@@ -74,34 +74,18 @@ namespace RepairsApi.V2.UseCase
                     _logger.LogInformation("Contractor using DRS: {workOrderId}", workOrder.Id);
 
                     result.ExternallyManagedAppointment = true;
-                    var managementUri = new UriBuilder(_drsOptions.Value.ManagementAddress);
-                    managementUri.Port = -1;
-                    managementUri.Query = $"tokenId={notification.TokenId}";
+                    var managementUri = new UriBuilder(_drsOptions.Value.ManagementAddress)
+                    {
+                        Port = -1,
+                        Query = $"tokenId={notification.TokenId}"
+                    };
                     result.ExternalAppointmentManagementUrl = managementUri.Uri;
-
-                    try
-                    {
-                        await NotifyUpdaters(workOrder);
-                    }
-                    catch (System.ServiceModel.CommunicationException)
-                    {
-                        _logger.LogError("Error serializing workorder update {workOrderId}", workOrder.Id);
-                    }
-
                 }
 
                 _logger.LogInformation("Successfully created work order {workOrderId}", workOrder.Id);
 
                 return result;
             }
-        }
-
-        private async Task<WorkOrderPlannerCommentsUpdated> NotifyUpdaters(WorkOrder workOrder)
-        {
-            var notification = new WorkOrderPlannerCommentsUpdated(workOrder);
-            await _notifier.Notify(notification);
-
-            return notification;
         }
 
         private async Task<WorkOrderOpened> NotifyHandlers(WorkOrder workOrder)
