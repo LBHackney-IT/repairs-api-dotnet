@@ -155,22 +155,6 @@ namespace RepairsApi.Tests.V2.Services
             ValidateBusinessData(request.updateBooking1.theBooking.theOrder.theBusinessData, DrsBusinessDataNames.Status, DrsBookingStatusCodes.Completed);
         }
 
-        [Test]
-        public async Task CreatesPlannerCommentedUpdateBookingRequest()
-        {
-            var expectedOrderNumber = _fixture.Create<int>();
-            var drsOrder = GenerateDrsOrder(expectedOrderNumber);
-            var workOrder = GenerateWorkOrder(drsOrder);
-            var sorCodes = SetupSORCodes(drsOrder);
-
-            var drsOrderCopy = drsOrder.DeepClone();
-            var request = await _classUnderTest.BuildPlannerCommentedUpdateBookingRequest(_sessionId, workOrder, drsOrderCopy);
-
-            request.updateBooking1.completeOrder.Should().BeFalse();
-            request.updateBooking1.transactionType.Should().Be(transactionTypeType.PLANNED);
-
-        }
-
         private static WorkOrder GenerateWorkOrder(order drsOrder)
         {
             var booking = drsOrder.theBookings.First();
@@ -354,7 +338,11 @@ namespace RepairsApi.Tests.V2.Services
         {
             order.primaryOrderNumber.Should().Be(workOrder.Id.ToString(CultureInfo.InvariantCulture));
             order.status.Should().Be(expectedStatus ?? orderStatus.PLANNED);
-            order.orderComments.Should().Be(workOrder.DescriptionOfWork);
+            order.orderComments.Should().Be(
+                @$"Property Alerts {locationAlerts?.Alerts.ToDescriptionString()}
+                Person Alerts {personAlertList?.Alerts.ToDescriptionString()}
+                {workOrder.DescriptionOfWork}".Truncate(250));
+
             order.contract.Should().Be(workOrder.AssignedToPrimary.ContractorReference);
             order.locationID.Should().Be(workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference);
             order.userId.Should().Be(workOrder.AgentEmail);

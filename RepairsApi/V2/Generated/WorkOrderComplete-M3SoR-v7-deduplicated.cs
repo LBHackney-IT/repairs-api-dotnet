@@ -4,6 +4,8 @@
 // </auto-generated>
 //----------------------
 
+using System.ComponentModel.DataAnnotations;
+
 namespace RepairsApi.V2.Generated
 {
     #pragma warning disable // Disable all warnings
@@ -510,7 +512,8 @@ namespace RepairsApi.V2.Generated
     public partial class AdditionalWorkOrder
     {
         [Newtonsoft.Json.JsonProperty("DescriptionOfWork", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [Required(AllowEmptyStrings = true)]
+        [MaxLength(230)]
         public string DescriptionOfWork { get; set; }
 
         [Newtonsoft.Json.JsonProperty("EstimatedLaborHours", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
