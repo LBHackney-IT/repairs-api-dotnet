@@ -82,13 +82,6 @@ namespace RepairsApi.V2.UseCase
                     result.ExternalAppointmentManagementUrl = managementUri.Uri;
                     workOrder.ExternalSchedulerReference = notification.TokenId;
                     await _repairsGateway.SaveChangesAsync();
-
-                    try
-                    {
-                        Port = -1,
-                        Query = $"tokenId={notification.TokenId}"
-                    };
-                    result.ExternalAppointmentManagementUrl = managementUri.Uri;
                 }
 
                 _logger.LogInformation("Successfully created work order {workOrderId}", workOrder.Id);

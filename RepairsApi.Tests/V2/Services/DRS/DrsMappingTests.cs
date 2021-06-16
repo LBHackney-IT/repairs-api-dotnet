@@ -338,7 +338,11 @@ namespace RepairsApi.Tests.V2.Services
         {
             order.primaryOrderNumber.Should().Be(workOrder.Id.ToString(CultureInfo.InvariantCulture));
             order.status.Should().Be(expectedStatus ?? orderStatus.PLANNED);
-            order.orderComments.Should().Be(workOrder.DescriptionOfWork);
+            order.orderComments.Should().Be(
+                @$"Property Alerts {locationAlerts?.Alerts.ToDescriptionString()}
+                Person Alerts {personAlertList?.Alerts.ToDescriptionString()}
+                {workOrder.DescriptionOfWork}".Truncate(250));
+
             order.contract.Should().Be(workOrder.AssignedToPrimary.ContractorReference);
             order.locationID.Should().Be(workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference);
             order.userId.Should().Be(workOrder.AgentEmail);
