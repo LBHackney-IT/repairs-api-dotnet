@@ -1,26 +1,13 @@
---CREATE EXTENSION pgcrypto;
---select count(*) from public.job_status_updates --367 -> 367
---select count(*) from public.work_elements --561 -> 562
---select count(*) from public.work_orders --379 -> 380
+-- PROCEDURE: dbo.migrate_work_orders()
 
---with corequery as (
---select 'FRONTEND -->' As SourceType, wo1.* from public.work_orders wo1 where id in ('10000380','10000362')
---union 
---select 'MIGRATION -->' As SourceType, wo2.* from public.work_orders wo2 where id in ('1000022')
---) select * from corequery order by SourceType
-
---select * from public.work_orders where id = '1000022'
---select * from public.work_elements where work_order_id = '1000021'
-
--- PROCEDURE: dbo.migrate_work_orders(integer)
-
-CALL dbo.migrate_work_orders(1)
-
- --DROP PROCEDURE dbo.migrate_work_orders(integer);
+-- DROP PROCEDURE dbo.migrate_work_orders();
 
 CREATE OR REPLACE PROCEDURE dbo.migrate_work_orders(
-	amount integer)
+	amount integer
+	)
+
 LANGUAGE 'plpgsql'
+
 AS $BODY$
 DECLARE wo_record RECORD;
 DECLARE task_record RECORD;
@@ -35,28 +22,35 @@ DECLARE work_element_id uuid;
 DECLARE person_id integer;
 DECLARE customer_id integer;
 BEGIN
--- Select work orders from UH
+-- Select priority records from UH
+ INSERT into public.sor_priorities(description, days_to_complete, enabled, priority_character)
+    SELECT desc_tion as description, days_to_issue as days_to_complete, false as enabled, priority as priority_character
+    FROM dbo.rmprior_uht_data_restore
+    WHERE priority NOT IN ('I','E','U','N','L2','L3','P1','P2','P3'); -- we either already have these priorities or they're not used in UH
+
+-- Select work orders from UH NOTE: there won't necessarily be a single work order record in this result set.
+-- requests could have multiple Work orders which could have multiple tasks - also, LEFT joined on users in case they didn't exist otherwise the
+-- record wouldn't be returned.
 	FOR wo_record IN
 		SELECT
 		wo.wo_ref,
 		req.prop_ref,
 		req.rq_problem,
 		wo.sup_ref,
-		req.rq_priority, --The LETTER of the priority
+		dbo.map_priority(req.rq_priority),--uses function to map priority
 		req.rq_date,
 		wo.completed,
-		wo.wo_status,
+		dbo.map_legacy_status(wo.wo_status),--uses function to map status
 		req.rq_name as client_name,
 		req.rq_phone as client_phone,
 		req.rq_date_due,
 		prop.short_address,
+    prop.post_code,
 		sup.sup_name,
 		trade.trade,
 		trade.trade_desc,
 		uhw_user."User_Name" as agent_name,
-		uhw_user."EMail" as agent_email,
-		wo.created As wo_creation,
-		wo.expected_completion
+		uhw_user."EMail" as agent_email
 		FROM 
 			dbo.rmreqst_uht_data_restore req
 		INNER JOIN 
@@ -69,16 +63,17 @@ BEGIN
 			dbo.rmtask_uht_data_restore task ON task.wo_ref = wo.wo_ref
 		INNER JOIN
 			dbo.rmtrade_uht_data_restore trade ON trade.trade = task.trade
-		INNER JOIN
+		LEFT JOIN
 			dbo.auser_uht_data_restore uht_user ON uht_user.user_code = wo.user_code
-		INNER JOIN
+		LEFT JOIN
 			dbo."W2User_uhw_data_restore" uhw_user ON uht_user.user_login = uhw_user."User_ID"
 		WHERE task.task_no = 1
 		LIMIT amount
 	LOOP
 		INSERT INTO public.site DEFAULT VALUES RETURNING id INTO site_id;
 
-		INSERT INTO public.property_address (address_line) VALUES (wo_record.short_address) RETURNING id INTO address_id;
+		INSERT INTO public.property_address (address_line, postal_code) 
+            VALUES (wo_record.short_address, wo_record.post_code) RETURNING id INTO address_id;
 
 		INSERT INTO public.property_class (site_id, address_id, property_reference) 
 			VALUES (site_id, address_id, wo_record.prop_ref) 
@@ -96,46 +91,29 @@ BEGIN
 			VALUES (wo_record.client_name, person_id) 
 			RETURNING id INTO customer_id;
 
-		-- TODO - Priority, status
-		INSERT INTO public.work_orders (description_of_work,
-										work_priority_priority_code,
+
+		INSERT INTO public.work_orders (description_of_work, 
 										site_id, 
-										work_class_work_class_code,
-										work_priority_number_of_days,
-										work_priority_priority_description,
+										work_class_work_class_code, 
 										date_raised, 
 										assigned_to_primary_id, 
 										customer_id, 
 										instructed_by_id,
 										agent_name,
+                    work_priority_priority_code,
 										status_code)
-			VALUES (					
-										wo_record.rq_problem,
-										(SELECT priority_code FROM public.sor_priorities where priority_character = wo_record.rq_priority LIMIT 1),
-										site_id,
-										0,
-										CASE WHEN wo_record.wo_creation > wo_record.expected_completion THEN 0
-											ELSE DATE_PART('day', wo_record.expected_completion - wo_record.wo_creation) 
-										END,
-										(SELECT description FROM public.sor_priorities where priority_character = wo_record.rq_priority LIMIT 1),
-										wo_record.rq_date,
-										party_id,
-										customer_id, 
-										NULL,
-										wo_record.agent_name, 
-										80) 
+			VALUES (wo_record.rq_problem, site_id, 0, wo_record.rq_date, party_id, customer_id, NULL, wo_record.agent_name,map_priority,map_legacy_status) 
 			RETURNING id INTO work_order_id;
-
-		INSERT INTO public.work_elements (id, work_order_id) VALUES (gen_random_uuid(), work_order_id) RETURNING id INTO work_element_id;
+      
+		INSERT INTO public.work_elements (work_order_id) VALUES (work_order_id) RETURNING id INTO work_element_id;
 
 		INSERT INTO public.trade (code, custom_code, custom_name, work_element_id) 
 			VALUES (46, wo_record.trade, wo_record.trade_desc, work_element_id);
 
-		-- Create Completion
+		-- TODO Create Completion
 		
-		-- TODO Signify it's original based on variation
-		INSERT INTO public.rate_schedule_item ( id,
-											    custom_code, 
+		-- TODO Mark as original based on variation
+		INSERT INTO public.rate_schedule_items (custom_code, 
 												custom_name, 
 												quantity_amount, 
 												work_element_id, 
@@ -143,20 +121,12 @@ BEGIN
 												original_quantity, 
 												date_created,
 											    code_cost)
-			SELECT 
-				public.gen_random_uuid(),
-				job.job_code,
-				job.short_desc,
-				task.est_units,
-				work_element_id, 
-				false,
-				NULL,
-				task.created,
-				CASE 
-					WHEN cont.cost IS NOT NULL THEN cont.cost
-					WHEN cst.cost IS NOT NULL THEN cst.cost
-					ELSE 0
-				END
+			SELECT job.job_code, job.short_desc, task.est_units, work_element_id, false, NULL, task.created,
+			CASE 
+				WHEN cont.cost IS NOT NULL THEN cont.cost
+				WHEN cst.cost IS NOT NULL THEN cst.cost
+				ELSE 0
+			END
 			FROM 
 				dbo.rmtask_uht_data_restore task
 			INNER JOIN
@@ -172,24 +142,22 @@ BEGIN
 				dbo.rmcontdt_uht_data_restore cont ON job.job_code = cont.job_code AND cont.rc_ref = task.sor_contract
 			WHERE 
 				task.wo_ref = wo_record.wo_ref;
-		
-		INSERT INTO public.job_status_updates (event_time, 
-											  type_code, 
-											  other_type, 
-											  comments, 
-											  related_work_order_id, 
-											  author_name, 
-											  author_email)
-	  		SELECT note."NDate", 0, 'addNote', note."NoteText", work_order_id, uhw_user."User_Name", uhw_user."EMail"
-			FROM 
-				dbo."W2ObjectNote_uhw_data_restore" note
-			INNER JOIN
-				dbo."W2User_uhw_data_restore" uhw_user 
-					ON note."UserID" = uhw_user."User_ID"
-			WHERE
-				note."KeyObject" IN ('UHRepair', 'UHOrder')
-				AND
-				CAST(note."KeyNumb" AS VARCHAR(10)) = wo_record.wo_ref;
+
+	-- Select notes for work order id and task and request
+  --select "KeyObject","KeyNumb", "KeyText", "NDate", "NoteText", "NoteID", note."UserID",
+		    --  uhw_user."User_Name" as agent_name,
+		    --  uhw_user."EMail" as agent_email
+      --from dbo."W2ObjectNote_uhw_data_restore" note
+      --left JOIN dbo."W2User_uhw_data_restore" uhw_user ON uhw_user."User_ID" = note."UserID"
+      --where 
+      --("KeyObject" = 'UHRepairsTask' AND "KeyNumb" = wo_record.rmtask_sid)
+      --OR
+      --("KeyObject" = 'UHOrder' AND "KeyNumb" = wo_record.rmworder_sid)
+      --OR
+      --("KeyObject" = 'UHRepair' AND "KeyNumb" = wo_record.rmreqst_sid)
+	------FOREACH note
+	-- Create Updates
+	--------ENDFOR note
 	END LOOP;
 COMMIT;
 END
