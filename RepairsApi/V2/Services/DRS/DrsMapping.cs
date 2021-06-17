@@ -56,15 +56,15 @@ namespace RepairsApi.V2.Services
             var locationAlerts = property != null ? await _alertsGateway.GetLocationAlertsAsync(property.PropertyReference) : null;
             var tenureInfo = property != null ? await _tenancyGateway.GetTenancyInformationAsync(property.PropertyReference) : null;
             var personAlerts = tenureInfo != null ? await _alertsGateway.GetPersonAlertsAsync(tenureInfo.TenancyAgreementReference) : null;
+            var uniqueCodes = locationAlerts?.Alerts.Union(personAlerts?.Alerts);
             var orderComments =
-                @$"Property Alerts {locationAlerts?.Alerts.ToDescriptionString()}
-                Person Alerts {personAlerts?.Alerts.ToDescriptionString()}
+                @$"{uniqueCodes.ToDescriptionString()}
                 {workOrder.DescriptionOfWork}".Truncate(250);
 
             var orderCommentsExtended = $"Property Alerts {locationAlerts?.Alerts.ToCommentsExtendedString()} " +
                                         $"Person Alerts {personAlerts?.Alerts.ToCommentsExtendedString()}";
 
-            char priorityCharacter = workOrder.WorkPriority.PriorityCode.HasValue
+            var priorityCharacter = workOrder.WorkPriority.PriorityCode.HasValue
                 ? await _sorPriorityGateway.GetLegacyPriorityCode(workOrder.WorkPriority.PriorityCode.Value)
                 : ' ';
 

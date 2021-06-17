@@ -56,6 +56,10 @@ namespace RepairsApi.Tests.V2.Services
 
             _locationAlerts = new Helpers.StubGeneration.Generator<PropertyAlertList>().AddDefaultGenerators().Generate();
             _personAlerts = new Helpers.StubGeneration.Generator<PersonAlertList>().AddDefaultGenerators().Generate();
+            var commonAlerts = new Helpers.StubGeneration.Generator<Alert>().AddDefaultGenerators().GenerateList(5);
+            _locationAlerts.Alerts = _locationAlerts.Alerts.Union(commonAlerts);
+            _personAlerts.Alerts = _personAlerts.Alerts.Union(commonAlerts);
+
             _tenureInformation = new Helpers.StubGeneration.Generator<TenureInformation>().AddDefaultGenerators().Generate();
 
             _alertsGatewayMock.Setup(x => x.GetLocationAlertsAsync(It.IsAny<string>()))
@@ -338,9 +342,10 @@ namespace RepairsApi.Tests.V2.Services
         {
             order.primaryOrderNumber.Should().Be(workOrder.Id.ToString(CultureInfo.InvariantCulture));
             order.status.Should().Be(expectedStatus ?? orderStatus.PLANNED);
+
+            var uniqueCodes = locationAlerts?.Alerts.Union(personAlertList?.Alerts);
             order.orderComments.Should().Be(
-                @$"Property Alerts {locationAlerts?.Alerts.ToDescriptionString()}
-                Person Alerts {personAlertList?.Alerts.ToDescriptionString()}
+                @$"{uniqueCodes.ToDescriptionString()}
                 {workOrder.DescriptionOfWork}".Truncate(250));
 
             order.contract.Should().Be(workOrder.AssignedToPrimary.ContractorReference);
