@@ -12,9 +12,9 @@ namespace RepairsApi.V2.Helpers
         {
             return alerts.IsNullOrEmpty() ? "" : alerts.Aggregate("", (current, alert) => current + $" - {alert}");
         }
-        public static string ToDescriptionString(this IEnumerable<Alert> alerts)
+        public static string ToCodeString(this IEnumerable<Alert> alerts)
         {
-            return alerts.IsNullOrEmpty() ? "" : alerts.Aggregate("", (current, alert) => current + $" - {alert.AlertCode}");
+            return alerts.IsNullOrEmpty() ? string.Empty : string.Join(",", alerts.Select(a => a.AlertCode));
         }
     }
 }
