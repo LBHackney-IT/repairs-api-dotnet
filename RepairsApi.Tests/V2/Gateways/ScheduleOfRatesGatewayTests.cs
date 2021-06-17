@@ -38,7 +38,7 @@ namespace RepairsApi.Tests.V2.Gateways
             string contractorReference = "contractor";
             await SeedContractor(contractorReference);
             var expectedTrade = await SeedTrade(Guid.NewGuid().ToString());
-            var expectedTrade1 = await SeedTrade(Guid.NewGuid().ToString(), "second Trade");
+            var expectedTrade1 = await SeedTrade(Guid.NewGuid().ToString(), "x Trade");
             var validContracts = await SeedContracts(expectedProperty, DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddDays(7), contractorReference);
             await SeedSorCodes(expectedPriority, expectedProperty, expectedTrade, validContracts.First());
             await SeedSorCodes(expectedPriority, expectedProperty, expectedTrade1, validContracts.First());
@@ -47,7 +47,8 @@ namespace RepairsApi.Tests.V2.Gateways
             var result = await _classUnderTest.GetTrades(expectedProperty);
 
             // assert
-            result.Single().Should().BeEquivalentTo(expectedTrade);
+            result.First().Should().BeEquivalentTo(expectedTrade);
+            Assert.That(result, Is.Ordered.By("Name"));
         }
 
         [Test]
@@ -419,7 +420,7 @@ namespace RepairsApi.Tests.V2.Gateways
             return contractors;
         }
 
-        private static async Task<SorCodeTrade> SeedTrade(string expectedTradeCode, string name="trade")
+        private static async Task<SorCodeTrade> SeedTrade(string expectedTradeCode, string name = "trade")
         {
             var expectedTrade = new SorCodeTrade
             {
