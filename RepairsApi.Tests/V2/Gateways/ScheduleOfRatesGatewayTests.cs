@@ -48,7 +48,7 @@ namespace RepairsApi.Tests.V2.Gateways
 
             // assert
             result.First().Should().BeEquivalentTo(expectedTrade);
-            Assert.That(result, Is.Ordered.By("Name"));
+            result.Should().BeInAscendingOrder(t => t.Name);
         }
 
         [Test]
