@@ -345,7 +345,7 @@ namespace RepairsApi.Tests.V2.Services
 
             var uniqueCodes = locationAlerts?.Alerts.Union(personAlertList?.Alerts);
             order.orderComments.Should().Be(
-                @$"{uniqueCodes.ToDescriptionString()}
+                @$"{uniqueCodes.ToCodeString()}
                 {workOrder.DescriptionOfWork}".Truncate(250));
 
             order.contract.Should().Be(workOrder.AssignedToPrimary.ContractorReference);

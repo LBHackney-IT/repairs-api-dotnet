@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -53,16 +54,16 @@ namespace RepairsApi.V2.Services
         private async Task<order> CreateOrder(WorkOrder workOrder)
         {
             var property = workOrder.Site?.PropertyClass.FirstOrDefault();
-            var locationAlerts = property != null ? await _alertsGateway.GetLocationAlertsAsync(property.PropertyReference) : null;
+            var locationAlerts = property != null ? (await _alertsGateway.GetLocationAlertsAsync(property.PropertyReference)).Alerts : new List<Alert>();
             var tenureInfo = property != null ? await _tenancyGateway.GetTenancyInformationAsync(property.PropertyReference) : null;
-            var personAlerts = tenureInfo != null ? await _alertsGateway.GetPersonAlertsAsync(tenureInfo.TenancyAgreementReference) : null;
-            var uniqueCodes = locationAlerts?.Alerts.Union(personAlerts?.Alerts);
+            var personAlerts = tenureInfo != null ? (await _alertsGateway.GetPersonAlertsAsync(tenureInfo.TenancyAgreementReference)).Alerts : new List<Alert>();
+            var uniqueCodes = locationAlerts?.Union(personAlerts);
             var orderComments =
-                @$"{uniqueCodes.ToDescriptionString()}
+                @$"{uniqueCodes.ToCodeString()}
                 {workOrder.DescriptionOfWork}".Truncate(250);
 
-            var orderCommentsExtended = $"Property Alerts {locationAlerts?.Alerts.ToCommentsExtendedString()} " +
-                                        $"Person Alerts {personAlerts?.Alerts.ToCommentsExtendedString()}";
+            var orderCommentsExtended = $"Property Alerts {locationAlerts?.ToCommentsExtendedString()} " +
+                                        $"Person Alerts {personAlerts?.ToCommentsExtendedString()}";
 
             var priorityCharacter = workOrder.WorkPriority.PriorityCode.HasValue
                 ? await _sorPriorityGateway.GetLegacyPriorityCode(workOrder.WorkPriority.PriorityCode.Value)
