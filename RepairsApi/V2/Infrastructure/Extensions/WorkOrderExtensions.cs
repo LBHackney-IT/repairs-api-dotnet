@@ -17,6 +17,7 @@ namespace RepairsApi.V2.Infrastructure.Extensions
                 WorkStatusCode.PendingApproval => WorkOrderStatus.PendingApproval,
                 WorkStatusCode.VariationApproved => WorkOrderStatus.VariationApproved,
                 WorkStatusCode.VariationRejected => WorkOrderStatus.VariationRejected,
+                WorkStatusCode.NoAccess => WorkOrderStatus.NoAccess,
                 _ => WorkOrderStatus.Unknown,
             };
         }
