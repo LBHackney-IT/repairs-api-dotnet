@@ -37,11 +37,12 @@ namespace RepairsApi.V2.UseCase
                 WorkOrderStatus.Unknown
             };
 
-            return workOrders.Select(wo => wo.ToListItem())
-                .OrderBy(wo => Array.IndexOf(statusOrder, wo.Status))
+            return workOrders
+                .OrderBy(wo => Array.IndexOf(statusOrder, wo.StatusCode))
                 .ThenByDescending(wo => wo.DateRaised)
                 .Skip((searchParameters.PageNumber - 1) * searchParameters.PageSize)
                 .Take(searchParameters.PageSize)
+                .Select(wo => wo.ToListItem())
                 .ToList();
         }
     }
