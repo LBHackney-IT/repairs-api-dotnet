@@ -159,11 +159,10 @@ namespace RepairsApi.Tests.V2.UseCase
                 PageSize = expectedPageSize
             };
             var statusOrder = new[] {
-                WorkOrderStatus.InProgress,
-                WorkOrderStatus.VariationPendingApproval,
-                WorkOrderStatus.Cancelled,
-                WorkOrderStatus.Complete,
-                WorkOrderStatus.Unknown
+                WorkStatusCode.Open,
+                WorkStatusCode.VariationPendingApproval,
+                WorkStatusCode.Canceled,
+                WorkStatusCode.Complete
             };
 
             //Act
@@ -171,7 +170,7 @@ namespace RepairsApi.Tests.V2.UseCase
 
             //Assert
             var expectedResult = generatedWorkOrders
-                .OrderBy(wo => Array.IndexOf(statusOrder, wo.GetStatus()))
+                .OrderBy(wo => Array.IndexOf(statusOrder, wo.StatusCode))
                 .ThenByDescending(wo => wo.DateRaised)
                 .Skip((workOrderSearchParameters.PageNumber - 1) * workOrderSearchParameters.PageSize)
                 .Take(workOrderSearchParameters.PageSize)
