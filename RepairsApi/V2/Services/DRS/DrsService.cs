@@ -62,6 +62,9 @@ namespace RepairsApi.V2.Services
             _logger.LogInformation("DRS Order Creating for Work order {WorkOrderId}", workOrder.Id);
 
             var createOrder = await _drsMapping.BuildCreateOrderRequest(_sessionId, workOrder);
+
+            _logger.LogInformation("Creating order in DRS: {o}", createOrder);
+
             var response = await _drsSoap.createOrderAsync(createOrder);
 
             if (response.@return.status != responseStatus.success)
@@ -78,6 +81,9 @@ namespace RepairsApi.V2.Services
             await CheckSession();
 
             var deleteOrder = await _drsMapping.BuildDeleteOrderRequest(_sessionId, workOrder);
+
+            _logger.LogInformation("Deleting order in DRS: {o}", deleteOrder);
+
             var response = await _drsSoap.deleteOrderAsync(deleteOrder);
             if (response.@return.status != responseStatus.success)
             {
@@ -113,6 +119,9 @@ namespace RepairsApi.V2.Services
             _logger.LogInformation("DRS completing booking for work order {WorkOrderId}", workOrder.Id);
 
             var updateBooking = await _drsMapping.BuildCompleteOrderUpdateBookingRequest(_sessionId, workOrder, drsOrder);
+
+            _logger.LogInformation("Updating order in DRS: {o}", updateBooking);
+
             var response = await _drsSoap.updateBookingAsync(updateBooking);
             if (response.@return.status != responseStatus.success)
             {
