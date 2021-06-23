@@ -47,7 +47,8 @@ namespace RepairsApi.V2.Infrastructure
 
             modelBuilder.Entity<JobStatusUpdate>()
                 .HasOne(jobStatusUpdate => jobStatusUpdate.RelatedWorkOrder)
-                .WithMany(workOrder => workOrder.JobStatusUpdates);
+                .WithMany(workOrder => workOrder.JobStatusUpdates)
+                .HasForeignKey(jsu => jsu.RelatedWorkOrderId);
 
             modelBuilder.Entity<PropertyContract>()
                 .HasKey(pc => new
