@@ -57,11 +57,14 @@ namespace RepairsApi.V2.Services
 
         public async Task<order> CreateOrder(WorkOrder workOrder)
         {
+            using var scope = _logger.BeginScope(Guid.NewGuid());
+
             await CheckSession();
 
-            _logger.LogInformation("DRS Order Creating for Work order {WorkOrderId}", workOrder.Id);
-
             var createOrder = await _drsMapping.BuildCreateOrderRequest(_sessionId, workOrder);
+
+            _logger.LogInformation("DRS Order Creating for Work order {WorkOrderId} {request}", workOrder.Id, createOrder);
+
             var response = await _drsSoap.createOrderAsync(createOrder);
 
             if (response.@return.status != responseStatus.success)
@@ -75,9 +78,14 @@ namespace RepairsApi.V2.Services
 
         public async Task CancelOrder(WorkOrder workOrder)
         {
+            using var scope = _logger.BeginScope(Guid.NewGuid());
+
             await CheckSession();
 
             var deleteOrder = await _drsMapping.BuildDeleteOrderRequest(_sessionId, workOrder);
+
+            _logger.LogInformation("DRS Order Deleting for Work order {WorkOrderId} {request}", workOrder.Id, deleteOrder);
+
             var response = await _drsSoap.deleteOrderAsync(deleteOrder);
             if (response.@return.status != responseStatus.success)
             {
@@ -90,7 +98,7 @@ namespace RepairsApi.V2.Services
 
         public async Task CompleteOrder(WorkOrder workOrder)
         {
-            _logger.LogInformation("DRS completing work order {WorkOrderId}", workOrder.Id);
+            using var scope = _logger.BeginScope(Guid.NewGuid());
 
             await CheckSession();
 
@@ -110,9 +118,10 @@ namespace RepairsApi.V2.Services
 
         private async Task CompleteBooking(WorkOrder workOrder, order drsOrder)
         {
-            _logger.LogInformation("DRS completing booking for work order {WorkOrderId}", workOrder.Id);
-
             var updateBooking = await _drsMapping.BuildCompleteOrderUpdateBookingRequest(_sessionId, workOrder, drsOrder);
+
+            _logger.LogInformation("DRS completing booking for work order {WorkOrderId} {request}", workOrder.Id, updateBooking);
+
             var response = await _drsSoap.updateBookingAsync(updateBooking);
             if (response.@return.status != responseStatus.success)
             {
@@ -125,6 +134,8 @@ namespace RepairsApi.V2.Services
 
         public async Task<order> SelectOrder(int workOrderId)
         {
+            using var scope = _logger.BeginScope(Guid.NewGuid());
+
             await CheckSession();
 
             var selectOrder = new selectOrder
@@ -138,6 +149,9 @@ namespace RepairsApi.V2.Services
                     }
                 }
             };
+
+            _logger.LogInformation("DRS selecting order {WorkOrderId} {request}", workOrderId, selectOrder);
+
             var selectOrderResponse = await _drsSoap.selectOrderAsync(selectOrder);
             if (selectOrderResponse.@return.status != responseStatus.success)
             {
