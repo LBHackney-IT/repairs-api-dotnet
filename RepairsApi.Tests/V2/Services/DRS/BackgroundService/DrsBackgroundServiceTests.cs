@@ -9,10 +9,13 @@ using RepairsApi.Tests.Helpers;
 using RepairsApi.V2;
 using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Generated;
+using RepairsApi.V2.Generated.CustomTypes;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 using RepairsApi.V2.Services.DRS.BackgroundService;
 using V2_Generated_DRS;
+using JobStatusUpdate = RepairsApi.V2.Infrastructure.JobStatusUpdate;
 
 namespace RepairsApi.Tests.V2.Services.BackgroundService
 {
@@ -23,6 +26,7 @@ namespace RepairsApi.Tests.V2.Services.BackgroundService
         private DrsBackgroundService _classUnderTest;
         private Mock<IDrsService> _drsServiceMock;
         private Mock<IOperativesGateway> _operativesGatewayMock;
+        private Mock<IJobStatusUpdateGateway> _jobStatusUpdateGatewayMock;
 
         [SetUp]
         public void Setup()
@@ -31,11 +35,13 @@ namespace RepairsApi.Tests.V2.Services.BackgroundService
             _appointmentsGatewayMock = new Mock<IAppointmentsGateway>();
             _drsServiceMock = new Mock<IDrsService>();
             _operativesGatewayMock = new Mock<IOperativesGateway>();
+            _jobStatusUpdateGatewayMock = new Mock<IJobStatusUpdateGateway>();
             _classUnderTest = new DrsBackgroundService(
                 _loggerMock.Object,
                 _appointmentsGatewayMock.Object,
                 _drsServiceMock.Object,
-                _operativesGatewayMock.Object
+                _operativesGatewayMock.Object,
+                _jobStatusUpdateGatewayMock.Object
             );
         }
 
@@ -124,6 +130,24 @@ namespace RepairsApi.Tests.V2.Services.BackgroundService
             await testFunc.Should().ThrowAsync<ResourceNotFoundException>()
                 .WithMessage(Resources.WorkOrderNotFound);
             _loggerMock.VerifyLog(LogLevel.Error);
+        }
+
+        [Test]
+        public async Task AddsNote()
+        {
+            const int workOrderId = 1234;
+            ReturnsWorkOrder(workOrderId);
+            var bookingConfirmation = CreateBookingConfirmation(workOrderId);
+
+            await _classUnderTest.ConfirmBooking(bookingConfirmation);
+
+            var expectedComment = $"DRS: Appointment has been updated in DRS to {bookingConfirmation.planningWindowStart} - {bookingConfirmation.planningWindowEnd}";
+            _jobStatusUpdateGatewayMock.Verify(x => x.CreateJobStatusUpdate(It.Is<JobStatusUpdate>(update =>
+                update.RelatedWorkOrderId == workOrderId &&
+                update.TypeCode == JobStatusUpdateTypeCode._0 &&
+                update.OtherType == CustomJobStatusUpdates.AddNote &&
+                update.Comments == expectedComment
+            )));
         }
 
         private static order CreateDrsOrder(params string[] payrollIds)
