@@ -177,11 +177,16 @@ namespace RepairsApi.V2.Services
         private async Task<bookingCode[]> BuildBookingCodes(WorkOrder workOrder)
         {
             var bookingIndex = 1;
-            var workElement = workOrder.WorkElements.FirstOrDefault();
-            var bookingTasks = workElement?
-                .RateScheduleItem.Select(async rsi => await CreateBookingCode(workOrder, rsi, bookingIndex++));
-            var bookings = await Task.WhenAll(bookingTasks);
-            return bookings;
+            var rateScheduleItems = workOrder.WorkElements.SelectMany(we => we.RateScheduleItem).ToList();
+
+            var bookings = new List<bookingCode>();
+            foreach (var rateScheduleItem in rateScheduleItems)
+            {
+                var bookingCode = await CreateBookingCode(workOrder, rateScheduleItem, bookingIndex++);
+                bookings.Add(bookingCode);
+            }
+
+            return bookings.ToArray();
         }
 
         private async Task<bookingCode> CreateBookingCode(WorkOrder workOrder, RateScheduleItem rsi, int index)

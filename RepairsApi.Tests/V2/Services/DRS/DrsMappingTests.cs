@@ -262,12 +262,13 @@ namespace RepairsApi.Tests.V2.Services
 
         private IList<ScheduleOfRatesModel> SetupSorCodes(WorkOrder workOrder)
         {
-            var sorCodes = workOrder.WorkElements.FirstOrDefault()?.RateScheduleItem
-                .Select(rsi => new ScheduleOfRatesModel
+            var sorCodes = workOrder.WorkElements.SelectMany(we => we.RateScheduleItem.Select(rsi => new { rsi, we }))
+                .Select(x => new ScheduleOfRatesModel
                 {
-                    Code = rsi.CustomCode,
-                    ShortDescription = $"{rsi.CustomCode} short description",
-                    LongDescription = $"{rsi.CustomCode} long description"
+                    Code = x.rsi.CustomCode,
+                    ShortDescription = $"{x.rsi.CustomCode} short description",
+                    LongDescription = $"{x.rsi.CustomCode} long description",
+                    TradeCode = x.we.Trade.FirstOrDefault().CustomCode
                 }).ToList();
 
             if (sorCodes == null) return null;
@@ -370,12 +371,12 @@ namespace RepairsApi.Tests.V2.Services
 
         private static void ValidateBookings(WorkOrder workOrder, IList<ScheduleOfRatesModel> sorCodes, bookingCode[] bookings)
         {
-            var workElement = workOrder.WorkElements.FirstOrDefault();
+            var rateScheduleItems = workOrder.WorkElements.SelectMany(we => we.RateScheduleItem);
 
             foreach (var (booking, index) in bookings.WithIndex())
             {
                 var sorCode = sorCodes.Single(c => c.Code == booking.bookingCodeSORCode);
-                var rateScheduleItem = workElement!.RateScheduleItem.Single(rsi => rsi.CustomCode == booking.bookingCodeSORCode);
+                var rateScheduleItem = rateScheduleItems.Single(rsi => rsi.CustomCode == booking.bookingCodeSORCode);
                 ValidateBookingCode(
                     workOrder,
                     rateScheduleItem,
