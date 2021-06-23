@@ -234,13 +234,22 @@
   <data name="ExternallyManagedAppointment" xml:space="preserve">
     <value>Externally Managed Appointment</value>
   </data>
-  <data name="DrsBackgroundService_AddedBooking" xml:space="preserve">
-    <value>Added booking</value>
-  </data>
-  <data name="DrsBackgroundServiceTests_UpdatedBooking" xml:space="preserve">
-    <value>Updated booking</value>
+  <data name="DrsBackgroundService_BookingAccepted" xml:space="preserve">
+    <value>Booking Accepted</value>
   </data>
   <data name="NonOperativeContractor" xml:space="preserve">
     <value>The contractor for this work order does not support operative assignment</value>
+  </data>
+  <data name="WorkOrderNotFound" xml:space="preserve">
+    <value>Work order not found</value>
+  </data>
+  <data name="WorkOrderCancelledPrefix" xml:space="preserve">
+    <value>Closed - Cancelled: </value>
+  </data>
+  <data name="WorkOrderCompletedPrefix" xml:space="preserve">
+    <value>Closed - Completed: </value>
+  </data>
+  <data name="WorkOrderNoAccessPrefix" xml:space="preserve">
+    <value>Closed - No Access: </value>
   </data>
 </root>

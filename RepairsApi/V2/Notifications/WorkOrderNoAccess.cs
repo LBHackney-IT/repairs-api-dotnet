@@ -1,15 +1,15 @@
+using RepairsApi.V2.Generated;
 using RepairsApi.V2.Infrastructure;
 
 namespace RepairsApi.V2.Notifications
 {
-    public class WorkOrderPlannerCommentsUpdated : INotification
+    public class WorkOrderNoAccess : INotification
     {
-        public WorkOrderPlannerCommentsUpdated(WorkOrder workOrder)
+        public WorkOrderNoAccess(WorkOrder workOrder)
         {
             WorkOrder = workOrder;
         }
 
         public WorkOrder WorkOrder { get; }
-        public string TokenId { get; set; }
     }
 }

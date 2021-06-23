@@ -27,21 +27,21 @@ namespace RepairsApi.V2.UseCase
         public async Task<IEnumerable<WorkOrderListItem>> Execute(WorkOrderSearchParameters searchParameters)
         {
             var filter = _filterBuilder.BuildFilter(searchParameters);
-            IEnumerable<WorkOrder> workOrders = await _repairsGateway.GetWorkOrders(filter);
+            var workOrders = await _repairsGateway.GetWorkOrders(filter);
 
             var statusOrder = new[] {
-                WorkOrderStatus.InProgress,
-                WorkOrderStatus.VariationPendingApproval,
-                WorkOrderStatus.Cancelled,
-                WorkOrderStatus.Complete,
-                WorkOrderStatus.Unknown
+                WorkStatusCode.Open,
+                WorkStatusCode.VariationPendingApproval,
+                WorkStatusCode.Canceled,
+                WorkStatusCode.Complete
             };
 
-            return workOrders.Select(wo => wo.ToListItem())
-                .OrderBy(wo => Array.IndexOf(statusOrder, wo.Status))
+            return workOrders
+                .OrderBy(wo => Array.IndexOf(statusOrder, wo.StatusCode))
                 .ThenByDescending(wo => wo.DateRaised)
                 .Skip((searchParameters.PageNumber - 1) * searchParameters.PageSize)
                 .Take(searchParameters.PageSize)
+                .Select(wo => wo.ToListItem())
                 .ToList();
         }
     }

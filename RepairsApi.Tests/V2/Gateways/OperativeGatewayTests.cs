@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using RepairsApi.V2.Boundary.Request;
 using RepairsApi.V2.Exceptions;
@@ -135,13 +136,45 @@ namespace RepairsApi.Tests.V2.Gateways
             archivedOperative.Should().NotBeNull("operatives are only SOFT-deleted");
         }
 
-        [Test]
-        public async Task AssignsOperatives()
+        [TestCase(1)]
+        [TestCase(1, 2, 4)]
+        public async Task AssignsOperatives(params int[] operativeIds)
         {
-            var assignment = new WorkOrderOperative() { OperativeId = 1, WorkOrderId = 1 };
-            await _classUnderTest.AssignOperatives(assignment);
+            const int workOrderId = 1234;
+            await _classUnderTest.AssignOperatives(workOrderId, operativeIds);
 
-            InMemoryDb.Instance.WorkOrderOperatives.Should().Contain(assignment);
+            await VerifyAssignment(workOrderId, operativeIds);
+        }
+
+        [TestCase(new[] { 1, 2, 3 }, new[] { 4, 5, 6 })]
+        [TestCase(new[] { 1, 2, 3 }, new[] { 1, 2, 3, 4 })]
+        [TestCase(new[] { 1, 2, 3 }, new[] { 1, 4 })]
+        public async Task OverwritesOperatives(int[] existingOperatives, int[] newOperatives)
+        {
+            const int workOrderId = 1234;
+            await InMemoryDb.Instance.WorkOrderOperatives.AddRangeAsync(
+                existingOperatives.Select(o => new WorkOrderOperative
+                {
+                    OperativeId = o,
+                    WorkOrderId = workOrderId
+                }));
+
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            await _classUnderTest.AssignOperatives(workOrderId, newOperatives);
+
+            await VerifyAssignment(workOrderId, newOperatives);
+        }
+
+        private static async Task VerifyAssignment(int workOrderId, params int[] operativeIds)
+        {
+            var workOrderOperative = await InMemoryDb.Instance.WorkOrderOperatives
+                .Where(woo => woo.WorkOrderId == workOrderId)
+                .Select(woo => woo.OperativeId)
+                .ToListAsync();
+
+            workOrderOperative.Should().HaveCount(operativeIds.Length);
+            workOrderOperative.Should().Contain(operativeIds);
         }
     }
 }

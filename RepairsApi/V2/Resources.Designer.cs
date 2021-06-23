@@ -124,20 +124,11 @@ namespace RepairsApi.V2 {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Added booking.
+        ///   Looks up a localized string similar to Booking Accepted.
         /// </summary>
-        public static string DrsBackgroundService_AddedBooking {
+        public static string DrsBackgroundService_BookingAccepted {
             get {
-                return ResourceManager.GetString("DrsBackgroundService_AddedBooking", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Updated booking.
-        /// </summary>
-        public static string DrsBackgroundServiceTests_UpdatedBooking {
-            get {
-                return ResourceManager.GetString("DrsBackgroundServiceTests_UpdatedBooking", resourceCulture);
+                return ResourceManager.GetString("DrsBackgroundService_BookingAccepted", resourceCulture);
             }
         }
         
@@ -408,6 +399,42 @@ namespace RepairsApi.V2 {
         public static string WorkOrderAuthorisationRejected {
             get {
                 return ResourceManager.GetString("WorkOrderAuthorisationRejected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Closed - Cancelled: .
+        /// </summary>
+        public static string WorkOrderCancelledPrefix {
+            get {
+                return ResourceManager.GetString("WorkOrderCancelledPrefix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Closed - Completed: .
+        /// </summary>
+        public static string WorkOrderCompletedPrefix {
+            get {
+                return ResourceManager.GetString("WorkOrderCompletedPrefix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Closed - No Access: .
+        /// </summary>
+        public static string WorkOrderNoAccessPrefix {
+            get {
+                return ResourceManager.GetString("WorkOrderNoAccessPrefix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Work order not found.
+        /// </summary>
+        public static string WorkOrderNotFound {
+            get {
+                return ResourceManager.GetString("WorkOrderNotFound", resourceCulture);
             }
         }
         

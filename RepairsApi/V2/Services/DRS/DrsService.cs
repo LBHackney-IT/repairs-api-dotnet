@@ -94,7 +94,7 @@ namespace RepairsApi.V2.Services
 
             await CheckSession();
 
-            var drsOrder = await SelectOrder(workOrder);
+            var drsOrder = await SelectOrder(workOrder.Id);
 
             if (!drsOrder.IsScheduled())
             {
@@ -123,8 +123,9 @@ namespace RepairsApi.V2.Services
             _logger.LogInformation("DRS completed booking for work order {WorkOrderId}", workOrder.Id);
         }
 
-        private async Task<order> SelectOrder(WorkOrder workOrder)
+        public async Task<order> SelectOrder(int workOrderId)
         {
+            await CheckSession();
 
             var selectOrder = new selectOrder
             {
@@ -133,7 +134,7 @@ namespace RepairsApi.V2.Services
                     sessionId = _sessionId,
                     primaryOrderNumber = new[]
                     {
-                        workOrder.Id.ToString()
+                        workOrderId.ToString()
                     }
                 }
             };
@@ -153,26 +154,6 @@ namespace RepairsApi.V2.Services
             {
                 await OpenSession();
             }
-        }
-
-        public async Task UpdateOrder(WorkOrder workOrder)
-        {
-            await CheckSession();
-
-            var drsOrder = await SelectOrder(workOrder);
-
-            _logger.LogInformation("DRS Order Created for Work order {WorkOrderId}, updating to include planner comments", workOrder.Id);
-
-            var updateBooking = await _drsMapping.BuildPlannerCommentedUpdateBookingRequest(_sessionId, workOrder, drsOrder);
-            var response = await _drsSoap.updateBookingAsync(updateBooking);
-            if (response.@return.status != responseStatus.success)
-            {
-                _logger.LogError(response.@return.errorMsg);
-                throw new ApiException((int) response.@return.status, response.@return.errorMsg);
-            }
-
-            _logger.LogInformation("DRS completed booking for work order {WorkOrderId}", workOrder.Id);
-            await Task.CompletedTask;
         }
     }
 }

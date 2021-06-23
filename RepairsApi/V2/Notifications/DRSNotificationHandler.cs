@@ -10,7 +10,11 @@ using RepairsApi.V2.Infrastructure;
 
 namespace RepairsApi.V2.Notifications
 {
-    public class DRSNotificationHandler : INotificationHandler<WorkOrderOpened>, INotificationHandler<WorkOrderCancelled>, INotificationHandler<WorkOrderCompleted>, INotificationHandler<WorkOrderPlannerCommentsUpdated>
+    public class DRSNotificationHandler :
+        INotificationHandler<WorkOrderOpened>,
+        INotificationHandler<WorkOrderCancelled>,
+        INotificationHandler<WorkOrderCompleted>,
+        INotificationHandler<WorkOrderNoAccess>
     {
         private readonly IFeatureManager _featureManager;
         private readonly IScheduleOfRatesGateway _scheduleOfRatesGateway;
@@ -62,13 +66,9 @@ namespace RepairsApi.V2.Notifications
             await DrsService.CompleteOrder(data.WorkOrder);
         }
 
-        public async Task Notify(WorkOrderPlannerCommentsUpdated data)
+        public Task Notify(WorkOrderNoAccess data)
         {
-            if (await UseDrs(data.WorkOrder))
-            {
-                return;
-            }
-            await DrsService.UpdateOrder(data.WorkOrder);
+            return Notify(new WorkOrderCancelled(data.WorkOrder));
         }
     }
 }

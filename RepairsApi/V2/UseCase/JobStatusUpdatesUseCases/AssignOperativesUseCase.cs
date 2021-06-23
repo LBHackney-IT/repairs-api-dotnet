@@ -26,7 +26,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
 
             var operativeIds = jobStatusUpdate.OperativesAssigned.Select(oa => int.Parse(oa.Identification.Number));
 
-            await _operativesGateway.AssignOperatives(operativeIds.Select(o => new WorkOrderOperative { OperativeId = o, WorkOrderId = workOrder.Id }).ToArray());
+            await _operativesGateway.AssignOperatives(workOrder.Id, operativeIds.ToArray());
         }
     }
 }

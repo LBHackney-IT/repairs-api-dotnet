@@ -1,3 +1,4 @@
+using System;
 using RepairsApi.V2.Boundary;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Domain;
@@ -122,10 +123,15 @@ namespace RepairsApi.V2.Factories
             return domainList.Select(domain => domain.ToResponseListItem()).ToList();
         }
 
-        public static WorkOrderResponse ToResponse(this Infrastructure.WorkOrder workOrder, Infrastructure.AppointmentDetails appointment)
+        public static WorkOrderResponse ToResponse(this Infrastructure.WorkOrder workOrder, Infrastructure.AppointmentDetails appointment, Uri drsManagementAddress)
         {
             Infrastructure.PropertyClass propertyClass = workOrder.Site?.PropertyClass?.FirstOrDefault();
             string addressLine = propertyClass?.Address?.AddressLine;
+            var managementUri = workOrder.ExternalSchedulerReference is null ? null : new UriBuilder(drsManagementAddress)
+            {
+                Port = -1,
+                Query = $"tokenId={workOrder.ExternalSchedulerReference}"
+            }.Uri;
             return new WorkOrderResponse
             {
                 Reference = workOrder.Id,
@@ -154,6 +160,7 @@ namespace RepairsApi.V2.Factories
                     Start = appointment.Start.ToTime(),
                     End = appointment.End.ToTime()
                 },
+                ExternalAppointmentManagementUrl = managementUri,
                 Operatives = workOrder.AssignedOperatives.MapList(o => o.ToResponse())
             };
         }

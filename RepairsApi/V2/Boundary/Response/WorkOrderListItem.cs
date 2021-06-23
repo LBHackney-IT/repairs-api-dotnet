@@ -13,6 +13,7 @@ namespace RepairsApi.V2.Boundary.Response
         public const string PendingApproval = "Authorisation Pending Approval";
         public const string VariationApproved = "Variation Approved";
         public const string VariationRejected = "Variation Rejected";
+        public const string NoAccess = "No Access";
         public const string Unknown = "Unknown";
     }
 

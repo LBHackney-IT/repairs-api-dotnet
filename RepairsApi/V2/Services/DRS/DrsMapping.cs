@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -53,16 +54,18 @@ namespace RepairsApi.V2.Services
         private async Task<order> CreateOrder(WorkOrder workOrder)
         {
             var property = workOrder.Site?.PropertyClass.FirstOrDefault();
-            var locationAlerts = property != null ? await _alertsGateway.GetLocationAlertsAsync(property.PropertyReference) : null;
+            var locationAlerts = property != null ? (await _alertsGateway.GetLocationAlertsAsync(property.PropertyReference)).Alerts : new List<Alert>();
             var tenureInfo = property != null ? await _tenancyGateway.GetTenancyInformationAsync(property.PropertyReference) : null;
-            var personAlerts = tenureInfo != null ? await _alertsGateway.GetPersonAlertsAsync(tenureInfo.TenancyAgreementReference) : null;
-            var orderComments = $"Property Alerts {locationAlerts?.Alerts.ToDescriptionString()} " +
-                                        $"Person Alerts {personAlerts?.Alerts.ToDescriptionString()} - " +
-                                        $"{workOrder.DescriptionOfWork}";
-            var orderCommentsExtended = $"Property Alerts {locationAlerts?.Alerts.ToCommentsExtendedString()} " +
-                                        $"Person Alerts {personAlerts?.Alerts.ToCommentsExtendedString()}";
+            var personAlerts = tenureInfo != null ? (await _alertsGateway.GetPersonAlertsAsync(tenureInfo.TenancyAgreementReference)).Alerts : new List<Alert>();
+            var uniqueCodes = locationAlerts?.Union(personAlerts);
+            var orderComments =
+                @$"{uniqueCodes.ToCodeString()}
+                {workOrder.DescriptionOfWork}".Truncate(250);
 
-            char priorityCharacter = workOrder.WorkPriority.PriorityCode.HasValue
+            var orderCommentsExtended = $"Property Alerts {locationAlerts?.ToCommentsExtendedString()} " +
+                                        $"Person Alerts {personAlerts?.ToCommentsExtendedString()}";
+
+            var priorityCharacter = workOrder.WorkPriority.PriorityCode.HasValue
                 ? await _sorPriorityGateway.GetLegacyPriorityCode(workOrder.WorkPriority.PriorityCode.Value)
                 : ' ';
 
@@ -119,10 +122,7 @@ namespace RepairsApi.V2.Services
             booking.bookingCompletionStatus = DrsBookingStatusCodes.Completed;
             booking.bookingLifeCycleStatus = transactionTypeType.COMPLETED;
             booking.theBusinessData = SetBusinessData(booking.theBusinessData, DrsBusinessDataNames.TaskLifeCycleStatus, DrsTaskLifeCycleCodes.Completed);
-            foreach (var bookingCode in booking.theBookingCodes)
-            {
-                bookingCode.itemValue = null;
-            }
+            booking.theBookingCodes?.ToList().ForEach(bc => bc.itemValue = null);
             var resource = booking.theResources?.First();
 
             var updateBooking = new updateBooking
@@ -141,41 +141,6 @@ namespace RepairsApi.V2.Services
 
 
             return Task.FromResult(updateBooking);
-        }
-
-        public async Task<updateBooking> BuildPlannerCommentedUpdateBookingRequest(string sessionId, WorkOrder workOrder, order drsOrder)
-        {
-
-            var booking = drsOrder.theBookings.First();
-            var resource = booking.theResources?.First();
-
-            var property = workOrder.Site?.PropertyClass.FirstOrDefault();
-            var locationAlerts = property != null ? await _alertsGateway.GetLocationAlertsAsync(property.PropertyReference) : null;
-            var tenureInfo = property != null ? await _tenancyGateway.GetTenancyInformationAsync(property.PropertyReference) : null;
-            var personAlerts = tenureInfo != null ? await _alertsGateway.GetPersonAlertsAsync(tenureInfo.TenancyAgreementReference) : null;
-            var plannerComments = $"Property Alerts {locationAlerts?.Alerts.ToDescriptionString()} " +
-                                        $"Person Alerts {personAlerts?.Alerts.ToDescriptionString()}";
-
-            booking.theOrder = drsOrder;
-            booking.theOrder.theBookings = null;
-
-            booking.plannerComments = plannerComments;
-
-            var updateBooking = new updateBooking
-            {
-                updateBooking1 = new xmbUpdateBooking
-                {
-                    completeOrder = false,
-                    startDateAndTime = booking.assignedStart,
-                    endDateAndTime = booking.assignedEnd,
-                    resourceId = resource?.resourceID,
-                    transactionType = transactionTypeType.PLANNED,
-                    sessionId = sessionId,
-                    theBooking = booking
-                }
-            };
-
-            return await Task.FromResult(updateBooking);
         }
 
         private static businessData[] SetBusinessData(businessData[] businessData, string name, string value)
