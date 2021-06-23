@@ -241,7 +241,7 @@ public partial class bookingConfirmationTheBookingCodes {
 
     private uint orderIdField;
 
-    private uint bookingCodeSORCodeField;
+    private string bookingCodeSORCodeField;
 
     private uint primaryOrderNumberField;
 
@@ -278,7 +278,7 @@ public partial class bookingConfirmationTheBookingCodes {
     }
 
     /// <remarks/>
-    public uint bookingCodeSORCode {
+    public string bookingCodeSORCode {
         get {
             return this.bookingCodeSORCodeField;
         }
