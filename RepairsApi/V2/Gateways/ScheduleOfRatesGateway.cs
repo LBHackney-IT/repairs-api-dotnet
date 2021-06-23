@@ -55,6 +55,7 @@ namespace RepairsApi.V2.Gateways
                          select sor.TradeCode
                     ).Contains(trade.Code)
 
+                    orderby trade.Name ascending
                     select trade
                 )
                 .ToListAsync();
