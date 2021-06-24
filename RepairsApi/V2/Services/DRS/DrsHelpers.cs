@@ -16,7 +16,8 @@ namespace RepairsApi.V2.Services.DRS
         public static DateTime ConvertFromDrsTimeZone(DateTime dateTime)
         {
             var london = DateTimeZoneProviders.Tzdb["Europe/London"];
-            return dateTime - london.GetUtcOffset(Instant.FromDateTimeUtc(dateTime)).ToTimeSpan();
+            var utcDateTime = new DateTime(dateTime.Ticks, DateTimeKind.Utc);
+            return dateTime - london.GetUtcOffset(Instant.FromDateTimeUtc(utcDateTime)).ToTimeSpan();
         }
     }
 }
