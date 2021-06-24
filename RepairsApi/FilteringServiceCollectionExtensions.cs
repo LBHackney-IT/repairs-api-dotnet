@@ -7,6 +7,8 @@ using RepairsApi.V2.Infrastructure.Extensions;
 using System;
 using System.Linq;
 using RepairsApi.V2.Boundary.Request;
+using System.Linq.Expressions;
+using System.Collections.Generic;
 
 namespace RepairsApi
 {
@@ -40,6 +42,9 @@ namespace RepairsApi
                     searchParams => searchParams.Priorities,
                     codes => codes?.Count > 0,
                     codes => wo => wo.WorkPriority.PriorityCode.HasValue && codes.Contains(wo.WorkPriority.PriorityCode.Value)
+                ).AddSort(
+                    searchParams => searchParams.Sort,
+                    builder => builder.AddSortOption("dateraised", wo => wo.DateRaised)
                 );
             });
 

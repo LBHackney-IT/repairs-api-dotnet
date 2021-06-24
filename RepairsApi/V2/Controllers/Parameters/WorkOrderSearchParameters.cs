@@ -18,5 +18,6 @@ namespace RepairsApi.V2.Controllers.Parameters
             get => _pageSize;
             set => _pageSize = Math.Clamp(value, 0, MaxPageSize);
         }
+        public string Sort { get; set; }
     }
 }
