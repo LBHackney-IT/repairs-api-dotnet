@@ -146,7 +146,8 @@ namespace RepairsApi.Tests.V2.Services.BackgroundService
                 update.RelatedWorkOrderId == workOrderId &&
                 update.TypeCode == JobStatusUpdateTypeCode._0 &&
                 update.OtherType == CustomJobStatusUpdates.AddNote &&
-                update.Comments == expectedComment
+                update.Comments == expectedComment &&
+                update.EventTime == bookingConfirmation.changedDate
             )));
         }
 
