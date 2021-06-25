@@ -13,6 +13,7 @@ using RepairsApi.V2.Generated;
 using RepairsApi.V2.Generated.CustomTypes;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
+using RepairsApi.V2.Services.DRS;
 using RepairsApi.V2.Services.DRS.BackgroundService;
 using V2_Generated_DRS;
 using JobStatusUpdate = RepairsApi.V2.Infrastructure.JobStatusUpdate;
@@ -147,7 +148,7 @@ namespace RepairsApi.Tests.V2.Services.BackgroundService
                 update.TypeCode == JobStatusUpdateTypeCode._0 &&
                 update.OtherType == CustomJobStatusUpdates.AddNote &&
                 update.Comments == expectedComment &&
-                update.EventTime == bookingConfirmation.changedDate
+                update.EventTime == DrsHelpers.ConvertFromDrsTimeZone(bookingConfirmation.changedDate)
             )));
         }
 
@@ -173,6 +174,7 @@ namespace RepairsApi.Tests.V2.Services.BackgroundService
         {
             var bookingConfirmation = new bookingConfirmation
             {
+                changedDate = DateTime.UtcNow,
                 primaryOrderNumber = (uint) workOrderId,
                 planningWindowStart = DateTime.UtcNow,
                 planningWindowEnd = DateTime.UtcNow.AddHours(5)
