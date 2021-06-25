@@ -345,9 +345,7 @@ namespace RepairsApi.Tests.V2.Services
             order.status.Should().Be(expectedStatus ?? orderStatus.PLANNED);
 
             var uniqueCodes = locationAlerts?.Alerts.Union(personAlertList?.Alerts);
-            order.orderComments.Should().Be(
-                @$"{uniqueCodes.ToCodeString()}
-                {workOrder.DescriptionOfWork}".Truncate(250));
+            order.orderComments.Should().Be(@$"{uniqueCodes.ToCodeString()} {workOrder.DescriptionOfWork}".Truncate(250));
 
             order.contract.Should().Be(workOrder.AssignedToPrimary.ContractorReference);
             order.locationID.Should().Be(workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference);

@@ -59,8 +59,7 @@ namespace RepairsApi.V2.Services
             var personAlerts = tenureInfo != null ? (await _alertsGateway.GetPersonAlertsAsync(tenureInfo.TenancyAgreementReference)).Alerts : new List<Alert>();
             var uniqueCodes = locationAlerts?.Union(personAlerts);
             var orderComments =
-                @$"{uniqueCodes.ToCodeString()}
-                {workOrder.DescriptionOfWork}".Truncate(250);
+                @$"{uniqueCodes.ToCodeString()} {workOrder.DescriptionOfWork}".Truncate(250);
 
             var orderCommentsExtended = $"Property Alerts {locationAlerts?.ToCommentsExtendedString()} " +
                                         $"Person Alerts {personAlerts?.ToCommentsExtendedString()}";
@@ -80,7 +79,7 @@ namespace RepairsApi.V2.Services
                 priority = priorityCharacter.ToString(),
                 targetDate =
                     workOrder.WorkPriority.RequiredCompletionDateTime.HasValue
-                        ? ConvertToDrsTimeZone(workOrder.WorkPriority.RequiredCompletionDateTime.Value)
+                        ? DrsHelpers.ConvertToDrsTimeZone(workOrder.WorkPriority.RequiredCompletionDateTime.Value)
                         : DateTime.UtcNow,
                 userId = workOrder.AgentEmail ?? workOrder.AgentName,
                 contactName = workOrder.Customer.Name,
@@ -164,14 +163,6 @@ namespace RepairsApi.V2.Services
             }
 
             return businessData;
-        }
-
-        private static DateTime ConvertToDrsTimeZone(DateTime dateTime)
-        {
-            var london = DateTimeZoneProviders.Tzdb["Europe/London"];
-            var utcDateTime = new DateTime(dateTime.Ticks, DateTimeKind.Utc);
-            var local = Instant.FromDateTimeUtc(utcDateTime).InUtc();
-            return local.WithZone(london).ToDateTimeUnspecified();
         }
 
         private async Task<bookingCode[]> BuildBookingCodes(WorkOrder workOrder)
