@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -25,7 +26,7 @@ namespace RepairsApi.V2.Filtering
             return _orderExpression?.Invoke(filtered);
         }
 
-        public bool IsValid(TSearch searchParameter)
+        public bool SetOrderExpression(TSearch searchParameter)
         {
             try
             {

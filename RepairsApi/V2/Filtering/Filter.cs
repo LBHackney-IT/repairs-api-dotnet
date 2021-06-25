@@ -27,10 +27,5 @@ namespace RepairsApi.V2.Filtering
 
             return _sortConfig.AddOrdering(filtered);
         }
-
-        public IEnumerable<TQuery> Apply(IEnumerable<TQuery> query)
-        {
-            return _predicates.Aggregate(query, (q, pred) => q.Where(pred.Compile()));
-        }
     }
 }

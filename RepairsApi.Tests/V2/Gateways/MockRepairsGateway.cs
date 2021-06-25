@@ -40,7 +40,7 @@ namespace RepairsApi.Tests.V2.Gateways
                 .ReturnsAsync((IFilter<WorkOrder> filter) =>
                 {
                     var tempWorkOrders = _workOrders;
-                    tempWorkOrders = filter.Apply(tempWorkOrders);
+                    tempWorkOrders = filter.Apply(tempWorkOrders.AsQueryable());
                     return tempWorkOrders;
                 });
         }

@@ -33,10 +33,10 @@ namespace RepairsApi.V2.Filtering
         {
             return new Filter<TQuery>(
                 _filterConfig.Where(c => c.IsValid(searchParameter)).Select(c => c.CreateExpression(searchParameter)),
-                _sortConfig.FirstOrDefault(sc => sc.IsValid(searchParameter)));
+                _sortConfig.FirstOrDefault(sc => sc.SetOrderExpression(searchParameter)));
         }
 
-        internal FilterBuilder<TSearch, TQuery> AddSort(Func<TSearch, string> sort, Action<SortOptionsBuilder> sortBuilder)
+        public FilterBuilder<TSearch, TQuery> AddSort(Func<TSearch, string> sort, Action<ISortOptionsBuilder<TQuery>> sortBuilder)
         {
             SortOptionsBuilder builder = new SortOptionsBuilder(this, sort);
 
@@ -45,7 +45,7 @@ namespace RepairsApi.V2.Filtering
             return this;
         }
 
-        internal class SortOptionsBuilder
+        internal class SortOptionsBuilder : ISortOptionsBuilder<TQuery>
         {
             private readonly FilterBuilder<TSearch, TQuery> _filterBuilder;
             private readonly Func<TSearch, string> _sort;
@@ -56,7 +56,7 @@ namespace RepairsApi.V2.Filtering
                 _sort = sort;
             }
 
-            internal void AddSortOption<TProp>(string v, Expression<Func<TQuery, TProp>> p)
+            public void AddSortOption<TProp>(string v, Expression<Func<TQuery, TProp>> p)
             {
                 _filterBuilder._sortConfig.Add(new SortItem<TProp, TQuery, TSearch>(v, p, _sort));
             }

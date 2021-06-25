@@ -2,6 +2,6 @@
 {
     internal interface ISortConfig<TSearch, TQuery> : ISortItem<TQuery>
     {
-        bool IsValid(TSearch searchParameter);
+        bool SetOrderExpression(TSearch searchParameter);
     }
 }

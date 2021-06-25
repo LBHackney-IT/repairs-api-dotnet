@@ -17,7 +17,7 @@ namespace RepairsApi.Tests.V2.Filtering
 
             var filter = builder.BuildFilter(new TestSearch(5));
 
-            List<TestItem> items = BuildTestItems();
+            var items = BuildTestItems().AsQueryable();
 
             var result = filter.Apply(items);
 
@@ -31,11 +31,39 @@ namespace RepairsApi.Tests.V2.Filtering
 
             var filter = builder.BuildFilter(new TestSearch(0));
 
-            List<TestItem> items = BuildTestItems();
+            var items = BuildTestItems().AsQueryable();
 
             var result = filter.Apply(items);
 
-            result.Should().HaveCount(items.Count);
+            result.Should().HaveCount(items.Count());
+        }
+
+        [Test]
+        public void AppliesAscendingSort()
+        {
+            FilterBuilder<TestSearch, TestItem> builder = BuilderFilter();
+
+            var ascendingFilter = builder.BuildFilter(new TestSearch("value:asc"));
+
+            var items = BuildTestItems().AsQueryable();
+
+            var ascendingResult = ascendingFilter.Apply(items);
+
+            ascendingResult.Should().BeInAscendingOrder(ti => ti.Value);
+        }
+
+        [Test]
+        public void AppliesDescendingSort()
+        {
+            FilterBuilder<TestSearch, TestItem> builder = BuilderFilter();
+
+            var descendingFilter = builder.BuildFilter(new TestSearch("value:desc"));
+
+            var items = BuildTestItems().AsQueryable();
+
+            var descendingResult = descendingFilter.Apply(items);
+
+            descendingResult.Should().BeInDescendingOrder(ti => ti.Value);
         }
 
         private static List<TestItem> BuildTestItems()
@@ -60,18 +88,25 @@ namespace RepairsApi.Tests.V2.Filtering
                 .AddFilter(
                     search => search.SearchParam,
                     searchParam => searchParam > 0,
-                    searchParam => item => item.Value > searchParam);
+                    searchParam => item => item.Value > searchParam)
+                .AddSort(search => search.Sort, b => b.AddSortOption("value", ti => ti.Value)); ;
         }
     }
 
     class TestSearch
     {
+        public string Sort;
+        public int SearchParam { get; set; }
+
         public TestSearch(int searchParam)
         {
             SearchParam = searchParam;
         }
 
-        public int SearchParam { get; set; }
+        public TestSearch(string sortParam)
+        {
+            Sort = sortParam;
+        }
     }
 
     class TestItem
