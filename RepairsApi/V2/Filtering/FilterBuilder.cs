@@ -12,7 +12,8 @@ namespace RepairsApi.V2.Filtering
     /// <typeparam name="TQuery">The Object type used in an enumerable or queryable for filtering</typeparam>
     public class FilterBuilder<TSearch, TQuery> : IFilterBuilder<TSearch, TQuery>
     {
-        private List<IFilterItem<TSearch, TQuery>> _config = new List<IFilterItem<TSearch, TQuery>>();
+        private readonly List<IFilterItem<TSearch, TQuery>> _filterConfig = new List<IFilterItem<TSearch, TQuery>>();
+        private readonly List<ISortConfig<TSearch, TQuery>> _sortConfig = new List<ISortConfig<TSearch, TQuery>>();
 
         /// <summary>
         /// Adds A Filter that allots filtering of TQuery based on values based from a TSearchModel
@@ -24,13 +25,41 @@ namespace RepairsApi.V2.Filtering
         /// <returns>The same filterbuilder to allow chaining</returns>
         public FilterBuilder<TSearch, TQuery> AddFilter<T>(Func<TSearch, T> searchValueFunction, Func<T, bool> searchValidator, Func<T, Expression<Func<TQuery, bool>>> filterFunction)
         {
-            _config.Add(new FilterItem<T, TSearch, TQuery>(searchValueFunction, searchValidator, filterFunction));
+            _filterConfig.Add(new FilterItem<T, TSearch, TQuery>(searchValueFunction, searchValidator, filterFunction));
             return this;
         }
 
         public IFilter<TQuery> BuildFilter(TSearch searchParameter)
         {
-            return new Filter<TQuery>(_config.Where(c => c.IsValid(searchParameter)).Select(c => c.CreateExpression(searchParameter)));
+            return new Filter<TQuery>(
+                _filterConfig.Where(c => c.IsValid(searchParameter)).Select(c => c.CreateExpression(searchParameter)),
+                _sortConfig.FirstOrDefault(sc => sc.SetOrderExpression(searchParameter)));
+        }
+
+        public FilterBuilder<TSearch, TQuery> AddSort(Func<TSearch, string> sort, Action<ISortOptionsBuilder<TQuery>> sortBuilder)
+        {
+            SortOptionsBuilder builder = new SortOptionsBuilder(this, sort);
+
+            sortBuilder.Invoke(builder);
+
+            return this;
+        }
+
+        internal class SortOptionsBuilder : ISortOptionsBuilder<TQuery>
+        {
+            private readonly FilterBuilder<TSearch, TQuery> _filterBuilder;
+            private readonly Func<TSearch, string> _sort;
+
+            public SortOptionsBuilder(FilterBuilder<TSearch, TQuery> filterBuilder, Func<TSearch, string> sort)
+            {
+                _filterBuilder = filterBuilder;
+                _sort = sort;
+            }
+
+            public void AddSortOption<TProp>(string v, Expression<Func<TQuery, TProp>> p)
+            {
+                _filterBuilder._sortConfig.Add(new SortItem<TProp, TQuery, TSearch>(v, p, _sort));
+            }
         }
     }
 }
