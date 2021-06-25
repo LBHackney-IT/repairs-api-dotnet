@@ -60,7 +60,7 @@ namespace RepairsApi.V2.Services.DRS.BackgroundService
         {
             var update = new JobStatusUpdate
             {
-                EventTime = bookingConfirmation.changedDate,
+                EventTime = DrsHelpers.ConvertFromDrsTimeZone(bookingConfirmation.changedDate),
                 RelatedWorkOrderId = workOrderId,
                 TypeCode = JobStatusUpdateTypeCode._0,
                 OtherType = CustomJobStatusUpdates.AddNote,
