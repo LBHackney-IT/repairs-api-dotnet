@@ -6,6 +6,7 @@ namespace RepairsApi.V2.Controllers.Parameters
     public class WorkOrderSearchParameters
     {
         public static int MaxPageSize { get; } = 50;
+        public string Sort { get; set; }
         public string PropertyReference { get; set; }
         public List<string> ContractorReference { get; set; }
         public List<int> StatusCode { get; set; }
@@ -18,6 +19,5 @@ namespace RepairsApi.V2.Controllers.Parameters
             get => _pageSize;
             set => _pageSize = Math.Clamp(value, 0, MaxPageSize);
         }
-        public string Sort { get; set; }
     }
 }

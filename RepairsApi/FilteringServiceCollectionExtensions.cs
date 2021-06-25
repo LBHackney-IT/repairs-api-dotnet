@@ -1,14 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
+using RepairsApi.V2.Boundary.Request;
 using RepairsApi.V2.Controllers.Parameters;
-using RepairsApi.V2.Enums;
 using RepairsApi.V2.Filtering;
 using RepairsApi.V2.Infrastructure;
-using RepairsApi.V2.Infrastructure.Extensions;
 using System;
-using System.Linq;
-using RepairsApi.V2.Boundary.Request;
-using System.Linq.Expressions;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RepairsApi
 {
