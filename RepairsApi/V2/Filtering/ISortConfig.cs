@@ -1,4 +1,4 @@
-﻿namespace RepairsApi.V2.Filtering
+namespace RepairsApi.V2.Filtering
 {
     internal interface ISortConfig<TSearch, TQuery> : ISortItem<TQuery>
     {
