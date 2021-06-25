@@ -4,7 +4,6 @@ using RepairsApi.V2.Controllers.Parameters;
 using RepairsApi.V2.Filtering;
 using RepairsApi.V2.Infrastructure;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace RepairsApi
