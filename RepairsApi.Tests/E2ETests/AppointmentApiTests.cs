@@ -45,7 +45,7 @@ namespace RepairsApi.Tests.E2ETests
         [Test]
         public async Task ListForWorkOrder()
         {
-            var woRef = AddWorkOrder();
+            var woRef = AddWorkOrder("contractor");
             var result = await Get($"/api/v2/appointments?workOrderReference={woRef}");
 
             result.Should().Be(HttpStatusCode.OK);
@@ -54,9 +54,10 @@ namespace RepairsApi.Tests.E2ETests
         [Test]
         public async Task ListForWorkOrderForDates()
         {
-            var woRef = AddWorkOrder();
+            const string contractor = "contractor";
+            var woRef = AddWorkOrder(contractor);
             var expectedAppointment = new AppointmentSeedModel("AM", DateTime.UtcNow, DateTime.UtcNow.AddHours(1));
-            var (code, appointments) = await GetAppointments(woRef, expectedAppointment);
+            var (code, appointments) = await GetAppointments(contractor, woRef, expectedAppointment);
 
             code.Should().Be(HttpStatusCode.OK);
             var appointment = appointments.Should().ContainSingle().Which.Slots.Should().ContainSingle().Which;
@@ -68,9 +69,10 @@ namespace RepairsApi.Tests.E2ETests
         [Test]
         public async Task BookSlotAppointment()
         {
-            var woRef = AddWorkOrder();
+            const string contractor = "contractor";
+            var woRef = AddWorkOrder(contractor);
             var expectedAppointment = new AppointmentSeedModel("AM", DateTime.UtcNow, DateTime.UtcNow.AddHours(1));
-            var (code, appointments) = await GetAppointments(woRef, expectedAppointment);
+            var (code, appointments) = await GetAppointments(contractor, woRef, expectedAppointment);
 
             code.Should().Be(HttpStatusCode.OK);
             var appointment = appointments.Single().Slots.Single();
@@ -100,11 +102,12 @@ namespace RepairsApi.Tests.E2ETests
         [Test]
         public async Task ReBookSlotAppointment()
         {
-            var woRef = AddWorkOrder();
+            const string contractor = "reBookContractor";
+            var woRef = AddWorkOrder(contractor);
             var initialSlotSeed = new AppointmentSeedModel("AM", DateTime.UtcNow, DateTime.UtcNow.AddHours(1));
             var expectedSlotSeed = new AppointmentSeedModel("PM", DateTime.UtcNow.AddHours(5), DateTime.UtcNow.AddHours(6));
             var allAppointments = new[] { initialSlotSeed, expectedSlotSeed };
-            var (code, appointments) = await GetAppointments(woRef, allAppointments);
+            var (code, appointments) = await GetAppointments(contractor, woRef, allAppointments);
             code.Should().Be(HttpStatusCode.OK);
 
             var appointmentSlots = appointments.Single().Slots;
@@ -177,9 +180,9 @@ namespace RepairsApi.Tests.E2ETests
             code.Should().Be(HttpStatusCode.NotFound);
         }
 
-        private async Task<(HttpStatusCode statusCode, List<AppointmentDayViewModel> response)> GetAppointments(int woRef, params AppointmentSeedModel[] expectedAppointments)
+        private async Task<(HttpStatusCode statusCode, List<AppointmentDayViewModel> response)> GetAppointments(string contractor, int woRef, params AppointmentSeedModel[] expectedAppointments)
         {
-            SeedAppointmentData("contractor", new[]
+            SeedAppointmentData(contractor, new[]
             {
                 new DaySeedModel(DateTime.UtcNow.DayOfWeek, 1),
             }, expectedAppointments);
@@ -193,7 +196,7 @@ namespace RepairsApi.Tests.E2ETests
         [Test]
         public async Task BadRequestForBadDateOrder()
         {
-            var woRef = AddWorkOrder();
+            var woRef = AddWorkOrder("contractor");
             var toDate = DateTime.UtcNow.AddDays(-1).ToDate();
             var fromDate = DateTime.UtcNow.AddDays(1).ToDate();
             var result = await Get($"/api/v2/appointments?workOrderReference={woRef}&toDate={toDate}&fromDate={fromDate}");
@@ -201,7 +204,7 @@ namespace RepairsApi.Tests.E2ETests
             result.Should().Be(HttpStatusCode.BadRequest);
         }
 
-        private int AddWorkOrder()
+        private int AddWorkOrder(string contractor)
         {
             using var ctx = GetContext();
             var db = ctx.DB;
@@ -209,7 +212,7 @@ namespace RepairsApi.Tests.E2ETests
             {
                 AssignedToPrimary = new Party
                 {
-                    ContractorReference = "contractor"
+                    ContractorReference = contractor
                 }
             });
 
