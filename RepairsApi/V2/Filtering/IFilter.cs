@@ -6,6 +6,5 @@ namespace RepairsApi.V2.Filtering
     public interface IFilter<TQuery>
     {
         IQueryable<TQuery> Apply(IQueryable<TQuery> query);
-        IEnumerable<TQuery> Apply(IEnumerable<TQuery> query);
     }
 }

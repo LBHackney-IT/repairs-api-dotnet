@@ -65,6 +65,26 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             await TestWorkOrderFilter($"ContractorReference={contractorCode1}", contractor1.Id, $"ContractorReference={contractorCode2}", contractor2.Id);
         }
 
+        [Test]
+        public async Task GetSortedListOfWorkOrder()
+        {
+            await Run(() => CreateWorkOrder(), 50);
+
+            var (ascendingDode, ascendingResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?PageSize=50&sort=dateraised:asc");
+            var (descendingCode, descendingResponse) = await Get<List<WorkOrderListItem>>($"/api/v2/workOrders?PageSize=50&sort=dateraised:desc");
+
+            ascendingResponse.Should().BeInAscendingOrder(wo => wo.DateRaised);
+            descendingResponse.Should().BeInDescendingOrder(wo => wo.DateRaised);
+        }
+
+        private static async Task Run(Func<Task> action, int times)
+        {
+            for (int i = 0; i < times; i++)
+            {
+                await action();
+            }
+        }
+
         private async Task TestWorkOrderFilter(string query1, int id1, string query2, int id2)
         {
             // Act
