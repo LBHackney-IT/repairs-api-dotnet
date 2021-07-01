@@ -44,6 +44,8 @@ namespace RepairsApi.Tests.V2.UseCase
             _drsService = new Mock<IDrsService>();
             _sorGatewayMock = new Mock<IScheduleOfRatesGateway>();
 
+
+            _sorGatewayMock.Setup(mock => mock.GetContractor(It.IsAny<string>())).ReturnsAsync(new RepairsApi.V2.Domain.Contractor { CanAssignOperative = true });
             _classUnderTest = new GetWorkOrderUseCase(
                 _repairsGatewayMock.Object,
                 _appointmentsGatewayMock.Object,
@@ -77,7 +79,7 @@ namespace RepairsApi.Tests.V2.UseCase
             var response = await _classUnderTest.Execute(expectedWorkOrder.Id);
 
             // assert
-            response.Should().BeEquivalentTo(expectedWorkOrder.ToResponse(appointment, _drsOptions.ManagementAddress));
+            response.Should().BeEquivalentTo(expectedWorkOrder.ToResponse(appointment, _drsOptions.ManagementAddress, true));
         }
 
 
@@ -96,7 +98,7 @@ namespace RepairsApi.Tests.V2.UseCase
             var response = await _classUnderTest.Execute(expectedWorkOrder.Id);
 
             // assert
-            response.Should().BeEquivalentTo(expectedWorkOrder.ToResponse(null, _drsOptions.ManagementAddress));
+            response.Should().BeEquivalentTo(expectedWorkOrder.ToResponse(null, _drsOptions.ManagementAddress, true));
         }
 
         [TestCase(true, true, true, true)]

@@ -49,8 +49,11 @@ namespace RepairsApi.V2.UseCase
             }
 
             var appointment = await _appointmentGateway.GetAppointment(workOrder.Id);
+            var canAssignOperative = await workOrder.CanAssignOperative(_sorGateway);
 
-            return workOrder.ToResponse(appointment, _drsOptions.Value.ManagementAddress);
+            var workOrderResponse = workOrder.ToResponse(appointment, _drsOptions.Value.ManagementAddress, canAssignOperative);
+
+            return workOrderResponse;
         }
     }
 }
