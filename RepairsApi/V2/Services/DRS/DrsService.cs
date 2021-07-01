@@ -2,9 +2,11 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Amazon.XRay.Recorder.Core.Exceptions;
+using Castle.Core.Internal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RepairsApi.V2.Exceptions;
+using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services.DRS;
@@ -20,19 +22,22 @@ namespace RepairsApi.V2.Services
         private readonly IOptions<DrsOptions> _drsOptions;
         private readonly ILogger<DrsService> _logger;
         private readonly IDrsMapping _drsMapping;
+        private readonly IOperativesGateway _operativesGateway;
         private string _sessionId;
 
         public DrsService(
             V2_Generated_DRS.SOAP drsSoap,
             IOptions<DrsOptions> drsOptions,
             ILogger<DrsService> logger,
-            IDrsMapping drsMapping
+            IDrsMapping drsMapping,
+            IOperativesGateway operativesGateway
         )
         {
             _drsSoap = drsSoap;
             _drsOptions = drsOptions;
             _logger = logger;
             _drsMapping = drsMapping;
+            _operativesGateway = operativesGateway;
 
         }
 
@@ -160,6 +165,20 @@ namespace RepairsApi.V2.Services
             }
             var drsOrder = selectOrderResponse.@return.theOrders.First();
             return drsOrder;
+        }
+
+        public async Task UpdateAssignedOperative(int workOrderId)
+        {
+            var order = await SelectOrder(workOrderId);
+
+            var theResources = order.theBookings.First().theResources;
+
+            if (theResources.IsNullOrEmpty()) return;
+
+            var operativePayrollIds = theResources.Select(r => r.externalResourceCode);
+            var operatives = await Task.WhenAll(operativePayrollIds.Select(i => _operativesGateway.GetAsync(i)));
+
+            await _operativesGateway.AssignOperatives(workOrderId, operatives.Select(o => o.Id).ToArray());
         }
 
         private async Task CheckSession()

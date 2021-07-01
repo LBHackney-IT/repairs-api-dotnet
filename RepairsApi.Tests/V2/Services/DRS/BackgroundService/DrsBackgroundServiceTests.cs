@@ -91,46 +91,7 @@ namespace RepairsApi.Tests.V2.Services.BackgroundService
 
             await _classUnderTest.ConfirmBooking(bookingConfirmation);
 
-            _operativesGatewayMock.Verify(x => x.AssignOperatives(workOrderId, operativeId));
-        }
-
-        [Test]
-        public async Task DoesNotAssignWhenOrderHasNoResource()
-        {
-            const int workOrderId = 1234;
-            const int operativeId = 5678;
-            const string operativePayrollId = "Z123";
-            var bookingConfirmation = CreateBookingConfirmation(workOrderId);
-            ReturnsWorkOrder(workOrderId);
-            _operativesGatewayMock.Setup(x => x.GetAsync(operativePayrollId))
-                .ReturnsAsync(new Operative
-                {
-                    Id = operativeId
-                });
-
-            await _classUnderTest.ConfirmBooking(bookingConfirmation);
-
-            _operativesGatewayMock.Verify(x => x.AssignOperatives(It.IsAny<int>(), It.IsAny<int[]>()), Times.Never);
-        }
-
-        [Test]
-        public async Task ThrowsAndLogsWhenOrderNotFound()
-        {
-            const int workOrderId = 1234;
-            const int operativeId = 5678;
-            const string operativePayrollId = "Z123";
-            var bookingConfirmation = CreateBookingConfirmation(workOrderId);
-            _operativesGatewayMock.Setup(x => x.GetAsync(operativePayrollId))
-                .ReturnsAsync(new Operative
-                {
-                    Id = operativeId
-                });
-
-            Func<Task> testFunc = async () => await _classUnderTest.ConfirmBooking(bookingConfirmation);
-
-            await testFunc.Should().ThrowAsync<ResourceNotFoundException>()
-                .WithMessage(Resources.WorkOrderNotFound);
-            _loggerMock.VerifyLog(LogLevel.Error);
+            _drsServiceMock.Verify(x => x.UpdateAssignedOperative(workOrderId));
         }
 
         [Test]

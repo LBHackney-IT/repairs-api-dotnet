@@ -123,7 +123,7 @@ namespace RepairsApi.V2.Factories
             return domainList.Select(domain => domain.ToResponseListItem()).ToList();
         }
 
-        public static WorkOrderResponse ToResponse(this Infrastructure.WorkOrder workOrder, Infrastructure.AppointmentDetails appointment, Uri drsManagementAddress)
+        public static WorkOrderResponse ToResponse(this Infrastructure.WorkOrder workOrder, Infrastructure.AppointmentDetails appointment, Uri drsManagementAddress, bool canAssignOperative)
         {
             Infrastructure.PropertyClass propertyClass = workOrder.Site?.PropertyClass?.FirstOrDefault();
             string addressLine = propertyClass?.Address?.AddressLine;
@@ -161,7 +161,8 @@ namespace RepairsApi.V2.Factories
                     End = appointment.End.ToTime()
                 },
                 ExternalAppointmentManagementUrl = managementUri,
-                Operatives = workOrder.AssignedOperatives.MapList(o => o.ToResponse())
+                Operatives = workOrder.AssignedOperatives.MapList(o => o.ToResponse()),
+                CanAssignOperative = canAssignOperative
             };
         }
 
