@@ -22,7 +22,7 @@ namespace RepairsApi.V2.UseCase.JobStatusUpdatesUseCases
             var workOrder = jobStatusUpdate.RelatedWorkOrder;
             workOrder.VerifyCanAssignOperative();
 
-            if (!await workOrder.ContractorUsingDrs(_scheduleOfRatesGateway)) ThrowHelper.ThrowUnsupported(Resources.NonOperativeContractor);
+            if (!await workOrder.CanAssignOperative(_scheduleOfRatesGateway)) ThrowHelper.ThrowUnsupported(Resources.NonOperativeContractor);
 
             var operativeIds = jobStatusUpdate.OperativesAssigned.Select(oa => int.Parse(oa.Identification.Number));
 

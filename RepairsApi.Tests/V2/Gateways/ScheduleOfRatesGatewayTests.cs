@@ -271,6 +271,7 @@ namespace RepairsApi.Tests.V2.Gateways
             result.ContractorReference.Should().Be(expectedContractor.Reference);
             result.ContractorName.Should().Be(expectedContractor.Name);
             result.UseExternalScheduleManager.Should().Be(expectedContractor.UseExternalScheduleManager);
+            result.CanAssignOperative.Should().Be(expectedContractor.CanAssignOperative);
         }
 
         [Test]

@@ -24,15 +24,14 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
         {
             _operativesGatewayMock = new Mock<IOperativesGateway>();
             _scheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
-            const bool usesExternalScheduleManager = true;
-            SetupSorGateway(usesExternalScheduleManager);
+            SetupSorGateway(canAssignOperative: true);
 
             _classUnderTest = new AssignOperativesUseCase(_operativesGatewayMock.Object, _scheduleOfRatesGateway.Object);
         }
 
-        private void SetupSorGateway(bool usesExternalScheduleManager)
+        private void SetupSorGateway(bool canAssignOperative)
         {
-            _scheduleOfRatesGateway.Setup(mock => mock.GetContractor(It.IsAny<string>())).ReturnsAsync(new RepairsApi.V2.Domain.Contractor { UseExternalScheduleManager = usesExternalScheduleManager });
+            _scheduleOfRatesGateway.Setup(mock => mock.GetContractor(It.IsAny<string>())).ReturnsAsync(new RepairsApi.V2.Domain.Contractor { CanAssignOperative = canAssignOperative });
         }
 
         [TestCase(WorkStatusCode.VariationPendingApproval)]
@@ -69,7 +68,7 @@ namespace RepairsApi.Tests.V2.UseCase.JobStatusUpdateUseCases
             const int desiredWorkOrderId = 42;
             var workOrder = BuildWorkOrder(desiredWorkOrderId);
             workOrder.StatusCode = WorkStatusCode.Scheduled;
-            SetupSorGateway(false);
+            SetupSorGateway(canAssignOperative: false);
             var request = BuildUpdate(workOrder);
             var expectedAssignments = request.OperativesAssigned.Select(o => new WorkOrderOperative { OperativeId = int.Parse(o.Identification.Number), WorkOrderId = desiredWorkOrderId }).ToArray();
 
