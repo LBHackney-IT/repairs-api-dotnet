@@ -2,10 +2,13 @@ using System;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
+using Microsoft.FeatureManagement;
 using Moq;
 using NUnit.Framework;
 using RepairsApi.Tests.Helpers.StubGeneration;
 using RepairsApi.Tests.V2.Gateways;
+using RepairsApi.V2;
+using RepairsApi.V2.Domain;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Infrastructure;
@@ -21,6 +24,9 @@ namespace RepairsApi.Tests.V2.UseCase
         private GetWorkOrderUseCase _classUnderTest;
         private Generator<WorkOrder> _generator;
         private DrsOptions _drsOptions;
+        private Mock<IFeatureManager> _featureManager;
+        private Mock<IDrsService> _drsService;
+        private Mock<IScheduleOfRatesGateway> _sorGatewayMock;
 
         [SetUp]
         public void Setup()
@@ -34,7 +40,18 @@ namespace RepairsApi.Tests.V2.UseCase
                 APIAddress = new Uri("https://apiAddress.none"),
                 ManagementAddress = new Uri("https://managementAddress.none")
             };
-            _classUnderTest = new GetWorkOrderUseCase(_repairsGatewayMock.Object, _appointmentsGatewayMock.Object, Options.Create(_drsOptions));
+            _featureManager = new Mock<IFeatureManager>();
+            _drsService = new Mock<IDrsService>();
+            _sorGatewayMock = new Mock<IScheduleOfRatesGateway>();
+
+            _classUnderTest = new GetWorkOrderUseCase(
+                _repairsGatewayMock.Object,
+                _appointmentsGatewayMock.Object,
+                Options.Create(_drsOptions),
+                _featureManager.Object,
+                _drsService.Object,
+                _sorGatewayMock.Object
+                );
             ConfigureGenerator();
         }
 
@@ -80,6 +97,29 @@ namespace RepairsApi.Tests.V2.UseCase
 
             // assert
             response.Should().BeEquivalentTo(expectedWorkOrder.ToResponse(null, _drsOptions.ManagementAddress));
+        }
+
+        [TestCase(true, true, true, true)]
+        [TestCase(false, true, true, false)]
+        [TestCase(true, false, true, false)]
+        [TestCase(true, true, false, false)]
+        public async Task UpdatesAssignedOperativesWhenFeatureFlagSetAndContractorUsesDrs(bool updateFeatureEnabled, bool drsFeatureEnabled, bool contractorUsesDrs, bool shouldAssign)
+        {
+            var expectedWorkOrder = _generator.Generate();
+            _repairsGatewayMock.ReturnsWorkOrders(expectedWorkOrder);
+            _sorGatewayMock.Setup(x => x.GetContractor(expectedWorkOrder.AssignedToPrimary.ContractorReference))
+                .ReturnsAsync(new Contractor
+                {
+                    UseExternalScheduleManager = contractorUsesDrs
+                });
+            _featureManager.Setup(x => x.IsEnabledAsync(FeatureFlags.UpdateOperativesOnWorkOrderGet))
+                .ReturnsAsync(updateFeatureEnabled);
+            _featureManager.Setup(x => x.IsEnabledAsync(FeatureFlags.DRSIntegration))
+                .ReturnsAsync(drsFeatureEnabled);
+
+            await _classUnderTest.Execute(expectedWorkOrder.Id);
+
+            _drsService.Verify(x => x.UpdateAssignedOperative(expectedWorkOrder.Id), shouldAssign ? Times.Once() : Times.Never());
         }
 
         private void ConfigureGenerator()

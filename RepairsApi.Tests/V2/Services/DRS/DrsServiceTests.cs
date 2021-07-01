@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
+using RepairsApi.Tests.Helpers;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 using V2_Generated_DRS;
@@ -30,6 +31,7 @@ namespace RepairsApi.Tests.V2.Services
         private Mock<ILogger<DrsService>> _loggerMock;
         private MockDrsMapping _drsMappingMock;
         private Fixture _fixture;
+        private Mock<IOperativesGateway> _operativesGatewayMock;
 
         [SetUp]
         public void SetUp()
@@ -45,12 +47,14 @@ namespace RepairsApi.Tests.V2.Services
             _loggerMock = new Mock<ILogger<DrsService>>();
             _drsSoapMock = new MockDrsSoap(_drsOptions);
             _drsMappingMock = new MockDrsMapping();
+            _operativesGatewayMock = new Mock<IOperativesGateway>();
 
             _classUnderTest = new DrsService(
                 _drsSoapMock.Object,
                 _drsOptions,
                 _loggerMock.Object,
-                _drsMappingMock.Object
+                _drsMappingMock.Object,
+                _operativesGatewayMock.Object
             );
         }
 
@@ -238,6 +242,51 @@ namespace RepairsApi.Tests.V2.Services
             result.Should().BeEquivalentTo(drsOrder);
         }
 
+        [Test]
+        public async Task UpdatesAssignedOperative()
+        {
+            const int workOrderId = 1234;
+            const int operativeId = 5678;
+            const string operativePayrollId = "Z123";
+            _drsSoapMock.SelectOrderReturns(CreateDrsOrder(operativePayrollId));
+            _operativesGatewayMock.Setup(x => x.GetAsync(operativePayrollId))
+                .ReturnsAsync(new Operative
+                {
+                    Id = operativeId
+                });
+
+            await _classUnderTest.UpdateAssignedOperative(workOrderId);
+
+            _operativesGatewayMock.Verify(x => x.AssignOperatives(workOrderId, operativeId));
+        }
+
+        [Test]
+        public async Task DoesNotAssignWhenOrderHasNoResource()
+        {
+            const int workOrderId = 1234;
+            const int operativeId = 5678;
+            const string operativePayrollId = "Z123";
+            var drsOrder = _fixture.Create<order>();
+            drsOrder.primaryOrderNumber = workOrderId.ToString();
+            drsOrder.theBookings = new[]
+            {
+                new booking
+                {
+                }
+            };
+            _drsSoapMock.SelectOrderReturns(drsOrder);
+
+            _operativesGatewayMock.Setup(x => x.GetAsync(operativePayrollId))
+                .ReturnsAsync(new Operative
+                {
+                    Id = operativeId
+                });
+
+            await _classUnderTest.UpdateAssignedOperative(int.Parse(drsOrder.primaryOrderNumber));
+
+            _operativesGatewayMock.Verify(x => x.AssignOperatives(It.IsAny<int>(), It.IsAny<int[]>()), Times.Never);
+        }
+
         private static WorkOrder CreateWorkOrderWithContractor(bool useExternal)
         {
             var expectedContractor = CreateContractor(useExternal);
@@ -264,5 +313,22 @@ namespace RepairsApi.Tests.V2.Services
             return expectedContractor;
         }
 
+        private static order CreateDrsOrder(params string[] payrollIds)
+        {
+            return new order
+            {
+                theBookings = new[]
+                {
+                    new booking
+                    {
+                        theResources = payrollIds.Select(ori =>
+                            new resource
+                            {
+                                externalResourceCode = ori
+                            }).ToArray()
+                    }
+                }
+            };
+        }
     }
 }
