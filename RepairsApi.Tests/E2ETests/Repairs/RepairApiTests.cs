@@ -117,7 +117,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
 
             SetupSoapMock();
-            await CompleteWorkOrder(result.Id);
+            await CompleteWorkOrder(result.Id, false);
 
             SoapMock.Verify(s => s.updateBookingAsync(It.IsAny<updateBooking>()));
         }
@@ -329,7 +329,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         public async Task OperativeGetsAssigned()
         {
             SetupSoapMock();
-            var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
+            var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.Contractor);
 
             await AssignOperative(result.Id, TestDataSeeder.OperativeId);
 
@@ -343,7 +343,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         public async Task CompletionFailsWithNoOperative()
         {
             SetupSoapMock();
-            var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
+            var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.Contractor);
 
             var code = await CompleteWorkOrder(result.Id, preAssignOperative: false);
 

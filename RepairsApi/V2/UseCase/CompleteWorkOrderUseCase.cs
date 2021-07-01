@@ -118,7 +118,7 @@ namespace RepairsApi.V2.UseCase
 
         private async Task VerifyCanComplete(WorkOrder workOrder)
         {
-            if (await workOrder.ContractorUsingDrs(_scheduleOfRatesGateway)
+            if (await workOrder.CanAssignOperative(_scheduleOfRatesGateway)
                     && await _featureManager.IsEnabledAsync(FeatureFlags.EnforceAssignedOperative)
                     && workOrder.AssignedOperatives.IsNullOrEmpty())
             {

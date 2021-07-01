@@ -7,9 +7,8 @@ namespace RepairsApi.V2.Infrastructure
     public class RepairsContext : DbContext
     {
 
-        public RepairsContext(
-            DbContextOptions<RepairsContext> options
-        ) : base(options)
+        public RepairsContext(DbContextOptions<RepairsContext> options)
+            : base(options)
         {
         }
 
