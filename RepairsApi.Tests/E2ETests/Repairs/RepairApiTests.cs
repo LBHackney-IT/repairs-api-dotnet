@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Query;
 using V2_Generated_DRS;
 using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
 using Quantity = RepairsApi.V2.Generated.Quantity;
@@ -183,6 +184,32 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             code.Should().Be(HttpStatusCode.OK);
             response.TradeDescription.Should().Be(tradeName);
             response.Owner.Should().Be(contractor);
+        }
+
+        [Test]
+        public async Task GetWorkOrderUpdatesDrsOperative()
+        {
+            // Arrange
+            const string tradeName = "trade name";
+            var result = await CreateWorkOrder(req =>
+            {
+                req.WorkElement.First().Trade.First().CustomName = tradeName;
+                req.AssignedToPrimary.Name = TestDataSeeder.DRSContractor;
+                req.AssignedToPrimary.Organization.Reference = new List<Reference>
+                {
+                    new Reference
+                    {
+                        ID = TestDataSeeder.DRSContractor
+                    }
+                };
+            });
+            SetupSoapMock();
+
+            var (code, _) = await Get<RepairsApi.V2.Boundary.WorkOrderResponse>($"/api/v2/workOrders/{result.Id}");
+            code.Should().Be(HttpStatusCode.OK);
+
+            var workOrder = GetWorkOrderFromDB(result.Id, wo => wo.AssignedOperatives.Load());
+            workOrder.AssignedOperatives.Should().ContainSingle(o => o.PayrollNumber == TestDataSeeder.OperativePayrollId);
         }
 
         [Test]

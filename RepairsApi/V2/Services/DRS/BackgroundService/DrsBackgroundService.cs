@@ -49,7 +49,7 @@ namespace RepairsApi.V2.Services.DRS.BackgroundService
                 bookingConfirmation.planningWindowEnd
             );
 
-            await UpdateAssignedOperative(workOrderId);
+            await _drsService.UpdateAssignedOperative(workOrderId);
 
             await AddAuditTrail(workOrderId, bookingConfirmation);
 
@@ -68,26 +68,6 @@ namespace RepairsApi.V2.Services.DRS.BackgroundService
             };
 
             await _jobStatusUpdateGateway.CreateJobStatusUpdate(update);
-        }
-
-        private async Task UpdateAssignedOperative(int workOrderId)
-        {
-            var order = await _drsService.SelectOrder(workOrderId);
-
-            if (order is null)
-            {
-                _logger.LogError($"Unable to fetch order from DRS {workOrderId}", workOrderId);
-                ThrowHelper.ThrowNotFound(Resources.WorkOrderNotFound);
-            }
-
-            var theResources = order.theBookings.First().theResources;
-
-            if (theResources.IsNullOrEmpty()) return;
-
-            var operativePayrollIds = theResources.Select(r => r.externalResourceCode);
-            var operatives = await Task.WhenAll(operativePayrollIds.Select(i => _operativesGateway.GetAsync(i)));
-
-            await _operativesGateway.AssignOperatives(workOrderId, operatives.Select(o => o.Id).ToArray());
         }
     }
 }
