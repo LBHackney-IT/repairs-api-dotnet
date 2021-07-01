@@ -18,6 +18,7 @@ namespace RepairsApi.Tests.V2.UseCase
     {
         private MockRepairsGateway _repairsGatewayMock;
         private Mock<IAppointmentsGateway> _appointmentsGatewayMock;
+        private Mock<IScheduleOfRatesGateway> _scheduleOfRatesGateway;
         private GetWorkOrderUseCase _classUnderTest;
         private Generator<WorkOrder> _generator;
         private DrsOptions _drsOptions;
@@ -27,6 +28,8 @@ namespace RepairsApi.Tests.V2.UseCase
         {
             _repairsGatewayMock = new MockRepairsGateway();
             _appointmentsGatewayMock = new Mock<IAppointmentsGateway>();
+            _scheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
+            _scheduleOfRatesGateway.Setup(mock => mock.GetContractor(It.IsAny<string>())).ReturnsAsync(new RepairsApi.V2.Domain.Contractor { CanAssignOperative = true });
             _drsOptions = new DrsOptions
             {
                 Login = "login",
@@ -34,7 +37,7 @@ namespace RepairsApi.Tests.V2.UseCase
                 APIAddress = new Uri("https://apiAddress.none"),
                 ManagementAddress = new Uri("https://managementAddress.none")
             };
-            _classUnderTest = new GetWorkOrderUseCase(_repairsGatewayMock.Object, _appointmentsGatewayMock.Object, Options.Create(_drsOptions));
+            _classUnderTest = new GetWorkOrderUseCase(_repairsGatewayMock.Object, _appointmentsGatewayMock.Object, Options.Create(_drsOptions), _scheduleOfRatesGateway.Object);
             ConfigureGenerator();
         }
 
@@ -60,7 +63,7 @@ namespace RepairsApi.Tests.V2.UseCase
             var response = await _classUnderTest.Execute(expectedWorkOrder.Id);
 
             // assert
-            response.Should().BeEquivalentTo(expectedWorkOrder.ToResponse(appointment, _drsOptions.ManagementAddress));
+            response.Should().BeEquivalentTo(expectedWorkOrder.ToResponse(appointment, _drsOptions.ManagementAddress, true));
         }
 
 
@@ -79,7 +82,7 @@ namespace RepairsApi.Tests.V2.UseCase
             var response = await _classUnderTest.Execute(expectedWorkOrder.Id);
 
             // assert
-            response.Should().BeEquivalentTo(expectedWorkOrder.ToResponse(null, _drsOptions.ManagementAddress));
+            response.Should().BeEquivalentTo(expectedWorkOrder.ToResponse(null, _drsOptions.ManagementAddress, true));
         }
 
         private void ConfigureGenerator()
