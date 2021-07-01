@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using RepairsApi.Tests.Helpers;
 using RepairsApi.V2;
 using RepairsApi.V2.Infrastructure;
 using Appointment = RepairsApi.V2.Infrastructure.Hackney.Appointment;
@@ -27,7 +28,7 @@ namespace RepairsApi.Tests.V2.Gateways
         [Test]
         public async Task ListForToday()
         {
-            SeedData("contractor", new DaySeedModel[]
+            SeedAppointmentData("contractor", new DaySeedModel[]
             {
                 new DaySeedModel(DateTime.UtcNow.DayOfWeek, 5),
             }, new AppointmentSeedModel[]
@@ -47,7 +48,7 @@ namespace RepairsApi.Tests.V2.Gateways
         [Test]
         public async Task OnlyIncludeRelevantDays()
         {
-            SeedData("contractor", new DaySeedModel[]
+            SeedAppointmentData("contractor", new DaySeedModel[]
             {
                 new DaySeedModel(DateTime.UtcNow.DayOfWeek, 5), new DaySeedModel(DateTime.UtcNow.AddDays(1).DayOfWeek, 5),
                 new DaySeedModel(DateTime.UtcNow.AddDays(2).DayOfWeek, 5),
@@ -67,7 +68,7 @@ namespace RepairsApi.Tests.V2.Gateways
         [Test]
         public async Task EmptyListForNoAppointments()
         {
-            SeedData("contractor", new DaySeedModel[]
+            SeedAppointmentData("contractor", new DaySeedModel[]
             {
                 new DaySeedModel(DateTime.UtcNow.DayOfWeek, 0),
             }, new AppointmentSeedModel[]
@@ -84,7 +85,7 @@ namespace RepairsApi.Tests.V2.Gateways
         [Test]
         public async Task EmptyListForOtherContractor()
         {
-            SeedData("contractor", new DaySeedModel[]
+            SeedAppointmentData("contractor", new DaySeedModel[]
             {
                 new DaySeedModel(DateTime.UtcNow.DayOfWeek, 5),
             }, new AppointmentSeedModel[]
@@ -112,7 +113,7 @@ namespace RepairsApi.Tests.V2.Gateways
         {
             var startTime = new DateTime().AddHours(8);
             var endTime = new DateTime().AddHours(12);
-            var ids = SeedData("contractor", new DaySeedModel[]
+            var ids = SeedAppointmentData("contractor", new DaySeedModel[]
             {
                 new DaySeedModel(DateTime.UtcNow.DayOfWeek, 1),
             }, new AppointmentSeedModel[]
@@ -133,6 +134,38 @@ namespace RepairsApi.Tests.V2.Gateways
 
             preBookItems.Should().HaveCount(1);
             postBookItems.Should().HaveCount(0);
+        }
+
+        [Test]
+        public async Task UpdateSlotAppointment()
+        {
+            const int workOrderId = 100001;
+            var startTime = new DateTime().AddHours(8);
+            var endTime = new DateTime().AddHours(12);
+            var ids = SeedAppointmentData("contractor", new[]
+            {
+                new DaySeedModel(DateTime.UtcNow.DayOfWeek, 1),
+            }, new[]
+            {
+                new AppointmentSeedModel("AM", startTime, endTime)
+            });
+            var existingAppointment = new Appointment
+            {
+                Date = DateTime.UtcNow,
+                StartTime = DateTime.UtcNow,
+                EndTime = DateTime.UtcNow.AddHours(5),
+                WorkOrderId = workOrderId
+            };
+            await InMemoryDb.Instance.Appointments.AddAsync(existingAppointment);
+            await InMemoryDb.Instance.SaveChangesAsync();
+
+            var appointmentRef = GenerateAppointmentRef(ids.First(), DateTime.UtcNow);
+            await _classUnderTest.CreateSlotBooking(appointmentRef, workOrderId);
+
+            var appointment = await InMemoryDb.Instance.Appointments.SingleOrDefaultAsync(a => a.WorkOrderId == workOrderId);
+            appointment.Should().NotBeNull();
+            appointment.StartTime.Should().Be(startTime);
+            appointment.EndTime.Should().Be(endTime);
         }
 
         [Test]
@@ -212,7 +245,7 @@ namespace RepairsApi.Tests.V2.Gateways
         [Test]
         public async Task ThrowsWhenOverBooking()
         {
-            var ids = SeedData("contractor", new DaySeedModel[]
+            var ids = SeedAppointmentData("contractor", new DaySeedModel[]
             {
                 new DaySeedModel(DateTime.UtcNow.DayOfWeek, 1),
             }, new AppointmentSeedModel[]
@@ -230,7 +263,7 @@ namespace RepairsApi.Tests.V2.Gateways
         [Test]
         public async Task AllowsBookingsForDifferentDates()
         {
-            var ids = SeedData("contractor", new DaySeedModel[]
+            var ids = SeedAppointmentData("contractor", new DaySeedModel[]
             {
                 new DaySeedModel(DateTime.UtcNow.DayOfWeek, 1),
             }, new AppointmentSeedModel[]
@@ -264,7 +297,7 @@ namespace RepairsApi.Tests.V2.Gateways
             var description = "AM";
             var workOrderRef = 100001;
 
-            var ids = SeedData("contractor", new DaySeedModel[]
+            var ids = SeedAppointmentData("contractor", new DaySeedModel[]
             {
                 new DaySeedModel(date.DayOfWeek, 1),
             }, new AppointmentSeedModel[]
@@ -299,7 +332,7 @@ namespace RepairsApi.Tests.V2.Gateways
             appointment.End.Should().Be(end);
         }
 
-        private static List<int> SeedData(string contractor, DaySeedModel[] days, AppointmentSeedModel[] appointments)
+        private static List<int> SeedAppointmentData(string contractor, DaySeedModel[] days, AppointmentSeedModel[] appointments)
         {
             List<int> bookableAppointmentsIds = new List<int>();
 
@@ -338,29 +371,4 @@ namespace RepairsApi.Tests.V2.Gateways
         }
     }
 
-    internal class AppointmentSeedModel
-    {
-        public AppointmentSeedModel(string description, DateTime startTime, DateTime endTime)
-        {
-            Description = description;
-            StartTime = startTime;
-            EndTime = endTime;
-        }
-
-        public string Description { get; set; }
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
-    }
-
-    internal class DaySeedModel
-    {
-        public DaySeedModel(DayOfWeek day, int count)
-        {
-            Day = day;
-            Count = count;
-        }
-
-        public DayOfWeek Day { get; set; }
-        public int Count { get; set; }
-    }
 }

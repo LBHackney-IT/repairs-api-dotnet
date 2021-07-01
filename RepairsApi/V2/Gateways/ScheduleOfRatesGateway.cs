@@ -154,7 +154,8 @@ namespace RepairsApi.V2.Gateways
             {
                 ContractorName = contractor.Name,
                 ContractorReference = contractor.Reference,
-                UseExternalScheduleManager = contractor.UseExternalScheduleManager
+                UseExternalScheduleManager = contractor.UseExternalScheduleManager,
+                CanAssignOperative = contractor.CanAssignOperative
             };
         }
 

@@ -5,9 +5,9 @@ namespace RepairsApi.V2.Filtering
 {
     public class FilterItem<T, TSearch, TQuery> : IFilterItem<TSearch, TQuery>
     {
-        private Func<TSearch, T> _searchValueFunction;
+        private readonly Func<TSearch, T> _searchValueFunction;
         private readonly Func<T, bool> _searchValidator;
-        private Func<T, Expression<Func<TQuery, bool>>> _filterFunction;
+        private readonly Func<T, Expression<Func<TQuery, bool>>> _filterFunction;
 
         public FilterItem(Func<TSearch, T> p, Func<T, bool> searchValidator, Func<T, Expression<Func<TQuery, bool>>> predicate)
         {

@@ -94,5 +94,13 @@ namespace RepairsApi.V2.Helpers
             var contractor = await scheduleOfRatesGateway.GetContractor(wo.AssignedToPrimary.ContractorReference);
             return contractor.UseExternalScheduleManager;
         }
+
+        public static async Task<bool> CanAssignOperative(this WorkOrder wo, IScheduleOfRatesGateway scheduleOfRatesGateway)
+        {
+            if (wo.AssignedToPrimary is null) return false;
+
+            var contractor = await scheduleOfRatesGateway.GetContractor(wo.AssignedToPrimary.ContractorReference);
+            return contractor.CanAssignOperative;
+        }
     }
 }

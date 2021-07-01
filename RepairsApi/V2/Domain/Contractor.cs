@@ -14,5 +14,6 @@ namespace RepairsApi.V2.Domain
         public string ContractorReference { get; set; }
         public string ContractorName { get; set; }
         public bool UseExternalScheduleManager { get; set; }
+        public bool CanAssignOperative { get; set; }
     }
 }
