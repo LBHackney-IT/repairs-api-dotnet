@@ -8,7 +8,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 using RepairsApi.V2.Helpers;
 using RepairsApi.V2.Services;
-using RepairsApi.V2.Helpers;
 
 namespace RepairsApi.V2.UseCase
 {
@@ -17,7 +16,9 @@ namespace RepairsApi.V2.UseCase
         private readonly IRepairsGateway _repairsGateway;
         private readonly IAppointmentsGateway _appointmentGateway;
         private readonly IOptions<DrsOptions> _drsOptions;
+        private readonly IFeatureManager _featureManager;
         private readonly IDrsService _drsService;
+        private readonly IScheduleOfRatesGateway _sorGateway;
 
         public GetWorkOrderUseCase(
             IRepairsGateway repairsGateway,
@@ -48,7 +49,7 @@ namespace RepairsApi.V2.UseCase
             }
 
             var appointment = await _appointmentGateway.GetAppointment(workOrder.Id);
-            var canAssignOperative = await workOrder.CanAssignOperative(_scheduleOfRatesGateway);
+            var canAssignOperative = await workOrder.CanAssignOperative(_sorGateway);
 
             var workOrderResponse = workOrder.ToResponse(appointment, _drsOptions.Value.ManagementAddress, canAssignOperative);
 

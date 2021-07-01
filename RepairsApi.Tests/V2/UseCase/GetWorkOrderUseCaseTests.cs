@@ -21,7 +21,6 @@ namespace RepairsApi.Tests.V2.UseCase
     {
         private MockRepairsGateway _repairsGatewayMock;
         private Mock<IAppointmentsGateway> _appointmentsGatewayMock;
-        private Mock<IScheduleOfRatesGateway> _scheduleOfRatesGateway;
         private GetWorkOrderUseCase _classUnderTest;
         private Generator<WorkOrder> _generator;
         private DrsOptions _drsOptions;
@@ -45,8 +44,8 @@ namespace RepairsApi.Tests.V2.UseCase
             _drsService = new Mock<IDrsService>();
             _sorGatewayMock = new Mock<IScheduleOfRatesGateway>();
 
-            
-            _scheduleOfRatesGateway.Setup(mock => mock.GetContractor(It.IsAny<string>())).ReturnsAsync(new RepairsApi.V2.Domain.Contractor { CanAssignOperative = true });
+
+            _sorGatewayMock.Setup(mock => mock.GetContractor(It.IsAny<string>())).ReturnsAsync(new RepairsApi.V2.Domain.Contractor { CanAssignOperative = true });
             _classUnderTest = new GetWorkOrderUseCase(
                 _repairsGatewayMock.Object,
                 _appointmentsGatewayMock.Object,
