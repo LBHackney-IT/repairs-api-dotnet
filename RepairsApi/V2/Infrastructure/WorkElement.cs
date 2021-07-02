@@ -14,6 +14,5 @@ namespace RepairsApi.V2.Infrastructure
 
         public virtual List<RateScheduleItem> RateScheduleItem { get; set; }
         public virtual List<Trade> Trade { get; set; }
-        public virtual List<WorkElementDependency> DependsOn { get; set; }
     }
 }
