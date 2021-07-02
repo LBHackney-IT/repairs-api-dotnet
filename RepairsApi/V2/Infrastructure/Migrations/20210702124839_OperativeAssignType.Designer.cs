@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RepairsApi.V2.Infrastructure;
@@ -9,9 +10,10 @@ using RepairsApi.V2.Infrastructure;
 namespace RepairsApi.V2.Infrastructure.Migrations
 {
     [DbContext(typeof(RepairsContext))]
-    partial class RepairsContextModelSnapshot : ModelSnapshot
+    [Migration("20210702124839_OperativeAssignType")]
+    partial class OperativeAssignType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,6 +40,64 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.ToTable("operative_sor_code_trade");
                 });
 
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.AlertRegardingLocation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<string>("Comments")
+                        .HasColumnType("text")
+                        .HasColumnName("comments");
+
+                    b.Property<int?>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
+
+                    b.Property<int?>("WorkOrderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("work_order_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_alert_regarding_location");
+
+                    b.HasIndex("WorkOrderId")
+                        .HasDatabaseName("ix_alert_regarding_location_work_order_id");
+
+                    b.ToTable("alert_regarding_location");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.AlertRegardingPerson", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<string>("Comments")
+                        .HasColumnType("text")
+                        .HasColumnName("comments");
+
+                    b.Property<int?>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
+
+                    b.Property<int?>("WorkOrderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("work_order_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_alert_regarding_person");
+
+                    b.HasIndex("WorkOrderId")
+                        .HasDatabaseName("ix_alert_regarding_person_work_order_id");
+
+                    b.ToTable("alert_regarding_person");
+                });
+
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Appointment", b =>
                 {
                     b.Property<int>("Id")
@@ -54,6 +114,43 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasName("pk_appointment");
 
                     b.ToTable("appointment");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Categorization", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<string>("Category")
+                        .HasColumnType("text")
+                        .HasColumnName("category");
+
+                    b.Property<int?>("ScoreSetId")
+                        .HasColumnType("integer")
+                        .HasColumnName("score_set_id");
+
+                    b.Property<string>("SubCategory")
+                        .HasColumnType("text")
+                        .HasColumnName("sub_category");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("text")
+                        .HasColumnName("type");
+
+                    b.Property<string>("VersionUsed")
+                        .HasColumnType("text")
+                        .HasColumnName("version_used");
+
+                    b.HasKey("Id")
+                        .HasName("pk_categorization");
+
+                    b.HasIndex("ScoreSetId")
+                        .HasDatabaseName("ix_categorization_score_set_id");
+
+                    b.ToTable("categorization");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Company", b =>
@@ -82,6 +179,62 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasName("pk_company");
 
                     b.ToTable("company");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Contact", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<int?>("OrganizationId")
+                        .HasColumnType("integer")
+                        .HasColumnName("organization_id");
+
+                    b.Property<int?>("PersonId")
+                        .HasColumnType("integer")
+                        .HasColumnName("person_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_contact");
+
+                    b.HasIndex("OrganizationId")
+                        .HasDatabaseName("ix_contact_organization_id");
+
+                    b.HasIndex("PersonId")
+                        .HasDatabaseName("ix_contact_person_id");
+
+                    b.ToTable("contact");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.CustomerSatisfaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<int?>("PartyCarryingOutSurveyId")
+                        .HasColumnType("integer")
+                        .HasColumnName("party_carrying_out_survey_id");
+
+                    b.Property<int?>("PartyProvidingFeedbackId")
+                        .HasColumnType("integer")
+                        .HasColumnName("party_providing_feedback_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_customer_satisfaction");
+
+                    b.HasIndex("PartyCarryingOutSurveyId")
+                        .HasDatabaseName("ix_customer_satisfaction_party_carrying_out_survey_id");
+
+                    b.HasIndex("PartyProvidingFeedbackId")
+                        .HasDatabaseName("ix_customer_satisfaction_party_providing_feedback_id");
+
+                    b.ToTable("customer_satisfaction");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Hackney.Appointment", b =>
@@ -394,6 +547,10 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("comments");
 
+                    b.Property<int?>("CustomerFeedbackId")
+                        .HasColumnType("integer")
+                        .HasColumnName("customer_feedback_id");
+
                     b.Property<DateTime?>("EventTime")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("event_time");
@@ -424,6 +581,9 @@ namespace RepairsApi.V2.Infrastructure.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_job_status_updates");
+
+                    b.HasIndex("CustomerFeedbackId")
+                        .HasDatabaseName("ix_job_status_updates_customer_feedback_id");
 
                     b.HasIndex("MoreSpecificSORCodeId")
                         .HasDatabaseName("ix_job_status_updates_more_specific_sor_code_id");
@@ -582,6 +742,10 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("complex_name");
 
+                    b.Property<int?>("ContactId")
+                        .HasColumnType("integer")
+                        .HasColumnName("contact_id");
+
                     b.Property<int?>("Country")
                         .HasColumnType("integer")
                         .HasColumnName("country");
@@ -620,6 +784,9 @@ namespace RepairsApi.V2.Infrastructure.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_property_address");
+
+                    b.HasIndex("ContactId")
+                        .HasDatabaseName("ix_property_address_contact_id");
 
                     b.ToTable("property_address");
                 });
@@ -717,6 +884,84 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasDatabaseName("ix_rate_schedule_item_work_order_complete_id");
 
                     b.ToTable("rate_schedule_item");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Score", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("text")
+                        .HasColumnName("comment");
+
+                    b.Property<string>("CurrentScore")
+                        .HasColumnType("text")
+                        .HasColumnName("current_score");
+
+                    b.Property<string>("FollowUpQuestion")
+                        .HasColumnType("text")
+                        .HasColumnName("follow_up_question");
+
+                    b.Property<string>("Maximum")
+                        .HasColumnType("text")
+                        .HasColumnName("maximum");
+
+                    b.Property<string>("Minimum")
+                        .HasColumnType("text")
+                        .HasColumnName("minimum");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<int?>("ScoreSetId")
+                        .HasColumnType("integer")
+                        .HasColumnName("score_set_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_score");
+
+                    b.HasIndex("ScoreSetId")
+                        .HasDatabaseName("ix_score_score_set_id");
+
+                    b.ToTable("score");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.ScoreSet", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<int?>("CustomerSatisfactionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("customer_satisfaction_id");
+
+                    b.Property<DateTime?>("DateTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("date_time");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<DateTime?>("PreviousDateTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("previous_date_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_score_set");
+
+                    b.HasIndex("CustomerSatisfactionId")
+                        .HasDatabaseName("ix_score_set_customer_satisfaction_id");
+
+                    b.ToTable("score_set");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.SecurityGroup", b =>
@@ -878,6 +1123,27 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.ToTable("work_elements");
                 });
 
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkElementDependency", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<Guid?>("DependsOnWorkElementId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("depends_on_work_element_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_work_element_dependency");
+
+                    b.HasIndex("DependsOnWorkElementId")
+                        .HasDatabaseName("ix_work_element_dependency_depends_on_work_element_id");
+
+                    b.ToTable("work_element_dependency");
+                });
+
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrder", b =>
                 {
                     b.Property<int>("Id")
@@ -1028,6 +1294,22 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.AlertRegardingLocation", b =>
+                {
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkOrder", null)
+                        .WithMany("LocationAlert")
+                        .HasForeignKey("WorkOrderId")
+                        .HasConstraintName("fk_alert_regarding_location_work_orders_work_order_id");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.AlertRegardingPerson", b =>
+                {
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkOrder", null)
+                        .WithMany("PersonAlert")
+                        .HasForeignKey("WorkOrderId")
+                        .HasConstraintName("fk_alert_regarding_person_work_orders_work_order_id");
+                });
+
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Appointment", b =>
                 {
                     b.OwnsOne("RepairsApi.V2.Infrastructure.AppointmentTimeOfDay", "TimeOfDay", b1 =>
@@ -1065,6 +1347,46 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         });
 
                     b.Navigation("TimeOfDay");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Categorization", b =>
+                {
+                    b.HasOne("RepairsApi.V2.Infrastructure.ScoreSet", null)
+                        .WithMany("Categorization")
+                        .HasForeignKey("ScoreSetId")
+                        .HasConstraintName("fk_categorization_score_set_score_set_id");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Contact", b =>
+                {
+                    b.HasOne("RepairsApi.V2.Infrastructure.Organization", null)
+                        .WithMany("Contact")
+                        .HasForeignKey("OrganizationId")
+                        .HasConstraintName("fk_contact_organization_organization_id");
+
+                    b.HasOne("RepairsApi.V2.Infrastructure.Person", "Person")
+                        .WithMany()
+                        .HasForeignKey("PersonId")
+                        .HasConstraintName("fk_contact_person_person_id");
+
+                    b.Navigation("Person");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.CustomerSatisfaction", b =>
+                {
+                    b.HasOne("RepairsApi.V2.Infrastructure.Party", "PartyCarryingOutSurvey")
+                        .WithMany()
+                        .HasForeignKey("PartyCarryingOutSurveyId")
+                        .HasConstraintName("fk_customer_satisfaction_party_party_carrying_out_survey_id");
+
+                    b.HasOne("RepairsApi.V2.Infrastructure.Party", "PartyProvidingFeedback")
+                        .WithMany()
+                        .HasForeignKey("PartyProvidingFeedbackId")
+                        .HasConstraintName("fk_customer_satisfaction_party_party_providing_feedback_id");
+
+                    b.Navigation("PartyCarryingOutSurvey");
+
+                    b.Navigation("PartyProvidingFeedback");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Hackney.Appointment", b =>
@@ -1174,6 +1496,11 @@ namespace RepairsApi.V2.Infrastructure.Migrations
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.JobStatusUpdate", b =>
                 {
+                    b.HasOne("RepairsApi.V2.Infrastructure.CustomerSatisfaction", "CustomerFeedback")
+                        .WithMany()
+                        .HasForeignKey("CustomerFeedbackId")
+                        .HasConstraintName("fk_job_status_updates_customer_satisfaction_customer_feedback_");
+
                     b.HasOne("RepairsApi.V2.Infrastructure.WorkElement", "MoreSpecificSORCode")
                         .WithMany()
                         .HasForeignKey("MoreSpecificSORCodeId")
@@ -1291,6 +1618,8 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.Navigation("AdditionalWork");
 
                     b.Navigation("CustomerCommunicationChannelAttempted");
+
+                    b.Navigation("CustomerFeedback");
 
                     b.Navigation("MoreSpecificSORCode");
 
@@ -1520,6 +1849,14 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.Navigation("Name");
                 });
 
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.PropertyAddress", b =>
+                {
+                    b.HasOne("RepairsApi.V2.Infrastructure.Contact", null)
+                        .WithMany("Address")
+                        .HasForeignKey("ContactId")
+                        .HasConstraintName("fk_property_address_contact_contact_id");
+                });
+
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.PropertyClass", b =>
                 {
                     b.HasOne("RepairsApi.V2.Infrastructure.PropertyAddress", "Address")
@@ -1532,7 +1869,51 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .HasForeignKey("SiteId")
                         .HasConstraintName("fk_property_class_site_site_id");
 
+                    b.OwnsOne("RepairsApi.V2.Infrastructure.GeographicalLocation", "GeographicalLocation", b1 =>
+                        {
+                            b1.Property<int>("PropertyClassId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer")
+                                .HasColumnName("id")
+                                .UseIdentityByDefaultColumn();
+
+                            b1.Property<double?>("Elevation")
+                                .HasColumnType("double precision")
+                                .HasColumnName("geographical_location_elevation");
+
+                            b1.Property<string>("ElevationReferenceSystem")
+                                .HasColumnType("text")
+                                .HasColumnName("geographical_location_elevation_reference_system");
+
+                            b1.Property<double?>("Latitude")
+                                .HasColumnType("double precision")
+                                .HasColumnName("geographical_location_latitude");
+
+                            b1.Property<double?>("Longitude")
+                                .HasColumnType("double precision")
+                                .HasColumnName("geographical_location_longitude");
+
+                            b1.Property<string>("Polyline")
+                                .HasColumnType("text")
+                                .HasColumnName("geographical_location_polyline");
+
+                            b1.Property<string>("PositionalAccuracy")
+                                .HasColumnType("text")
+                                .HasColumnName("geographical_location_positional_accuracy");
+
+                            b1.HasKey("PropertyClassId")
+                                .HasName("pk_property_class");
+
+                            b1.ToTable("property_class");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PropertyClassId")
+                                .HasConstraintName("fk_property_class_property_class_id");
+                        });
+
                     b.Navigation("Address");
+
+                    b.Navigation("GeographicalLocation");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.RateScheduleItem", b =>
@@ -1572,6 +1953,69 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         });
 
                     b.Navigation("Quantity");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Score", b =>
+                {
+                    b.HasOne("RepairsApi.V2.Infrastructure.ScoreSet", null)
+                        .WithMany("Score")
+                        .HasForeignKey("ScoreSetId")
+                        .HasConstraintName("fk_score_score_set_score_set_id");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.ScoreSet", b =>
+                {
+                    b.HasOne("RepairsApi.V2.Infrastructure.CustomerSatisfaction", null)
+                        .WithMany("FeedbackSet")
+                        .HasForeignKey("CustomerSatisfactionId")
+                        .HasConstraintName("fk_score_set_customer_satisfaction_customer_satisfaction_id");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Site", b =>
+                {
+                    b.OwnsOne("RepairsApi.V2.Infrastructure.GeographicalLocation", "GeographicalLocation", b1 =>
+                        {
+                            b1.Property<int>("SiteId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer")
+                                .HasColumnName("id")
+                                .UseIdentityByDefaultColumn();
+
+                            b1.Property<double?>("Elevation")
+                                .HasColumnType("double precision")
+                                .HasColumnName("geographical_location_elevation");
+
+                            b1.Property<string>("ElevationReferenceSystem")
+                                .HasColumnType("text")
+                                .HasColumnName("geographical_location_elevation_reference_system");
+
+                            b1.Property<double?>("Latitude")
+                                .HasColumnType("double precision")
+                                .HasColumnName("geographical_location_latitude");
+
+                            b1.Property<double?>("Longitude")
+                                .HasColumnType("double precision")
+                                .HasColumnName("geographical_location_longitude");
+
+                            b1.Property<string>("Polyline")
+                                .HasColumnType("text")
+                                .HasColumnName("geographical_location_polyline");
+
+                            b1.Property<string>("PositionalAccuracy")
+                                .HasColumnType("text")
+                                .HasColumnName("geographical_location_positional_accuracy");
+
+                            b1.HasKey("SiteId")
+                                .HasName("pk_site");
+
+                            b1.ToTable("site");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SiteId")
+                                .HasConstraintName("fk_site_site_id");
+                        });
+
+                    b.Navigation("GeographicalLocation");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Trade", b =>
@@ -1641,6 +2085,44 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                         .WithMany("WorkElements")
                         .HasForeignKey("WorkOrderId")
                         .HasConstraintName("fk_work_elements_work_orders_work_order_id");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkElementDependency", b =>
+                {
+                    b.HasOne("RepairsApi.V2.Infrastructure.WorkElement", "DependsOnWorkElement")
+                        .WithMany("DependsOn")
+                        .HasForeignKey("DependsOnWorkElementId")
+                        .HasConstraintName("fk_work_element_dependency_work_elements_depends_on_work_eleme");
+
+                    b.OwnsOne("RepairsApi.V2.Infrastructure.Dependency", "Dependency", b1 =>
+                        {
+                            b1.Property<int>("WorkElementDependencyId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer")
+                                .HasColumnName("id")
+                                .UseIdentityByDefaultColumn();
+
+                            b1.Property<DateTimeOffset?>("Duration")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("dependency_duration");
+
+                            b1.Property<int?>("Type")
+                                .HasColumnType("integer")
+                                .HasColumnName("dependency_type");
+
+                            b1.HasKey("WorkElementDependencyId")
+                                .HasName("pk_work_element_dependency");
+
+                            b1.ToTable("work_element_dependency");
+
+                            b1.WithOwner()
+                                .HasForeignKey("WorkElementDependencyId")
+                                .HasConstraintName("fk_work_element_dependency_work_element_dependency_id");
+                        });
+
+                    b.Navigation("Dependency");
+
+                    b.Navigation("DependsOnWorkElement");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrder", b =>
@@ -1870,6 +2352,16 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.Navigation("WorkOrder");
                 });
 
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Contact", b =>
+                {
+                    b.Navigation("Address");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.CustomerSatisfaction", b =>
+                {
+                    b.Navigation("FeedbackSet");
+                });
+
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Hackney.AvailableAppointmentDay", b =>
                 {
                     b.Navigation("ExistingAppointments");
@@ -1904,9 +2396,21 @@ namespace RepairsApi.V2.Infrastructure.Migrations
                     b.Navigation("WorkOrderOperatives");
                 });
 
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.Organization", b =>
+                {
+                    b.Navigation("Contact");
+                });
+
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.PropertyClass", b =>
                 {
                     b.Navigation("Unit");
+                });
+
+            modelBuilder.Entity("RepairsApi.V2.Infrastructure.ScoreSet", b =>
+                {
+                    b.Navigation("Categorization");
+
+                    b.Navigation("Score");
                 });
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.Site", b =>
@@ -1916,6 +2420,8 @@ namespace RepairsApi.V2.Infrastructure.Migrations
 
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkElement", b =>
                 {
+                    b.Navigation("DependsOn");
+
                     b.Navigation("RateScheduleItem");
 
                     b.Navigation("Trade");
@@ -1924,6 +2430,10 @@ namespace RepairsApi.V2.Infrastructure.Migrations
             modelBuilder.Entity("RepairsApi.V2.Infrastructure.WorkOrder", b =>
                 {
                     b.Navigation("JobStatusUpdates");
+
+                    b.Navigation("LocationAlert");
+
+                    b.Navigation("PersonAlert");
 
                     b.Navigation("WorkElements");
 

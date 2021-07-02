@@ -141,7 +141,7 @@ namespace RepairsApi.Tests.V2.Gateways
         public async Task AssignsOperatives(params int[] operativeIds)
         {
             const int workOrderId = 1234;
-            await _classUnderTest.AssignOperatives(workOrderId, operativeIds);
+            await _classUnderTest.AssignOperatives(workOrderId, OperativeAssignmentType.Manual, operativeIds);
 
             await VerifyAssignment(workOrderId, operativeIds);
         }
@@ -161,7 +161,7 @@ namespace RepairsApi.Tests.V2.Gateways
 
             await InMemoryDb.Instance.SaveChangesAsync();
 
-            await _classUnderTest.AssignOperatives(workOrderId, newOperatives);
+            await _classUnderTest.AssignOperatives(workOrderId, OperativeAssignmentType.Manual, newOperatives);
 
             await VerifyAssignment(workOrderId, newOperatives);
         }

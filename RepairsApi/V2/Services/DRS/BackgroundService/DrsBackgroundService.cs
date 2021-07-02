@@ -49,7 +49,7 @@ namespace RepairsApi.V2.Services.DRS.BackgroundService
                 bookingConfirmation.planningWindowEnd
             );
 
-            await _drsService.UpdateAssignedOperative(workOrderId);
+            await _drsService.UpdateWorkOrderDetails(workOrderId);
 
             await AddAuditTrail(workOrderId, bookingConfirmation);
 
