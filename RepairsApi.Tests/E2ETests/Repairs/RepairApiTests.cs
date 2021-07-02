@@ -18,6 +18,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
+using RepairsApi.V2.Services.DRS;
 using V2_Generated_DRS;
 using Appointment = RepairsApi.V2.Infrastructure.Hackney.Appointment;
 using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
@@ -218,8 +219,8 @@ namespace RepairsApi.Tests.E2ETests.Repairs
 
             var existingAppointment = await GetAppointmentFromDB(workOrder.Id);
             existingAppointment.Should().NotBeNull();
-            existingAppointment.StartTime.Should().Be(startTime);
-            existingAppointment.EndTime.Should().Be(endTime);
+            existingAppointment.StartTime.Should().Be(DrsHelpers.ConvertFromDrsTimeZone(startTime));
+            existingAppointment.EndTime.Should().Be(DrsHelpers.ConvertFromDrsTimeZone(endTime));
         }
 
         [Test]
