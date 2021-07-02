@@ -172,9 +172,10 @@ namespace RepairsApi.V2.Services
         {
             var order = await SelectOrder(workOrderId);
 
+            if (order.theBookings.IsNullOrEmpty()) return;
             var theBooking = order.theBookings.First();
-            var theResources = theBooking.theResources;
 
+            var theResources = theBooking.theResources;
             if (theResources.IsNullOrEmpty()) return;
 
             var operativePayrollIds = theResources.Select(r => r.externalResourceCode);
