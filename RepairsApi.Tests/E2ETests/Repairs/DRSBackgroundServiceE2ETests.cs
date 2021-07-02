@@ -15,6 +15,7 @@ using RepairsApi.V2;
 using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Infrastructure;
+using RepairsApi.V2.Services.DRS;
 using RepairsApi.V2.UseCase;
 using V2_Generated_DRS;
 using Appointment = RepairsApi.V2.Infrastructure.Hackney.Appointment;
@@ -43,8 +44,8 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             response.Should().NotBeNull();
             response.InnerText.Should().Be(Resources.DrsBackgroundService_BookingAccepted);
             appointment.Should().NotBeNull();
-            appointment.StartTime.Should().Be(startTime);
-            appointment.EndTime.Should().Be(endTime);
+            appointment.StartTime.Should().Be(DrsHelpers.ConvertFromDrsTimeZone(startTime));
+            appointment.EndTime.Should().Be(DrsHelpers.ConvertFromDrsTimeZone(endTime));
         }
 
         [Test]
@@ -71,8 +72,8 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             response.Should().NotBeNull();
             response.InnerText.Should().Be(Resources.DrsBackgroundService_BookingAccepted);
             appointment.Should().NotBeNull();
-            appointment.StartTime.Should().Be(startTime2);
-            appointment.EndTime.Should().Be(endTime2);
+            appointment.StartTime.Should().Be(DrsHelpers.ConvertFromDrsTimeZone(startTime2));
+            appointment.EndTime.Should().Be(DrsHelpers.ConvertFromDrsTimeZone(endTime2));
         }
 
         private async Task<XmlElement> CreateAppointment(CreateOrderResult result, DateTime startTime, DateTime endTime)
