@@ -8,6 +8,5 @@ namespace RepairsApi.V2.Infrastructure
         [Key] public int Id { get; set; }
         public string Name { get; set; }
         public string DoingBusinessAsName { get; set; }
-        public virtual List<Contact> Contact { get; set; }
     }
 }
