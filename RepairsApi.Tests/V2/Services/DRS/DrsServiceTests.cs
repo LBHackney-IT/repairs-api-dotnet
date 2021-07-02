@@ -20,6 +20,7 @@ using RepairsApi.V2.Domain;
 using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated;
+using RepairsApi.V2.Services.DRS;
 
 namespace RepairsApi.Tests.V2.Services
 {
@@ -264,7 +265,8 @@ namespace RepairsApi.Tests.V2.Services
             _operativesGatewayMock.Verify(x => x.AssignOperatives(workOrderId, OperativeAssignmentType.Automatic, operativeId));
 
             var booking = drsOrder.theBookings.Single();
-            _appointmentsGatewayMock.Verify((x => x.SetTimedBooking(workOrderId, booking.planningWindowStart, booking.planningWindowEnd)));
+            _appointmentsGatewayMock.Verify(x =>
+                x.SetTimedBooking(workOrderId, DrsHelpers.ConvertFromDrsTimeZone(booking.planningWindowStart), DrsHelpers.ConvertFromDrsTimeZone(booking.planningWindowEnd)));
         }
 
         [Test]
