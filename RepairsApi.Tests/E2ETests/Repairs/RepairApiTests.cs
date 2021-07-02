@@ -219,8 +219,8 @@ namespace RepairsApi.Tests.E2ETests.Repairs
 
             var existingAppointment = await GetAppointmentFromDB(workOrder.Id);
             existingAppointment.Should().NotBeNull();
-            existingAppointment.StartTime.Should().Be(DrsHelpers.ConvertFromDrsTimeZone(startTime));
-            existingAppointment.EndTime.Should().Be(DrsHelpers.ConvertFromDrsTimeZone(endTime));
+            existingAppointment.StartTime.Should().Be(DrsHelpers.ConvertToDrsTimeZone(startTime));
+            existingAppointment.EndTime.Should().Be(DrsHelpers.ConvertToDrsTimeZone(endTime));
         }
 
         [Test]
