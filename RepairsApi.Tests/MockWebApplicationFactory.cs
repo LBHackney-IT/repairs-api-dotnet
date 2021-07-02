@@ -215,7 +215,7 @@ namespace RepairsApi.Tests
             NotifyMock.LastEmail.Should().Match<EmailRecord>(r => r.TemplateId == templateId && (recipient == null || recipient == r.Email));
         }
 
-        protected void SetupSoapMock()
+        protected void SetupSoapMock(DateTime? startTime = null, DateTime? endTime = null)
         {
             SoapMock.Setup(s => s.updateBookingAsync(It.IsAny<updateBooking>()))
                 .ReturnsAsync(new updateBookingResponse
@@ -239,6 +239,8 @@ namespace RepairsApi.Tests
                                 {
                                     new booking
                                     {
+                                        planningWindowStart = startTime ?? DateTime.UtcNow,
+                                        planningWindowEnd = endTime ?? DateTime.UtcNow,
                                         tokenId = SoapMock.ExpectedToken,
                                         theResources = new[]
                                         {

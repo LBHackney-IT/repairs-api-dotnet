@@ -91,7 +91,7 @@ namespace RepairsApi.Tests.V2.Services.BackgroundService
 
             await _classUnderTest.ConfirmBooking(bookingConfirmation);
 
-            _drsServiceMock.Verify(x => x.UpdateAssignedOperative(workOrderId));
+            _drsServiceMock.Verify(x => x.UpdateWorkOrderDetails(workOrderId));
         }
 
         [Test]

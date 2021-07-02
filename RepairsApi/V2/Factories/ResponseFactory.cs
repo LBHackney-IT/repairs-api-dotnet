@@ -191,7 +191,6 @@ namespace RepairsApi.V2.Factories
             return new WorkElement
             {
                 Trade = workElement.Trade.Select(t => t.ToResponse()).ToList(),
-                DependsOn = workElement.DependsOn.Select(d => d.ToResponse()).ToList(),
                 ContainsCapitalWork = workElement.ContainsCapitalWork,
                 RateScheduleItem = workElement.RateScheduleItem.Select(rsi => rsi.ToResponse()).ToList(),
                 ServiceChargeSubject = workElement.ServiceChargeSubject
@@ -205,22 +204,6 @@ namespace RepairsApi.V2.Factories
                 Code = trade.Code.Value,
                 CustomCode = trade.CustomCode,
                 CustomName = trade.CustomName
-            };
-        }
-
-        public static DependsOn ToResponse(this Infrastructure.WorkElementDependency dependency)
-        {
-            return new DependsOn
-            {
-                Timing = new Timing
-                {
-                    Days = dependency.Dependency.Duration.Value.Offset.Days
-                },
-                Type = dependency.Dependency.Type,
-                DependsOnWorkElementReference = new Reference
-                {
-                    ID = dependency.DependsOnWorkElement.Id.ToString()
-                }
             };
         }
 
