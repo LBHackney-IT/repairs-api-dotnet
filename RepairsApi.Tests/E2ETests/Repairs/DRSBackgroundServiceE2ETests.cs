@@ -44,8 +44,8 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             response.Should().NotBeNull();
             response.InnerText.Should().Be(Resources.DrsBackgroundService_BookingAccepted);
             appointment.Should().NotBeNull();
-            appointment.StartTime.Should().Be(DrsHelpers.ConvertFromDrsTimeZone(startTime));
-            appointment.EndTime.Should().Be(DrsHelpers.ConvertFromDrsTimeZone(endTime));
+            appointment.StartTime.Should().Be(DrsHelpers.ConvertToDrsTimeZone(startTime));
+            appointment.EndTime.Should().Be(DrsHelpers.ConvertToDrsTimeZone(endTime));
         }
 
         [Test]
@@ -72,8 +72,8 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             response.Should().NotBeNull();
             response.InnerText.Should().Be(Resources.DrsBackgroundService_BookingAccepted);
             appointment.Should().NotBeNull();
-            appointment.StartTime.Should().Be(DrsHelpers.ConvertFromDrsTimeZone(startTime2));
-            appointment.EndTime.Should().Be(DrsHelpers.ConvertFromDrsTimeZone(endTime2));
+            appointment.StartTime.Should().Be(DrsHelpers.ConvertToDrsTimeZone(startTime2));
+            appointment.EndTime.Should().Be(DrsHelpers.ConvertToDrsTimeZone(endTime2));
         }
 
         private async Task<XmlElement> CreateAppointment(CreateOrderResult result, DateTime startTime, DateTime endTime)

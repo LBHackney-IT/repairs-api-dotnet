@@ -266,7 +266,7 @@ namespace RepairsApi.Tests.V2.Services
 
             var booking = drsOrder.theBookings.Single();
             _appointmentsGatewayMock.Verify(x =>
-                x.SetTimedBooking(workOrderId, DrsHelpers.ConvertFromDrsTimeZone(booking.planningWindowStart), DrsHelpers.ConvertFromDrsTimeZone(booking.planningWindowEnd)));
+                x.SetTimedBooking(workOrderId, DrsHelpers.ConvertToDrsTimeZone(booking.planningWindowStart), DrsHelpers.ConvertToDrsTimeZone(booking.planningWindowEnd)));
         }
 
         [Test]
