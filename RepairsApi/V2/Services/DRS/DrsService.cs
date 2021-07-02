@@ -184,8 +184,8 @@ namespace RepairsApi.V2.Services
             await _operativesGateway.AssignOperatives(workOrderId, OperativeAssignmentType.Automatic, operatives.Select(o => o.Id).ToArray());
             await _appointmentsGateway.SetTimedBooking(
                 workOrderId,
-                theBooking.planningWindowStart,
-                theBooking.planningWindowEnd
+                DrsHelpers.ConvertFromDrsTimeZone(theBooking.planningWindowStart),
+                DrsHelpers.ConvertFromDrsTimeZone(theBooking.planningWindowEnd)
             );
         }
 
