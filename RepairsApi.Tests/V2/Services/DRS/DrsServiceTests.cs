@@ -294,6 +294,28 @@ namespace RepairsApi.Tests.V2.Services
             _operativesGatewayMock.Verify(x => x.AssignOperatives(It.IsAny<int>(), It.IsAny<OperativeAssignmentType>(), It.IsAny<int[]>()), Times.Never);
         }
 
+        [Test]
+        public async Task DoesNotAssignWhenOrderHasNoBooking()
+        {
+            const int workOrderId = 1234;
+            const int operativeId = 5678;
+            const string operativePayrollId = "Z123";
+            var drsOrder = _fixture.Create<order>();
+            drsOrder.primaryOrderNumber = workOrderId.ToString();
+            drsOrder.theBookings = null;
+            _drsSoapMock.SelectOrderReturns(drsOrder);
+
+            _operativesGatewayMock.Setup(x => x.GetAsync(operativePayrollId))
+                .ReturnsAsync(new Operative
+                {
+                    Id = operativeId
+                });
+
+            await _classUnderTest.UpdateWorkOrderDetails(int.Parse(drsOrder.primaryOrderNumber));
+
+            _operativesGatewayMock.Verify(x => x.AssignOperatives(It.IsAny<int>(), It.IsAny<OperativeAssignmentType>(), It.IsAny<int[]>()), Times.Never);
+        }
+
         private static WorkOrder CreateWorkOrderWithContractor(bool useExternal)
         {
             var expectedContractor = CreateContractor(useExternal);
