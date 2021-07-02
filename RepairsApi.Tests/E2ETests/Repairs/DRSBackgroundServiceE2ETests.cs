@@ -24,18 +24,13 @@ namespace RepairsApi.Tests.E2ETests.Repairs
 {
     public class DRSBackgroundServiceE2ETests : MockWebApplicationFactory
     {
-        [SetUp]
-        public void SetUp()
-        {
-            SetupSoapMock();
-        }
-
         [Test]
         public async Task CreatesAppointment()
         {
             var startTime = DateTime.UtcNow;
             startTime = startTime.AddTicks(-(startTime.Ticks % TimeSpan.TicksPerSecond));
             var endTime = startTime.AddHours(5);
+            SetupSoapMock(startTime, endTime);
 
             SetUserRole(UserGroups.Agent);
             var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
@@ -60,6 +55,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             var endTime1 = startTime1.AddHours(5);
             var startTime2 = startTime1.AddDays(7);
             var endTime2 = endTime1.AddDays(7);
+            SetupSoapMock(startTime2, endTime2);
 
             SetUserRole(UserGroups.Agent);
             var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);

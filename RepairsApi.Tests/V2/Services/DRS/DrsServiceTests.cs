@@ -32,6 +32,7 @@ namespace RepairsApi.Tests.V2.Services
         private MockDrsMapping _drsMappingMock;
         private Fixture _fixture;
         private Mock<IOperativesGateway> _operativesGatewayMock;
+        private Mock<IAppointmentsGateway> _appointmentsGatewayMock;
 
         [SetUp]
         public void SetUp()
@@ -48,13 +49,15 @@ namespace RepairsApi.Tests.V2.Services
             _drsSoapMock = new MockDrsSoap(_drsOptions);
             _drsMappingMock = new MockDrsMapping();
             _operativesGatewayMock = new Mock<IOperativesGateway>();
+            _appointmentsGatewayMock = new Mock<IAppointmentsGateway>();
 
             _classUnderTest = new DrsService(
                 _drsSoapMock.Object,
                 _drsOptions,
                 _loggerMock.Object,
                 _drsMappingMock.Object,
-                _operativesGatewayMock.Object
+                _operativesGatewayMock.Object,
+                _appointmentsGatewayMock.Object
             );
         }
 
@@ -243,21 +246,25 @@ namespace RepairsApi.Tests.V2.Services
         }
 
         [Test]
-        public async Task UpdatesAssignedOperative()
+        public async Task UpdatesAssignedOperativeAndBookingWindow()
         {
             const int workOrderId = 1234;
             const int operativeId = 5678;
             const string operativePayrollId = "Z123";
-            _drsSoapMock.SelectOrderReturns(CreateDrsOrder(operativePayrollId));
+            var drsOrder = CreateDrsOrder(operativePayrollId);
+            _drsSoapMock.SelectOrderReturns(drsOrder);
             _operativesGatewayMock.Setup(x => x.GetAsync(operativePayrollId))
                 .ReturnsAsync(new Operative
                 {
                     Id = operativeId
                 });
 
-            await _classUnderTest.UpdateAssignedOperative(workOrderId);
+            await _classUnderTest.UpdateWorkOrderDetails(workOrderId);
 
             _operativesGatewayMock.Verify(x => x.AssignOperatives(workOrderId, operativeId));
+
+            var booking = drsOrder.theBookings.Single();
+            _appointmentsGatewayMock.Verify((x => x.SetTimedBooking(workOrderId, booking.planningWindowStart, booking.planningWindowEnd)));
         }
 
         [Test]
@@ -282,7 +289,7 @@ namespace RepairsApi.Tests.V2.Services
                     Id = operativeId
                 });
 
-            await _classUnderTest.UpdateAssignedOperative(int.Parse(drsOrder.primaryOrderNumber));
+            await _classUnderTest.UpdateWorkOrderDetails(int.Parse(drsOrder.primaryOrderNumber));
 
             _operativesGatewayMock.Verify(x => x.AssignOperatives(It.IsAny<int>(), It.IsAny<int[]>()), Times.Never);
         }
@@ -315,12 +322,15 @@ namespace RepairsApi.Tests.V2.Services
 
         private static order CreateDrsOrder(params string[] payrollIds)
         {
+            var now = DateTime.UtcNow;
             return new order
             {
                 theBookings = new[]
                 {
                     new booking
                     {
+                        planningWindowStart = now,
+                        planningWindowEnd = now.AddHours(5),
                         theResources = payrollIds.Select(ori =>
                             new resource
                             {

@@ -45,7 +45,7 @@ namespace RepairsApi.V2.UseCase
                 await _featureManager.IsEnabledAsync(FeatureFlags.DRSIntegration) &&
                 await workOrder.ContractorUsingDrs(_sorGateway))
             {
-                await _drsService.UpdateAssignedOperative(id);
+                await _drsService.UpdateWorkOrderDetails(id);
             }
 
             var appointment = await _appointmentGateway.GetAppointment(workOrder.Id);

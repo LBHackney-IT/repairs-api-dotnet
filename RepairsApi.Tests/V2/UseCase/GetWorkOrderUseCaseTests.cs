@@ -121,7 +121,7 @@ namespace RepairsApi.Tests.V2.UseCase
 
             await _classUnderTest.Execute(expectedWorkOrder.Id);
 
-            _drsService.Verify(x => x.UpdateAssignedOperative(expectedWorkOrder.Id), shouldAssign ? Times.Once() : Times.Never());
+            _drsService.Verify(x => x.UpdateWorkOrderDetails(expectedWorkOrder.Id), shouldAssign ? Times.Once() : Times.Never());
         }
 
         private void ConfigureGenerator()

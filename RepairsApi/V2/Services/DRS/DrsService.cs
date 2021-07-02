@@ -23,22 +23,23 @@ namespace RepairsApi.V2.Services
         private readonly ILogger<DrsService> _logger;
         private readonly IDrsMapping _drsMapping;
         private readonly IOperativesGateway _operativesGateway;
+        private readonly IAppointmentsGateway _appointmentsGateway;
         private string _sessionId;
 
         public DrsService(
-            V2_Generated_DRS.SOAP drsSoap,
+            SOAP drsSoap,
             IOptions<DrsOptions> drsOptions,
             ILogger<DrsService> logger,
             IDrsMapping drsMapping,
-            IOperativesGateway operativesGateway
-        )
+            IOperativesGateway operativesGateway,
+            IAppointmentsGateway appointmentsGateway)
         {
             _drsSoap = drsSoap;
             _drsOptions = drsOptions;
             _logger = logger;
             _drsMapping = drsMapping;
             _operativesGateway = operativesGateway;
-
+            _appointmentsGateway = appointmentsGateway;
         }
 
         public async Task OpenSession()
@@ -167,11 +168,12 @@ namespace RepairsApi.V2.Services
             return drsOrder;
         }
 
-        public async Task UpdateAssignedOperative(int workOrderId)
+        public async Task UpdateWorkOrderDetails(int workOrderId)
         {
             var order = await SelectOrder(workOrderId);
 
-            var theResources = order.theBookings.First().theResources;
+            var theBooking = order.theBookings.First();
+            var theResources = theBooking.theResources;
 
             if (theResources.IsNullOrEmpty()) return;
 
@@ -179,6 +181,11 @@ namespace RepairsApi.V2.Services
             var operatives = await Task.WhenAll(operativePayrollIds.Select(i => _operativesGateway.GetAsync(i)));
 
             await _operativesGateway.AssignOperatives(workOrderId, operatives.Select(o => o.Id).ToArray());
+            await _appointmentsGateway.SetTimedBooking(
+                workOrderId,
+                theBooking.planningWindowStart,
+                theBooking.planningWindowEnd
+            );
         }
 
         private async Task CheckSession()
