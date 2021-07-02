@@ -83,6 +83,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         [Test]
         public async Task Cancelled_DeletesFromDRS()
         {
+            SetUserRole(UserGroups.ContractManager);
             SetupSoapMock();
 
             var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);

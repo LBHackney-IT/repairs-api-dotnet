@@ -1,3 +1,4 @@
+using System.Linq;
 using RepairsApi.V2.Boundary;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Gateways;
@@ -41,9 +42,12 @@ namespace RepairsApi.V2.UseCase
         {
             var workOrder = await _repairsGateway.GetWorkOrder(id);
 
+            var manuallyAssignedOperatives = workOrder.WorkOrderOperatives?.Any(woo => woo.AssignmentType == OperativeAssignmentType.Manual) ?? false;
             if (await _featureManager.IsEnabledAsync(FeatureFlags.UpdateOperativesOnWorkOrderGet) &&
                 await _featureManager.IsEnabledAsync(FeatureFlags.DRSIntegration) &&
-                await workOrder.ContractorUsingDrs(_sorGateway))
+                await workOrder.ContractorUsingDrs(_sorGateway) &&
+                workOrder.StatusCode == WorkStatusCode.Open &&
+                !manuallyAssignedOperatives)
             {
                 await _drsService.UpdateWorkOrderDetails(id);
             }

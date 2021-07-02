@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
@@ -8,6 +9,7 @@ using NUnit.Framework;
 using RepairsApi.Tests.Helpers.StubGeneration;
 using RepairsApi.Tests.V2.Gateways;
 using RepairsApi.V2;
+using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Domain;
 using RepairsApi.V2.Factories;
 using RepairsApi.V2.Gateways;
@@ -101,13 +103,16 @@ namespace RepairsApi.Tests.V2.UseCase
             response.Should().BeEquivalentTo(expectedWorkOrder.ToResponse(null, _drsOptions.ManagementAddress, true));
         }
 
-        [TestCase(true, true, true, true)]
-        [TestCase(false, true, true, false)]
-        [TestCase(true, false, true, false)]
-        [TestCase(true, true, false, false)]
-        public async Task UpdatesAssignedOperativesWhenFeatureFlagSetAndContractorUsesDrs(bool updateFeatureEnabled, bool drsFeatureEnabled, bool contractorUsesDrs, bool shouldAssign)
+        [TestCase(WorkStatusCode.Open, true, true, true, true)]
+        [TestCase(WorkStatusCode.Closed, true, true, true, false)]
+        [TestCase(WorkStatusCode.Open, false, true, true, false)]
+        [TestCase(WorkStatusCode.Open, true, false, true, false)]
+        [TestCase(WorkStatusCode.Open, true, true, false, false)]
+        public async Task UpdatesAssignedOperativesWhenFeatureFlagSetAndContractorUsesDrs(WorkStatusCode workStatus, bool updateFeatureEnabled, bool drsFeatureEnabled, bool contractorUsesDrs, bool shouldAssign)
         {
-            var expectedWorkOrder = _generator.Generate();
+            var expectedWorkOrder = _generator
+                .AddValue(workStatus, (WorkOrder wo) => wo.StatusCode)
+                .Generate();
             _repairsGatewayMock.ReturnsWorkOrders(expectedWorkOrder);
             _sorGatewayMock.Setup(x => x.GetContractor(expectedWorkOrder.AssignedToPrimary.ContractorReference))
                 .ReturnsAsync(new Contractor
@@ -122,6 +127,36 @@ namespace RepairsApi.Tests.V2.UseCase
             await _classUnderTest.Execute(expectedWorkOrder.Id);
 
             _drsService.Verify(x => x.UpdateWorkOrderDetails(expectedWorkOrder.Id), shouldAssign ? Times.Once() : Times.Never());
+        }
+
+        [Test]
+        public async Task DoesNotUpdateAssignedOperativesWhenAssignedManually()
+        {
+            var workOrderOperatives = new List<WorkOrderOperative>
+            {
+                new WorkOrderOperative
+                {
+                    AssignmentType = OperativeAssignmentType.Manual
+                }
+            };
+            var expectedWorkOrder = _generator
+                .AddValue(WorkStatusCode.Open, (WorkOrder wo) => wo.StatusCode)
+                .AddValue(workOrderOperatives, (WorkOrder wo) => wo.WorkOrderOperatives)
+                .Generate();
+            _repairsGatewayMock.ReturnsWorkOrders(expectedWorkOrder);
+            _sorGatewayMock.Setup(x => x.GetContractor(expectedWorkOrder.AssignedToPrimary.ContractorReference))
+                .ReturnsAsync(new Contractor
+                {
+                    UseExternalScheduleManager = true
+                });
+            _featureManager.Setup(x => x.IsEnabledAsync(FeatureFlags.UpdateOperativesOnWorkOrderGet))
+                .ReturnsAsync(true);
+            _featureManager.Setup(x => x.IsEnabledAsync(FeatureFlags.DRSIntegration))
+                .ReturnsAsync(true);
+
+            await _classUnderTest.Execute(expectedWorkOrder.Id);
+
+            _drsService.Verify(x => x.UpdateWorkOrderDetails(expectedWorkOrder.Id), Times.Never());
         }
 
         private void ConfigureGenerator()

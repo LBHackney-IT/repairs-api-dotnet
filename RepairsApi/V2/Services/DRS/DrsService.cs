@@ -180,7 +180,7 @@ namespace RepairsApi.V2.Services
             var operativePayrollIds = theResources.Select(r => r.externalResourceCode);
             var operatives = await Task.WhenAll(operativePayrollIds.Select(i => _operativesGateway.GetAsync(i)));
 
-            await _operativesGateway.AssignOperatives(workOrderId, operatives.Select(o => o.Id).ToArray());
+            await _operativesGateway.AssignOperatives(workOrderId, OperativeAssignmentType.Automatic, operatives.Select(o => o.Id).ToArray());
             await _appointmentsGateway.SetTimedBooking(
                 workOrderId,
                 theBooking.planningWindowStart,

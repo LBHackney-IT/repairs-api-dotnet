@@ -261,7 +261,7 @@ namespace RepairsApi.Tests.V2.Services
 
             await _classUnderTest.UpdateWorkOrderDetails(workOrderId);
 
-            _operativesGatewayMock.Verify(x => x.AssignOperatives(workOrderId, operativeId));
+            _operativesGatewayMock.Verify(x => x.AssignOperatives(workOrderId, OperativeAssignmentType.Automatic, operativeId));
 
             var booking = drsOrder.theBookings.Single();
             _appointmentsGatewayMock.Verify((x => x.SetTimedBooking(workOrderId, booking.planningWindowStart, booking.planningWindowEnd)));
@@ -291,7 +291,7 @@ namespace RepairsApi.Tests.V2.Services
 
             await _classUnderTest.UpdateWorkOrderDetails(int.Parse(drsOrder.primaryOrderNumber));
 
-            _operativesGatewayMock.Verify(x => x.AssignOperatives(It.IsAny<int>(), It.IsAny<int[]>()), Times.Never);
+            _operativesGatewayMock.Verify(x => x.AssignOperatives(It.IsAny<int>(), It.IsAny<OperativeAssignmentType>(), It.IsAny<int[]>()), Times.Never);
         }
 
         private static WorkOrder CreateWorkOrderWithContractor(bool useExternal)

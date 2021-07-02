@@ -48,6 +48,8 @@ namespace RepairsApi.V2.Infrastructure
         public int OperativeId { get; set; }
         public virtual Operative Operative { get; set; }
 
+        public OperativeAssignmentType AssignmentType { get; set; }
+
         public override bool Equals(object obj)
         {
             return obj is WorkOrderOperative other && WorkOrderId == other.WorkOrderId && OperativeId == other.OperativeId;
@@ -57,6 +59,12 @@ namespace RepairsApi.V2.Infrastructure
         {
             return HashCode.Combine(WorkOrderId, OperativeId);
         }
+    }
+
+    public enum OperativeAssignmentType
+    {
+        Manual,
+        Automatic
     }
 
     public enum WorkStatusCode
