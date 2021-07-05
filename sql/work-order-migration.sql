@@ -1,20 +1,18 @@
---CREATE EXTENSION pgcrypto;
---select count(*) from public.job_status_updates --367 -> 367
---select count(*) from public.work_elements --561 -> 562
---select count(*) from public.work_orders --379 -> 380
 
---with corequery as (
---select 'FRONTEND -->' As SourceType, wo1.* from public.work_orders wo1 where id in ('10000380','10000362')
---union 
---select 'MIGRATION -->' As SourceType, wo2.* from public.work_orders wo2 where id in ('1000022')
---) select * from corequery order by SourceType
-
---select * from public.work_orders where id = '1000022'
---select * from public.work_elements where work_order_id = '1000021'
+select count(*) from public.work_orders
+--select * from public.work_orders WHERE ID = '02190300' limit 1000
+--SELECT * FROM dbo.rmworder_uht_data_restore limit 100
+--select pg_get_serial_sequence('public.work_orders', 'id')
 
 -- PROCEDURE: dbo.migrate_work_orders(integer)
 
---CALL dbo.migrate_work_orders(1)
+--DROP INDEXES (24)
+
+
+CALL dbo.migrate_work_orders(1000);
+
+
+
 
  --DROP PROCEDURE dbo.migrate_work_orders(integer);
 
@@ -35,16 +33,70 @@ DECLARE work_element_id uuid;
 DECLARE person_id integer;
 DECLARE customer_id integer;
 BEGIN
+	DROP TABLE IF EXISTS migration_job_costs;
+	DROP TABLE IF EXISTS migration_job_notes;
+	-- CTE job costs: 13 mins
+	-- CTE SELECT INTO: 34s
+	
+	CREATE TEMPORARY TABLE migration_job_costs AS (
+	SELECT 
+		job.job_code,
+		job.short_desc,
+		task.est_units,
+		task.created,
+		task.wo_ref,
+		CASE 
+			WHEN cont.cost IS NOT NULL THEN cont.cost
+			WHEN cst.cost IS NOT NULL THEN cst.cost
+			ELSE 0
+		END As costcstcont
+	FROM 
+		dbo.rmtask_uht_data_restore task
+	INNER JOIN
+		dbo.rmjob_uht_data_restore job ON job.job_code = task.job_code
+	LEFT JOIN ( -- Getting most recent cost
+		SELECT innerCst.*
+		FROM dbo.rmjobcst_uht_data_restore innerCst
+		INNER JOIN dbo.rmjob_uht_data_restore innerJob ON innerCst.job_code = innerJob.job_code
+		ORDER BY eff_date DESC 
+		LIMIT 1
+	) cst ON cst.job_code = job.job_code
+	LEFT JOIN 
+		dbo.rmcontdt_uht_data_restore cont ON job.job_code = cont.job_code AND cont.rc_ref = task.sor_contract);
+
+	--SELECT INTO: 22 sec
+	--SELECT * FROM migration_job_notes LIMIT 10;
+	CREATE TEMPORARY TABLE migration_job_notes AS (
+	
+		SELECT 
+		note."NDate" As notedate,
+		note."NoteText" As notetext, 
+		uhw_user."User_Name", 
+		uhw_user."EMail",
+		CAST(note."KeyNumb" AS VARCHAR(10)) As keynumb
+			FROM 
+				dbo."W2ObjectNote_uhw_data_restore" note
+			INNER JOIN
+				dbo."W2User_uhw_data_restore" uhw_user 
+					ON note."UserID" = uhw_user."User_ID"
+			WHERE
+				note."KeyObject" IN ('UHRepair', 'UHOrder')		
+	);
+	
+
+	
+	
 -- Select priority records from UH
  INSERT into public.sor_priorities(description, days_to_complete, enabled, priority_character)
     SELECT desc_tion as description, days_to_issue as days_to_complete, false as enabled, priority as priority_character
     FROM dbo.rmprior_uht_data_restore
-    WHERE priority NOT IN ('I','E','U','N','L2','L3','P1','P2','P3'); -- we either already have these priorities or they're not used in UH
+    WHERE priority NOT IN ('I','E','U','N','L2','L3','P1','P2','P3'); -- we either already have these priorities or they're not used in UH	
 
 -- Select work orders from UH NOTE: there won't necessarily be a single work order record in this result set.
 -- requests could have multiple Work orders which could have multiple tasks - also, LEFT joined on users in case they didn't exist otherwise the
 -- record wouldn't be returned.
 	FOR wo_record IN
+	
 		SELECT
 		wo.wo_ref,
 		req.prop_ref,
@@ -82,7 +134,14 @@ BEGIN
 		LEFT JOIN
 			dbo."W2User_uhw_data_restore" uhw_user ON uht_user.user_login = uhw_user."User_ID"
 		WHERE task.task_no = 1
-		LIMIT amount
+		and wo.wo_ref in (
+			select wo.wo_ref FROM dbo.rmreqst_uht_data_restore req INNER JOIN 
+			dbo.rmworder_uht_data_restore wo ON wo.rq_ref = req.rq_ref
+			where req.rq_date > now() - interval '10 years' and
+			(CAST(wo.wo_ref AS INTEGER) > (SELECT MAX(CAST(id as INTEGER)) from public.work_orders where CAST(id as INTEGER) < 10000000))
+			limit amount
+		)
+		--LIMIT amount
 	LOOP
 		INSERT INTO public.site DEFAULT VALUES RETURNING id INTO site_id;
 
@@ -105,7 +164,8 @@ BEGIN
 			RETURNING id INTO customer_id;
 
 		-- TODO - Priority, status
-		INSERT INTO public.work_orders (description_of_work,
+		INSERT INTO public.work_orders (id,
+										description_of_work,
 										work_priority_priority_code,
 										site_id, 
 										work_class_work_class_code,
@@ -118,6 +178,7 @@ BEGIN
 										agent_name,
 										status_code)
 			VALUES (					
+										wo_record.wo_ref::integer,
 										wo_record.rq_problem,
 										(SELECT priority_code FROM public.sor_priorities where priority_character = wo_record.rq_priority LIMIT 1),
 										site_id,
@@ -131,7 +192,9 @@ BEGIN
 										customer_id, 
 										NULL,
 										wo_record.agent_name, 
-										80) --Need to decide on special "migrated - complete / migrated - complaint" status
+										CASE WHEN wo_record.wo_status = '200' THEN 200 
+											ELSE 80 
+										END)
 			RETURNING id INTO work_order_id;
 
 		INSERT INTO public.work_elements (id, work_order_id) VALUES (gen_random_uuid(), work_order_id) RETURNING id INTO work_element_id;
@@ -139,66 +202,58 @@ BEGIN
 		INSERT INTO public.trade (code, custom_code, custom_name, work_element_id) 
 			VALUES (46, wo_record.trade, wo_record.trade_desc, work_element_id);
 
-		-- Create Completion
-		
-		-- TODO Signify it's original based on variation
 		INSERT INTO public.rate_schedule_item ( id,
 											    custom_code, 
 												custom_name, 
 												quantity_amount, 
-												work_element_id, 
-												original, 
-												original_quantity, 
 												date_created,
-											    code_cost)
+											    code_cost,
+											    work_element_id,
+												original, 
+												original_quantity )
 			SELECT 
 				public.gen_random_uuid(),
-				job.job_code,
-				job.short_desc,
-				task.est_units,
-				work_element_id, 
+				jc.job_code,
+				jc.short_desc,
+				jc.est_units,
+				jc.created,
+				jc.costcstcont,
+				work_element_id,
 				false,
-				NULL,
-				task.created,
-				CASE 
-					WHEN cont.cost IS NOT NULL THEN cont.cost
-					WHEN cst.cost IS NOT NULL THEN cst.cost
-					ELSE 0
-				END
+				NULL
 			FROM 
-				dbo.rmtask_uht_data_restore task
-			INNER JOIN
-				dbo.rmjob_uht_data_restore job ON job.job_code = task.job_code
-			LEFT JOIN ( -- Getting most recent cost
-				SELECT innerCst.*
-				FROM dbo.rmjobcst_uht_data_restore innerCst
-				INNER JOIN dbo.rmjob_uht_data_restore innerJob ON innerCst.job_code = innerJob.job_code
-				ORDER BY eff_date DESC 
-				LIMIT 1
-			) cst ON cst.job_code = job.job_code
-			LEFT JOIN 
-				dbo.rmcontdt_uht_data_restore cont ON job.job_code = cont.job_code AND cont.rc_ref = task.sor_contract
-			WHERE 
-				task.wo_ref = wo_record.wo_ref;
-		
+				migration_job_costs jc
+ 			WHERE 
+				jc.wo_ref = wo_record.wo_ref;
+
 		INSERT INTO public.job_status_updates (event_time, 
 											  type_code, 
 											  other_type, 
-											  comments, 
+										      comments, 
 											  related_work_order_id, 
 											  author_name, 
 											  author_email)
-	  		SELECT note."NDate", 0, 'addNote', note."NoteText", work_order_id, uhw_user."User_Name", uhw_user."EMail"
+	  		SELECT  jn.notedate, 
+					0, 
+					'addNote', 
+					jn.notetext, 
+					work_order_id, 
+					jn."User_Name", 
+					jn."EMail"
 			FROM 
-				dbo."W2ObjectNote_uhw_data_restore" note
-			INNER JOIN
-				dbo."W2User_uhw_data_restore" uhw_user 
-					ON note."UserID" = uhw_user."User_ID"
+				migration_job_notes jn
 			WHERE
-				note."KeyObject" IN ('UHRepair', 'UHOrder')
-				AND
-				CAST(note."KeyNumb" AS VARCHAR(10)) = wo_record.wo_ref;
+				
+				jn.keynumb = wo_record.wo_ref;
+
+
 	END LOOP;
+
 COMMIT;
 END
 $BODY$;
+
+
+
+
+
