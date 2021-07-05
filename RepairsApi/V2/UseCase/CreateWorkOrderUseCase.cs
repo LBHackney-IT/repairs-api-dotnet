@@ -77,10 +77,10 @@ namespace RepairsApi.V2.UseCase
                     var managementUri = new UriBuilder(_drsOptions.Value.ManagementAddress)
                     {
                         Port = -1,
-                        Query = $"tokenId={notification.TokenId}"
+                        Query = $"tokenId={notification?.TokenId?.ToString()}"
                     };
                     result.ExternalAppointmentManagementUrl = managementUri.Uri;
-                    workOrder.ExternalSchedulerReference = notification.TokenId;
+                    workOrder.ExternalSchedulerReference = notification?.TokenId;
                     await _repairsGateway.SaveChangesAsync();
                 }
 
