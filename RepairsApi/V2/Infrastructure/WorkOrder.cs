@@ -132,6 +132,11 @@ namespace RepairsApi.V2.Infrastructure
         /// </summary>
         Superceded = 130,
 
+        /// <summary>
+        /// Locked: Work Order is disputed (used for migrated data)
+        /// </summary>
+        Locked = 200,
+
         // Extensions
         NoAccess = 1000,
         PendingApproval = 1010,
