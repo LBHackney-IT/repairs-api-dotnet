@@ -231,13 +231,11 @@ workflows:
       - migrate-database-development:
           requires:
             - terraform-init-and-apply-to-development
-            - assume-role-development
           filters:
             branches:
               only: develop
       - deploy-to-development:
           requires:
-            - assume-role-development
             - migrate-database-development
           filters:
             branches:
@@ -264,13 +262,11 @@ workflows:
       - migrate-database-staging:
           requires:
             - terraform-init-and-apply-to-staging
-            - assume-role-staging
           filters:
             branches:
               only: master
       - deploy-to-staging:
           requires:
-            - assume-role-staging
             - migrate-database-staging
           filters:
             branches:
@@ -289,7 +285,6 @@ workflows:
       - migrate-database-production:
           requires:
             - terraform-init-and-apply-to-production
-            - assume-role-production
           filters:
             branches:
               only: master
@@ -299,17 +294,8 @@ workflows:
           filters:
             branches:
               only: master
-      - permit-production-release:
-          type: approval
-          requires:
-            - deploy-to-staging
-          filters:
-            branches:
-              only: master
       - deploy-to-production:
           requires:
-            - permit-production-release
-            - assume-role-production
             - migrate-database-production
           filters:
             branches:
