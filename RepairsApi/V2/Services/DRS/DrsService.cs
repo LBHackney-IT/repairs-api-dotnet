@@ -93,7 +93,8 @@ namespace RepairsApi.V2.Services
             _logger.LogInformation("DRS Order Deleting for Work order {WorkOrderId} {request}", workOrder.Id, deleteOrder);
 
             var response = await _drsSoap.deleteOrderAsync(deleteOrder);
-            if (response.@return.status != responseStatus.success)
+            if (response.@return.status != responseStatus.success
+                && !response.@return.errorMsg.Contains("no order exists"))
             {
                 _logger.LogError(response.@return.errorMsg);
                 throw new ApiException((int) response.@return.status, response.@return.errorMsg);
