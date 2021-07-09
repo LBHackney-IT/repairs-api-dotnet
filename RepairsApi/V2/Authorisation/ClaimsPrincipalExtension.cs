@@ -19,6 +19,11 @@ namespace RepairsApi.V2.Authorisation
             return claimsPrincipal.FindAll(CustomClaimTypes.Contractor).Select(c => c.Value).ToList();
         }
 
+        public static List<string> Groups(this ClaimsPrincipal claimsPrincipal)
+        {
+            return claimsPrincipal.FindAll(CustomClaimTypes.Group).Select(c => c.Value).ToList();
+        }
+
         public static string VaryLimit(this ClaimsPrincipal claimsPrincipal)
         {
             return claimsPrincipal.FindFirst(CustomClaimTypes.VaryLimit).Value;
