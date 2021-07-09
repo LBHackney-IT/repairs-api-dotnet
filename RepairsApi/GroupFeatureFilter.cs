@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.FeatureManagement;
 using RepairsApi.V2.Authorisation;
@@ -17,18 +18,18 @@ namespace RepairsApi
     [FilterAlias("Group")]
     public class GroupFeatureFilter : IFeatureFilter
     {
-        private readonly ICurrentUserService _currentUserService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public GroupFeatureFilter(ICurrentUserService currentUserService)
+        public GroupFeatureFilter(IHttpContextAccessor httpContextAccessor)
         {
-            _currentUserService = currentUserService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public Task<bool> EvaluateAsync(FeatureFilterEvaluationContext context)
         {
             var settings = context.Parameters.Get<GroupFilterSettings>();
 
-            var user = _currentUserService.GetUser();
+            var user = _httpContextAccessor.HttpContext.User;
 
             return Task.FromResult(settings.AllowedGroups.Intersect(user.Groups()).Any());
         }
