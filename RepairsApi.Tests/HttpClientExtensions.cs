@@ -45,7 +45,8 @@ namespace RepairsApi.Tests
                 Groups = new List<string>(groups)
                 {
                     "raise50",
-                    "vary50"
+                    "vary50",
+                    "enforce-operative"
                 }
             });
         }

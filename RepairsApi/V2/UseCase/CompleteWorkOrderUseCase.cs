@@ -60,7 +60,6 @@ namespace RepairsApi.V2.UseCase
             ValidateRequest(workOrderCompleteRequest);
             var workOrderComplete = workOrderCompleteRequest.ToDb(workOrder, null);
             await using var transaction = await _transactionManager.Start();
-            var b = _currentUserService.HasGroup(UserGroups.ContractManager);
             await UpdateWorkOrderStatus(workOrder, workOrderComplete);
             await _workOrderCompletionGateway.CreateWorkOrderCompletion(workOrderComplete);
             await transaction.Commit();
