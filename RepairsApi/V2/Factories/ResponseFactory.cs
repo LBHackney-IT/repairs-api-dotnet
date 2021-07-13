@@ -162,7 +162,8 @@ namespace RepairsApi.V2.Factories
                 },
                 ExternalAppointmentManagementUrl = managementUri,
                 Operatives = workOrder.AssignedOperatives.MapList(o => o.ToResponse()),
-                CanAssignOperative = canAssignOperative
+                CanAssignOperative = canAssignOperative,
+                ClosedDated = workOrder.ClosedDate
             };
         }
 
