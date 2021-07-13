@@ -89,6 +89,8 @@ namespace RepairsApi.V2.UseCase
                     break;
                 default: throw new NotSupportedException(Resources.UnsupportedWorkOrderUpdate);
             }
+
+            workOrder.ClosedDate = update.EventTime;
         }
 
         private async Task HandleCustomType(WorkOrder workOrder, JobStatusUpdate update)

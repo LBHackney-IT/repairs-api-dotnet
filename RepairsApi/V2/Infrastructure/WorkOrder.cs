@@ -37,6 +37,7 @@ namespace RepairsApi.V2.Infrastructure
         public virtual List<WorkOrderOperative> WorkOrderOperatives { get; set; }
         public virtual List<Operative> AssignedOperatives { get; set; }
         public string ExternalSchedulerReference { get; set; }
+        public DateTime? ClosedDate { get; set; }
     }
 
     public class WorkOrderOperative
