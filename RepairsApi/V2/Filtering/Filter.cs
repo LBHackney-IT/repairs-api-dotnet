@@ -8,20 +8,24 @@ namespace RepairsApi.V2.Filtering
     public class Filter<TQuery> : IFilter<TQuery>
     {
         private readonly IEnumerable<Expression<Func<TQuery, bool>>> _predicates;
+        private readonly ISortItem<TQuery> _sortConfig;
 
-        public Filter(IEnumerable<Expression<Func<TQuery, bool>>> predicates)
+        public Filter(IEnumerable<Expression<Func<TQuery, bool>>> predicates, ISortItem<TQuery> sortConfig)
         {
             _predicates = predicates;
+            _sortConfig = sortConfig;
         }
 
         public IQueryable<TQuery> Apply(IQueryable<TQuery> query)
         {
-            return _predicates.Aggregate(query, (q, pred) => q.Where(pred));
-        }
+            var filtered = _predicates.Aggregate(query, (q, pred) => q.Where(pred));
 
-        public IEnumerable<TQuery> Apply(IEnumerable<TQuery> query)
-        {
-            return _predicates.Aggregate(query, (q, pred) => q.Where(pred.Compile()));
+            if (_sortConfig is null)
+            {
+                return filtered;
+            }
+
+            return _sortConfig.AddOrdering(filtered);
         }
     }
 }

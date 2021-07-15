@@ -1,3 +1,4 @@
+using System;
 using RepairsApi.V2.Boundary;
 using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.Domain;
@@ -122,10 +123,15 @@ namespace RepairsApi.V2.Factories
             return domainList.Select(domain => domain.ToResponseListItem()).ToList();
         }
 
-        public static WorkOrderResponse ToResponse(this Infrastructure.WorkOrder workOrder, Infrastructure.AppointmentDetails appointment)
+        public static WorkOrderResponse ToResponse(this Infrastructure.WorkOrder workOrder, Infrastructure.AppointmentDetails appointment, Uri drsManagementAddress, bool canAssignOperative)
         {
             Infrastructure.PropertyClass propertyClass = workOrder.Site?.PropertyClass?.FirstOrDefault();
             string addressLine = propertyClass?.Address?.AddressLine;
+            var managementUri = workOrder.ExternalSchedulerReference is null ? null : new UriBuilder(drsManagementAddress)
+            {
+                Port = -1,
+                Query = $"tokenId={workOrder.ExternalSchedulerReference}"
+            }.Uri;
             return new WorkOrderResponse
             {
                 Reference = workOrder.Id,
@@ -154,7 +160,10 @@ namespace RepairsApi.V2.Factories
                     Start = appointment.Start.ToTime(),
                     End = appointment.End.ToTime()
                 },
-                Operatives = workOrder.AssignedOperatives.MapList(o => o.ToResponse())
+                ExternalAppointmentManagementUrl = managementUri,
+                Operatives = workOrder.AssignedOperatives.MapList(o => o.ToResponse()),
+                CanAssignOperative = canAssignOperative,
+                ClosedDated = workOrder.ClosedDate
             };
         }
 
@@ -183,7 +192,6 @@ namespace RepairsApi.V2.Factories
             return new WorkElement
             {
                 Trade = workElement.Trade.Select(t => t.ToResponse()).ToList(),
-                DependsOn = workElement.DependsOn.Select(d => d.ToResponse()).ToList(),
                 ContainsCapitalWork = workElement.ContainsCapitalWork,
                 RateScheduleItem = workElement.RateScheduleItem.Select(rsi => rsi.ToResponse()).ToList(),
                 ServiceChargeSubject = workElement.ServiceChargeSubject
@@ -197,22 +205,6 @@ namespace RepairsApi.V2.Factories
                 Code = trade.Code.Value,
                 CustomCode = trade.CustomCode,
                 CustomName = trade.CustomName
-            };
-        }
-
-        public static DependsOn ToResponse(this Infrastructure.WorkElementDependency dependency)
-        {
-            return new DependsOn
-            {
-                Timing = new Timing
-                {
-                    Days = dependency.Dependency.Duration.Value.Offset.Days
-                },
-                Type = dependency.Dependency.Type,
-                DependsOnWorkElementReference = new Reference
-                {
-                    ID = dependency.DependsOnWorkElement.Id.ToString()
-                }
             };
         }
 

@@ -36,7 +36,7 @@ namespace RepairsApi.Tests.V2.UseCase
             _generator = CreateGenerator();
             _repairsGatewayMock = new Mock<IRepairsGateway>();
             _scheduleOfRatesGateway = new Mock<IScheduleOfRatesGateway>();
-            _scheduleOfRatesGateway.Setup(mock => mock.GetContractor(It.IsAny<string>())).ReturnsAsync(new RepairsApi.V2.Domain.Contractor { UseExternalScheduleManager = true });
+            _scheduleOfRatesGateway.Setup(mock => mock.GetContractor(It.IsAny<string>())).ReturnsAsync(new RepairsApi.V2.Domain.Contractor { CanAssignOperative = true });
             _currentUserServiceMock = new CurrentUserServiceMock();
             _currentUserServiceMock.SetSecurityGroup(UserGroups.Agent, true);
             _currentUserServiceMock.SetSecurityGroup(UserGroups.Contractor, true);

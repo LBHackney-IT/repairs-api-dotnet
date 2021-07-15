@@ -33,7 +33,7 @@ namespace RepairsApi.V2.Gateways
 
         public Task<IEnumerable<WorkOrder>> GetWorkOrders(params Expression<Func<WorkOrder, bool>>[] whereExpressions)
         {
-            return GetWorkOrders(new Filter<WorkOrder>(whereExpressions));
+            return GetWorkOrders(new Filter<WorkOrder>(whereExpressions, null));
         }
 
         public async Task<IEnumerable<WorkOrder>> GetWorkOrders(IFilter<WorkOrder> filter)

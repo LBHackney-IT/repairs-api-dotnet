@@ -9,10 +9,14 @@ using RepairsApi.Tests.Helpers;
 using RepairsApi.V2;
 using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Generated;
+using RepairsApi.V2.Generated.CustomTypes;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
+using RepairsApi.V2.Services.DRS;
 using RepairsApi.V2.Services.DRS.BackgroundService;
 using V2_Generated_DRS;
+using JobStatusUpdate = RepairsApi.V2.Infrastructure.JobStatusUpdate;
 
 namespace RepairsApi.Tests.V2.Services.BackgroundService
 {
@@ -23,6 +27,7 @@ namespace RepairsApi.Tests.V2.Services.BackgroundService
         private DrsBackgroundService _classUnderTest;
         private Mock<IDrsService> _drsServiceMock;
         private Mock<IOperativesGateway> _operativesGatewayMock;
+        private Mock<IJobStatusUpdateGateway> _jobStatusUpdateGatewayMock;
 
         [SetUp]
         public void Setup()
@@ -31,11 +36,13 @@ namespace RepairsApi.Tests.V2.Services.BackgroundService
             _appointmentsGatewayMock = new Mock<IAppointmentsGateway>();
             _drsServiceMock = new Mock<IDrsService>();
             _operativesGatewayMock = new Mock<IOperativesGateway>();
+            _jobStatusUpdateGatewayMock = new Mock<IJobStatusUpdateGateway>();
             _classUnderTest = new DrsBackgroundService(
                 _loggerMock.Object,
                 _appointmentsGatewayMock.Object,
                 _drsServiceMock.Object,
-                _operativesGatewayMock.Object
+                _operativesGatewayMock.Object,
+                _jobStatusUpdateGatewayMock.Object
             );
         }
 
@@ -84,46 +91,26 @@ namespace RepairsApi.Tests.V2.Services.BackgroundService
 
             await _classUnderTest.ConfirmBooking(bookingConfirmation);
 
-            _operativesGatewayMock.Verify(x => x.AssignOperatives(workOrderId, operativeId));
+            _drsServiceMock.Verify(x => x.UpdateWorkOrderDetails(workOrderId));
         }
 
         [Test]
-        public async Task DoesNotAssignWhenOrderHasNoResource()
+        public async Task AddsNote()
         {
             const int workOrderId = 1234;
-            const int operativeId = 5678;
-            const string operativePayrollId = "Z123";
-            var bookingConfirmation = CreateBookingConfirmation(workOrderId);
             ReturnsWorkOrder(workOrderId);
-            _operativesGatewayMock.Setup(x => x.GetAsync(operativePayrollId))
-                .ReturnsAsync(new Operative
-                {
-                    Id = operativeId
-                });
+            var bookingConfirmation = CreateBookingConfirmation(workOrderId);
 
             await _classUnderTest.ConfirmBooking(bookingConfirmation);
 
-            _operativesGatewayMock.Verify(x => x.AssignOperatives(It.IsAny<int>(), It.IsAny<int[]>()), Times.Never);
-        }
-
-        [Test]
-        public async Task ThrowsAndLogsWhenOrderNotFound()
-        {
-            const int workOrderId = 1234;
-            const int operativeId = 5678;
-            const string operativePayrollId = "Z123";
-            var bookingConfirmation = CreateBookingConfirmation(workOrderId);
-            _operativesGatewayMock.Setup(x => x.GetAsync(operativePayrollId))
-                .ReturnsAsync(new Operative
-                {
-                    Id = operativeId
-                });
-
-            Func<Task> testFunc = async () => await _classUnderTest.ConfirmBooking(bookingConfirmation);
-
-            await testFunc.Should().ThrowAsync<ResourceNotFoundException>()
-                .WithMessage(Resources.WorkOrderNotFound);
-            _loggerMock.VerifyLog(LogLevel.Error);
+            var expectedComment = $"DRS: Appointment has been updated in DRS to {bookingConfirmation.planningWindowStart} - {bookingConfirmation.planningWindowEnd}";
+            _jobStatusUpdateGatewayMock.Verify(x => x.CreateJobStatusUpdate(It.Is<JobStatusUpdate>(update =>
+                update.RelatedWorkOrderId == workOrderId &&
+                update.TypeCode == JobStatusUpdateTypeCode._0 &&
+                update.OtherType == CustomJobStatusUpdates.AddNote &&
+                update.Comments == expectedComment &&
+                update.EventTime == DrsHelpers.ConvertFromDrsTimeZone(bookingConfirmation.changedDate)
+            )));
         }
 
         private static order CreateDrsOrder(params string[] payrollIds)
@@ -148,6 +135,7 @@ namespace RepairsApi.Tests.V2.Services.BackgroundService
         {
             var bookingConfirmation = new bookingConfirmation
             {
+                changedDate = DateTime.UtcNow,
                 primaryOrderNumber = (uint) workOrderId,
                 planningWindowStart = DateTime.UtcNow,
                 planningWindowEnd = DateTime.UtcNow.AddHours(5)

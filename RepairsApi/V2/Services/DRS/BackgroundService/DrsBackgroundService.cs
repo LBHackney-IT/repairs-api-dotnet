@@ -6,7 +6,10 @@ using Castle.Core.Internal;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RepairsApi.V2.Gateways;
+using RepairsApi.V2.Generated;
+using RepairsApi.V2.Generated.CustomTypes;
 using RepairsApi.V2.Generated.DRS.BackgroundService;
+using JobStatusUpdate = RepairsApi.V2.Infrastructure.JobStatusUpdate;
 
 namespace RepairsApi.V2.Services.DRS.BackgroundService
 {
@@ -16,18 +19,21 @@ namespace RepairsApi.V2.Services.DRS.BackgroundService
         private readonly IAppointmentsGateway _appointmentsGateway;
         private readonly IDrsService _drsService;
         private readonly IOperativesGateway _operativesGateway;
+        private readonly IJobStatusUpdateGateway _jobStatusUpdateGateway;
 
         public DrsBackgroundService(
             ILogger<DrsBackgroundService> logger,
             IAppointmentsGateway appointmentsGateway,
             IDrsService drsService,
-            IOperativesGateway operativesGateway
+            IOperativesGateway operativesGateway,
+            IJobStatusUpdateGateway jobStatusUpdateGateway
         )
         {
             _logger = logger;
             _appointmentsGateway = appointmentsGateway;
             _drsService = drsService;
             _operativesGateway = operativesGateway;
+            _jobStatusUpdateGateway = jobStatusUpdateGateway;
         }
 
         public async Task<string> ConfirmBooking(bookingConfirmation bookingConfirmation)
@@ -43,29 +49,25 @@ namespace RepairsApi.V2.Services.DRS.BackgroundService
                 bookingConfirmation.planningWindowEnd
             );
 
-            await UpdateAssignedOperative(workOrderId);
+            await _drsService.UpdateWorkOrderDetails(workOrderId);
+
+            await AddAuditTrail(workOrderId, bookingConfirmation);
 
             return Resources.DrsBackgroundService_BookingAccepted;
         }
 
-        private async Task UpdateAssignedOperative(int workOrderId)
+        private async Task AddAuditTrail(int workOrderId, bookingConfirmation bookingConfirmation)
         {
-            var order = await _drsService.SelectOrder(workOrderId);
-
-            if (order is null)
+            var update = new JobStatusUpdate
             {
-                _logger.LogError($"Unable to fetch order from DRS {workOrderId}", workOrderId);
-                ThrowHelper.ThrowNotFound(Resources.WorkOrderNotFound);
-            }
+                EventTime = DrsHelpers.ConvertFromDrsTimeZone(bookingConfirmation.changedDate),
+                RelatedWorkOrderId = workOrderId,
+                TypeCode = JobStatusUpdateTypeCode._0,
+                OtherType = CustomJobStatusUpdates.AddNote,
+                Comments = $"DRS: Appointment has been updated in DRS to {bookingConfirmation.planningWindowStart} - {bookingConfirmation.planningWindowEnd}"
+            };
 
-            var theResources = order.theBookings.First().theResources;
-
-            if (theResources.IsNullOrEmpty()) return;
-
-            var operativePayrollIds = theResources.Select(r => r.externalResourceCode);
-            var operatives = await Task.WhenAll(operativePayrollIds.Select(i => _operativesGateway.GetAsync(i)));
-
-            await _operativesGateway.AssignOperatives(workOrderId, operatives.Select(o => o.Id).ToArray());
+            await _jobStatusUpdateGateway.CreateJobStatusUpdate(update);
         }
     }
 }

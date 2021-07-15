@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
+using RepairsApi.Tests.Helpers;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services;
 using V2_Generated_DRS;
@@ -19,6 +20,7 @@ using RepairsApi.V2.Domain;
 using RepairsApi.V2.Exceptions;
 using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated;
+using RepairsApi.V2.Services.DRS;
 
 namespace RepairsApi.Tests.V2.Services
 {
@@ -30,6 +32,8 @@ namespace RepairsApi.Tests.V2.Services
         private Mock<ILogger<DrsService>> _loggerMock;
         private MockDrsMapping _drsMappingMock;
         private Fixture _fixture;
+        private Mock<IOperativesGateway> _operativesGatewayMock;
+        private Mock<IAppointmentsGateway> _appointmentsGatewayMock;
 
         [SetUp]
         public void SetUp()
@@ -45,12 +49,16 @@ namespace RepairsApi.Tests.V2.Services
             _loggerMock = new Mock<ILogger<DrsService>>();
             _drsSoapMock = new MockDrsSoap(_drsOptions);
             _drsMappingMock = new MockDrsMapping();
+            _operativesGatewayMock = new Mock<IOperativesGateway>();
+            _appointmentsGatewayMock = new Mock<IAppointmentsGateway>();
 
             _classUnderTest = new DrsService(
                 _drsSoapMock.Object,
                 _drsOptions,
                 _loggerMock.Object,
-                _drsMappingMock.Object
+                _drsMappingMock.Object,
+                _operativesGatewayMock.Object,
+                _appointmentsGatewayMock.Object
             );
         }
 
@@ -96,48 +104,6 @@ namespace RepairsApi.Tests.V2.Services
 
             _drsSoapMock.VerifyOpenSession();
             _drsSoapMock.Verify(x => x.createOrderAsync(It.Is<createOrder>(c => c.createOrder1.id == workOrder.Id)));
-        }
-
-        [Test]
-        public async Task UpdateOrder_Fires_Update_Endpoint()
-        {
-            var workOrder = CreateWorkOrderWithContractor(true);
-            _drsSoapMock.CreateReturns(responseStatus.success);
-            _drsSoapMock.UpdateBookingReturns(responseStatus.success);
-            _drsMappingMock.SetupMappings(workOrder);
-            _drsSoapMock.SelectOrderReturns(_fixture.Create<order>(), responseStatus.success);
-
-            await _classUnderTest.UpdateOrder(workOrder);
-
-            _drsSoapMock.VerifyOpenSession();
-            _drsSoapMock.Verify(x => x.updateBookingAsync(It.Is<updateBooking>(c => c.updateBooking1.id == workOrder.Id)), Times.Once);
-        }
-
-        [Test]
-        public async Task CreateOrder_DoesNotUseUpdateMapper()
-        {
-            var workOrder = CreateWorkOrderWithContractor(true);
-            _drsSoapMock.CreateReturns(responseStatus.success);
-            _drsSoapMock.UpdateBookingReturns(responseStatus.success);
-            _drsMappingMock.SetupMappings(workOrder);
-
-            await _classUnderTest.CreateOrder(workOrder);
-
-            _drsMappingMock.Verify(m => m.BuildPlannerCommentedUpdateBookingRequest(It.IsAny<string>(), It.IsAny<WorkOrder>(), It.IsAny<order>()), Times.Never);
-        }
-
-        [Test]
-        public async Task UpdateOrder_UsesMapper()
-        {
-            var workOrder = CreateWorkOrderWithContractor(true);
-            _drsSoapMock.CreateReturns(responseStatus.success);
-            _drsSoapMock.SelectOrderReturns(_fixture.Create<order>(), responseStatus.success);
-            _drsSoapMock.UpdateBookingReturns(responseStatus.success);
-            _drsMappingMock.SetupMappings(workOrder);
-
-            await _classUnderTest.UpdateOrder(workOrder);
-
-            _drsMappingMock.Verify(m => m.BuildPlannerCommentedUpdateBookingRequest(It.IsAny<string>(), It.IsAny<WorkOrder>(), It.IsAny<order>()), Times.Once);
         }
 
         [TestCase(responseStatus.failure)]
@@ -247,23 +213,6 @@ namespace RepairsApi.Tests.V2.Services
                 .Which.StatusCode.Should().Be((int) drsResponse);
         }
 
-        [TestCase(responseStatus.failure)]
-        [TestCase(responseStatus.error)]
-        [TestCase(responseStatus.undefined)]
-        public async Task ThrowsApiError_When_UpdateOrderHasDrsError(responseStatus drsResponse)
-        {
-            var workOrder = CreateWorkOrderWithContractor(true);
-            var drsOrder = _fixture.Create<order>();
-            drsOrder.status = orderStatus.PLANNED;
-            const string errorMsg = "message";
-            _drsSoapMock.SelectOrderReturns(null, drsResponse, errorMsg);
-
-            Func<Task> act = () => _classUnderTest.UpdateOrder(workOrder);
-
-            (await act.Should().ThrowAsync<ApiException>().WithMessage(errorMsg))
-                .Which.StatusCode.Should().Be((int) drsResponse);
-        }
-
         [Test]
         public async Task CancelsWhenOrderNotPlanned()
         {
@@ -297,6 +246,78 @@ namespace RepairsApi.Tests.V2.Services
             result.Should().BeEquivalentTo(drsOrder);
         }
 
+        [Test]
+        public async Task UpdatesAssignedOperativeAndBookingWindow()
+        {
+            const int workOrderId = 1234;
+            const int operativeId = 5678;
+            const string operativePayrollId = "Z123";
+            var drsOrder = CreateDrsOrder(operativePayrollId);
+            _drsSoapMock.SelectOrderReturns(drsOrder);
+            _operativesGatewayMock.Setup(x => x.GetAsync(operativePayrollId))
+                .ReturnsAsync(new Operative
+                {
+                    Id = operativeId
+                });
+
+            await _classUnderTest.UpdateWorkOrderDetails(workOrderId);
+
+            _operativesGatewayMock.Verify(x => x.AssignOperatives(workOrderId, OperativeAssignmentType.Automatic, operativeId));
+
+            var booking = drsOrder.theBookings.Single();
+            _appointmentsGatewayMock.Verify(x =>
+                x.SetTimedBooking(workOrderId, DrsHelpers.ConvertToDrsTimeZone(booking.planningWindowStart), DrsHelpers.ConvertToDrsTimeZone(booking.planningWindowEnd)));
+        }
+
+        [Test]
+        public async Task DoesNotAssignWhenOrderHasNoResource()
+        {
+            const int workOrderId = 1234;
+            const int operativeId = 5678;
+            const string operativePayrollId = "Z123";
+            var drsOrder = _fixture.Create<order>();
+            drsOrder.primaryOrderNumber = workOrderId.ToString();
+            drsOrder.theBookings = new[]
+            {
+                new booking
+                {
+                }
+            };
+            _drsSoapMock.SelectOrderReturns(drsOrder);
+
+            _operativesGatewayMock.Setup(x => x.GetAsync(operativePayrollId))
+                .ReturnsAsync(new Operative
+                {
+                    Id = operativeId
+                });
+
+            await _classUnderTest.UpdateWorkOrderDetails(int.Parse(drsOrder.primaryOrderNumber));
+
+            _operativesGatewayMock.Verify(x => x.AssignOperatives(It.IsAny<int>(), It.IsAny<OperativeAssignmentType>(), It.IsAny<int[]>()), Times.Never);
+        }
+
+        [Test]
+        public async Task DoesNotAssignWhenOrderHasNoBooking()
+        {
+            const int workOrderId = 1234;
+            const int operativeId = 5678;
+            const string operativePayrollId = "Z123";
+            var drsOrder = _fixture.Create<order>();
+            drsOrder.primaryOrderNumber = workOrderId.ToString();
+            drsOrder.theBookings = null;
+            _drsSoapMock.SelectOrderReturns(drsOrder);
+
+            _operativesGatewayMock.Setup(x => x.GetAsync(operativePayrollId))
+                .ReturnsAsync(new Operative
+                {
+                    Id = operativeId
+                });
+
+            await _classUnderTest.UpdateWorkOrderDetails(int.Parse(drsOrder.primaryOrderNumber));
+
+            _operativesGatewayMock.Verify(x => x.AssignOperatives(It.IsAny<int>(), It.IsAny<OperativeAssignmentType>(), It.IsAny<int[]>()), Times.Never);
+        }
+
         private static WorkOrder CreateWorkOrderWithContractor(bool useExternal)
         {
             var expectedContractor = CreateContractor(useExternal);
@@ -323,5 +344,25 @@ namespace RepairsApi.Tests.V2.Services
             return expectedContractor;
         }
 
+        private static order CreateDrsOrder(params string[] payrollIds)
+        {
+            var now = DateTime.UtcNow;
+            return new order
+            {
+                theBookings = new[]
+                {
+                    new booking
+                    {
+                        planningWindowStart = now,
+                        planningWindowEnd = now.AddHours(5),
+                        theResources = payrollIds.Select(ori =>
+                            new resource
+                            {
+                                externalResourceCode = ori
+                            }).ToArray()
+                    }
+                }
+            };
+        }
     }
 }

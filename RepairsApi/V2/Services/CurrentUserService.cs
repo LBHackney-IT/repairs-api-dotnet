@@ -79,6 +79,7 @@ namespace RepairsApi.V2.Services
             identity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
             identity.AddClaim(new Claim(ClaimTypes.Name, user.Name));
             identity.AddClaim(new Claim(ClaimTypes.PrimarySid, user.Sub));
+            identity.AddClaims(user.Groups.Select(g => new Claim(CustomClaimTypes.Group, g)));
 
             double varyLimit = 0;
             double raiseLimit = 0;

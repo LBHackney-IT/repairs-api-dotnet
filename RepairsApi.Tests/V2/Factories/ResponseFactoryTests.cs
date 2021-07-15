@@ -25,7 +25,7 @@ namespace RepairsApi.Tests.V2.Factories
                 End = DateTime.UtcNow,
                 Start = DateTime.UtcNow
             };
-            var response = workOrder.ToResponse(appointment);
+            var response = workOrder.ToResponse(appointment, new Uri("https://managementAddress.none"), canAssignOperative: false);
 
             PropertyClass propertyClass = workOrder.Site?.PropertyClass.FirstOrDefault();
             string addressLine = propertyClass?.Address?.AddressLine;
@@ -41,6 +41,29 @@ namespace RepairsApi.Tests.V2.Factories
             response.Reference.Should().Be(workOrder.Id);
             response.Target.Should().Be(workOrder.WorkPriority.RequiredCompletionDateTime);
             response.Property.Should().Be(addressLine);
+            response.ExternalAppointmentManagementUrl.ToString().Should().Contain(workOrder.ExternalSchedulerReference);
+            response.CanAssignOperative.Should().BeFalse();
+        }
+
+        [Test]
+        public void DoesNotSetExternalAppointmentManagementUrlWhenNotDrs()
+        {
+            var workOrder = new Generator<WorkOrder>()
+                .AddDefaultGenerators()
+                .Generate();
+
+            workOrder.ExternalSchedulerReference = null;
+
+            AppointmentDetails appointment = new AppointmentDetails
+            {
+                Date = DateTime.UtcNow,
+                Description = "test",
+                End = DateTime.UtcNow,
+                Start = DateTime.UtcNow
+            };
+            var response = workOrder.ToResponse(appointment, new Uri("https://managementAddress.none"), false);
+
+            response.ExternalAppointmentManagementUrl.Should().BeNull();
         }
     }
 }

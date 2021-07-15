@@ -27,5 +27,8 @@ namespace RepairsApi.V2.Boundary
         public AppointmentResponse Appointment { get; set; }
         public List<OperativeResponse> Operatives { get; set; }
         public string Action { get; set; }
+        public Uri ExternalAppointmentManagementUrl { get; set; }
+        public bool CanAssignOperative { get; set; }
+        public DateTime? ClosedDated { get; set; }
     }
 }

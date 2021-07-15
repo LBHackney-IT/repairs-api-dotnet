@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RepairsApi.V2.Authorisation;
 using RepairsApi.V2.Boundary.Request;
+using RepairsApi.V2.Boundary.Response;
 using RepairsApi.V2.UseCase.Interfaces;
 
 namespace RepairsApi.V2.Controllers
@@ -38,9 +39,9 @@ namespace RepairsApi.V2.Controllers
         [HttpGet]
         [Route("{operativePayrollNumber}")]
         [Produces("application/json")]
-        [ProducesResponseType(typeof(OperativeRequest), 200)]
+        [ProducesResponseType(typeof(OperativeResponse), 200)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = UserGroups.OperativeManager)]
+        [Authorize(Roles = UserGroups.OperativeManager + "," + UserGroups.InternalContractor)]
         public async Task<IActionResult> GetOperative([FromRoute][Required] string operativePayrollNumber)
         {
             var result = await _getOperativeUseCase.ExecuteAsync(operativePayrollNumber);
@@ -54,9 +55,9 @@ namespace RepairsApi.V2.Controllers
         /// <response code="200">Operatives found</response>
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType(typeof(List<OperativeRequest>), 200)]
+        [ProducesResponseType(typeof(List<OperativeResponse>), 200)]
         [ProducesDefaultResponseType]
-        [Authorize(Roles = UserGroups.OperativeManager)]
+        [Authorize(Roles = UserGroups.OperativeManager + "," + UserGroups.InternalContractor)]
         public async Task<IActionResult> ListOperatives([FromQuery] OperativeRequest operativeRequest)
         {
             var result = await _listOperativesUseCase.ExecuteAsync(operativeRequest);

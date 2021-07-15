@@ -60,7 +60,6 @@ namespace RepairsApi.V2.UseCase
             ValidateRequest(workOrderCompleteRequest);
             var workOrderComplete = workOrderCompleteRequest.ToDb(workOrder, null);
             await using var transaction = await _transactionManager.Start();
-            var b = _currentUserService.HasGroup(UserGroups.ContractManager);
             await UpdateWorkOrderStatus(workOrder, workOrderComplete);
             await _workOrderCompletionGateway.CreateWorkOrderCompletion(workOrderComplete);
             await transaction.Commit();
@@ -90,6 +89,8 @@ namespace RepairsApi.V2.UseCase
                     break;
                 default: throw new NotSupportedException(Resources.UnsupportedWorkOrderUpdate);
             }
+
+            workOrder.ClosedDate = update.EventTime;
         }
 
         private async Task HandleCustomType(WorkOrder workOrder, JobStatusUpdate update)
@@ -118,7 +119,7 @@ namespace RepairsApi.V2.UseCase
 
         private async Task VerifyCanComplete(WorkOrder workOrder)
         {
-            if (await workOrder.ContractorUsingDrs(_scheduleOfRatesGateway)
+            if (await workOrder.CanAssignOperative(_scheduleOfRatesGateway)
                     && await _featureManager.IsEnabledAsync(FeatureFlags.EnforceAssignedOperative)
                     && workOrder.AssignedOperatives.IsNullOrEmpty())
             {

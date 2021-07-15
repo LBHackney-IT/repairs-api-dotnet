@@ -16,7 +16,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
+using RepairsApi.V2.Services.DRS;
 using V2_Generated_DRS;
+using Appointment = RepairsApi.V2.Infrastructure.Hackney.Appointment;
 using JobStatusUpdate = RepairsApi.V2.Generated.JobStatusUpdate;
 using Quantity = RepairsApi.V2.Generated.Quantity;
 using RateScheduleItem = RepairsApi.V2.Generated.RateScheduleItem;
@@ -80,6 +84,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         [Test]
         public async Task Cancelled_DeletesFromDRS()
         {
+            SetUserRole(UserGroups.ContractManager);
             SetupSoapMock();
 
             var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
@@ -117,7 +122,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
 
             SetupSoapMock();
-            await CompleteWorkOrder(result.Id);
+            await CompleteWorkOrder(result.Id, false);
 
             SoapMock.Verify(s => s.updateBookingAsync(It.IsAny<updateBooking>()));
         }
@@ -186,17 +191,52 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         }
 
         [Test]
+        public async Task GetWorkOrderUpdatesWorkOrderDetails()
+        {
+            // Arrange
+            const string tradeName = "trade name";
+            var result = await CreateWorkOrder(req =>
+            {
+                req.WorkElement.First().Trade.First().CustomName = tradeName;
+                req.AssignedToPrimary.Name = TestDataSeeder.DRSContractor;
+                req.AssignedToPrimary.Organization.Reference = new List<Reference>
+                {
+                    new Reference
+                    {
+                        ID = TestDataSeeder.DRSContractor
+                    }
+                };
+            });
+            var startTime = DateTime.UtcNow;
+            var endTime = startTime.AddHours(5);
+            SetupSoapMock(startTime, endTime);
+
+            var (code, _) = await Get<RepairsApi.V2.Boundary.WorkOrderResponse>($"/api/v2/workOrders/{result.Id}");
+            code.Should().Be(HttpStatusCode.OK);
+
+            var workOrder = GetWorkOrderFromDB(result.Id, wo => wo.AssignedOperatives.Load());
+            workOrder.AssignedOperatives.Should().ContainSingle(o => o.PayrollNumber == TestDataSeeder.OperativePayrollId);
+
+            var existingAppointment = await GetAppointmentFromDB(workOrder.Id);
+            existingAppointment.Should().NotBeNull();
+            existingAppointment.StartTime.Should().Be(DrsHelpers.ConvertToDrsTimeZone(startTime));
+            existingAppointment.EndTime.Should().Be(DrsHelpers.ConvertToDrsTimeZone(endTime));
+        }
+
+        [Test]
         public async Task CompleteWorkOrder()
         {
             // Arrange
+            var eventTime = DateTime.Now;
             var result = await CreateWorkOrder();
             SetUserRole(UserGroups.Contractor);
-            var code = await CompleteWorkOrder(result.Id);
+            var code = await CompleteWorkOrder(result.Id, true, woc => woc.JobStatusUpdates.First().EventTime = eventTime);
             var workOrder = GetWorkOrderFromDB(result.Id);
 
             // Assert
             code.Should().Be(HttpStatusCode.OK);
             workOrder.StatusCode.Should().Be(WorkStatusCode.Complete);
+            workOrder.ClosedDate.Should().BeSameDateAs(eventTime);
         }
 
         private async Task<HttpStatusCode> CompleteWorkOrder(int workOrderId, bool preAssignOperative = true, Action<WorkOrderComplete> interceptor = null)
@@ -329,7 +369,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         public async Task OperativeGetsAssigned()
         {
             SetupSoapMock();
-            var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
+            var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.Contractor);
 
             await AssignOperative(result.Id, TestDataSeeder.OperativeId);
 
@@ -343,7 +383,7 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         public async Task CompletionFailsWithNoOperative()
         {
             SetupSoapMock();
-            var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.DRSContractor);
+            var result = await CreateWorkOrder(wo => wo.AssignedToPrimary.Organization.Reference.First().ID = TestDataSeeder.Contractor);
 
             var code = await CompleteWorkOrder(result.Id, preAssignOperative: false);
 
@@ -388,13 +428,22 @@ namespace RepairsApi.Tests.E2ETests.Repairs
             TestDataSeeder.AddCode(ctx.DB, expectedCode);
         }
 
-        public WorkOrder GetWorkOrderFromDB(int id, Action<WorkOrder> modifier = null)
+        private WorkOrder GetWorkOrderFromDB(int id, Action<WorkOrder> modifier = null)
         {
             using var ctx = GetContext();
             var db = ctx.DB;
             var repair = db.WorkOrders.Find(id);
             modifier?.Invoke(repair);
             return repair;
+        }
+
+        private async Task<Appointment> GetAppointmentFromDB(int workOrderId, Action<Appointment> modifier = null)
+        {
+            using var ctx = GetContext();
+            var db = ctx.DB;
+            var existingAppointment = await db.Appointments.Where(a => a.WorkOrderId == workOrderId).SingleOrDefaultAsync();
+            modifier?.Invoke(existingAppointment);
+            return existingAppointment;
         }
 
         public async Task<HttpStatusCode> CancelWorkOrder(int id)

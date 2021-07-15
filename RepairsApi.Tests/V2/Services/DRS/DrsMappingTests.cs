@@ -56,6 +56,10 @@ namespace RepairsApi.Tests.V2.Services
 
             _locationAlerts = new Helpers.StubGeneration.Generator<PropertyAlertList>().AddDefaultGenerators().Generate();
             _personAlerts = new Helpers.StubGeneration.Generator<PersonAlertList>().AddDefaultGenerators().Generate();
+            var commonAlerts = new Helpers.StubGeneration.Generator<Alert>().AddDefaultGenerators().GenerateList(5);
+            _locationAlerts.Alerts = _locationAlerts.Alerts.Union(commonAlerts);
+            _personAlerts.Alerts = _personAlerts.Alerts.Union(commonAlerts);
+
             _tenureInformation = new Helpers.StubGeneration.Generator<TenureInformation>().AddDefaultGenerators().Generate();
 
             _alertsGatewayMock.Setup(x => x.GetLocationAlertsAsync(It.IsAny<string>()))
@@ -153,22 +157,6 @@ namespace RepairsApi.Tests.V2.Services
             var request = await _classUnderTest.BuildCompleteOrderUpdateBookingRequest(_sessionId, workOrder, drsOrder);
 
             ValidateBusinessData(request.updateBooking1.theBooking.theOrder.theBusinessData, DrsBusinessDataNames.Status, DrsBookingStatusCodes.Completed);
-        }
-
-        [Test]
-        public async Task CreatesPlannerCommentedUpdateBookingRequest()
-        {
-            var expectedOrderNumber = _fixture.Create<int>();
-            var drsOrder = GenerateDrsOrder(expectedOrderNumber);
-            var workOrder = GenerateWorkOrder(drsOrder);
-            var sorCodes = SetupSORCodes(drsOrder);
-
-            var drsOrderCopy = drsOrder.DeepClone();
-            var request = await _classUnderTest.BuildPlannerCommentedUpdateBookingRequest(_sessionId, workOrder, drsOrderCopy);
-
-            request.updateBooking1.completeOrder.Should().BeFalse();
-            request.updateBooking1.transactionType.Should().Be(transactionTypeType.PLANNED);
-
         }
 
         private static WorkOrder GenerateWorkOrder(order drsOrder)
@@ -274,12 +262,13 @@ namespace RepairsApi.Tests.V2.Services
 
         private IList<ScheduleOfRatesModel> SetupSorCodes(WorkOrder workOrder)
         {
-            var sorCodes = workOrder.WorkElements.FirstOrDefault()?.RateScheduleItem
-                .Select(rsi => new ScheduleOfRatesModel
+            var sorCodes = workOrder.WorkElements.SelectMany(we => we.RateScheduleItem.Select(rsi => new { rsi, we }))
+                .Select(x => new ScheduleOfRatesModel
                 {
-                    Code = rsi.CustomCode,
-                    ShortDescription = $"{rsi.CustomCode} short description",
-                    LongDescription = $"{rsi.CustomCode} long description"
+                    Code = x.rsi.CustomCode,
+                    ShortDescription = $"{x.rsi.CustomCode} short description",
+                    LongDescription = $"{x.rsi.CustomCode} long description",
+                    TradeCode = x.we.Trade.FirstOrDefault().CustomCode
                 }).ToList();
 
             if (sorCodes == null) return null;
@@ -354,7 +343,10 @@ namespace RepairsApi.Tests.V2.Services
         {
             order.primaryOrderNumber.Should().Be(workOrder.Id.ToString(CultureInfo.InvariantCulture));
             order.status.Should().Be(expectedStatus ?? orderStatus.PLANNED);
-            order.orderComments.Should().Be(workOrder.DescriptionOfWork);
+
+            var uniqueCodes = locationAlerts?.Alerts.Union(personAlertList?.Alerts);
+            order.orderComments.Should().Be(@$"{uniqueCodes.ToCodeString()} {workOrder.DescriptionOfWork}".Truncate(250));
+
             order.contract.Should().Be(workOrder.AssignedToPrimary.ContractorReference);
             order.locationID.Should().Be(workOrder.Site.PropertyClass.FirstOrDefault()?.PropertyReference);
             order.userId.Should().Be(workOrder.AgentEmail);
@@ -377,12 +369,12 @@ namespace RepairsApi.Tests.V2.Services
 
         private static void ValidateBookings(WorkOrder workOrder, IList<ScheduleOfRatesModel> sorCodes, bookingCode[] bookings)
         {
-            var workElement = workOrder.WorkElements.FirstOrDefault();
+            var rateScheduleItems = workOrder.WorkElements.SelectMany(we => we.RateScheduleItem);
 
             foreach (var (booking, index) in bookings.WithIndex())
             {
                 var sorCode = sorCodes.Single(c => c.Code == booking.bookingCodeSORCode);
-                var rateScheduleItem = workElement!.RateScheduleItem.Single(rsi => rsi.CustomCode == booking.bookingCodeSORCode);
+                var rateScheduleItem = rateScheduleItems.Single(rsi => rsi.CustomCode == booking.bookingCodeSORCode);
                 ValidateBookingCode(
                     workOrder,
                     rateScheduleItem,

@@ -14,12 +14,12 @@ namespace RepairsApi.V2.Infrastructure
         public string OtherType { get; set; }
         public virtual List<Person> OperativesAssigned { get; set; }
         public virtual Appointment RefinedAppointmentWindow { get; set; }
-        public virtual CustomerSatisfaction CustomerFeedback { get; set; }
         public virtual Communication CustomerCommunicationChannelAttempted { get; set; }
         public string Comments { get; set; }
         public virtual WorkElement MoreSpecificSORCode { get; set; }
         public virtual AdditionalWork AdditionalWork { get; set; }
         public virtual WorkOrder RelatedWorkOrder { get; set; }
+        public int? RelatedWorkOrderId { get; set; }
 
         // extensions
         public string AuthorName { get; set; }

@@ -210,7 +210,8 @@ namespace RepairsApi.Tests
                 Name = Contractor,
                 Reference = Contractor,
                 UseExternalScheduleManager = false,
-                ContractManagerEmail = Contractor_ContractManagerEmail
+                ContractManagerEmail = Contractor_ContractManagerEmail,
+                CanAssignOperative = true
             });
             ctx.Set<Contractor>().Add(new Contractor
             {

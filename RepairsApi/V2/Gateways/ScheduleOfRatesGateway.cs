@@ -55,6 +55,7 @@ namespace RepairsApi.V2.Gateways
                          select sor.TradeCode
                     ).Contains(trade.Code)
 
+                    orderby trade.Name ascending
                     select trade
                 )
                 .ToListAsync();
@@ -153,7 +154,8 @@ namespace RepairsApi.V2.Gateways
             {
                 ContractorName = contractor.Name,
                 ContractorReference = contractor.Reference,
-                UseExternalScheduleManager = contractor.UseExternalScheduleManager
+                UseExternalScheduleManager = contractor.UseExternalScheduleManager,
+                CanAssignOperative = contractor.CanAssignOperative
             };
         }
 

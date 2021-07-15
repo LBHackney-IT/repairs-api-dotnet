@@ -12,16 +12,16 @@ namespace RepairsApi.V2.UseCase
 {
     public class ListWorkOrderNotesUseCase : IListWorkOrderNotesUseCase
     {
-        private readonly IRepairsGateway _repairsGatway;
+        private readonly IRepairsGateway _repairsGateway;
 
-        public ListWorkOrderNotesUseCase(IRepairsGateway repairsGatway)
+        public ListWorkOrderNotesUseCase(IRepairsGateway repairsGateway)
         {
-            _repairsGatway = repairsGatway;
+            _repairsGateway = repairsGateway;
         }
 
         public async Task<IEnumerable<NoteListItem>> Execute(int id)
         {
-            var workOrder = await _repairsGatway.GetWorkOrder(id);
+            var workOrder = await _repairsGateway.GetWorkOrder(id);
 
             return workOrder.JobStatusUpdates?
                 .Where(jsu => !jsu.Comments.IsNullOrEmpty())

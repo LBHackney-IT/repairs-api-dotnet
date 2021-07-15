@@ -29,15 +29,21 @@ namespace RepairsApi.V2.Gateways
             var appointment = await _repairsContext.AvailableAppointmentDays
                 .Where(a => a.Id == slotId)
                 .Select(a =>
-                new
-                {
-                    HasOpenSlots = a.ExistingAppointments.Count(ea => ea.Date.Date == slotDate.Date) < a.AvailableCount,
-                    StartTime = a.AvailableAppointment.StartTime,
-                    EndTime = a.AvailableAppointment.EndTime
-                }).SingleOrDefaultAsync();
+                    new
+                    {
+                        HasOpenSlots = a.ExistingAppointments.Count(ea => ea.Date.Date == slotDate.Date) < a.AvailableCount,
+                        StartTime = a.AvailableAppointment.StartTime,
+                        EndTime = a.AvailableAppointment.EndTime
+                    }).SingleOrDefaultAsync();
 
             if (appointment is null) throw new ResourceNotFoundException("No Appointment Exists");
             if (!appointment.HasOpenSlots) throw new NotSupportedException("Appointment slot over capacity");
+
+            var existingAppointment = await _repairsContext.Appointments.SingleOrDefaultAsync(a => a.WorkOrderId == workOrderId);
+            if (existingAppointment != null)
+            {
+                _repairsContext.Appointments.Remove(existingAppointment);
+            }
 
             await _repairsContext.Appointments.AddAsync(new Infrastructure.Hackney.Appointment
             {

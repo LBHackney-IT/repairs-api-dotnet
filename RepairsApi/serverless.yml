@@ -41,6 +41,7 @@ functions:
       FeatureManagement__DrsIntegration: ${ssm:/${self:service}/${self:provider.stage}/drs-enabled}
       FeatureManagement__NotifyIntegration: ${ssm:/${self:service}/${self:provider.stage}/notify-enabled}
       FeatureManagement__EnforceAssignedOperative: ${ssm:/${self:service}/${self:provider.stage}/enforce-assigned-operative-enabled}
+      FeatureManagement__UpdateOperativesOnWorkOrderGet: ${ssm:/${self:service}/${self:provider.stage}/update-operatives-on-workorder-get}
       DrsOptions__APIAddress: ${ssm:/${self:service}/${self:provider.stage}/drs-api-address}
       DrsOptions__ManagementAddress: ${ssm:/${self:service}/${self:provider.stage}/drs-management-address}
       DrsOptions__Login: ${ssm:/${self:service}/${self:provider.stage}/drs-login}

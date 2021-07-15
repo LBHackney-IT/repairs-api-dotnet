@@ -10,6 +10,6 @@ namespace RepairsApi.V2.Gateways
         Task<IEnumerable<Operative>> ListByFilterAsync(IFilter<Operative> filter);
         Task<Operative> GetAsync(string operativePrn);
         Task ArchiveAsync(string operativePrn);
-        Task AssignOperatives(int workOrderId, params int[] operativeIds);
+        Task AssignOperatives(int workOrderId, OperativeAssignmentType type, params int[] operativeIds);
     }
 }

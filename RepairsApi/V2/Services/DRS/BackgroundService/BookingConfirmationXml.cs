@@ -36,7 +36,7 @@ public partial class bookingConfirmation {
 
     private uint locationIDField;
 
-    private byte numberOfOperativesField;
+    private uint numberOfOperativesField;
 
     private uint originalBookingIdField;
 
@@ -119,7 +119,7 @@ public partial class bookingConfirmation {
     }
 
     /// <remarks/>
-    public byte numberOfOperatives {
+    public uint numberOfOperatives {
         get {
             return this.numberOfOperativesField;
         }
@@ -241,17 +241,17 @@ public partial class bookingConfirmationTheBookingCodes {
 
     private uint orderIdField;
 
-    private uint bookingCodeSORCodeField;
+    private string bookingCodeSORCodeField;
 
     private uint primaryOrderNumberField;
 
-    private byte quantityField;
+    private uint quantityField;
 
-    private byte standardMinuteValueField;
+    private uint standardMinuteValueField;
 
-    private byte itemNumberWithinBookingField;
+    private uint itemNumberWithinBookingField;
 
-    private byte itemValueField;
+    private uint itemValueField;
 
     private string tradeField;
 
@@ -278,7 +278,7 @@ public partial class bookingConfirmationTheBookingCodes {
     }
 
     /// <remarks/>
-    public uint bookingCodeSORCode {
+    public string bookingCodeSORCode {
         get {
             return this.bookingCodeSORCodeField;
         }
@@ -298,7 +298,7 @@ public partial class bookingConfirmationTheBookingCodes {
     }
 
     /// <remarks/>
-    public byte quantity {
+    public uint quantity {
         get {
             return this.quantityField;
         }
@@ -308,7 +308,7 @@ public partial class bookingConfirmationTheBookingCodes {
     }
 
     /// <remarks/>
-    public byte standardMinuteValue {
+    public uint standardMinuteValue {
         get {
             return this.standardMinuteValueField;
         }
@@ -318,7 +318,7 @@ public partial class bookingConfirmationTheBookingCodes {
     }
 
     /// <remarks/>
-    public byte itemNumberWithinBooking {
+    public uint itemNumberWithinBooking {
         get {
             return this.itemNumberWithinBookingField;
         }
@@ -328,7 +328,7 @@ public partial class bookingConfirmationTheBookingCodes {
     }
 
     /// <remarks/>
-    public byte itemValue {
+    public uint itemValue {
         get {
             return this.itemValueField;
         }

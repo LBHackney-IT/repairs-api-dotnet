@@ -26,8 +26,6 @@ namespace RepairsApi.V2.Infrastructure
         public virtual Site Site { get; set; }
         public virtual WorkOrderAccessInformation AccessInformation { get; set; }
         public virtual List<WorkElement> WorkElements { get; set; }
-        public virtual List<AlertRegardingPerson> PersonAlert { get; set; }
-        public virtual List<AlertRegardingLocation> LocationAlert { get; set; }
         public virtual WorkOrderComplete WorkOrderComplete { get; set; }
         public virtual List<JobStatusUpdate> JobStatusUpdates { get; set; }
 
@@ -38,6 +36,8 @@ namespace RepairsApi.V2.Infrastructure
         public ReasonCode Reason { get; set; } = ReasonCode.FullyFunded;
         public virtual List<WorkOrderOperative> WorkOrderOperatives { get; set; }
         public virtual List<Operative> AssignedOperatives { get; set; }
+        public string ExternalSchedulerReference { get; set; }
+        public DateTime? ClosedDate { get; set; }
     }
 
     public class WorkOrderOperative
@@ -46,6 +46,8 @@ namespace RepairsApi.V2.Infrastructure
         public virtual WorkOrder WorkOrder { get; set; }
         public int OperativeId { get; set; }
         public virtual Operative Operative { get; set; }
+
+        public OperativeAssignmentType AssignmentType { get; set; }
 
         public override bool Equals(object obj)
         {
@@ -56,6 +58,12 @@ namespace RepairsApi.V2.Infrastructure
         {
             return HashCode.Combine(WorkOrderId, OperativeId);
         }
+    }
+
+    public enum OperativeAssignmentType
+    {
+        Manual,
+        Automatic
     }
 
     public enum WorkStatusCode
@@ -124,6 +132,11 @@ namespace RepairsApi.V2.Infrastructure
         /// Superceded: Work Order Is Superceded By Another. Inactive.
         /// </summary>
         Superceded = 130,
+
+        /// <summary>
+        /// Locked: Work Order is disputed (used for migrated data)
+        /// </summary>
+        Locked = 200,
 
         // Extensions
         NoAccess = 1000,

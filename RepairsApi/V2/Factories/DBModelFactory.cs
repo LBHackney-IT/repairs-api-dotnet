@@ -24,8 +24,6 @@ namespace RepairsApi.V2.Factories
                 WorkClass = raiseRepair.WorkClass?.ToDb(),
                 Site = raiseRepair.SitePropertyUnit?.Single().ToDb(),
                 AccessInformation = raiseRepair.AccessInformation?.ToDb(),
-                LocationAlert = raiseRepair.LocationAlert.MapList(la => la.ToDb()),
-                PersonAlert = raiseRepair.PersonAlert.MapList(pa => pa.ToDb()),
                 WorkElements = raiseRepair.WorkElement.MapList(we => we.ToDb())
             };
         }
@@ -43,8 +41,6 @@ namespace RepairsApi.V2.Factories
                 WorkPriority = raiseRepair.Priority?.ToDb(),
                 WorkClass = raiseRepair.WorkClass?.ToDb(),
                 AccessInformation = raiseRepair.AccessInformation?.ToDb(),
-                LocationAlert = raiseRepair.LocationAlert.MapList(la => la.ToDb()),
-                PersonAlert = raiseRepair.PersonAlert.MapList(pa => pa.ToDb()),
                 WorkElements = raiseRepair.WorkElement.MapList(we => we.ToDb()),
                 Site = raiseRepair.Site?.ToDb(),
                 AssignedToPrimary = raiseRepair.AssignedToPrimary?.ToDb(),
@@ -58,18 +54,8 @@ namespace RepairsApi.V2.Factories
         {
             return new Organization
             {
-                Contact = org.Contact.MapList(c => c.ToDb()),
                 Name = org.Name,
                 DoingBusinessAsName = org.DoingBusinessAsName is null ? null : string.Join(';', org.DoingBusinessAsName)
-            };
-        }
-
-        public static Contact ToDb(this Generated.Contact request)
-        {
-            return new Contact
-            {
-                Address = request.Address.MapList(addr => addr.ToDb()),
-                Person = request.ToDbPerson(),
             };
         }
 
@@ -144,46 +130,15 @@ namespace RepairsApi.V2.Factories
         {
             return new Site
             {
-                GeographicalLocation = site.GeographicalLocation?.ToDb(),
                 Name = site.Name,
                 PropertyClass = site.Property.MapList(prop => prop.ToDb()),
             };
-        }
-
-
-        public static GeographicalLocation ToDb(this Generated.GeographicalLocation request)
-        {
-            try
-            {
-                return new GeographicalLocation
-                {
-                    Elevation = ParseNullableDouble(request.Elevation),
-                    ElevationReferenceSystem = request.ElevationReferenceSystem.FirstOrDefault(),
-                    Latitude = ParseNullableDouble(request.Latitude),
-                    Longitude = ParseNullableDouble(request.Longitude),
-                    PositionalAccuracy = request.PositionalAccuracy,
-                    Polyline = JsonConvert.SerializeObject(request.Polyline)
-                };
-            }
-            catch (FormatException e)
-            {
-                throw new NotSupportedException(Resources.InvalidGeographicalLocation, e);
-            }
-        }
-
-        private static double? ParseNullableDouble(ICollection<string> strings)
-        {
-            string s = strings?.FirstOrDefault();
-            if (string.IsNullOrWhiteSpace(s)) return null;
-
-            return double.Parse(s);
         }
 
         public static PropertyClass ToDb(this Generated.Property request)
         {
             return new PropertyClass
             {
-                GeographicalLocation = request.GeographicalLocation?.ToDb(),
                 MasterKeySystem = request.MasterKeySystem,
                 Address = request.Address?.ToDb(),
                 Unit = request.Unit.MapList(u => u.ToDb()),
@@ -286,25 +241,6 @@ namespace RepairsApi.V2.Factories
             };
         }
 
-        public static AlertRegardingPerson ToDb(this Generated.PersonAlert raiseRepair)
-        {
-            return new AlertRegardingPerson
-            {
-                Comments = raiseRepair.Comments,
-                Type = raiseRepair.Type
-            };
-        }
-
-        public static AlertRegardingLocation ToDb(this Generated.LocationAlert raiseRepair)
-        {
-            return new AlertRegardingLocation
-            {
-                Comments = raiseRepair.Comments,
-                Type = raiseRepair.Type,
-                // NOTE: Attachment Not handled
-            };
-        }
-
         public static WorkClass ToDb(this Generated.WorkClass raiseRepair)
         {
             return new WorkClass
@@ -351,52 +287,6 @@ namespace RepairsApi.V2.Factories
                 Comments = raiseRepair.Comments,
                 PriorityDescription = raiseRepair.PriorityDescription,
                 NumberOfDays = raiseRepair.NumberOfDays
-            };
-        }
-
-        public static CustomerSatisfaction ToDb(this Generated.CustomerFeedback customerFeedback)
-        {
-            return new CustomerSatisfaction
-            {
-                FeedbackSet = customerFeedback.FeedbackSet.Select(f => f.ToDb()).ToList(),
-                PartyProvidingFeedback = customerFeedback.PartyProvidingFeedback?.ToDb(),
-                PartyCarryingOutSurvey = customerFeedback.PartyCarryingOutSurvey?.ToDb()
-            };
-        }
-
-        public static ScoreSet ToDb(this Generated.FeedbackSet feedbackSet)
-        {
-            return new ScoreSet
-            {
-                Categorization = feedbackSet.Categorization.MapList(c => c.ToDb()),
-                Description = feedbackSet.Description,
-                Score = feedbackSet.Score.MapList(s => s.ToDb()),
-                DateTime = feedbackSet.DateTime,
-                PreviousDateTime = feedbackSet.PreviousDateTime
-            };
-        }
-
-        public static Categorization ToDb(this Generated.Categorization categorization)
-        {
-            return new Categorization
-            {
-                Category = categorization.Category,
-                Type = categorization.Type,
-                SubCategory = categorization.SubCategory,
-                VersionUsed = categorization.VersionUsed
-            };
-        }
-
-        public static Score ToDb(this Generated.Score score)
-        {
-            return new Score
-            {
-                Comment = score.Comment,
-                Maximum = score.Maximum,
-                Minimum = score.Minimum,
-                Name = score.Name,
-                CurrentScore = score.CurrentScore,
-                FollowUpQuestion = score.FollowUpQuestion
             };
         }
 
@@ -501,7 +391,6 @@ namespace RepairsApi.V2.Factories
                 AdditionalWork = jobStatusUpdate.AdditionalWork?.ToDb(),
                 Comments = jobStatusUpdate.Comments,
                 CustomerCommunicationChannelAttempted = jobStatusUpdate.CustomerCommunicationChannelAttempted?.ToDb(),
-                CustomerFeedback = jobStatusUpdate.CustomerFeedback?.ToDb(),
                 MoreSpecificSORCode = jobStatusUpdate.MoreSpecificSORCode?.ToDb(),
                 OperativesAssigned = jobStatusUpdate.OperativesAssigned?.Select(oa => oa.ToDb()).ToList(),
                 OtherType = jobStatusUpdate.OtherType,
@@ -515,7 +404,6 @@ namespace RepairsApi.V2.Factories
             return new JobStatusUpdate
             {
                 Comments = update.Comments,
-                CustomerFeedback = update.CustomerFeedback?.ToDb(),
                 EventTime = update.EventTime,
                 OperativesAssigned = update.OperativesAssigned?.Select(oa => oa.ToDb()).ToList(),
                 OtherType = update.OtherType,

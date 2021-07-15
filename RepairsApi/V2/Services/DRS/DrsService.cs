@@ -2,9 +2,11 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Amazon.XRay.Recorder.Core.Exceptions;
+using Castle.Core.Internal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RepairsApi.V2.Exceptions;
+using RepairsApi.V2.Gateways;
 using RepairsApi.V2.Generated;
 using RepairsApi.V2.Infrastructure;
 using RepairsApi.V2.Services.DRS;
@@ -20,20 +22,24 @@ namespace RepairsApi.V2.Services
         private readonly IOptions<DrsOptions> _drsOptions;
         private readonly ILogger<DrsService> _logger;
         private readonly IDrsMapping _drsMapping;
+        private readonly IOperativesGateway _operativesGateway;
+        private readonly IAppointmentsGateway _appointmentsGateway;
         private string _sessionId;
 
         public DrsService(
-            V2_Generated_DRS.SOAP drsSoap,
+            SOAP drsSoap,
             IOptions<DrsOptions> drsOptions,
             ILogger<DrsService> logger,
-            IDrsMapping drsMapping
-        )
+            IDrsMapping drsMapping,
+            IOperativesGateway operativesGateway,
+            IAppointmentsGateway appointmentsGateway)
         {
             _drsSoap = drsSoap;
             _drsOptions = drsOptions;
             _logger = logger;
             _drsMapping = drsMapping;
-
+            _operativesGateway = operativesGateway;
+            _appointmentsGateway = appointmentsGateway;
         }
 
         public async Task OpenSession()
@@ -57,11 +63,14 @@ namespace RepairsApi.V2.Services
 
         public async Task<order> CreateOrder(WorkOrder workOrder)
         {
+            using var scope = _logger.BeginScope(Guid.NewGuid());
+
             await CheckSession();
 
-            _logger.LogInformation("DRS Order Creating for Work order {WorkOrderId}", workOrder.Id);
-
             var createOrder = await _drsMapping.BuildCreateOrderRequest(_sessionId, workOrder);
+
+            _logger.LogInformation("DRS Order Creating for Work order {WorkOrderId} {request}", workOrder.Id, createOrder);
+
             var response = await _drsSoap.createOrderAsync(createOrder);
 
             if (response.@return.status != responseStatus.success)
@@ -75,11 +84,17 @@ namespace RepairsApi.V2.Services
 
         public async Task CancelOrder(WorkOrder workOrder)
         {
+            using var scope = _logger.BeginScope(Guid.NewGuid());
+
             await CheckSession();
 
             var deleteOrder = await _drsMapping.BuildDeleteOrderRequest(_sessionId, workOrder);
+
+            _logger.LogInformation("DRS Order Deleting for Work order {WorkOrderId} {request}", workOrder.Id, deleteOrder);
+
             var response = await _drsSoap.deleteOrderAsync(deleteOrder);
-            if (response.@return.status != responseStatus.success)
+            if (response.@return.status != responseStatus.success
+                && !response.@return.errorMsg.Contains("no order exists"))
             {
                 _logger.LogError(response.@return.errorMsg);
                 throw new ApiException((int) response.@return.status, response.@return.errorMsg);
@@ -90,7 +105,7 @@ namespace RepairsApi.V2.Services
 
         public async Task CompleteOrder(WorkOrder workOrder)
         {
-            _logger.LogInformation("DRS completing work order {WorkOrderId}", workOrder.Id);
+            using var scope = _logger.BeginScope(Guid.NewGuid());
 
             await CheckSession();
 
@@ -110,9 +125,10 @@ namespace RepairsApi.V2.Services
 
         private async Task CompleteBooking(WorkOrder workOrder, order drsOrder)
         {
-            _logger.LogInformation("DRS completing booking for work order {WorkOrderId}", workOrder.Id);
-
             var updateBooking = await _drsMapping.BuildCompleteOrderUpdateBookingRequest(_sessionId, workOrder, drsOrder);
+
+            _logger.LogInformation("DRS completing booking for work order {WorkOrderId} {request}", workOrder.Id, updateBooking);
+
             var response = await _drsSoap.updateBookingAsync(updateBooking);
             if (response.@return.status != responseStatus.success)
             {
@@ -125,6 +141,8 @@ namespace RepairsApi.V2.Services
 
         public async Task<order> SelectOrder(int workOrderId)
         {
+            using var scope = _logger.BeginScope(Guid.NewGuid());
+
             await CheckSession();
 
             var selectOrder = new selectOrder
@@ -138,6 +156,9 @@ namespace RepairsApi.V2.Services
                     }
                 }
             };
+
+            _logger.LogInformation("DRS selecting order {WorkOrderId} {request}", workOrderId, selectOrder);
+
             var selectOrderResponse = await _drsSoap.selectOrderAsync(selectOrder);
             if (selectOrderResponse.@return.status != responseStatus.success)
             {
@@ -148,32 +169,33 @@ namespace RepairsApi.V2.Services
             return drsOrder;
         }
 
+        public async Task UpdateWorkOrderDetails(int workOrderId)
+        {
+            var order = await SelectOrder(workOrderId);
+
+            if (order.theBookings.IsNullOrEmpty()) return;
+            var theBooking = order.theBookings.First();
+
+            var theResources = theBooking.theResources;
+            if (theResources.IsNullOrEmpty()) return;
+
+            var operativePayrollIds = theResources.Select(r => r.externalResourceCode);
+            var operatives = await Task.WhenAll(operativePayrollIds.Select(i => _operativesGateway.GetAsync(i)));
+
+            await _operativesGateway.AssignOperatives(workOrderId, OperativeAssignmentType.Automatic, operatives.Select(o => o.Id).ToArray());
+            await _appointmentsGateway.SetTimedBooking(
+                workOrderId,
+                DrsHelpers.ConvertToDrsTimeZone(theBooking.planningWindowStart),
+                DrsHelpers.ConvertToDrsTimeZone(theBooking.planningWindowEnd)
+            );
+        }
+
         private async Task CheckSession()
         {
             if (_sessionId is null)
             {
                 await OpenSession();
             }
-        }
-
-        public async Task UpdateOrder(WorkOrder workOrder)
-        {
-            await CheckSession();
-
-            var drsOrder = await SelectOrder(workOrder.Id);
-
-            _logger.LogInformation("DRS Order Created for Work order {WorkOrderId}, updating to include planner comments", workOrder.Id);
-
-            var updateBooking = await _drsMapping.BuildPlannerCommentedUpdateBookingRequest(_sessionId, workOrder, drsOrder);
-            var response = await _drsSoap.updateBookingAsync(updateBooking);
-            if (response.@return.status != responseStatus.success)
-            {
-                _logger.LogError(response.@return.errorMsg);
-                throw new ApiException((int) response.@return.status, response.@return.errorMsg);
-            }
-
-            _logger.LogInformation("DRS completed booking for work order {WorkOrderId}", workOrder.Id);
-            await Task.CompletedTask;
         }
     }
 }
