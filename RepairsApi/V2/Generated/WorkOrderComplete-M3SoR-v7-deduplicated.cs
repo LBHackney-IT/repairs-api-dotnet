@@ -298,7 +298,7 @@ namespace RepairsApi.V2.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.2.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class WorkOrderComplete
+    public class WorkOrderComplete
     {
         [Newtonsoft.Json.JsonProperty("WorkOrderReference", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
@@ -316,7 +316,8 @@ namespace RepairsApi.V2.Generated
         [Newtonsoft.Json.JsonProperty("FollowOnWorkOrderReference", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<Reference> FollowOnWorkOrderReference { get; set; }
 
-
+        [Newtonsoft.Json.JsonProperty("ClosedTime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTime? ClosedTime { get; set; }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.2.0 (Newtonsoft.Json v9.0.0.0)")]

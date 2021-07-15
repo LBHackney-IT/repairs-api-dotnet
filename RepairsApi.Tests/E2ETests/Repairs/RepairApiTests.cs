@@ -227,10 +227,31 @@ namespace RepairsApi.Tests.E2ETests.Repairs
         public async Task CompleteWorkOrder()
         {
             // Arrange
-            var eventTime = DateTime.Now;
+            var eventTime = DateTime.Now.AddDays(-2);
             var result = await CreateWorkOrder();
             SetUserRole(UserGroups.Contractor);
-            var code = await CompleteWorkOrder(result.Id, true, woc => woc.JobStatusUpdates.First().EventTime = eventTime);
+            var code = await CompleteWorkOrder(result.Id, true, woc => woc.ClosedTime = eventTime);
+            var workOrder = GetWorkOrderFromDB(result.Id);
+
+            // Assert
+            code.Should().Be(HttpStatusCode.OK);
+            workOrder.StatusCode.Should().Be(WorkStatusCode.Complete);
+            workOrder.ClosedDate.Should().BeSameDateAs(eventTime);
+        }
+
+
+        [Test]
+        public async Task CompleteWorkOrderDateFallsBackToEventTime()
+        {
+            // Arrange
+            var eventTime = DateTime.Now.AddDays(-5);
+            var result = await CreateWorkOrder();
+            SetUserRole(UserGroups.Contractor);
+            var code = await CompleteWorkOrder(result.Id, true, woc =>
+            {
+                woc.ClosedTime = null;
+                woc.JobStatusUpdates.First().EventTime = eventTime;
+            });
             var workOrder = GetWorkOrderFromDB(result.Id);
 
             // Assert
