@@ -93,11 +93,12 @@ namespace RepairsApi.Tests.V2.UseCase
             var expectedWorkOrder = CreateWorkOrder();
             _currentUserServiceMock.SetSecurityGroup(UserGroups.Contractor, true);
             var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
+            DateTime closedDateTime = DateTime.Now;
             workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
             {
                 new Generated.JobStatusUpdates
                 {
-                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = CustomJobStatusUpdates.Completed, Comments = Comment
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = CustomJobStatusUpdates.Completed, Comments = Comment, EventTime = closedDateTime
                 }
             };
 
@@ -108,6 +109,7 @@ namespace RepairsApi.Tests.V2.UseCase
             lastWorkOrderComplete.Should().NotBeNull();
             lastWorkOrderComplete.JobStatusUpdates.Should().HaveCount(workOrderCompleteRequest.JobStatusUpdates.Count);
             lastWorkOrderComplete.JobStatusUpdates.Single().Comments.Should().Be(Resources.WorkOrderCompletedPrefix + Comment);
+            expectedWorkOrder.ClosedDate.Should().BeSameDateAs(closedDateTime);
         }
 
         [Test]
@@ -450,6 +452,32 @@ namespace RepairsApi.Tests.V2.UseCase
             await _classUnderTest.Execute(workOrderCompleteRequest);
 
             _repairsGatewayMock.Verify(rgm => rgm.UpdateWorkOrderStatus(expectedWorkOrder.Id, WorkStatusCode.Canceled));
+        }
+
+        [Test]
+        public async Task WorkOrderCompletionDateSet()
+        {
+            // arrange
+            const string Comment = "expectedComment";
+            var expectedWorkOrder = CreateWorkOrder();
+            _currentUserServiceMock.SetSecurityGroup(UserGroups.Contractor, true);
+            var workOrderCompleteRequest = CreateRequest(expectedWorkOrder.Id);
+            DateTime fallBackDateTime = DateTime.Now;
+            DateTime correctDateTime = DateTime.Now.AddDays(-2);
+
+            workOrderCompleteRequest.ClosedTime = correctDateTime;
+            workOrderCompleteRequest.JobStatusUpdates = new List<Generated.JobStatusUpdates>
+            {
+                new Generated.JobStatusUpdates
+                {
+                    TypeCode = Generated.JobStatusUpdateTypeCode._0, OtherType = CustomJobStatusUpdates.Completed, Comments = Comment, EventTime = fallBackDateTime
+                }
+            };
+
+            // act
+            await _classUnderTest.Execute(workOrderCompleteRequest);
+            expectedWorkOrder.ClosedDate.Should().BeSameDateAs(correctDateTime);
+            expectedWorkOrder.ClosedDate.Should().NotBeSameDateAs(fallBackDateTime);
         }
 
         private static Generated.WorkOrderComplete CreateRequest(int expectedWorkOrderId)

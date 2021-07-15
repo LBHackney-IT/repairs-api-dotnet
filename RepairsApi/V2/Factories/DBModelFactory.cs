@@ -421,7 +421,8 @@ namespace RepairsApi.V2.Factories
                 CompletedWorkElements = request.CompletedWorkElements.MapList(cwe => cwe.ToDb()),
                 JobStatusUpdates = request.JobStatusUpdates.MapList(jsu => jsu.ToDb(workOrder)),
                 BillOfMaterialItem = request.BillOfMaterialItem.MapList(bom => bom.ToDb()),
-                FollowOnWorkOrder = followOnWorkOrders
+                FollowOnWorkOrder = followOnWorkOrders,
+                ClosedTime = request.ClosedTime
             };
         }
     }

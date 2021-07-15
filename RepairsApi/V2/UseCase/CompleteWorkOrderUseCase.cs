@@ -90,7 +90,7 @@ namespace RepairsApi.V2.UseCase
                 default: throw new NotSupportedException(Resources.UnsupportedWorkOrderUpdate);
             }
 
-            workOrder.ClosedDate = update.EventTime;
+            workOrder.ClosedDate = workOrderComplete.ClosedTime ?? update.EventTime;
         }
 
         private async Task HandleCustomType(WorkOrder workOrder, JobStatusUpdate update)
