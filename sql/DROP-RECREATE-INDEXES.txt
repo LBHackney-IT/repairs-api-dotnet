@@ -1,0 +1,199 @@
+--DROP INDEXES (24)
+
+
+
+
+--property_address
+
+DROP INDEX public.ix_property_address_contact_id;
+
+--property_class
+
+DROP INDEX public.ix_property_class_address_id;
+DROP INDEX public.ix_property_class_site_id;
+
+--organization
+
+--party
+
+DROP INDEX public.ix_party_organization_id;
+DROP INDEX public.ix_party_person_id;
+
+--person
+
+DROP INDEX public.ix_person_job_status_update_id;
+
+--work_orders
+
+DROP INDEX public.ix_work_orders_assigned_to_primary_id;
+DROP INDEX public.ix_work_orders_customer_id;
+DROP INDEX public.ix_work_orders_instructed_by_id;
+DROP INDEX public.ix_work_orders_site_id;
+DROP INDEX public.ix_work_orders_work_order_complete_id;
+DROP INDEX public.ix_work_orders_work_priority_priority_code;
+
+--work_elements
+
+DROP INDEX public.ix_work_elements_job_status_update_id;
+DROP INDEX public.ix_work_elements_work_order_complete_id;
+DROP INDEX public.ix_work_elements_work_order_id;
+
+--trade
+
+DROP INDEX public.ix_trade_work_element_id;
+
+--rate_schedule_item
+
+DROP INDEX public.ix_rate_schedule_item_work_element_id;
+DROP INDEX public.ix_rate_schedule_item_work_order_complete_id;
+
+--job_status_updates
+
+DROP INDEX public.ix_job_status_updates_additional_work_additional_work_order_id;
+DROP INDEX public.ix_job_status_updates_customer_feedback_id;
+DROP INDEX public.ix_job_status_updates_more_specific_sor_code_id;
+DROP INDEX public.ix_job_status_updates_refined_appointment_window_id;
+DROP INDEX public.ix_job_status_updates_related_work_order_id;
+DROP INDEX public.ix_job_status_updates_work_order_complete_id;
+
+--RECREATE INDEXES (24)
+
+--property_address
+
+CREATE INDEX ix_property_address_contact_id
+    ON public.property_address USING btree
+    (contact_id ASC NULLS LAST)
+    TABLESPACE pg_default; --61 msec
+
+--property_class
+
+CREATE INDEX ix_property_class_address_id
+    ON public.property_class USING btree
+    (address_id ASC NULLS LAST)
+    TABLESPACE pg_default; --67msec
+
+CREATE INDEX ix_property_class_site_id
+    ON public.property_class USING btree
+    (site_id ASC NULLS LAST)
+    TABLESPACE pg_default; --64 msec
+
+--organization
+
+--party
+
+CREATE INDEX ix_party_organization_id
+    ON public.party USING btree
+    (organization_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+CREATE INDEX ix_party_person_id
+    ON public.party USING btree
+    (person_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+--person
+
+CREATE INDEX ix_person_job_status_update_id
+    ON public.person USING btree
+    (job_status_update_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+--work_orders
+
+CREATE INDEX ix_work_orders_assigned_to_primary_id
+    ON public.work_orders USING btree
+    (assigned_to_primary_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+	
+CREATE INDEX ix_work_orders_customer_id
+    ON public.work_orders USING btree
+    (customer_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+CREATE INDEX ix_work_orders_instructed_by_id
+    ON public.work_orders USING btree
+    (instructed_by_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+CREATE INDEX ix_work_orders_site_id
+    ON public.work_orders USING btree
+    (site_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+CREATE INDEX ix_work_orders_work_order_complete_id
+    ON public.work_orders USING btree
+    (work_order_complete_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+CREATE INDEX ix_work_orders_work_priority_priority_code
+    ON public.work_orders USING btree
+    (work_priority_priority_code ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+--work_elements
+
+CREATE INDEX ix_work_elements_job_status_update_id
+    ON public.work_elements USING btree
+    (job_status_update_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+CREATE INDEX ix_work_elements_work_order_complete_id
+    ON public.work_elements USING btree
+    (work_order_complete_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+	
+CREATE INDEX ix_work_elements_work_order_id
+    ON public.work_elements USING btree
+    (work_order_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+	
+--trade
+
+CREATE INDEX ix_trade_work_element_id
+    ON public.trade USING btree
+    (work_element_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+--rate_schedule_item
+
+CREATE INDEX ix_rate_schedule_item_work_element_id
+    ON public.rate_schedule_item USING btree
+    (work_element_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+	
+CREATE INDEX ix_rate_schedule_item_work_order_complete_id
+    ON public.rate_schedule_item USING btree
+    (work_order_complete_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+--job_status_updates
+
+CREATE INDEX ix_job_status_updates_additional_work_additional_work_order_id
+    ON public.job_status_updates USING btree
+    (additional_work_additional_work_order_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+	
+CREATE INDEX ix_job_status_updates_customer_feedback_id
+    ON public.job_status_updates USING btree
+    (customer_feedback_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+	
+CREATE INDEX ix_job_status_updates_more_specific_sor_code_id
+    ON public.job_status_updates USING btree
+    (more_specific_sor_code_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+CREATE INDEX ix_job_status_updates_refined_appointment_window_id
+    ON public.job_status_updates USING btree
+    (refined_appointment_window_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+CREATE INDEX ix_job_status_updates_related_work_order_id
+    ON public.job_status_updates USING btree
+    (related_work_order_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+	
+CREATE INDEX ix_job_status_updates_work_order_complete_id
+    ON public.job_status_updates USING btree
+    (work_order_complete_id ASC NULLS LAST)
+    TABLESPACE pg_default;
